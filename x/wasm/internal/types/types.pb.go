@@ -260,7 +260,7 @@ var xxx_messageInfo_CodeInfo proto.InternalMessageInfo
 
 // ContractInfo stores a WASM contract instance
 type ContractInfo struct {
-	// CodeID is the reference to the stored WASM code
+	// CodeID is the reference to the stored Wasm code
 	CodeID uint64 `protobuf:"varint,1,opt,name=code_id,json=codeId,proto3" json:"code_id,omitempty"`
 	// Creator address who initially instantiated the contract
 	Creator github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=creator,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"creator,omitempty"`

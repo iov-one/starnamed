@@ -2,11 +2,12 @@ package rest
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/queries"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/iov-one/iovns/pkg/queries"
+
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns/pkg/utils"
@@ -14,7 +15,7 @@ import (
 
 // txRouteList clubs together all the transaction routes, which are the transactions
 // // that return the bytes to sign to send a request that modifies state to the domain module
-var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFunc{
+var txRoutesList = map[string]func(cliContext client.Context) http.HandlerFunc{
 	"updateConfig": updateConfigHandler,
 	"updateFees":   updateFeesHandler,
 }
@@ -22,14 +23,14 @@ var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFu
 // registerTxRoutes registers all the transaction routes to the router
 // the route will be exposed to storeName/handler, the handler will
 // accept only post request with json codec
-func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
+func registerTxRoutes(cliCtx client.Context, r *mux.Router, storeName string) {
 	for route, handler := range txRoutesList {
 		path := fmt.Sprintf("%s/tx/%s", storeName, route)
 		r.HandleFunc(path, handler(cliCtx))
 	}
 }
 
-func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType queries.QueryHandler) http.HandlerFunc {
+func queryHandlerBuild(cliCtx client.Context, storeName string, queryType queries.QueryHandler) http.HandlerFunc {
 	// get query type
 	typ := utils.GetPtrType(queryType)
 	// return function
@@ -83,7 +84,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType qu
 
 // registerQueryRoutes registers all the routes used to query
 // the domain module's keeper
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string, queries []queries.QueryHandler) {
+func registerQueryRoutes(cliCtx client.Context, r *mux.Router, storeName string, queries []queries.QueryHandler) {
 	for _, query := range queries {
 		path := fmt.Sprintf("/%s/query/%s", storeName, query.QueryPath())
 		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST")
@@ -91,7 +92,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName str
 }
 
 // RegisterRoutes clubs together the tx and query routes
-func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, storeName string, queries []queries.QueryHandler) {
+func RegisterRoutes(cliContext client.Context, r *mux.Router, storeName string, queries []queries.QueryHandler) {
 	// register tx routes
 	registerTxRoutes(cliContext, r, storeName)
 	// register query routes

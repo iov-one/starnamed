@@ -26,7 +26,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgStoreCode submit WASM code to the system
+// MsgStoreCode submit Wasm code to the system
 type MsgStoreCode struct {
 	// Sender is the that actor that signed the messages
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,1,opt,name=sender,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"sender,omitempty"`

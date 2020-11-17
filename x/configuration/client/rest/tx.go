@@ -3,17 +3,17 @@ package rest
 import (
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
 // requests it forwards an error to the client in case of error, otherwise it will return a transaction to sign
 // and send to the /tx endpoint to do a request
-func handleTxRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
+func handleTxRequest(cliCtx client.Context, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
 	baseReq = baseReq.Sanitize()
 	if !baseReq.ValidateBasic(writer) {
 		return
@@ -23,7 +23,7 @@ func handleTxRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Ms
 		rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 	}
 	// write tx
-	utils.WriteGenerateStdTxResponse(writer, cliCtx, baseReq, []sdk.Msg{msg})
+	tx.WriteGeneratedTxResponse(cliCtx, writer, baseReq, &msg)
 }
 
 type updateConfig struct {
@@ -31,7 +31,7 @@ type updateConfig struct {
 	Message *types.MsgUpdateConfig `json:"message"`
 }
 
-func updateConfigHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func updateConfigHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req updateConfig
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -46,7 +46,7 @@ type updateFees struct {
 	Message *types.MsgUpdateFees `json:"message"`
 }
 
-func updateFeesHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func updateFeesHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req updateFees
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {

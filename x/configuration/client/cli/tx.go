@@ -8,12 +8,10 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 )
@@ -45,9 +43,9 @@ func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 		Use:   "update-fees",
 		Short: "update fees using a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := client.GetClientContextFromCmd(cmd)
+			cliCtx, err := client.ReadTxCommandFlags(cliCtx, cmd.Flags())
+			inBuf := bufio.NewReader(cmd.InOrStdin()) // dmjp: use to be in txBuilder
 			// get fees file
 			feeFile, err := cmd.Flags().GetString("fees-file")
 			if err != nil {
@@ -70,7 +68,7 @@ func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 			if err := msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("invalid tx: %w", err)
 			}
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), &msg)
 		},
 	}
 	cmd.Flags().String("fees-file", "fees.json", "fees file in json format")
@@ -82,9 +80,9 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 		Use:   "update-config",
 		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			cliCtx := client.GetClientContextFromCmd(cmd)
+			cliCtx, err := client.ReadTxCommandFlags(cliCtx, cmd.Flags())
 			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			config := &types.Config{}
 			if !cliCtx.GenerateOnly {
 				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
@@ -231,7 +229,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), &msg)
 		},
 	}
 	// add flags

@@ -2,10 +2,10 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/iov-one/iovns/pkg/queries"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/iov-one/iovns/x/configuration/types"
@@ -40,7 +40,7 @@ func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 		Short: "gets the current configuration",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := client.GetClientContextFromCmd(cmd)
 			path := fmt.Sprintf("custom/%s/%s", route, types.QueryConfig)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {
@@ -62,7 +62,7 @@ func getCmdQueryFees(route string, cdc *codec.Codec) *cobra.Command {
 		Short: "gets the current fees",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := client.GetClientContextFromCmd(cmd)
 			path := fmt.Sprintf("custom/%s/%s", route, types.QueryFees)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {

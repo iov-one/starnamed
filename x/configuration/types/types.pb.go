@@ -5,11 +5,11 @@ package types
 
 import (
 	fmt "fmt"
+	_ "github.com/cosmos/cosmos-sdk/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
+	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
-	proto "github.com/golang/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -24,7 +24,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Config is the configuration of the network
 type Config struct {
@@ -58,10 +58,7 @@ type Config struct {
 	// CertificateCountMax defines maximum number of certificates that could be saved under an account
 	CertificateCountMax uint32 `protobuf:"varint,14,opt,name=CertificateCountMax,proto3" json:"certificate_count_max"`
 	// MetadataSizeMax defines maximum size of metadata that could be saved under an account
-	MetadataSizeMax      uint64   `protobuf:"varint,15,opt,name=MetadataSizeMax,proto3" json:"metadata_size_max"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	MetadataSizeMax uint64 `protobuf:"varint,15,opt,name=MetadataSizeMax,proto3" json:"metadata_size_max"`
 }
 
 func (m *Config) Reset()         { *m = Config{} }
@@ -209,48 +206,45 @@ type Fees struct {
 	// FeeCoinDenom defines the denominator of the coin used to process fees
 	FeeCoinDenom string `protobuf:"bytes,1,opt,name=FeeCoinDenom,proto3" json:"fee_coin_denom"`
 	// FeeCoinPrice defines the price of the coin
-	FeeCoinPrice *types1.DecProto `protobuf:"bytes,2,opt,name=FeeCoinPrice,proto3" json:"fee_coin_price"`
+	FeeCoinPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=FeeCoinPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fee_coin_price"`
 	// FeeDefault is the parameter defining the default fee
-	FeeDefault *types1.DecProto `protobuf:"bytes,3,opt,name=FeeDefault,proto3" json:"fee_default"`
+	FeeDefault github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=FeeDefault,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fee_default"`
 	// RegisterAccountClosed is the fee to be paid to register an account in a closed domain
-	RegisterAccountClosed *types1.DecProto `protobuf:"bytes,4,opt,name=RegisterAccountClosed,proto3" json:"register_account_closed"`
+	RegisterAccountClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=RegisterAccountClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_account_closed"`
 	// RegisterAccountOpen is the fee to be paid to register an account in an open domain
-	RegisterAccountOpen *types1.DecProto `protobuf:"bytes,5,opt,name=RegisterAccountOpen,proto3" json:"register_account_open"`
+	RegisterAccountOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=RegisterAccountOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_account_open"`
 	// TransferAccountClosed is the fee to be paid to register an account in a closed domain
-	TransferAccountClosed *types1.DecProto `protobuf:"bytes,6,opt,name=TransferAccountClosed,proto3" json:"transfer_account_closed"`
+	TransferAccountClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=TransferAccountClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_account_closed"`
 	// TransferAccountOpen is the fee to be paid to register an account in an open domain
-	TransferAccountOpen *types1.DecProto `protobuf:"bytes,7,opt,name=TransferAccountOpen,proto3" json:"transfer_account_open"`
+	TransferAccountOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=TransferAccountOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_account_open"`
 	// ReplaceAccountResources is the fee to be paid to replace account's resources
-	ReplaceAccountResources *types1.DecProto `protobuf:"bytes,8,opt,name=ReplaceAccountResources,proto3" json:"replace_account_resources"`
+	ReplaceAccountResources github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=ReplaceAccountResources,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"replace_account_resources"`
 	// AddAccountCertificate is the fee to be paid to add a certificate to an account
-	AddAccountCertificate *types1.DecProto `protobuf:"bytes,9,opt,name=AddAccountCertificate,proto3" json:"add_account_certificate"`
+	AddAccountCertificate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=AddAccountCertificate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"add_account_certificate"`
 	// DelAccountCertificate is the feed to be paid to delete a certificate in an account
-	DelAccountCertificate *types1.DecProto `protobuf:"bytes,10,opt,name=DelAccountCertificate,proto3" json:"del_account_certificate"`
+	DelAccountCertificate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=DelAccountCertificate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"del_account_certificate"`
 	// SetAccountMetadata is the fee to be paid to set account's metadata
-	SetAccountMetadata *types1.DecProto `protobuf:"bytes,11,opt,name=SetAccountMetadata,proto3" json:"set_account_metadata"`
+	SetAccountMetadata github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=SetAccountMetadata,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"set_account_metadata"`
 	// RegisterDomain1 is the fee to be paid to register a domain with one character
-	RegisterDomain1 *types1.DecProto `protobuf:"bytes,12,opt,name=RegisterDomain1,proto3" json:"register_domain_1"`
+	RegisterDomain1 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=RegisterDomain1,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_1"`
 	// RegisterDomain2 is the fee to be paid to register a domain with two characters
-	RegisterDomain2 *types1.DecProto `protobuf:"bytes,13,opt,name=RegisterDomain2,proto3" json:"register_domain_2"`
+	RegisterDomain2 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=RegisterDomain2,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_2"`
 	// RegisterDomain3 is the fee to be paid to register a domain with three characters
-	RegisterDomain3 *types1.DecProto `protobuf:"bytes,14,opt,name=RegisterDomain3,proto3" json:"register_domain_3"`
+	RegisterDomain3 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=RegisterDomain3,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_3"`
 	// RegisterDomain4 is the fee to be paid to register a domain with four characters
-	RegisterDomain4 *types1.DecProto `protobuf:"bytes,15,opt,name=RegisterDomain4,proto3" json:"register_domain_4"`
+	RegisterDomain4 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,15,opt,name=RegisterDomain4,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_4"`
 	// RegisterDomain5 is the fee to be paid to register a domain with five characters
-	RegisterDomain5 *types1.DecProto `protobuf:"bytes,16,opt,name=RegisterDomain5,proto3" json:"register_domain_5"`
+	RegisterDomain5 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,16,opt,name=RegisterDomain5,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_5"`
 	// RegisterDomainDefault is the fee to be paid to register a domain with more than five characters
-	RegisterDomainDefault *types1.DecProto `protobuf:"bytes,17,opt,name=RegisterDomainDefault,proto3" json:"register_domain_default"`
+	RegisterDomainDefault github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,17,opt,name=RegisterDomainDefault,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_default"`
 	// RegisterDomainMultiplier is the multiplication applied to fees in register domain operations if they're of open type
-	RegisterOpenDomainMultiplier *types1.DecProto `protobuf:"bytes,18,opt,name=RegisterOpenDomainMultiplier,proto3" json:"register_open_domain_multiplier"`
+	RegisterOpenDomainMultiplier github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,18,opt,name=RegisterOpenDomainMultiplier,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_open_domain_multiplier"`
 	// TransferDomainClosed is the fee to be paid to transfer a closed domain
-	TransferDomainClosed *types1.DecProto `protobuf:"bytes,19,opt,name=TransferDomainClosed,proto3" json:"transfer_domain_closed"`
+	TransferDomainClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,19,opt,name=TransferDomainClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_domain_closed"`
 	// TransferDomainOpen is the fee to be paid to transfer open domains
-	TransferDomainOpen *types1.DecProto `protobuf:"bytes,20,opt,name=TransferDomainOpen,proto3" json:"transfer_domain_open"`
+	TransferDomainOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,20,opt,name=TransferDomainOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_domain_open"`
 	// RenewDomainOpen is the fee to be paid to renew an open domain
-	RenewDomainOpen      github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,21,opt,name=RenewDomainOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"renew_domain_open"`
-	XXX_NoUnkeyedLiteral struct{}                               `json:"-"`
-	XXX_unrecognized     []byte                                 `json:"-"`
-	XXX_sizecache        int32                                  `json:"-"`
+	RenewDomainOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,21,opt,name=RenewDomainOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"renew_domain_open"`
 }
 
 func (m *Fees) Reset()         { *m = Fees{} }
@@ -293,139 +287,6 @@ func (m *Fees) GetFeeCoinDenom() string {
 	return ""
 }
 
-func (m *Fees) GetFeeCoinPrice() *types1.DecProto {
-	if m != nil {
-		return m.FeeCoinPrice
-	}
-	return nil
-}
-
-func (m *Fees) GetFeeDefault() *types1.DecProto {
-	if m != nil {
-		return m.FeeDefault
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterAccountClosed() *types1.DecProto {
-	if m != nil {
-		return m.RegisterAccountClosed
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterAccountOpen() *types1.DecProto {
-	if m != nil {
-		return m.RegisterAccountOpen
-	}
-	return nil
-}
-
-func (m *Fees) GetTransferAccountClosed() *types1.DecProto {
-	if m != nil {
-		return m.TransferAccountClosed
-	}
-	return nil
-}
-
-func (m *Fees) GetTransferAccountOpen() *types1.DecProto {
-	if m != nil {
-		return m.TransferAccountOpen
-	}
-	return nil
-}
-
-func (m *Fees) GetReplaceAccountResources() *types1.DecProto {
-	if m != nil {
-		return m.ReplaceAccountResources
-	}
-	return nil
-}
-
-func (m *Fees) GetAddAccountCertificate() *types1.DecProto {
-	if m != nil {
-		return m.AddAccountCertificate
-	}
-	return nil
-}
-
-func (m *Fees) GetDelAccountCertificate() *types1.DecProto {
-	if m != nil {
-		return m.DelAccountCertificate
-	}
-	return nil
-}
-
-func (m *Fees) GetSetAccountMetadata() *types1.DecProto {
-	if m != nil {
-		return m.SetAccountMetadata
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomain1() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomain1
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomain2() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomain2
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomain3() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomain3
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomain4() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomain4
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomain5() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomain5
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterDomainDefault() *types1.DecProto {
-	if m != nil {
-		return m.RegisterDomainDefault
-	}
-	return nil
-}
-
-func (m *Fees) GetRegisterOpenDomainMultiplier() *types1.DecProto {
-	if m != nil {
-		return m.RegisterOpenDomainMultiplier
-	}
-	return nil
-}
-
-func (m *Fees) GetTransferDomainClosed() *types1.DecProto {
-	if m != nil {
-		return m.TransferDomainClosed
-	}
-	return nil
-}
-
-func (m *Fees) GetTransferDomainOpen() *types1.DecProto {
-	if m != nil {
-		return m.TransferDomainOpen
-	}
-	return nil
-}
-
 func init() {
 	proto.RegisterType((*Config)(nil), "Config")
 	proto.RegisterType((*Fees)(nil), "Fees")
@@ -434,77 +295,80 @@ func init() {
 func init() { proto.RegisterFile("x/configuration/types/types.proto", fileDescriptor_c149be06521486db) }
 
 var fileDescriptor_c149be06521486db = []byte{
-	// 1117 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x97, 0xcd, 0x72, 0xe3, 0x44,
-	0x17, 0x86, 0x47, 0xdf, 0x17, 0x32, 0x93, 0x4e, 0x32, 0x99, 0x74, 0x7e, 0x46, 0x99, 0x49, 0x2c,
-	0x33, 0x54, 0x51, 0x66, 0x11, 0xa9, 0xe2, 0x24, 0x14, 0xbb, 0x21, 0xb6, 0x2b, 0x40, 0x51, 0x19,
-	0x52, 0x3d, 0x84, 0x05, 0x0b, 0x5c, 0x6d, 0xe9, 0xd8, 0x08, 0x24, 0xb5, 0x4b, 0x92, 0x93, 0x30,
-	0x17, 0x40, 0x71, 0x09, 0xdc, 0x09, 0xb7, 0x30, 0x4b, 0xd6, 0x2c, 0x54, 0x54, 0xd8, 0xe9, 0x12,
-	0x58, 0x51, 0xfd, 0x23, 0x59, 0x92, 0x35, 0xd8, 0x64, 0x13, 0x3b, 0x7d, 0xfa, 0x3c, 0xef, 0xe9,
-	0xd3, 0xdd, 0xaf, 0x64, 0xf4, 0xfe, 0xad, 0x65, 0xb3, 0x60, 0xe8, 0x8e, 0x26, 0x21, 0x8d, 0x5d,
-	0x16, 0x58, 0xf1, 0x4f, 0x63, 0x88, 0xe4, 0x5f, 0x73, 0x1c, 0xb2, 0x98, 0x3d, 0xdb, 0x1e, 0xb1,
-	0x11, 0x13, 0x5f, 0x2d, 0xfe, 0x4d, 0x8d, 0x36, 0x46, 0x8c, 0x8d, 0x3c, 0xb0, 0xc4, 0x7f, 0x83,
-	0xc9, 0xd0, 0x72, 0x14, 0x21, 0x8b, 0xdb, 0x2c, 0xf2, 0x59, 0x64, 0x0d, 0x68, 0x04, 0xd6, 0xf5,
-	0xd1, 0x00, 0x62, 0x7a, 0x64, 0xd9, 0xcc, 0x55, 0xf1, 0x17, 0xbf, 0xad, 0xa0, 0xe5, 0xae, 0x50,
-	0xc6, 0x7d, 0x84, 0xba, 0xaa, 0x06, 0x08, 0x75, 0xad, 0xa9, 0xb5, 0xd6, 0x3a, 0x2f, 0xd3, 0xc4,
-	0x40, 0x76, 0x3e, 0xfa, 0x77, 0x62, 0x1c, 0x8e, 0xdc, 0xf8, 0xfb, 0xc9, 0xc0, 0xb4, 0x99, 0x6f,
-	0x29, 0xb6, 0xfc, 0x38, 0x8c, 0x9c, 0x1f, 0x55, 0xc1, 0x67, 0xb6, 0x7d, 0xe6, 0x38, 0x21, 0x44,
-	0x11, 0x29, 0x20, 0xf1, 0x4b, 0xb4, 0xf1, 0x0d, 0xf5, 0x5c, 0xa7, 0xc7, 0x7c, 0xea, 0x06, 0xaf,
-	0xa8, 0x0f, 0xfa, 0xff, 0x9a, 0x5a, 0x6b, 0xa5, 0xb3, 0x93, 0x26, 0xc6, 0xe6, 0x35, 0x0f, 0xf5,
-	0x1d, 0x11, 0xeb, 0x07, 0xd4, 0x07, 0x52, 0x9d, 0x8d, 0x3b, 0xe8, 0x89, 0x18, 0x3a, 0xb3, 0x6d,
-	0x36, 0x09, 0x62, 0x41, 0xf8, 0xbf, 0x20, 0xec, 0xa6, 0x89, 0x81, 0x25, 0x81, 0xca, 0xa0, 0x44,
-	0xcc, 0xcc, 0xc7, 0x1f, 0xa1, 0x47, 0x62, 0xec, 0x8a, 0x7c, 0xa1, 0x2f, 0x89, 0xdc, 0xf5, 0x34,
-	0x31, 0x56, 0x64, 0xee, 0x24, 0x74, 0x49, 0x1e, 0xc6, 0x9f, 0xa0, 0x75, 0xf1, 0x9d, 0x40, 0xc4,
-	0x26, 0xa1, 0x0d, 0xfa, 0x7b, 0x62, 0x3e, 0x4e, 0x13, 0xe3, 0xb1, 0x9c, 0x1f, 0xaa, 0x08, 0x29,
-	0x4f, 0xc4, 0x3f, 0xa0, 0x2d, 0x59, 0x36, 0x81, 0x00, 0x6e, 0xa8, 0x77, 0x09, 0xa1, 0xcb, 0x1c,
-	0x7d, 0xb9, 0xa9, 0xb5, 0x56, 0xdb, 0x7b, 0xa6, 0xdc, 0x33, 0x33, 0xdb, 0x33, 0xb3, 0xa7, 0xf6,
-	0xac, 0x73, 0xf0, 0x36, 0x31, 0x1e, 0xa4, 0x89, 0xb1, 0xa3, 0xda, 0x10, 0xca, 0xf4, 0xfe, 0x58,
-	0xe4, 0x93, 0x3a, 0x28, 0x26, 0x68, 0xa7, 0x34, 0xdc, 0xe5, 0x4b, 0xbd, 0xa0, 0xb7, 0xfa, 0xc3,
-	0xa6, 0xd6, 0x5a, 0xef, 0xec, 0xa7, 0x89, 0xa1, 0x57, 0x70, 0xb2, 0x41, 0x3e, 0xbd, 0x25, 0xf5,
-	0xa9, 0xd8, 0x41, 0x9b, 0x32, 0xf0, 0x59, 0x48, 0x6d, 0x50, 0xd5, 0x3f, 0x9a, 0x57, 0xfd, 0x73,
-	0x55, 0xfd, 0x96, 0x92, 0x1b, 0xf1, 0xe4, 0xac, 0xf6, 0x59, 0x20, 0xf6, 0xd1, 0xb6, 0xda, 0x99,
-	0x72, 0x9b, 0x56, 0xe6, 0x09, 0x35, 0x94, 0xd0, 0x6e, 0xb6, 0xd7, 0x95, 0x3e, 0xd5, 0x62, 0xf1,
-	0x15, 0xda, 0x2d, 0x8f, 0xe7, 0x9d, 0x42, 0xa2, 0x53, 0x07, 0x69, 0x62, 0xec, 0x55, 0x89, 0xd3,
-	0x56, 0xbd, 0x23, 0x19, 0x8f, 0x10, 0x56, 0x91, 0x62, 0xb3, 0x56, 0xe7, 0xad, 0x61, 0x5f, 0xad,
-	0x61, 0x3b, 0x53, 0x2c, 0x75, 0xab, 0x06, 0x89, 0x4f, 0xd1, 0x5a, 0x76, 0xc0, 0x22, 0x5e, 0xf5,
-	0x9a, 0xa8, 0x7a, 0x33, 0x4d, 0x8c, 0xf5, 0xec, 0x1c, 0x46, 0xa2, 0xd2, 0xd2, 0x34, 0xfc, 0x39,
-	0xc2, 0x5d, 0x08, 0x63, 0x77, 0xe8, 0xda, 0x34, 0x86, 0xd7, 0xee, 0x1b, 0xe0, 0xc9, 0xeb, 0x4d,
-	0xad, 0xb5, 0xd4, 0xd1, 0x79, 0x01, 0xf6, 0x34, 0xda, 0x8f, 0xdc, 0x37, 0x20, 0x18, 0x35, 0x39,
-	0xf8, 0x4b, 0xb4, 0x55, 0x18, 0xcd, 0xbb, 0xf7, 0x58, 0xd4, 0xb1, 0xc7, 0x8f, 0x6d, 0x11, 0x35,
-	0xed, 0x5c, 0x5d, 0x16, 0x37, 0x83, 0x0b, 0x88, 0xa9, 0x43, 0x63, 0x9a, 0xd5, 0xb4, 0x21, 0x6a,
-	0x12, 0x66, 0xe0, 0xab, 0xd0, 0xb4, 0xa0, 0xea, 0xec, 0x17, 0xbf, 0x6c, 0xa2, 0xa5, 0x73, 0x80,
-	0x08, 0x7f, 0x8c, 0xd6, 0xce, 0x01, 0xba, 0xcc, 0x0d, 0x7a, 0x10, 0x30, 0x5f, 0x38, 0x97, 0xba,
-	0xa5, 0x43, 0xe0, 0x75, 0xb8, 0x41, 0xdf, 0xe1, 0x11, 0x52, 0x9a, 0x87, 0xaf, 0xf2, 0xbc, 0xcb,
-	0xd0, 0xb5, 0xa5, 0x17, 0xad, 0xb6, 0x0f, 0x4c, 0x69, 0x67, 0x26, 0x77, 0x4c, 0x53, 0x39, 0xa6,
-	0xd9, 0x03, 0xfb, 0x92, 0x6f, 0x61, 0x05, 0x3b, 0xe6, 0x89, 0xa4, 0x84, 0xc1, 0xaf, 0x10, 0x3a,
-	0x07, 0xe8, 0xc1, 0x90, 0x4e, 0xbc, 0x58, 0xd8, 0xd3, 0x5c, 0xe8, 0x46, 0x9a, 0x18, 0xab, 0x1c,
-	0xea, 0xc8, 0x2c, 0x52, 0x20, 0xe0, 0x31, 0xda, 0x21, 0x30, 0x72, 0xa3, 0x18, 0x42, 0x75, 0x28,
-	0xba, 0x1e, 0x8b, 0xc0, 0x11, 0xee, 0x35, 0x17, 0xfd, 0x3c, 0x4d, 0x8c, 0xa7, 0xa1, 0xca, 0xcf,
-	0xbd, 0xd1, 0x16, 0x04, 0x52, 0x0f, 0xe6, 0xee, 0x55, 0x09, 0x7c, 0x35, 0x86, 0x40, 0xb8, 0xdf,
-	0x5c, 0x3d, 0x71, 0x0c, 0x66, 0xf4, 0xd8, 0x18, 0x02, 0x52, 0x07, 0xe5, 0xab, 0xfb, 0x3a, 0xa4,
-	0x41, 0x34, 0xac, 0xae, 0x6e, 0x79, 0xe1, 0xd5, 0xc5, 0x2a, 0x7f, 0x66, 0x75, 0xb5, 0x60, 0xbe,
-	0xba, 0x4a, 0x40, 0xac, 0xee, 0xe1, 0xc2, 0xab, 0x9b, 0xd1, 0x93, 0xab, 0xab, 0x81, 0xe2, 0x6b,
-	0xf4, 0x94, 0xc0, 0xd8, 0xa3, 0x36, 0xe4, 0xe6, 0xa1, 0x6e, 0xa6, 0x72, 0xd3, 0x39, 0x7a, 0xc2,
-	0x92, 0x42, 0x49, 0xe8, 0x4f, 0xad, 0x49, 0x31, 0xc8, 0xbb, 0xe0, 0xbc, 0xab, 0x67, 0x4e, 0xf6,
-	0xd8, 0x2b, 0xdc, 0x3e, 0x65, 0xad, 0x8b, 0x74, 0x95, 0x3a, 0xd3, 0x47, 0x69, 0xe1, 0x5a, 0x93,
-	0x7a, 0x30, 0x57, 0xec, 0x81, 0x57, 0xa3, 0x88, 0x16, 0x56, 0x74, 0xc0, 0xab, 0x57, 0xac, 0x05,
-	0x73, 0xdf, 0x7d, 0x0d, 0xb1, 0x0a, 0x64, 0xe6, 0xa0, 0x7c, 0x77, 0x8e, 0x9c, 0xb0, 0xbd, 0x08,
-	0xe2, 0x5c, 0x2e, 0xb3, 0x1b, 0x52, 0x83, 0xc4, 0xdf, 0xa1, 0x8d, 0xec, 0xe4, 0xca, 0x67, 0xd8,
-	0x91, 0xb0, 0xde, 0xb9, 0x2a, 0xc2, 0xc8, 0xf2, 0xab, 0xa0, 0x9e, 0x89, 0x47, 0xa4, 0x0a, 0x9b,
-	0xe5, 0xb7, 0x85, 0x3b, 0xdf, 0x8f, 0xdf, 0xae, 0xf2, 0xdb, 0xb3, 0xfc, 0x63, 0x61, 0xd9, 0xf7,
-	0xe3, 0x1f, 0x57, 0xf9, 0xc7, 0xb3, 0xfc, 0x13, 0xe1, 0xe4, 0xf7, 0xe3, 0x9f, 0x54, 0xf9, 0x27,
-	0xb3, 0xfc, 0x53, 0xfd, 0xc9, 0xbd, 0xf9, 0xa7, 0x55, 0xfe, 0x69, 0xd1, 0x60, 0xe5, 0x50, 0xe6,
-	0xdd, 0x9b, 0xff, 0xdd, 0x60, 0x95, 0x4a, 0xe6, 0xe3, 0xf5, 0x60, 0xfc, 0xb3, 0x86, 0xf6, 0xb3,
-	0x08, 0xf7, 0x09, 0x19, 0xbd, 0x98, 0x78, 0xb1, 0x3b, 0xf6, 0x5c, 0x08, 0x75, 0xbc, 0x88, 0xf2,
-	0x07, 0x69, 0x62, 0x18, 0xb9, 0x32, 0x37, 0xa1, 0x4c, 0xde, 0xcf, 0x49, 0xe4, 0x5f, 0x75, 0xf8,
-	0x1b, 0x58, 0x66, 0x5b, 0x32, 0xa6, 0xcc, 0x77, 0x6b, 0x11, 0xfd, 0x67, 0xfc, 0x0d, 0x2c, 0x37,
-	0x43, 0x25, 0xad, 0xbc, 0xb7, 0x16, 0xcb, 0xaf, 0x6c, 0x79, 0x5c, 0x38, 0xef, 0xf6, 0xc2, 0x57,
-	0xb6, 0x2a, 0x26, 0x8c, 0xb7, 0x06, 0x89, 0x7d, 0x7e, 0x64, 0x02, 0xb8, 0x29, 0xa8, 0xec, 0x88,
-	0xb7, 0x82, 0x2e, 0x7f, 0xeb, 0xfa, 0x23, 0x31, 0x3e, 0x5c, 0xe0, 0x57, 0x4c, 0x0f, 0x6c, 0x79,
-	0x82, 0x02, 0xb8, 0x29, 0x29, 0x56, 0xd9, 0x9d, 0x4f, 0xdf, 0xde, 0x35, 0xb4, 0xdf, 0xef, 0x1a,
-	0xda, 0x9f, 0x77, 0x0d, 0xed, 0xd7, 0xbf, 0x1a, 0x0f, 0xbe, 0x35, 0x0b, 0x7c, 0x97, 0x5d, 0x1f,
-	0xb2, 0x00, 0xf8, 0x67, 0x10, 0x59, 0xb5, 0x3f, 0xf4, 0x06, 0xcb, 0xe2, 0x05, 0xf1, 0xf8, 0x9f,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0x23, 0x81, 0xf7, 0x42, 0x08, 0x0e, 0x00, 0x00,
+	// 1165 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x98, 0xcf, 0x6f, 0xe3, 0x44,
+	0x14, 0xc7, 0x6b, 0x58, 0xba, 0xdb, 0x69, 0xbb, 0xdd, 0x4e, 0x93, 0xae, 0x0b, 0x6d, 0x5c, 0xf6,
+	0x80, 0xca, 0xa1, 0x89, 0xfa, 0x0b, 0x71, 0x41, 0x4b, 0x93, 0xa8, 0xdb, 0xd5, 0xaa, 0x50, 0x66,
+	0x59, 0x0e, 0x5c, 0xa2, 0xa9, 0xfd, 0x12, 0x0c, 0xb6, 0x27, 0xb2, 0x9d, 0xb6, 0xac, 0xb8, 0xed,
+	0x95, 0x03, 0x17, 0x24, 0x24, 0x24, 0x4e, 0xfc, 0x09, 0x48, 0xfc, 0x0b, 0x7b, 0xdc, 0x23, 0xe2,
+	0x60, 0xa1, 0xf6, 0x96, 0x3f, 0x81, 0x13, 0x9a, 0x1f, 0x76, 0x62, 0x77, 0x96, 0x34, 0x88, 0xf4,
+	0xd2, 0xa4, 0xf3, 0xe6, 0xbd, 0xf7, 0xf1, 0x7b, 0xe3, 0xef, 0x9b, 0x16, 0xbd, 0x7b, 0x5e, 0xb3,
+	0x59, 0xd0, 0x76, 0x3b, 0xbd, 0x90, 0xc6, 0x2e, 0x0b, 0x6a, 0xf1, 0xb7, 0x5d, 0x88, 0xe4, 0xcf,
+	0x6a, 0x37, 0x64, 0x31, 0x7b, 0xbb, 0xd4, 0x61, 0x1d, 0x26, 0xbe, 0xd6, 0xf8, 0x37, 0xb5, 0x5a,
+	0xe9, 0x30, 0xd6, 0xf1, 0xa0, 0x26, 0x7e, 0x3b, 0xe9, 0xb5, 0x6b, 0x8e, 0x8a, 0x90, 0xda, 0x6d,
+	0x16, 0xf9, 0x2c, 0xaa, 0x9d, 0xd0, 0x08, 0x6a, 0xa7, 0x5b, 0x27, 0x10, 0xd3, 0xad, 0x9a, 0xcd,
+	0x5c, 0x65, 0x7f, 0xf0, 0xfb, 0x0c, 0x9a, 0x6e, 0x88, 0xcc, 0xb8, 0x85, 0x50, 0x43, 0x31, 0x40,
+	0x68, 0x1a, 0xeb, 0xc6, 0xc6, 0x5c, 0xfd, 0x61, 0x3f, 0xb1, 0x90, 0x9d, 0xad, 0xfe, 0x9d, 0x58,
+	0x9b, 0x1d, 0x37, 0xfe, 0xaa, 0x77, 0x52, 0xb5, 0x99, 0x5f, 0x53, 0xb1, 0xe5, 0xc7, 0x66, 0xe4,
+	0x7c, 0xa3, 0x80, 0xf7, 0x6d, 0x7b, 0xdf, 0x71, 0x42, 0x88, 0x22, 0x32, 0x14, 0x12, 0x3f, 0x44,
+	0x0b, 0x5f, 0x50, 0xcf, 0x75, 0x9a, 0xcc, 0xa7, 0x6e, 0xf0, 0x09, 0xf5, 0xc1, 0x7c, 0x63, 0xdd,
+	0xd8, 0x98, 0xa9, 0x97, 0xfb, 0x89, 0xb5, 0x78, 0xca, 0x4d, 0x2d, 0x47, 0xd8, 0x5a, 0x01, 0xf5,
+	0x81, 0x14, 0x77, 0xe3, 0x3a, 0xba, 0x27, 0x96, 0xf6, 0x6d, 0x9b, 0xf5, 0x82, 0x58, 0x44, 0x78,
+	0x53, 0x44, 0x58, 0xee, 0x27, 0x16, 0x96, 0x11, 0xa8, 0x34, 0xca, 0x10, 0x57, 0xf6, 0xe3, 0xf7,
+	0xd1, 0x1d, 0xb1, 0xf6, 0x8c, 0x3c, 0x36, 0x6f, 0x09, 0xdf, 0xf9, 0x7e, 0x62, 0xcd, 0x48, 0xdf,
+	0x5e, 0xe8, 0x92, 0xcc, 0x8c, 0x3f, 0x44, 0xf3, 0xe2, 0x3b, 0x81, 0x88, 0xf5, 0x42, 0x1b, 0xcc,
+	0xb7, 0xc4, 0x7e, 0xdc, 0x4f, 0xac, 0xbb, 0x72, 0x7f, 0xa8, 0x2c, 0x24, 0xbf, 0x11, 0x7f, 0x8d,
+	0x96, 0x24, 0x36, 0x81, 0x00, 0xce, 0xa8, 0x77, 0x0c, 0xa1, 0xcb, 0x1c, 0x73, 0x7a, 0xdd, 0xd8,
+	0x98, 0xdd, 0x5e, 0xa9, 0xca, 0x9e, 0x55, 0xd3, 0x9e, 0x55, 0x9b, 0xaa, 0x67, 0xf5, 0xb5, 0x97,
+	0x89, 0x35, 0xd5, 0x4f, 0xac, 0xb2, 0x2a, 0x43, 0x28, 0xdd, 0x5b, 0x5d, 0xe1, 0x4f, 0x74, 0x41,
+	0x31, 0x41, 0xe5, 0xdc, 0x72, 0x83, 0x3f, 0xea, 0x11, 0x3d, 0x37, 0x6f, 0xaf, 0x1b, 0x1b, 0xf3,
+	0xf5, 0xd5, 0x7e, 0x62, 0x99, 0x85, 0x70, 0xb2, 0x40, 0x3e, 0x3d, 0x27, 0x7a, 0x57, 0xec, 0xa0,
+	0x45, 0x69, 0x78, 0x14, 0x52, 0x1b, 0x14, 0xfd, 0x9d, 0x51, 0xf4, 0xef, 0x28, 0xfa, 0x25, 0x95,
+	0xae, 0xc3, 0x9d, 0x53, 0xf6, 0xab, 0x01, 0xb1, 0x8f, 0x4a, 0xaa, 0x33, 0xf9, 0x32, 0xcd, 0x8c,
+	0x4a, 0x54, 0x51, 0x89, 0x96, 0xd3, 0x5e, 0x17, 0xea, 0xa4, 0x0d, 0x8b, 0x9f, 0xa1, 0xe5, 0xfc,
+	0x7a, 0x56, 0x29, 0x24, 0x2a, 0xb5, 0xd6, 0x4f, 0xac, 0x95, 0x62, 0xc4, 0x41, 0xa9, 0x5e, 0xe3,
+	0x8c, 0x3b, 0x08, 0x2b, 0xcb, 0x70, 0xb1, 0x66, 0x47, 0x3d, 0xc3, 0xaa, 0x7a, 0x86, 0x52, 0x9a,
+	0x31, 0x57, 0x2d, 0x4d, 0x48, 0xbc, 0x87, 0xe6, 0xd2, 0x03, 0x16, 0x71, 0xea, 0x39, 0x41, 0xbd,
+	0xd8, 0x4f, 0xac, 0xf9, 0xf4, 0x1c, 0x46, 0x82, 0x34, 0xb7, 0x0d, 0x1f, 0x22, 0xdc, 0x80, 0x30,
+	0x76, 0xdb, 0xae, 0x4d, 0x63, 0x78, 0xea, 0x3e, 0x07, 0xee, 0x3c, 0xbf, 0x6e, 0x6c, 0xdc, 0xaa,
+	0x9b, 0x1c, 0xc0, 0x1e, 0x58, 0x5b, 0x91, 0xfb, 0x1c, 0x44, 0x0c, 0x8d, 0x0f, 0x7e, 0x82, 0x96,
+	0x86, 0x56, 0xb3, 0xea, 0xdd, 0x15, 0x1c, 0x2b, 0xfc, 0xd8, 0x0e, 0x87, 0x1a, 0x54, 0x4e, 0xe7,
+	0xc5, 0xc5, 0xe0, 0x08, 0x62, 0xea, 0xd0, 0x98, 0xa6, 0x4c, 0x0b, 0x82, 0x49, 0x88, 0x81, 0xaf,
+	0x4c, 0x03, 0xa0, 0xe2, 0xee, 0x07, 0x2f, 0x4c, 0x74, 0xeb, 0x00, 0x20, 0xc2, 0x1f, 0xa0, 0xb9,
+	0x03, 0x80, 0x06, 0x73, 0x83, 0x26, 0x04, 0xcc, 0x17, 0xca, 0xa5, 0xde, 0xd2, 0x36, 0x70, 0x0e,
+	0x37, 0x68, 0x39, 0xdc, 0x42, 0x72, 0xfb, 0xf0, 0x0b, 0x23, 0x73, 0x3c, 0x0e, 0x5d, 0x5b, 0x8a,
+	0xd1, 0xec, 0xf6, 0x5a, 0x55, 0xea, 0x59, 0x95, 0x4b, 0x66, 0x55, 0x49, 0x66, 0xb5, 0x09, 0xf6,
+	0x31, 0xef, 0x61, 0xfd, 0x63, 0xde, 0xb7, 0x3f, 0x13, 0xeb, 0xbd, 0x6b, 0xe8, 0x60, 0x13, 0xec,
+	0x1c, 0x45, 0x97, 0xa7, 0x21, 0xb9, 0xa4, 0xf8, 0x3b, 0x84, 0x0e, 0x00, 0x9a, 0xd0, 0xa6, 0x3d,
+	0x2f, 0x16, 0x6a, 0x36, 0x12, 0xe1, 0xa3, 0xb1, 0x11, 0x66, 0x39, 0x82, 0x23, 0x73, 0x90, 0xa1,
+	0x7c, 0xf8, 0x17, 0x03, 0x95, 0x09, 0x74, 0xdc, 0x28, 0x86, 0x50, 0x1d, 0xb9, 0x86, 0xc7, 0x22,
+	0x70, 0x84, 0x36, 0x8e, 0x24, 0x79, 0x3c, 0x36, 0xc9, 0xfd, 0x50, 0x65, 0xcb, 0x74, 0xda, 0x16,
+	0xf9, 0x88, 0x1e, 0x03, 0xff, 0x64, 0xa0, 0xa5, 0x82, 0xe5, 0xd3, 0x2e, 0x04, 0x42, 0x8a, 0x47,
+	0xe2, 0x3d, 0x1a, 0x1b, 0xaf, 0x7c, 0x05, 0x8f, 0x75, 0x21, 0x20, 0x3a, 0x04, 0x51, 0xbb, 0xcf,
+	0x43, 0x1a, 0x44, 0xed, 0x62, 0xed, 0xa6, 0x27, 0x54, 0xbb, 0x58, 0x65, 0xbb, 0x52, 0x3b, 0x2d,
+	0x86, 0xa8, 0x5d, 0xc1, 0x22, 0x6a, 0x77, 0x7b, 0x42, 0xb5, 0xbb, 0x82, 0x27, 0x6b, 0xa7, 0x41,
+	0xc0, 0xbf, 0x1a, 0xe8, 0x3e, 0x81, 0xae, 0x47, 0x6d, 0xc8, 0x64, 0x55, 0x69, 0x96, 0x9a, 0x33,
+	0x23, 0xf0, 0x9e, 0x8c, 0x8d, 0xb7, 0x12, 0xca, 0x7c, 0xad, 0x81, 0xc4, 0xab, 0x8c, 0xe4, 0x75,
+	0x28, 0xa2, 0xc5, 0xfb, 0x4e, 0x7a, 0x7f, 0x18, 0x92, 0x31, 0x35, 0xa3, 0xfe, 0xff, 0x16, 0x53,
+	0x67, 0x70, 0x83, 0x19, 0x52, 0x53, 0xa2, 0xc7, 0x10, 0x80, 0x4d, 0xf0, 0x34, 0x80, 0x68, 0x42,
+	0x80, 0x0e, 0x78, 0x7a, 0x40, 0x2d, 0x06, 0xfe, 0xd1, 0x40, 0xf8, 0x29, 0xc4, 0xca, 0x92, 0x6a,
+	0xb8, 0x1a, 0x8f, 0x23, 0xe8, 0x0e, 0xc6, 0xa6, 0x2b, 0x45, 0x10, 0x67, 0x74, 0xe9, 0x0c, 0x21,
+	0x1a, 0x00, 0xfc, 0xbd, 0x81, 0x16, 0xd2, 0x97, 0x5a, 0xde, 0x4c, 0xb6, 0xc4, 0x40, 0x1d, 0x09,
+	0xd5, 0x18, 0x1b, 0x6a, 0x31, 0xd3, 0x14, 0x75, 0x2f, 0xda, 0x22, 0xc5, 0xd4, 0x1a, 0x9c, 0x6d,
+	0x31, 0xa2, 0x6f, 0x02, 0x67, 0xbb, 0x88, 0xb3, 0xad, 0xc1, 0xd9, 0x11, 0x63, 0xfe, 0x26, 0x70,
+	0x76, 0x8a, 0x38, 0x3b, 0x1a, 0x9c, 0x5d, 0x71, 0x59, 0xb8, 0x09, 0x9c, 0xdd, 0x22, 0xce, 0xae,
+	0x06, 0x67, 0xcf, 0xbc, 0x77, 0x43, 0x38, 0x7b, 0x45, 0x9c, 0xbd, 0xdc, 0x0c, 0x97, 0x6b, 0xe9,
+	0x6d, 0x62, 0x71, 0xd2, 0x33, 0x5c, 0x41, 0xa5, 0x37, 0x0b, 0x3d, 0x06, 0xfe, 0xcd, 0x40, 0xab,
+	0xa9, 0x85, 0xab, 0xbf, 0xb4, 0x1e, 0xf5, 0xbc, 0xd8, 0xed, 0x7a, 0x2e, 0x84, 0x26, 0xbe, 0x0e,
+	0xe7, 0x67, 0x63, 0x73, 0x5a, 0x19, 0x27, 0x1f, 0x44, 0x29, 0xac, 0x9f, 0xe5, 0x25, 0xff, 0x4a,
+	0x85, 0x7f, 0x36, 0x50, 0x29, 0x9d, 0x5d, 0xd2, 0xa8, 0xc6, 0xfb, 0xd2, 0x75, 0x70, 0x0f, 0xc7,
+	0xc6, 0x5d, 0xce, 0xe6, 0xa7, 0x22, 0x55, 0xd3, 0x5d, 0x0b, 0x21, 0x84, 0x35, 0x6f, 0x10, 0xb3,
+	0xbd, 0x34, 0x21, 0x61, 0x2d, 0xb2, 0x89, 0xd1, 0xae, 0x01, 0xc0, 0x3e, 0x7f, 0x37, 0x02, 0x38,
+	0x1b, 0x62, 0x2a, 0x8b, 0x0b, 0xf9, 0x7f, 0x3a, 0xfc, 0x01, 0x9c, 0xe5, 0x32, 0x16, 0x63, 0xd7,
+	0x0f, 0x5f, 0x5e, 0x54, 0x8c, 0x57, 0x17, 0x15, 0xe3, 0xaf, 0x8b, 0x8a, 0xf1, 0xc3, 0x65, 0x65,
+	0xea, 0xd5, 0x65, 0x65, 0xea, 0x8f, 0xcb, 0xca, 0xd4, 0x97, 0xd5, 0xa1, 0x3c, 0x2e, 0x3b, 0xdd,
+	0x64, 0x01, 0xf0, 0xcf, 0x20, 0xaa, 0x69, 0xff, 0xd7, 0x72, 0x32, 0x2d, 0xfe, 0x46, 0xdb, 0xf9,
+	0x27, 0x00, 0x00, 0xff, 0xff, 0xe4, 0xea, 0x0a, 0x51, 0x8b, 0x11, 0x00, 0x00,
 }
 
 func (m *Config) Marshal() (dAtA []byte, err error) {
@@ -527,10 +391,6 @@ func (m *Config) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
 	if m.MetadataSizeMax != 0 {
 		i = encodeVarintTypes(dAtA, i, uint64(m.MetadataSizeMax))
 		i--
@@ -659,257 +519,218 @@ func (m *Fees) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.RenewDomainOpen) > 0 {
-		i -= len(m.RenewDomainOpen)
-		copy(dAtA[i:], m.RenewDomainOpen)
-		i = encodeVarintTypes(dAtA, i, uint64(len(m.RenewDomainOpen)))
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0xaa
-	}
-	if m.TransferDomainOpen != nil {
-		{
-			size, err := m.TransferDomainOpen.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	{
+		size := m.RenewDomainOpen.Size()
+		i -= size
+		if _, err := m.RenewDomainOpen.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0xa2
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.TransferDomainClosed != nil {
-		{
-			size, err := m.TransferDomainClosed.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xaa
+	{
+		size := m.TransferDomainOpen.Size()
+		i -= size
+		if _, err := m.TransferDomainOpen.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x9a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterOpenDomainMultiplier != nil {
-		{
-			size, err := m.RegisterOpenDomainMultiplier.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xa2
+	{
+		size := m.TransferDomainClosed.Size()
+		i -= size
+		if _, err := m.TransferDomainClosed.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x92
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomainDefault != nil {
-		{
-			size, err := m.RegisterDomainDefault.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x9a
+	{
+		size := m.RegisterOpenDomainMultiplier.Size()
+		i -= size
+		if _, err := m.RegisterOpenDomainMultiplier.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x8a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomain5 != nil {
-		{
-			size, err := m.RegisterDomain5.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x92
+	{
+		size := m.RegisterDomainDefault.Size()
+		i -= size
+		if _, err := m.RegisterDomainDefault.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x82
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomain4 != nil {
-		{
-			size, err := m.RegisterDomain4.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x8a
+	{
+		size := m.RegisterDomain5.Size()
+		i -= size
+		if _, err := m.RegisterDomain5.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x7a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomain3 != nil {
-		{
-			size, err := m.RegisterDomain3.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x82
+	{
+		size := m.RegisterDomain4.Size()
+		i -= size
+		if _, err := m.RegisterDomain4.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x72
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomain2 != nil {
-		{
-			size, err := m.RegisterDomain2.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x7a
+	{
+		size := m.RegisterDomain3.Size()
+		i -= size
+		if _, err := m.RegisterDomain3.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x6a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterDomain1 != nil {
-		{
-			size, err := m.RegisterDomain1.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x72
+	{
+		size := m.RegisterDomain2.Size()
+		i -= size
+		if _, err := m.RegisterDomain2.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x62
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.SetAccountMetadata != nil {
-		{
-			size, err := m.SetAccountMetadata.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x6a
+	{
+		size := m.RegisterDomain1.Size()
+		i -= size
+		if _, err := m.RegisterDomain1.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x5a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.DelAccountCertificate != nil {
-		{
-			size, err := m.DelAccountCertificate.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x62
+	{
+		size := m.SetAccountMetadata.Size()
+		i -= size
+		if _, err := m.SetAccountMetadata.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x52
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.AddAccountCertificate != nil {
-		{
-			size, err := m.AddAccountCertificate.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x5a
+	{
+		size := m.DelAccountCertificate.Size()
+		i -= size
+		if _, err := m.DelAccountCertificate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x4a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.ReplaceAccountResources != nil {
-		{
-			size, err := m.ReplaceAccountResources.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x52
+	{
+		size := m.AddAccountCertificate.Size()
+		i -= size
+		if _, err := m.AddAccountCertificate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x42
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.TransferAccountOpen != nil {
-		{
-			size, err := m.TransferAccountOpen.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x4a
+	{
+		size := m.ReplaceAccountResources.Size()
+		i -= size
+		if _, err := m.ReplaceAccountResources.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x3a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.TransferAccountClosed != nil {
-		{
-			size, err := m.TransferAccountClosed.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x42
+	{
+		size := m.TransferAccountOpen.Size()
+		i -= size
+		if _, err := m.TransferAccountOpen.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x32
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterAccountOpen != nil {
-		{
-			size, err := m.RegisterAccountOpen.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x3a
+	{
+		size := m.TransferAccountClosed.Size()
+		i -= size
+		if _, err := m.TransferAccountClosed.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x2a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.RegisterAccountClosed != nil {
-		{
-			size, err := m.RegisterAccountClosed.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.RegisterAccountOpen.Size()
+		i -= size
+		if _, err := m.RegisterAccountOpen.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x22
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.FeeDefault != nil {
-		{
-			size, err := m.FeeDefault.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.RegisterAccountClosed.Size()
+		i -= size
+		if _, err := m.RegisterAccountClosed.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1a
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
-	if m.FeeCoinPrice != nil {
-		{
-			size, err := m.FeeCoinPrice.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTypes(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x22
+	{
+		size := m.FeeDefault.Size()
+		i -= size
+		if _, err := m.FeeDefault.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size := m.FeeCoinPrice.Size()
+		i -= size
+		if _, err := m.FeeCoinPrice.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTypes(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
 	if len(m.FeeCoinDenom) > 0 {
 		i -= len(m.FeeCoinDenom)
 		copy(dAtA[i:], m.FeeCoinDenom)
@@ -983,9 +804,6 @@ func (m *Config) Size() (n int) {
 	if m.MetadataSizeMax != 0 {
 		n += 1 + sovTypes(uint64(m.MetadataSizeMax))
 	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
 	return n
 }
 
@@ -999,89 +817,46 @@ func (m *Fees) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	if m.FeeCoinPrice != nil {
-		l = m.FeeCoinPrice.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.FeeDefault != nil {
-		l = m.FeeDefault.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterAccountClosed != nil {
-		l = m.RegisterAccountClosed.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterAccountOpen != nil {
-		l = m.RegisterAccountOpen.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.TransferAccountClosed != nil {
-		l = m.TransferAccountClosed.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.TransferAccountOpen != nil {
-		l = m.TransferAccountOpen.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.ReplaceAccountResources != nil {
-		l = m.ReplaceAccountResources.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.AddAccountCertificate != nil {
-		l = m.AddAccountCertificate.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.DelAccountCertificate != nil {
-		l = m.DelAccountCertificate.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.SetAccountMetadata != nil {
-		l = m.SetAccountMetadata.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomain1 != nil {
-		l = m.RegisterDomain1.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomain2 != nil {
-		l = m.RegisterDomain2.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomain3 != nil {
-		l = m.RegisterDomain3.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomain4 != nil {
-		l = m.RegisterDomain4.Size()
-		n += 1 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomain5 != nil {
-		l = m.RegisterDomain5.Size()
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterDomainDefault != nil {
-		l = m.RegisterDomainDefault.Size()
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	if m.RegisterOpenDomainMultiplier != nil {
-		l = m.RegisterOpenDomainMultiplier.Size()
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	if m.TransferDomainClosed != nil {
-		l = m.TransferDomainClosed.Size()
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	if m.TransferDomainOpen != nil {
-		l = m.TransferDomainOpen.Size()
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	l = len(m.RenewDomainOpen)
-	if l > 0 {
-		n += 2 + l + sovTypes(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
+	l = m.FeeCoinPrice.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.FeeDefault.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterAccountClosed.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterAccountOpen.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.TransferAccountClosed.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.TransferAccountOpen.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.ReplaceAccountResources.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.AddAccountCertificate.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.DelAccountCertificate.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.SetAccountMetadata.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterDomain1.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterDomain2.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterDomain3.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterDomain4.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	l = m.RegisterDomain5.Size()
+	n += 2 + l + sovTypes(uint64(l))
+	l = m.RegisterDomainDefault.Size()
+	n += 2 + l + sovTypes(uint64(l))
+	l = m.RegisterOpenDomainMultiplier.Size()
+	n += 2 + l + sovTypes(uint64(l))
+	l = m.TransferDomainClosed.Size()
+	n += 2 + l + sovTypes(uint64(l))
+	l = m.TransferDomainOpen.Size()
+	n += 2 + l + sovTypes(uint64(l))
+	l = m.RenewDomainOpen.Size()
+	n += 2 + l + sovTypes(uint64(l))
 	return n
 }
 
@@ -1543,7 +1318,6 @@ func (m *Config) Unmarshal(dAtA []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -1643,9 +1417,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.FeeCoinPrice == nil {
-				m.FeeCoinPrice = &types1.DecProto{}
-			}
 			if err := m.FeeCoinPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1678,9 +1449,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.FeeDefault == nil {
-				m.FeeDefault = &types1.DecProto{}
 			}
 			if err := m.FeeDefault.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1715,9 +1483,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.RegisterAccountClosed == nil {
-				m.RegisterAccountClosed = &types1.DecProto{}
-			}
 			if err := m.RegisterAccountClosed.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1750,9 +1515,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.RegisterAccountOpen == nil {
-				m.RegisterAccountOpen = &types1.DecProto{}
 			}
 			if err := m.RegisterAccountOpen.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1787,9 +1549,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.TransferAccountClosed == nil {
-				m.TransferAccountClosed = &types1.DecProto{}
-			}
 			if err := m.TransferAccountClosed.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1822,9 +1581,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.TransferAccountOpen == nil {
-				m.TransferAccountOpen = &types1.DecProto{}
 			}
 			if err := m.TransferAccountOpen.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1859,9 +1615,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.ReplaceAccountResources == nil {
-				m.ReplaceAccountResources = &types1.DecProto{}
-			}
 			if err := m.ReplaceAccountResources.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1894,9 +1647,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.AddAccountCertificate == nil {
-				m.AddAccountCertificate = &types1.DecProto{}
 			}
 			if err := m.AddAccountCertificate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1931,9 +1681,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.DelAccountCertificate == nil {
-				m.DelAccountCertificate = &types1.DecProto{}
-			}
 			if err := m.DelAccountCertificate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1966,9 +1713,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.SetAccountMetadata == nil {
-				m.SetAccountMetadata = &types1.DecProto{}
 			}
 			if err := m.SetAccountMetadata.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2003,9 +1747,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.RegisterDomain1 == nil {
-				m.RegisterDomain1 = &types1.DecProto{}
-			}
 			if err := m.RegisterDomain1.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2038,9 +1779,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.RegisterDomain2 == nil {
-				m.RegisterDomain2 = &types1.DecProto{}
 			}
 			if err := m.RegisterDomain2.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2075,9 +1813,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.RegisterDomain3 == nil {
-				m.RegisterDomain3 = &types1.DecProto{}
-			}
 			if err := m.RegisterDomain3.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2110,9 +1845,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.RegisterDomain4 == nil {
-				m.RegisterDomain4 = &types1.DecProto{}
 			}
 			if err := m.RegisterDomain4.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2147,9 +1879,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.RegisterDomain5 == nil {
-				m.RegisterDomain5 = &types1.DecProto{}
-			}
 			if err := m.RegisterDomain5.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2182,9 +1911,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.RegisterDomainDefault == nil {
-				m.RegisterDomainDefault = &types1.DecProto{}
 			}
 			if err := m.RegisterDomainDefault.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2219,9 +1945,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.RegisterOpenDomainMultiplier == nil {
-				m.RegisterOpenDomainMultiplier = &types1.DecProto{}
-			}
 			if err := m.RegisterOpenDomainMultiplier.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2255,9 +1978,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.TransferDomainClosed == nil {
-				m.TransferDomainClosed = &types1.DecProto{}
-			}
 			if err := m.TransferDomainClosed.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2290,9 +2010,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.TransferDomainOpen == nil {
-				m.TransferDomainOpen = &types1.DecProto{}
 			}
 			if err := m.TransferDomainOpen.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2328,7 +2045,9 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RenewDomainOpen = github_com_cosmos_cosmos_sdk_types.Dec(dAtA[iNdEx:postIndex])
+			if err := m.RenewDomainOpen.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2345,7 +2064,6 @@ func (m *Fees) Unmarshal(dAtA []byte) error {
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}

@@ -3,14 +3,14 @@ package configuration
 import (
 	"encoding/json"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/CosmWasm/wasmd/x/configuration/client/cli"
+	"github.com/CosmWasm/wasmd/x/configuration/client/rest"
+	"github.com/CosmWasm/wasmd/x/configuration/types"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/iovns/x/configuration/client/cli"
-	"github.com/iov-one/iovns/x/configuration/client/rest"
-	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -39,7 +39,7 @@ func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, router *mux.Router) {
 	rest.RegisterRoutes(ctx, router, types.ModuleName, AvailableQueries())
 }
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {

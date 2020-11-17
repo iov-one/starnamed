@@ -7,6 +7,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.40.0-rc3
 	github.com/cosmos/iavl v0.15.0-rc4
 	github.com/dvsekhvalnov/jose2go v0.0.0-20200901110807-248326c1351b
+	github.com/fatih/structs v1.1.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.3
 	github.com/google/gofuzz v1.0.0
@@ -28,3 +29,13 @@ require (
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+
+replace github.com/CosmWasm/wasmd/x/configuration => ./x/configuration
+
+replace github.com/iov-one/iovns/x/configuration/client/cli => ./x/configuration/client/cli
+
+replace github.com/iov-one/iovns/x/configuration/client/rest => ./x/configuration/client/rest
+
+replace github.com/iov-one/iovns/x/configuration/types => ./x/configuration/types
+
+replace github.com/cosmos/cosmos-sdk v0.39.1 => github.com/cosmos/cosmos-sdk v0.40.0-rc3
