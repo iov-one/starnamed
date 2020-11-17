@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/structs"
 )
 
+// NewFees returns a new Fees struct
 func NewFees() *Fees {
 	return &Fees{}
 }

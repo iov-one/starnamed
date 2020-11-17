@@ -25,7 +25,9 @@ func (m MsgUpdateConfig) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m MsgUpdateConfig) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m)) }
+func (m MsgUpdateConfig) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
 
 // GetSigners implements sdk.Msg
 func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
@@ -53,7 +55,7 @@ func (m MsgUpdateFees) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m MsgUpdateFees) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m)) }
+func (m MsgUpdateFees) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m)) }
 
 // GetSigners implements sdk.Msg
 func (m MsgUpdateFees) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }

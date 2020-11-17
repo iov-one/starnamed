@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/CosmWasm/wasmd/x/configuration/client/cli"
@@ -8,9 +9,11 @@ import (
 	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -25,28 +28,49 @@ var (
 // AppModuleBasic implements the AppModuleBasic interface of the cosmos-sdk
 type AppModuleBasic struct{}
 
-func (AppModuleBasic) Name() string                   { return types.ModuleName }
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc) }
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
+	RegisterCodec(amino)
 }
-func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
+
+func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serveMux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(clientCtx))
+}
+
+func (AppModuleBasic) Name() string { return types.ModuleName }
+
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+	return cdc.MustMarshalJSON(&GenesisState{
+		Params: DefaultParams(),
+	})
+}
+
+func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONMarshaler, config client.TxEncodingConfig, message json.RawMessage) error {
 	var data GenesisState
-	err = types.ModuleCdc.UnmarshalJSON(b, &data)
+	err := marshaler.UnmarshalJSON(message, &data)
 	if err != nil {
-		return
+		return err
 	}
 	return ValidateGenesis(data)
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, router *mux.Router) {
-	rest.RegisterRoutes(ctx, router, types.ModuleName, AvailableQueries())
+// RegisterRESTRoutes registers the REST routes for the wasm module.
+func (AppModuleBasic) RegisterRESTRoutes(cliCtx client.Context, rtr *mux.Router) {
+	rest.RegisterRoutes(cliCtx, rtr)
 }
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(types.StoreKey, cdc)
+
+// GetTxCmd returns the root tx command for the wasm module.
+func (b AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.GetTxCmd()
 }
-func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(types.StoreKey, cdc)
+
+// GetQueryCmd returns no root query command for the wasm module.
+func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
+}
+
+// RegisterInterfaceTypes implements InterfaceModule
+func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
 }
 
 // - - FILL APP MODULE - -
