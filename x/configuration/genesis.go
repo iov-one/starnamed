@@ -1,9 +1,9 @@
 package configuration
 
 import (
-	"github.com/iov-one/wasmd/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ptypes "github.com/gogo/protobuf/types"
+	"github.com/iov-one/wasmd/x/configuration/types"
 )
 
 // NewGenesisState is GenesisState constructor
@@ -30,7 +30,7 @@ func ValidateGenesis(data types.GenesisState) error {
 // TODO this needs to be updated, although it will be imported from iovns chain
 func DefaultGenesisState() types.GenesisState {
 	// get owner
-	owner, err := sdk.AccAddressFromBech32("star1kxqay5tndu3w08ps5c27pkrksnqqts0zxeprzx")
+	owner, err := sdk.AccAddressFromBech32("cosmos1tpq75qgy74vpzrcmda0gcf38fee8qq77t0u83n")
 	if err != nil {
 		panic("invalid default owner provided")
 	}
