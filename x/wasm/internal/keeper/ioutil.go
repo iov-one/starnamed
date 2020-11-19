@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/wasmd/x/wasm/internal/types"
 )
 
 // magic bytes to identify gzip.

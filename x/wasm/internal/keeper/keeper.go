@@ -7,7 +7,7 @@ import (
 
 	wasm "github.com/CosmWasm/go-cosmwasm"
 	wasmTypes "github.com/CosmWasm/go-cosmwasm/types"
-	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/wasmd/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"

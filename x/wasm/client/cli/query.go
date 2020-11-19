@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/CosmWasm/wasmd/x/wasm/internal/keeper"
-	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/wasmd/x/wasm/internal/keeper"
+	"github.com/iov-one/wasmd/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
