@@ -5,6 +5,7 @@ import "google/protobuf/duration.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 option go_package="github.com/iov-one/wasmd/x/configuration/types";
+option (gogoproto.equal_all) = true;
 
 // Config is the configuration of the network
 message Config {
