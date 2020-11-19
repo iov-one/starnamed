@@ -1,35 +1,32 @@
 package cli
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
-func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd() *cobra.Command {
 	configTxCmd := &cobra.Command{
-		Use:                        storeKey,
-		Short:                      fmt.Sprintf("%s transactions subcommands", storeKey),
+		Use:                        types.StoreKey,
+		Short:                      fmt.Sprintf("%s transactions subcommands", types.StoreKey),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
-	configTxCmd.AddCommand(flags.PostCommands(
-		getCmdUpdateConfig(cdc),
-		getCmdUpdateFees(cdc),
-	)...)
+	configTxCmd.AddCommand(
+		getCmdUpdateConfig(),
+		getCmdUpdateFees(),
+	)
 	return configTxCmd
 }
 
@@ -38,14 +35,13 @@ var defaultDuration, _ = time.ParseDuration("1h")
 const defaultRegex = "^(.*?)?"
 const defaultNumber = 1
 
-func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
+func getCmdUpdateFees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-fees",
 		Short: "update fees using a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := client.GetClientContextFromCmd(cmd)
 			cliCtx, err := client.ReadTxCommandFlags(cliCtx, cmd.Flags())
-			inBuf := bufio.NewReader(cmd.InOrStdin()) // dmjp: use to be in txBuilder
 			// get fees file
 			feeFile, err := cmd.Flags().GetString("fees-file")
 			if err != nil {
@@ -75,21 +71,20 @@ func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
+func getCmdUpdateConfig() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-config",
 		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := client.GetClientContextFromCmd(cmd)
-			cliCtx, err := client.ReadTxCommandFlags(cliCtx, cmd.Flags())
-			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx, err = client.ReadTxCommandFlags(cliCtx, cmd.Flags())
 			config := &types.Config{}
 			if !cliCtx.GenerateOnly {
 				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
 				if err != nil {
 					return err
 				}
-				cdc.MustUnmarshalBinaryBare(rawCfg, config)
+				types.ModuleCdc.MustUnmarshalBinaryBare(rawCfg, config)
 			}
 			var signer sdk.AccAddress
 			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
@@ -150,7 +145,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			if domainRenew != defaultDuration {
-				config.DomainRenewalPeriod = domainRenew
+				config.DomainRenewalPeriod.Seconds = int64(domainRenew.Seconds())
 			}
 			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
 			if err != nil {
@@ -164,14 +159,14 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			if domainGracePeriod != defaultNumber {
-				config.DomainGracePeriod = domainGracePeriod
+				config.DomainGracePeriod.Seconds = int64(domainGracePeriod.Seconds())
 			}
 			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
 			if err != nil {
 				return err
 			}
 			if accountRenewPeriod != defaultNumber {
-				config.AccountRenewalPeriod = accountRenewPeriod
+				config.AccountRenewalPeriod.Seconds = int64(accountRenewPeriod.Seconds())
 			}
 			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
 			if err != nil {
@@ -185,7 +180,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			if accountGracePeriod != defaultDuration {
-				config.AccountGracePeriod = accountGracePeriod
+				config.AccountGracePeriod.Seconds = int64(accountGracePeriod.Seconds())
 			}
 			resourceMax, err := cmd.Flags().GetUint32("resource-max")
 			if err != nil {
@@ -222,14 +217,14 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			// build msg
 			msg := &types.MsgUpdateConfig{
 				Signer:           signer,
-				NewConfiguration: *config,
+				NewConfiguration: config,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags

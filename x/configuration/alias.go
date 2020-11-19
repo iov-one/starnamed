@@ -1,6 +1,6 @@
 package configuration
 
-import "github.com/iov-one/iovns/x/configuration/types"
+import "github.com/CosmWasm/wasmd/x/configuration/types"
 
 // alias for types
 type (
@@ -25,6 +25,6 @@ const (
 var (
 	// NewFees aliases types.NewFees
 	NewFees = types.NewFees
-	// RegisterCodec aliases types.RegisterCodec
-	RegisterCodec = types.RegisterCodec
+	// RegisterCodec aliases types.RegisterLegacyAminoCodec
+	RegisterCodec = types.RegisterLegacyAminoCodec
 )

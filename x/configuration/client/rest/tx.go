@@ -3,11 +3,11 @@ package rest
 import (
 	"net/http"
 
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
@@ -23,21 +23,21 @@ func handleTxRequest(cliCtx client.Context, baseReq rest.BaseReq, msg sdk.Msg, w
 		rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 	}
 	// write tx
-	tx.WriteGeneratedTxResponse(cliCtx, writer, baseReq, &msg)
+	tx.WriteGeneratedTxResponse(cliCtx, writer, baseReq, msg)
 }
 
 type updateConfig struct {
-	BaseReq rest.BaseReq           `json:"base_req"`
-	Message *types.MsgUpdateConfig `json:"message"`
+	BaseReq rest.BaseReq          `json:"base_req"`
+	Message types.MsgUpdateConfig `json:"message"`
 }
 
 func updateConfigHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req updateConfig
-		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
+		if !rest.ReadRESTReq(writer, request, cliCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, "failed to parse request")
 		}
-		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, &req.Message, writer)
 	}
 }
 
@@ -49,7 +49,7 @@ type updateFees struct {
 func updateFeesHandler(cliCtx client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req updateFees
-		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
+		if !rest.ReadRESTReq(writer, request, cliCtx.LegacyAmino, &req) {
 			return
 		}
 		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)

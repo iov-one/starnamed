@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/iov-one/iovns/pkg/queries"
-
+	"github.com/CosmWasm/wasmd/pkg/queries"
+	"github.com/CosmWasm/wasmd/pkg/utils"
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/iovns/pkg/utils"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions
@@ -87,14 +87,14 @@ func queryHandlerBuild(cliCtx client.Context, storeName string, queryType querie
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router, storeName string, queries []queries.QueryHandler) {
 	for _, query := range queries {
 		path := fmt.Sprintf("/%s/query/%s", storeName, query.QueryPath())
-		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST")
+		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST") // TODO: use GET
 	}
 }
 
 // RegisterRoutes clubs together the tx and query routes
-func RegisterRoutes(cliContext client.Context, r *mux.Router, storeName string, queries []queries.QueryHandler) {
+func RegisterRoutes(cliContext client.Context, r *mux.Router, queries []queries.QueryHandler) {
 	// register tx routes
-	registerTxRoutes(cliContext, r, storeName)
+	registerTxRoutes(cliContext, r, types.ModuleName)
 	// register query routes
-	registerQueryRoutes(cliContext, r, storeName, queries)
+	registerQueryRoutes(cliContext, r, types.ModuleName, queries)
 }

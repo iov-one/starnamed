@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -17,12 +17,12 @@ type ParamSubspace interface {
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
-	cdc        *codec.Codec
+	cdc        codec.Marshaler
 	paramspace ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,
@@ -61,7 +61,7 @@ func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
 
 // GetDomainRenewDuration returns the duration of a domain renewal period
 func (k Keeper) GetDomainRenewDuration(ctx sdk.Context) time.Duration {
-	return k.GetConfiguration(ctx).DomainRenewalPeriod
+	return time.Duration(k.GetConfiguration(ctx).DomainRenewalPeriod.Seconds)
 }
 
 // GetValidDomainNameRegexp returns the regular expression used to match valid domain names
@@ -72,11 +72,11 @@ func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
 // SetConfig updates or saves a new config in the store
 func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshalBinaryBare(conf))
+	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshalBinaryBare(&conf))
 }
 
 // GetDomainGracePeriod returns the default grace period before domains
 // can be deleted by someone other than the owner him/herself
 func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
-	return k.GetConfiguration(ctx).DomainGracePeriod
+	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod.Seconds)
 }

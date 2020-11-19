@@ -30,12 +30,4 @@ require (
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 
-replace github.com/CosmWasm/wasmd/x/configuration => ./x/configuration
-
-replace github.com/iov-one/iovns/x/configuration/client/cli => ./x/configuration/client/cli
-
-replace github.com/iov-one/iovns/x/configuration/client/rest => ./x/configuration/client/rest
-
-replace github.com/iov-one/iovns/x/configuration/types => ./x/configuration/types
-
 replace github.com/cosmos/cosmos-sdk v0.39.1 => github.com/cosmos/cosmos-sdk v0.40.0-rc3

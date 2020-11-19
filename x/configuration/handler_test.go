@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 func Test_HandleUpdateConfig(t *testing.T) {
@@ -28,7 +28,7 @@ func Test_HandleUpdateConfig(t *testing.T) {
 				}
 				msg = types.MsgUpdateConfig{
 					Signer: AliceKey,
-					NewConfiguration: Config{
+					NewConfiguration: &Config{
 						Configurer: BobKey,
 					},
 				}

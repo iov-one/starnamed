@@ -1,11 +1,10 @@
 syntax="proto3";
 
-option go_package="github.com/iov-one/iovns/x/configuration/types";
-
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
+option go_package="github.com/iov-one/wasmd/x/configuration/types";
 
 // Config is the configuration of the network
 message Config {
@@ -168,4 +167,10 @@ message Fees {
                                 (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
                                 (gogoproto.nullable) = false
                                 ];
+}
+
+// GenesisState - genesis state of x/configuration
+message GenesisState {
+   Config Config = 1 [(gogoproto.jsontag) = "config", (gogoproto.nullable) = false];
+   Fees Fees = 2 [(gogoproto.jsontag) = "fees", (gogoproto.nullable) = false];
 }

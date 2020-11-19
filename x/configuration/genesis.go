@@ -1,30 +1,21 @@
 package configuration
 
 import (
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration/types"
+	ptypes "github.com/gogo/protobuf/types"
 )
 
-// GenesisState is used to unmarshal the genesis state
-// when the app is initialized, and it is used to marshal
-// the state when it needs to be exported.
-type GenesisState struct {
-	// Config contains the configuration
-	Config types.Config `json:"config"`
-	// Fees contains the fees
-	Fees *types.Fees `json:"fees"`
-}
-
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
-	return GenesisState{
+func NewGenesisState(conf types.Config, fees *types.Fees) types.GenesisState {
+	return types.GenesisState{
 		Config: conf,
-		Fees:   fees,
+		Fees:   *fees,
 	}
 }
 
 // ValidateGenesis makes sure that the genesis state is valid
-func ValidateGenesis(data GenesisState) error {
+func ValidateGenesis(data types.GenesisState) error {
 	conf := data.Config
 	if err := conf.Validate(); err != nil {
 		return err
@@ -37,7 +28,7 @@ func ValidateGenesis(data GenesisState) error {
 
 // DefaultGenesisState returns the default genesis state
 // TODO this needs to be updated, although it will be imported from iovns chain
-func DefaultGenesisState() GenesisState {
+func DefaultGenesisState() types.GenesisState {
 	// get owner
 	owner, err := sdk.AccAddressFromBech32("star1kxqay5tndu3w08ps5c27pkrksnqqts0zxeprzx")
 	if err != nil {
@@ -50,12 +41,12 @@ func DefaultGenesisState() GenesisState {
 		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
 		ValidURI:               "[-a-z0-9A-Z:]+$",
 		ValidResource:          "^[a-z0-9A-Z]+$",
-		DomainRenewalPeriod:    300000000000,
+		DomainRenewalPeriod:    ptypes.Duration{Seconds: 180000000000},
 		DomainRenewalCountMax:  2,
-		DomainGracePeriod:      60000000000,
-		AccountRenewalPeriod:   180000000000,
+		DomainGracePeriod:      ptypes.Duration{Seconds: 60000000000},
+		AccountRenewalPeriod:   ptypes.Duration{Seconds: 180000000000},
 		AccountRenewalCountMax: 3,
-		AccountGracePeriod:     60000000000,
+		AccountGracePeriod:     ptypes.Duration{Seconds: 60000000000},
 		ResourcesMax:           3,
 		CertificateSizeMax:     10000,
 		CertificateCountMax:    3,
@@ -69,22 +60,22 @@ func DefaultGenesisState() GenesisState {
 	// set default fees
 	fees.SetDefaults(feeCoinDenom)
 	// return genesis
-	return GenesisState{
+	return types.GenesisState{
 		Config: config,
-		Fees:   fees,
+		Fees:   *fees,
 	}
 }
 
 // InitGenesis sets the initial state of the configuration module
-func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 	k.SetConfig(ctx, data.Config)
-	k.SetFees(ctx, data.Fees)
+	k.SetFees(ctx, &data.Fees)
 }
 
 // ExportGenesis saves the state of the configuration module
-func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	return GenesisState{
+func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
+	return &types.GenesisState{
 		Config: k.GetConfiguration(ctx),
-		Fees:   k.GetFees(ctx),
+		Fees:   *k.GetFees(ctx),
 	}
 }

@@ -4,23 +4,26 @@ import (
 	"testing"
 	"time"
 
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/stretchr/testify/require"
-	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
 // NewTestCodec generates aliceAddr mock codec for keeper module
-func NewTestCodec() *codec.Codec {
+func NewTestCodec() *codec.AminoCodec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module
-	cdc := codec.New()
-	codec.RegisterCrypto(cdc)
-	types.RegisterCodec(cdc)
+	amino := codec.NewLegacyAmino()
+	cdc := codec.NewAminoCodec(amino)
+	types.RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+	amino.Seal()
 	return cdc
 }
 
@@ -38,7 +41,7 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context) {
 	// test no errors
 	require.Nil(t, ms.LoadLatestVersion())
 	// create context
-	ctx := sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
 	return NewKeeper(cdc, configurationStoreKey, nil), ctx
 }

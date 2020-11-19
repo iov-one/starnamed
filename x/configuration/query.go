@@ -2,8 +2,8 @@ package configuration
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/queries"
 
+	"github.com/CosmWasm/wasmd/pkg/queries"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"

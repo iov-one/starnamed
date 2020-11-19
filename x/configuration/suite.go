@@ -4,20 +4,28 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/iovns/pkg/utils"
-
+	"github.com/CosmWasm/wasmd/pkg/utils"
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
 var ks, addrs = utils.GeneratePrivKeyAddressPairs(3)
+
+// AliceKey is poorly named since it's Alice's address.  TODO FIXME
 var AliceKey types.AccAddress = addrs[0]
+
+// BobKey is poorly named since it's Bob's address.  TODO FIXME
 var BobKey types.AccAddress = addrs[1]
+
+// CharlieKey is poorly named since it's Charlie's address.  TODO FIXME
 var CharlieKey types.AccAddress = addrs[2]
 
+// RegexMatchAll matches everything.
 const RegexMatchAll = "^(.*?)?"
+
+// RegexMatchNothing matches nothing.
 const RegexMatchNothing = "$^"
 
-// subTest defines a test runner
+// SubTest defines a test runner
 type SubTest struct {
 	// BeforeTestBlockTime is the block time during before test in unix seconds
 	// WARNING: if block time is given 0, it will be accepted as time.Now()
@@ -41,7 +49,7 @@ type SubTest struct {
 	AfterTest func(t *testing.T, k Keeper, ctx types.Context)
 }
 
-// runTests run tests cases after generating a new keeper and context for each test case
+// RunTests run tests cases after generating a new keeper and context for each test case
 func RunTests(t *testing.T, tests map[string]SubTest) {
 	for name, test := range tests {
 		keeper, ctx := NewTestKeeper(t, true)

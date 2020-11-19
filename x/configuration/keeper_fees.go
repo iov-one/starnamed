@@ -1,8 +1,8 @@
 package configuration
 
 import (
+	"github.com/CosmWasm/wasmd/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 // GetFees returns the network fees
@@ -17,6 +17,7 @@ func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
 	return fees
 }
 
+// SetFees sets the network fees
 func (k Keeper) SetFees(ctx sdk.Context, fees *types.Fees) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(types.FeeKey), k.cdc.MustMarshalBinaryBare(fees))

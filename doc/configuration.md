@@ -6,6 +6,15 @@
 - [x/configuration/types/types.proto](#x/configuration/types/types.proto)
     - [Config](#.Config)
     - [Fees](#.Fees)
+    - [GenesisState](#.GenesisState)
+  
+- [x/configuration/types/query.proto](#x/configuration/types/query.proto)
+    - [QueryConfigRequest](#.QueryConfigRequest)
+    - [QueryConfigResponse](#.QueryConfigResponse)
+    - [QueryFeesRequest](#.QueryFeesRequest)
+    - [QueryFeesResponse](#.QueryFeesResponse)
+  
+    - [Query](#.Query)
   
 - [x/configuration/types/msgs.proto](#x/configuration/types/msgs.proto)
     - [MsgUpdateConfig](#.MsgUpdateConfig)
@@ -87,11 +96,104 @@ processing different messages
 
 
 
+
+<a name=".GenesisState"></a>
+
+### GenesisState
+GenesisState - genesis state of x/configuration
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| Config | [Config](#Config) |  |  |
+| Fees | [Fees](#Fees) |  |  |
+
+
+
+
+
+ 
+
  
 
  
 
  
+
+
+
+<a name="x/configuration/types/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## x/configuration/types/query.proto
+
+
+
+<a name=".QueryConfigRequest"></a>
+
+### QueryConfigRequest
+QueryConfigRequest is the request type for the Query/Configuration RPC method.
+
+
+
+
+
+
+<a name=".QueryConfigResponse"></a>
+
+### QueryConfigResponse
+QueryConfigResponse is the response type for the Query/Configuration RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| config | [Config](#Config) |  | Configuration is the starname configuration. |
+
+
+
+
+
+
+<a name=".QueryFeesRequest"></a>
+
+### QueryFeesRequest
+QueryFeesRequest is the request type for the Query/Configuration RPC method.
+
+
+
+
+
+
+<a name=".QueryFeesResponse"></a>
+
+### QueryFeesResponse
+QueryFeesResponse is the response type for the Query/Fees RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| fees | [Fees](#Fees) |  | Fees is the starname product fee object. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+
+<a name=".Query"></a>
+
+### Query
+Query provides defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| Config | [.QueryConfigRequest](#QueryConfigRequest) | [.QueryConfigResponse](#QueryConfigResponse) | Config gets starname configuration. |
+| Fees | [.QueryFeesRequest](#QueryFeesRequest) | [.QueryFeesResponse](#QueryFeesResponse) | Fees gets starname product fees. |
 
  
 
@@ -107,8 +209,7 @@ processing different messages
 <a name=".MsgUpdateConfig"></a>
 
 ### MsgUpdateConfig
-MsgUpdateConfig is used to update
-configuration using a multisig strategy
+MsgUpdateConfig is used to update starname configuration
 
 
 | Field | Type | Label | Description |
@@ -124,9 +225,7 @@ configuration using a multisig strategy
 <a name=".MsgUpdateFees"></a>
 
 ### MsgUpdateFees
-MsgUpdateFees is used to update
-the product fees required when interacting
-with the starname module.
+MsgUpdateFees is used to update the starname product fees in the starname module.
 
 
 | Field | Type | Label | Description |
