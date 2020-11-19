@@ -4,9 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/iov-one/wasmd/x/configuration/client/cli"
-	"github.com/iov-one/wasmd/x/configuration/client/rest"
-	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -14,6 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/iov-one/wasmd/x/configuration/client/cli"
+	"github.com/iov-one/wasmd/x/configuration/client/rest"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -94,11 +94,12 @@ func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterServices allows a module to register services
 func (a AppModule) RegisterServices(configurator module.Configurator) {
-	types.RegisterQueryServer(configurator.QueryServer(), NewQuerier(a.keeper))
+	types.RegisterQueryServer(configurator.QueryServer(), NewQuerier(&a.keeper))
 }
 
+// LegacyQuerierHandler provides an sdk.Querier object that uses the legacy amino codec.
 func (a AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
-	return NewLegacyQuerier(a.keeper)
+	return NewLegacyQuerier(&a.keeper)
 }
 
 // RegisterInvariants registers the configuration module invariants.
@@ -118,14 +119,6 @@ func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 // EndBlock returns the end blocker for the configuration module. It returns no validator updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
-}
-
-func (a AppModule) NewHandler() sdk.Handler {
-	return NewHandler(a.keeper)
-}
-
-func (a AppModule) NewQuerierHandler() sdk.Querier {
-	return NewQuerier(a.keeper)
 }
 
 // InitGenesis performs genesis initialization for the configuration module. It returns no validator updates.

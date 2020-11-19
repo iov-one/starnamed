@@ -3,9 +3,9 @@ package configuration
 import (
 	"fmt"
 
-	"github.com/iov-one/wasmd/pkg/queries"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/wasmd/pkg/queries"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -44,23 +44,6 @@ func buildRouter(qrs []queries.QueryHandler) queryRouter {
 	}
 	// return
 	return router
-}
-
-// NewQuerier builds the query handler for the module
-func NewQuerier(k Keeper) sdk.Querier {
-	// get queries
-	queries := AvailableQueries()
-	router := buildRouter(queries)
-	// return sdk.Querier
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		handler, ok := router[path[0]]
-		// handler not found, query does not exist
-		if !ok {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "%s", path[0])
-		}
-		// handler
-		return handler(ctx, path, req, k)
-	}
 }
 
 // QueryConfiguration is the request model used to get the configuration
