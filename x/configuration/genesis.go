@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"github.com/CosmWasm/wasmd/x/configuration/types"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ptypes "github.com/gogo/protobuf/types"
 )

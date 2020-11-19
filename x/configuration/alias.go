@@ -1,6 +1,6 @@
 package configuration
 
-import "github.com/CosmWasm/wasmd/x/configuration/types"
+import "github.com/iov-one/wasmd/x/configuration/types"
 
 // alias for types
 type (

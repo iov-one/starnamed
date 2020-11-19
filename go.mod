@@ -1,4 +1,4 @@
-module github.com/CosmWasm/wasmd
+module github.com/iov-one/wasmd
 
 go 1.15
 
@@ -29,5 +29,3 @@ require (
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-
-replace github.com/cosmos/cosmos-sdk v0.39.1 => github.com/cosmos/cosmos-sdk v0.40.0-rc3

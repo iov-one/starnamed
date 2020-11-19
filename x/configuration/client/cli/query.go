@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/pkg/queries"
-	"github.com/CosmWasm/wasmd/x/configuration/types"
+	"github.com/iov-one/wasmd/pkg/queries"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 )

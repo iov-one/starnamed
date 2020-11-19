@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/CosmWasm/wasmd/x/configuration/client/cli"
-	"github.com/CosmWasm/wasmd/x/configuration/client/rest"
-	"github.com/CosmWasm/wasmd/x/configuration/types"
+	"github.com/iov-one/wasmd/x/configuration/client/cli"
+	"github.com/iov-one/wasmd/x/configuration/client/rest"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"

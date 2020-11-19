@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/configuration/types"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
