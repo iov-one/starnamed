@@ -205,7 +205,7 @@ format:
 proto-all: proto-gen proto-lint proto-check-breaking
 .PHONY: proto-all
 
-proto-gen:
+proto-gen: proto-lint
 	@docker run --rm \
 	  -v $(shell go list -f "{{ .Dir }}" -m github.com/cosmos/cosmos-sdk):/workspace/cosmos_sdk_dir \
 	  -v $(shell go list -f "{{ .Dir }}" -m github.com/gogo/protobuf):/workspace/protobuf_dir \

@@ -4,21 +4,21 @@
 ## Table of Contents
 
 - [x/configuration/types/types.proto](#x/configuration/types/types.proto)
-    - [Config](#.Config)
-    - [Fees](#.Fees)
-    - [GenesisState](#.GenesisState)
+    - [Config](#wasmd.x.configuration.v1beta1.Config)
+    - [Fees](#wasmd.x.configuration.v1beta1.Fees)
+    - [GenesisState](#wasmd.x.configuration.v1beta1.GenesisState)
   
 - [x/configuration/types/query.proto](#x/configuration/types/query.proto)
-    - [QueryConfigRequest](#.QueryConfigRequest)
-    - [QueryConfigResponse](#.QueryConfigResponse)
-    - [QueryFeesRequest](#.QueryFeesRequest)
-    - [QueryFeesResponse](#.QueryFeesResponse)
+    - [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest)
+    - [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse)
+    - [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest)
+    - [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse)
   
-    - [Query](#.Query)
+    - [Query](#wasmd.x.configuration.v1beta1.Query)
   
 - [x/configuration/types/msgs.proto](#x/configuration/types/msgs.proto)
-    - [MsgUpdateConfig](#.MsgUpdateConfig)
-    - [MsgUpdateFees](#.MsgUpdateFees)
+    - [MsgUpdateConfig](#wasmd.x.configuration.v1beta1.MsgUpdateConfig)
+    - [MsgUpdateFees](#wasmd.x.configuration.v1beta1.MsgUpdateFees)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -31,7 +31,7 @@
 
 
 
-<a name=".Config"></a>
+<a name="wasmd.x.configuration.v1beta1.Config"></a>
 
 ### Config
 Config is the configuration of the network
@@ -39,65 +39,63 @@ Config is the configuration of the network
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Configurer | [bytes](#bytes) |  | Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser |
-| ValidDomainName | [string](#string) |  | ValidDomainName defines a regexp that determines if a domain name is valid or not |
-| ValidAccountName | [string](#string) |  | ValidAccountName defines a regexp that determines if an account name is valid or not |
-| ValidURI | [string](#string) |  | ValidURI defines a regexp that determines if resource uri is valid or not |
-| ValidResource | [string](#string) |  | ValidResource determines a regexp for a resource content |
-| DomainRenewalPeriod | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainRenewalPeriod defines the duration of the domain renewal period in seconds |
-| DomainRenewalCountMax | [uint32](#uint32) |  | DomainRenewalCountMax defines maximum number of domain renewals a user can do |
-| DomainGracePeriod | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainGracePeriod defines the grace period for a domain deletion in seconds |
-| AccountRenewalPeriod | [google.protobuf.Duration](#google.protobuf.Duration) |  | AccountRenewalPeriod defines the duration of the account renewal period in seconds |
-| AccountRenewalCountMax | [uint32](#uint32) |  | AccountRenewalCountMax defines maximum number of account renewals a user can do |
-| AccountGracePeriod | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainGracePeriod defines the grace period for a domain deletion in seconds |
-| ResourcesMax | [uint32](#uint32) |  | ResourcesMax defines maximum number of resources could be saved under an account |
-| CertificateSizeMax | [uint64](#uint64) |  | CertificateSizeMax defines maximum size of a certificate that could be saved under an account |
-| CertificateCountMax | [uint32](#uint32) |  | CertificateCountMax defines maximum number of certificates that could be saved under an account |
-| MetadataSizeMax | [uint64](#uint64) |  | MetadataSizeMax defines maximum size of metadata that could be saved under an account |
+| configurer | [bytes](#bytes) |  | Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser |
+| valid_domain_name | [string](#string) |  | ValidDomainName defines a regexp that determines if a domain name is valid or not |
+| valid_account_name | [string](#string) |  | ValidAccountName defines a regexp that determines if an account name is valid or not |
+| valid_uri | [string](#string) |  | ValidURI defines a regexp that determines if resource uri is valid or not |
+| valid_resource | [string](#string) |  | ValidResource determines a regexp for a resource content |
+| domain_renewal_period | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainRenewalPeriod defines the duration of the domain renewal period in seconds |
+| domain_renewal_count_max | [uint32](#uint32) |  | DomainRenewalCountMax defines maximum number of domain renewals a user can do |
+| domain_grace_period | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainGracePeriod defines the grace period for a domain deletion in seconds |
+| account_renewal_period | [google.protobuf.Duration](#google.protobuf.Duration) |  | AccountRenewalPeriod defines the duration of the account renewal period in seconds |
+| account_renewal_count_max | [uint32](#uint32) |  | AccountRenewalCountMax defines maximum number of account renewals a user can do |
+| account_grace_period | [google.protobuf.Duration](#google.protobuf.Duration) |  | DomainGracePeriod defines the grace period for a domain deletion in seconds |
+| resources_max | [uint32](#uint32) |  | ResourcesMax defines maximum number of resources could be saved under an account |
+| certificate_size_max | [uint64](#uint64) |  | CertificateSizeMax defines maximum size of a certificate that could be saved under an account |
+| certificate_count_max | [uint32](#uint32) |  | CertificateCountMax defines maximum number of certificates that could be saved under an account |
+| metadata_size_max | [uint64](#uint64) |  | MetadataSizeMax defines maximum size of metadata that could be saved under an account |
 
 
 
 
 
 
-<a name=".Fees"></a>
+<a name="wasmd.x.configuration.v1beta1.Fees"></a>
 
 ### Fees
-Fees contains different type of fees
-to calculate coins to detract when
-processing different messages
+Fees contains different type of fees to calculate coins to detract when processing different messages
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| FeeCoinDenom | [string](#string) |  | FeeCoinDenom defines the denominator of the coin used to process fees |
-| FeeCoinPrice | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeCoinPrice defines the price of the coin |
-| FeeDefault | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeDefault is the parameter defining the default fee |
-| RegisterAccountClosed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountClosed is the fee to be paid to register an account in a closed domain |
-| RegisterAccountOpen | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountOpen is the fee to be paid to register an account in an open domain |
-| TransferAccountClosed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountClosed is the fee to be paid to register an account in a closed domain |
-| TransferAccountOpen | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountOpen is the fee to be paid to register an account in an open domain |
-| ReplaceAccountResources | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | ReplaceAccountResources is the fee to be paid to replace account&#39;s resources |
-| AddAccountCertificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | AddAccountCertificate is the fee to be paid to add a certificate to an account |
-| DelAccountCertificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | DelAccountCertificate is the feed to be paid to delete a certificate in an account |
-| SetAccountMetadata | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | SetAccountMetadata is the fee to be paid to set account&#39;s metadata |
-| RegisterDomain1 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain1 is the fee to be paid to register a domain with one character |
-| RegisterDomain2 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain2 is the fee to be paid to register a domain with two characters |
-| RegisterDomain3 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain3 is the fee to be paid to register a domain with three characters |
-| RegisterDomain4 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain4 is the fee to be paid to register a domain with four characters |
-| RegisterDomain5 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain5 is the fee to be paid to register a domain with five characters |
-| RegisterDomainDefault | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomainDefault is the fee to be paid to register a domain with more than five characters |
-| RegisterOpenDomainMultiplier | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomainMultiplier is the multiplication applied to fees in register domain operations if they&#39;re of open type |
-| TransferDomainClosed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferDomainClosed is the fee to be paid to transfer a closed domain |
-| TransferDomainOpen | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferDomainOpen is the fee to be paid to transfer open domains |
-| RenewDomainOpen | [string](#string) |  | RenewDomainOpen is the fee to be paid to renew an open domain |
+| fee_coin_denom | [string](#string) |  | FeeCoinDenom defines the denominator of the coin used to process fees |
+| fee_coin_price | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeCoinPrice defines the price of the coin |
+| fee_default | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeDefault is the parameter defining the default fee |
+| register_account_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountClosed is the fee to be paid to register an account in a closed domain |
+| register_account_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountOpen is the fee to be paid to register an account in an open domain |
+| transfer_account_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountClosed is the fee to be paid to register an account in a closed domain |
+| transfer_account_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountOpen is the fee to be paid to register an account in an open domain |
+| replace_account_resources | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | ReplaceAccountResources is the fee to be paid to replace account&#39;s resources |
+| add_account_certificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | AddAccountCertificate is the fee to be paid to add a certificate to an account |
+| del_account_certificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | DelAccountCertificate is the feed to be paid to delete a certificate in an account |
+| set_account_metadata | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | SetAccountMetadata is the fee to be paid to set account&#39;s metadata |
+| register_domain_1 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain1 is the fee to be paid to register a domain with one character |
+| register_domain_2 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain2 is the fee to be paid to register a domain with two characters |
+| register_domain_3 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain3 is the fee to be paid to register a domain with three characters |
+| register_domain_4 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain4 is the fee to be paid to register a domain with four characters |
+| register_domain_5 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain5 is the fee to be paid to register a domain with five characters |
+| register_domain_default | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomainDefault is the fee to be paid to register a domain with more than five characters |
+| register_open_domain_multiplier | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they&#39;re of open type |
+| transfer_domain_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | transfer_domain_closed is the fee to be paid to transfer a closed domain |
+| transfer_domain_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | transfer_domain_open is the fee to be paid to transfer open domains |
+| renew_domain_open | [string](#string) |  | renew_domain_open is the fee to be paid to renew an open domain |
 
 
 
 
 
 
-<a name=".GenesisState"></a>
+<a name="wasmd.x.configuration.v1beta1.GenesisState"></a>
 
 ### GenesisState
 GenesisState - genesis state of x/configuration
@@ -105,8 +103,8 @@ GenesisState - genesis state of x/configuration
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Config | [Config](#Config) |  |  |
-| Fees | [Fees](#Fees) |  |  |
+| config | [Config](#wasmd.x.configuration.v1beta1.Config) |  |  |
+| fees | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
 
 
 
@@ -129,7 +127,7 @@ GenesisState - genesis state of x/configuration
 
 
 
-<a name=".QueryConfigRequest"></a>
+<a name="wasmd.x.configuration.v1beta1.QueryConfigRequest"></a>
 
 ### QueryConfigRequest
 QueryConfigRequest is the request type for the Query/Configuration RPC method.
@@ -139,7 +137,7 @@ QueryConfigRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name=".QueryConfigResponse"></a>
+<a name="wasmd.x.configuration.v1beta1.QueryConfigResponse"></a>
 
 ### QueryConfigResponse
 QueryConfigResponse is the response type for the Query/Configuration RPC method.
@@ -147,14 +145,14 @@ QueryConfigResponse is the response type for the Query/Configuration RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| config | [Config](#Config) |  | Configuration is the starname configuration. |
+| config | [Config](#wasmd.x.configuration.v1beta1.Config) |  | Configuration is the starname configuration. |
 
 
 
 
 
 
-<a name=".QueryFeesRequest"></a>
+<a name="wasmd.x.configuration.v1beta1.QueryFeesRequest"></a>
 
 ### QueryFeesRequest
 QueryFeesRequest is the request type for the Query/Configuration RPC method.
@@ -164,7 +162,7 @@ QueryFeesRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name=".QueryFeesResponse"></a>
+<a name="wasmd.x.configuration.v1beta1.QueryFeesResponse"></a>
 
 ### QueryFeesResponse
 QueryFeesResponse is the response type for the Query/Fees RPC method
@@ -172,7 +170,7 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| fees | [Fees](#Fees) |  | Fees is the starname product fee object. |
+| fees | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  | Fees is the starname product fee object. |
 
 
 
@@ -185,15 +183,15 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
  
 
 
-<a name=".Query"></a>
+<a name="wasmd.x.configuration.v1beta1.Query"></a>
 
 ### Query
 Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| Config | [.QueryConfigRequest](#QueryConfigRequest) | [.QueryConfigResponse](#QueryConfigResponse) | Config gets starname configuration. |
-| Fees | [.QueryFeesRequest](#QueryFeesRequest) | [.QueryFeesResponse](#QueryFeesResponse) | Fees gets starname product fees. |
+| Config | [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. |
+| Fees | [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. |
 
  
 
@@ -206,7 +204,7 @@ Query provides defines the gRPC querier service.
 
 
 
-<a name=".MsgUpdateConfig"></a>
+<a name="wasmd.x.configuration.v1beta1.MsgUpdateConfig"></a>
 
 ### MsgUpdateConfig
 MsgUpdateConfig is used to update starname configuration
@@ -214,15 +212,15 @@ MsgUpdateConfig is used to update starname configuration
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Signer | [bytes](#bytes) |  | Signer is the address of the entity who is doing the transaction |
-| NewConfiguration | [Config](#Config) |  | NewConfiguration contains the new configuration data |
+| signer | [bytes](#bytes) |  | Signer is the address of the entity who is doing the transaction |
+| new_configuration | [Config](#wasmd.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
 
 
 
 
 
 
-<a name=".MsgUpdateFees"></a>
+<a name="wasmd.x.configuration.v1beta1.MsgUpdateFees"></a>
 
 ### MsgUpdateFees
 MsgUpdateFees is used to update the starname product fees in the starname module.
@@ -230,8 +228,8 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Fees | [Fees](#Fees) |  |  |
-| Configurer | [bytes](#bytes) |  |  |
+| fees | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
+| configurer | [bytes](#bytes) |  |  |
 
 
 

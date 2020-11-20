@@ -1,8 +1,9 @@
 syntax = "proto3";
+package wasmd.x.configuration.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "x/configuration/types/types.proto";
 import "google/api/annotations.proto";
+import "x/configuration/types/types.proto";
 
 option go_package = "github.com/iov-one/wasmd/x/configuration/types";
 option (gogoproto.goproto_getters_all) = false;
@@ -15,7 +16,9 @@ message QueryConfigRequest {
 // QueryConfigResponse is the response type for the Query/Configuration RPC method.
 message QueryConfigResponse {
     // Configuration is the starname configuration.
-    Config config = 1 [(gogoproto.jsontag) = "config"];
+    Config config = 1 [
+        (gogoproto.moretags) = "yaml:\"config\""
+    ];
 }
 
 // QueryFeesRequest is the request type for the Query/Configuration RPC method.
@@ -25,7 +28,9 @@ message QueryFeesRequest {
 // QueryFeesResponse is the response type for the Query/Fees RPC method
 message QueryFeesResponse {
     // Fees is the starname product fee object.
-    Fees fees = 1 [(gogoproto.jsontag) = "fees"];
+    Fees fees = 1 [
+        (gogoproto.moretags) = "yaml:\"fees\""
+    ];
 }
 
 // Query provides defines the gRPC querier service.
