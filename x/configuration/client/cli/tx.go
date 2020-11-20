@@ -6,10 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/spf13/cobra"
 )
 
@@ -68,6 +69,7 @@ func getCmdUpdateFees() *cobra.Command {
 		},
 	}
 	cmd.Flags().String("fees-file", "fees.json", "fees file in json format")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -247,5 +249,7 @@ func getCmdUpdateConfig() *cobra.Command {
 	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
 	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
 	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
+
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
