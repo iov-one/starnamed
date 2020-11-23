@@ -147,7 +147,7 @@ func getCmdUpdateConfig() *cobra.Command {
 				return err
 			}
 			if domainRenew != defaultDuration {
-				config.DomainRenewalPeriod.Seconds = int64(domainRenew.Seconds())
+				config.DomainRenewalPeriod = domainRenew
 			}
 			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
 			if err != nil {
@@ -161,14 +161,14 @@ func getCmdUpdateConfig() *cobra.Command {
 				return err
 			}
 			if domainGracePeriod != defaultNumber {
-				config.DomainGracePeriod.Seconds = int64(domainGracePeriod.Seconds())
+				config.DomainGracePeriod = domainGracePeriod
 			}
 			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
 			if err != nil {
 				return err
 			}
 			if accountRenewPeriod != defaultNumber {
-				config.AccountRenewalPeriod.Seconds = int64(accountRenewPeriod.Seconds())
+				config.AccountRenewalPeriod = accountRenewPeriod
 			}
 			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
 			if err != nil {
@@ -182,7 +182,7 @@ func getCmdUpdateConfig() *cobra.Command {
 				return err
 			}
 			if accountGracePeriod != defaultDuration {
-				config.AccountGracePeriod.Seconds = int64(accountGracePeriod.Seconds())
+				config.AccountGracePeriod = accountGracePeriod
 			}
 			resourceMax, err := cmd.Flags().GetUint32("resource-max")
 			if err != nil {
@@ -217,7 +217,7 @@ func getCmdUpdateConfig() *cobra.Command {
 				return err
 			}
 			// build msg
-			msg := &types.MsgUpdateConfig{
+			msg := types.MsgUpdateConfig{
 				Signer:           signer,
 				NewConfiguration: config,
 			}
@@ -226,7 +226,7 @@ func getCmdUpdateConfig() *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), &msg)
 		},
 	}
 	// add flags

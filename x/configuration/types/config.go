@@ -10,16 +10,16 @@ func (c Config) Validate() error {
 	if c.Configurer == nil {
 		return fmt.Errorf("empty configurer")
 	}
-	if c.DomainRenewalPeriod.Seconds < 0 {
+	if c.DomainRenewalPeriod < 0 {
 		return fmt.Errorf("empty domain renew")
 	}
-	if c.DomainGracePeriod.Seconds < 0 {
+	if c.DomainGracePeriod < 0 {
 		return fmt.Errorf("empty domain grace period")
 	}
-	if c.AccountRenewalPeriod.Seconds < 0 {
+	if c.AccountRenewalPeriod < 0 {
 		return fmt.Errorf("empty account renew")
 	}
-	if c.AccountGracePeriod.Seconds < 0 {
+	if c.AccountGracePeriod < 0 {
 		return fmt.Errorf("empty account grace period")
 	}
 	if _, err := regexp.Compile(c.ValidAccountName); err != nil {

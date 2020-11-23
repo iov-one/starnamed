@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -61,7 +61,7 @@ func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
 
 // GetDomainRenewDuration returns the duration of a domain renewal period
 func (k Keeper) GetDomainRenewDuration(ctx sdk.Context) time.Duration {
-	return time.Duration(k.GetConfiguration(ctx).DomainRenewalPeriod.Seconds)
+	return k.GetConfiguration(ctx).DomainRenewalPeriod
 }
 
 // GetValidDomainNameRegexp returns the regular expression used to match valid domain names
@@ -78,5 +78,5 @@ func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 // GetDomainGracePeriod returns the default grace period before domains
 // can be deleted by someone other than the owner him/herself
 func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
-	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod.Seconds)
+	return k.GetConfiguration(ctx).DomainGracePeriod
 }

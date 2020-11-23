@@ -34,7 +34,9 @@ message Config {
     // DomainRenewalPeriod defines the duration of the domain renewal period in seconds
     google.protobuf.Duration domain_renewal_period = 6 [
         (gogoproto.moretags) = "yaml:\"domain_renewal_period\"",
-        (gogoproto.nullable) = false];
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
+    ];
     // DomainRenewalCountMax defines maximum number of domain renewals a user can do
     uint32 domain_renewal_count_max = 7 [
         (gogoproto.moretags) = "yaml:\"domain_renewal_count_max\""
@@ -42,12 +44,14 @@ message Config {
     // DomainGracePeriod defines the grace period for a domain deletion in seconds
     google.protobuf.Duration domain_grace_period = 8 [
         (gogoproto.moretags) = "yaml:\"domain_grace_period\"",
-        (gogoproto.nullable) = false
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
     ];
     // AccountRenewalPeriod defines the duration of the account renewal period in seconds
     google.protobuf.Duration account_renewal_period = 9 [
         (gogoproto.moretags) = "yaml:\"account_renewal_period\"",
-        (gogoproto.nullable) = false
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
     ];
     // AccountRenewalCountMax defines maximum number of account renewals a user can do
     uint32 account_renewal_count_max = 10 [
@@ -56,7 +60,9 @@ message Config {
     // DomainGracePeriod defines the grace period for a domain deletion in seconds
     google.protobuf.Duration account_grace_period = 11 [
         (gogoproto.moretags) = "yaml:\"account_grace_period\"",
-        (gogoproto.nullable) = false];
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
+    ];
     // ResourcesMax defines maximum number of resources could be saved under an account
     uint32 resources_max = 12 [
         (gogoproto.moretags) = "yaml:\"resources_max\""

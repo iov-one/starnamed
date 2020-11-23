@@ -2,7 +2,6 @@ package configuration
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ptypes "github.com/gogo/protobuf/types"
 	"github.com/iov-one/wasmd/x/configuration/types"
 )
 
@@ -41,12 +40,12 @@ func DefaultGenesisState() types.GenesisState {
 		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
 		ValidURI:               "[-a-z0-9A-Z:]+$",
 		ValidResource:          "^[a-z0-9A-Z]+$",
-		DomainRenewalPeriod:    ptypes.Duration{Seconds: 31557600},
+		DomainRenewalPeriod:    31557600,
 		DomainRenewalCountMax:  2,
-		DomainGracePeriod:      ptypes.Duration{Seconds: 2592000},
-		AccountRenewalPeriod:   ptypes.Duration{Seconds: 31557600},
+		DomainGracePeriod:      2592000,
+		AccountRenewalPeriod:   31557600,
 		AccountRenewalCountMax: 3,
-		AccountGracePeriod:     ptypes.Duration{Seconds: 2592000},
+		AccountGracePeriod:     2592000,
 		ResourcesMax:           3,
 		CertificateSizeMax:     10000,
 		CertificateCountMax:    3,
