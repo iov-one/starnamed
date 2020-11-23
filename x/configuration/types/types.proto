@@ -212,11 +212,11 @@ message Fees {
 // GenesisState - genesis state of x/configuration
 message GenesisState {
     Config config = 1 [
-        (gogoproto.moretags) = "yaml:\"config",
+        (gogoproto.moretags) = "yaml:\"config\"",
         (gogoproto.nullable) = false
     ];
     Fees fees = 2 [
-        (gogoproto.moretags) = "yaml:\"fees",
+        (gogoproto.moretags) = "yaml:\"fees\"",
         (gogoproto.nullable) = false
     ];
 }
