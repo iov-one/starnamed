@@ -3,7 +3,11 @@ package types
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFees_Validate(t *testing.T) {
@@ -78,6 +82,55 @@ func TestFees_Validate(t *testing.T) {
 			if err := f.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func TestFees_UnmarshalJson(t *testing.T) {
+	specs := map[string]struct {
+		src string
+		exp Fees
+	}{
+		"defaults": {
+			src: `{
+				"fee_coin_denom": "tiov",
+				"fee_coin_price": "10.000000000000000000",
+				"fee_default": "10.000000000000000000",
+				"register_account_closed": "10.000000000000000000",
+				"register_account_open": "10.000000000000000000",
+				"transfer_account_closed": "10.000000000000000000",
+				"transfer_account_open": "10.000000000000000000",
+				"replace_account_resources": "10.000000000000000000",
+				"add_account_certificate": "10.000000000000000000",
+				"del_account_certificate": "10.000000000000000000",
+				"set_account_metadata": "10.000000000000000000",
+				"register_domain_1": "10.000000000000000000",
+				"register_domain_2": "10.000000000000000000",
+				"register_domain_3": "10.000000000000000000",
+				"register_domain_4": "10.000000000000000000",
+				"register_domain_5": "10.000000000000000000",
+				"register_domain_default": "10.000000000000000000",
+				"register_open_domain_multiplier": "2.000000000000000000",
+				"transfer_domain_closed": "10.000000000000000000",
+				"transfer_domain_open": "10.000000000000000000",
+				"renew_domain_open": "10.000000000000000000"
+			}`,
+			exp: func() Fees {
+				fees := NewFees()
+				fees.SetDefaults("tiov")
+				return *fees
+			}(),
+		},
+	}
+	for msg, spec := range specs {
+		t.Run(msg, func(t *testing.T) {
+			interfaceRegistry := codectypes.NewInterfaceRegistry()
+			marshaler := codec.NewProtoCodec(interfaceRegistry)
+
+			var fees Fees
+			err := marshaler.UnmarshalJSON([]byte(spec.src), &fees)
+			require.NoError(t, err)
+			assert.Equal(t, spec.exp, fees)
 		})
 	}
 }
