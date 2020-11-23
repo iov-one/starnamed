@@ -3,7 +3,6 @@ package wasmd.x.configuration.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
-import "cosmos/base/v1beta1/coin.proto";
 
 option go_package="github.com/iov-one/wasmd/x/configuration/types";
 option (gogoproto.equal_all) = true;
@@ -83,120 +82,120 @@ message Fees {
         (gogoproto.moretags) = "yaml:\"fee_coin_denom\""
     ];
     // FeeCoinPrice defines the price of the coin
-    cosmos.base.v1beta1.DecProto fee_coin_price = 2 [
+    string fee_coin_price = 2 [
         (gogoproto.moretags) = "yaml:\"fee_coin_price\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // FeeDefault is the parameter defining the default fee
-    cosmos.base.v1beta1.DecProto fee_default = 3 [
+    string fee_default = 3 [
         (gogoproto.moretags) = "yaml:\"fee_default\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // RegisterAccountClosed is the fee to be paid to register an account in a closed domain
-    cosmos.base.v1beta1.DecProto register_account_closed = 4 [
+    string register_account_closed = 4 [
         (gogoproto.moretags) = "yaml:\"register_account_closed\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // RegisterAccountOpen is the fee to be paid to register an account in an open domain
-    cosmos.base.v1beta1.DecProto register_account_open = 5 [
+    string register_account_open = 5 [
         (gogoproto.moretags) = "yaml:\"register_account_open\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // TransferAccountClosed is the fee to be paid to register an account in a closed domain
-    cosmos.base.v1beta1.DecProto transfer_account_closed = 6 [
+    string transfer_account_closed = 6 [
         (gogoproto.moretags) = "yaml:\"transfer_account_closed\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // TransferAccountOpen is the fee to be paid to register an account in an open domain
-    cosmos.base.v1beta1.DecProto transfer_account_open = 7 [
+    string transfer_account_open = 7 [
         (gogoproto.moretags) = "yaml:\"transfer_account_open\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // ReplaceAccountResources is the fee to be paid to replace account's resources
-    cosmos.base.v1beta1.DecProto replace_account_resources = 8 [
+    string replace_account_resources = 8 [
         (gogoproto.moretags) = "yaml:\"replace_account_resources\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // AddAccountCertificate is the fee to be paid to add a certificate to an account
-    cosmos.base.v1beta1.DecProto add_account_certificate = 9 [
+    string add_account_certificate = 9 [
         (gogoproto.moretags) = "yaml:\"add_account_certificate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
      ];
     // DelAccountCertificate is the feed to be paid to delete a certificate in an account
-    cosmos.base.v1beta1.DecProto del_account_certificate = 10 [
+    string del_account_certificate = 10 [
         (gogoproto.moretags) = "yaml:\"del_account_certificate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
      ];
     // SetAccountMetadata is the fee to be paid to set account's metadata
-    cosmos.base.v1beta1.DecProto set_account_metadata = 11 [
+    string set_account_metadata = 11 [
         (gogoproto.moretags) = "yaml:\"set_account_metadata\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // RegisterDomain1 is the fee to be paid to register a domain with one character
-    cosmos.base.v1beta1.DecProto register_domain_1 = 12 [
+    string register_domain_1 = 12 [
         (gogoproto.moretags) = "yaml:\"register_domain_1\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
        (gogoproto.nullable) = false,
        (gogoproto.customname) = "RegisterDomain1"
     ];
     // RegisterDomain2 is the fee to be paid to register a domain with two characters
-    cosmos.base.v1beta1.DecProto register_domain_2 = 13 [
+    string register_domain_2 = 13 [
         (gogoproto.moretags) = "yaml:\"register_domain_2\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false,
         (gogoproto.customname) = "RegisterDomain2"
     ];
     // RegisterDomain3 is the fee to be paid to register a domain with three characters
-    cosmos.base.v1beta1.DecProto register_domain_3 = 14 [
+    string register_domain_3 = 14 [
         (gogoproto.moretags) = "yaml:\"register_domain_3\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false,
         (gogoproto.customname) = "RegisterDomain3"
     ];
     // RegisterDomain4 is the fee to be paid to register a domain with four characters
-    cosmos.base.v1beta1.DecProto register_domain_4 = 15 [
+    string register_domain_4 = 15 [
         (gogoproto.moretags) = "yaml:\"register_domain_4\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false,
         (gogoproto.customname) = "RegisterDomain4"
     ];
     // RegisterDomain5 is the fee to be paid to register a domain with five characters
-    cosmos.base.v1beta1.DecProto register_domain_5 = 16 [
+    string register_domain_5 = 16 [
         (gogoproto.moretags) = "yaml:\"register_domain_5\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false,
         (gogoproto.customname) = "RegisterDomain5"
     ];
     // RegisterDomainDefault is the fee to be paid to register a domain with more than five characters
-    cosmos.base.v1beta1.DecProto register_domain_default = 17 [
+    string register_domain_default = 17 [
         (gogoproto.moretags) = "yaml:\"register_domain_default\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
      ];
     // register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they're of open type
-    cosmos.base.v1beta1.DecProto register_open_domain_multiplier = 18 [
+    string register_open_domain_multiplier = 18 [
         (gogoproto.moretags) = "yaml:\"register_open_domain_multiplier\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // transfer_domain_closed is the fee to be paid to transfer a closed domain
-    cosmos.base.v1beta1.DecProto transfer_domain_closed = 19 [
+    string transfer_domain_closed = 19 [
         (gogoproto.moretags) = "yaml:\"transfer_domain_closed\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
     // transfer_domain_open is the fee to be paid to transfer open domains
-    cosmos.base.v1beta1.DecProto transfer_domain_open = 20 [
+    string transfer_domain_open = 20 [
         (gogoproto.moretags) = "yaml:\"transfer_domain_open\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false

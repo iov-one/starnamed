@@ -69,25 +69,25 @@ Fees contains different type of fees to calculate coins to detract when processi
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | fee_coin_denom | [string](#string) |  | FeeCoinDenom defines the denominator of the coin used to process fees |
-| fee_coin_price | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeCoinPrice defines the price of the coin |
-| fee_default | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | FeeDefault is the parameter defining the default fee |
-| register_account_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountClosed is the fee to be paid to register an account in a closed domain |
-| register_account_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterAccountOpen is the fee to be paid to register an account in an open domain |
-| transfer_account_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountClosed is the fee to be paid to register an account in a closed domain |
-| transfer_account_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | TransferAccountOpen is the fee to be paid to register an account in an open domain |
-| replace_account_resources | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | ReplaceAccountResources is the fee to be paid to replace account&#39;s resources |
-| add_account_certificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | AddAccountCertificate is the fee to be paid to add a certificate to an account |
-| del_account_certificate | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | DelAccountCertificate is the feed to be paid to delete a certificate in an account |
-| set_account_metadata | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | SetAccountMetadata is the fee to be paid to set account&#39;s metadata |
-| register_domain_1 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain1 is the fee to be paid to register a domain with one character |
-| register_domain_2 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain2 is the fee to be paid to register a domain with two characters |
-| register_domain_3 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain3 is the fee to be paid to register a domain with three characters |
-| register_domain_4 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain4 is the fee to be paid to register a domain with four characters |
-| register_domain_5 | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomain5 is the fee to be paid to register a domain with five characters |
-| register_domain_default | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | RegisterDomainDefault is the fee to be paid to register a domain with more than five characters |
-| register_open_domain_multiplier | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they&#39;re of open type |
-| transfer_domain_closed | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | transfer_domain_closed is the fee to be paid to transfer a closed domain |
-| transfer_domain_open | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | transfer_domain_open is the fee to be paid to transfer open domains |
+| fee_coin_price | [string](#string) |  | FeeCoinPrice defines the price of the coin |
+| fee_default | [string](#string) |  | FeeDefault is the parameter defining the default fee |
+| register_account_closed | [string](#string) |  | RegisterAccountClosed is the fee to be paid to register an account in a closed domain |
+| register_account_open | [string](#string) |  | RegisterAccountOpen is the fee to be paid to register an account in an open domain |
+| transfer_account_closed | [string](#string) |  | TransferAccountClosed is the fee to be paid to register an account in a closed domain |
+| transfer_account_open | [string](#string) |  | TransferAccountOpen is the fee to be paid to register an account in an open domain |
+| replace_account_resources | [string](#string) |  | ReplaceAccountResources is the fee to be paid to replace account&#39;s resources |
+| add_account_certificate | [string](#string) |  | AddAccountCertificate is the fee to be paid to add a certificate to an account |
+| del_account_certificate | [string](#string) |  | DelAccountCertificate is the feed to be paid to delete a certificate in an account |
+| set_account_metadata | [string](#string) |  | SetAccountMetadata is the fee to be paid to set account&#39;s metadata |
+| register_domain_1 | [string](#string) |  | RegisterDomain1 is the fee to be paid to register a domain with one character |
+| register_domain_2 | [string](#string) |  | RegisterDomain2 is the fee to be paid to register a domain with two characters |
+| register_domain_3 | [string](#string) |  | RegisterDomain3 is the fee to be paid to register a domain with three characters |
+| register_domain_4 | [string](#string) |  | RegisterDomain4 is the fee to be paid to register a domain with four characters |
+| register_domain_5 | [string](#string) |  | RegisterDomain5 is the fee to be paid to register a domain with five characters |
+| register_domain_default | [string](#string) |  | RegisterDomainDefault is the fee to be paid to register a domain with more than five characters |
+| register_open_domain_multiplier | [string](#string) |  | register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they&#39;re of open type |
+| transfer_domain_closed | [string](#string) |  | transfer_domain_closed is the fee to be paid to transfer a closed domain |
+| transfer_domain_open | [string](#string) |  | transfer_domain_open is the fee to be paid to transfer open domains |
 | renew_domain_open | [string](#string) |  | renew_domain_open is the fee to be paid to renew an open domain |
 
 
