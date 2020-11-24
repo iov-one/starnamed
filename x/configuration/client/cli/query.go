@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/iov-one/wasmd/x/configuration/types"
+	"github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/spf13/cobra"
 )
 

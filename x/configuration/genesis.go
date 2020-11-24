@@ -2,7 +2,7 @@ package configuration
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/wasmd/x/configuration/types"
+	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
 // NewGenesisState is GenesisState constructor

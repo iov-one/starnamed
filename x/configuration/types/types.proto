@@ -4,7 +4,7 @@ package wasmd.x.configuration.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package="github.com/iov-one/wasmd/x/configuration/types";
+option go_package="github.com/iov-one/starnamed/x/configuration/types";
 option (gogoproto.equal_all) = true;
 
 // Config is the configuration of the network

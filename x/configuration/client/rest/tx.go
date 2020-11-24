@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/iov-one/wasmd/x/configuration/types"
+	"github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
