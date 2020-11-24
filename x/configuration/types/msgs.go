@@ -18,7 +18,7 @@ func (m MsgUpdateConfig) ValidateBasic() error {
 	if m.NewConfiguration == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing configuration")
 	}
-	if m.Signer.Empty() {
+	if m.Signer == "" {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no signer specified")
 	}
 	return nil
@@ -30,7 +30,12 @@ func (m MsgUpdateConfig) GetSignBytes() []byte {
 }
 
 // GetSigners implements sdk.Msg
-func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
+func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress {
+	if signer, err := sdk.AccAddressFromBech32(m.Signer); err == nil {
+		return []sdk.AccAddress{signer}
+	}
+	return []sdk.AccAddress{}
+}
 
 // Route implements sdk.Msg
 func (m MsgUpdateFees) Route() string {
@@ -44,7 +49,7 @@ func (m MsgUpdateFees) Type() string {
 
 // ValidateBasic implements sdk.Msg
 func (m MsgUpdateFees) ValidateBasic() error {
-	if m.Configurer.Empty() {
+	if m.Configurer == "" {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "signer is missing")
 	}
 	// check if fees are valid
@@ -58,4 +63,9 @@ func (m MsgUpdateFees) ValidateBasic() error {
 func (m MsgUpdateFees) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m)) }
 
 // GetSigners implements sdk.Msg
-func (m MsgUpdateFees) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }
+func (m MsgUpdateFees) GetSigners() []sdk.AccAddress {
+	if signer, err := sdk.AccAddressFromBech32(m.Configurer); err == nil {
+		return []sdk.AccAddress{signer}
+	}
+	return []sdk.AccAddress{}
+}

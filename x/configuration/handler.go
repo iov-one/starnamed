@@ -1,9 +1,9 @@
 package configuration
 
 import (
-	"github.com/iov-one/starnamed/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
 // NewHandler returns the handlers for the configuration module
@@ -22,7 +22,7 @@ func NewHandler(k Keeper) sdk.Handler {
 
 func handleUpdateFees(ctx sdk.Context, msg types.MsgUpdateFees, k Keeper) (*sdk.Result, error) {
 	configurer := k.GetConfigurer(ctx)
-	if !configurer.Equals(msg.Configurer) {
+	if configurer != msg.Configurer {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update fees", msg.Configurer)
 	}
 	k.SetFees(ctx, msg.Fees)
@@ -32,7 +32,7 @@ func handleUpdateFees(ctx sdk.Context, msg types.MsgUpdateFees, k Keeper) (*sdk.
 
 func handleUpdateConfig(ctx sdk.Context, msg types.MsgUpdateConfig, k Keeper) (*sdk.Result, error) {
 	configurer := k.GetConfigurer(ctx)
-	if !configurer.Equals(msg.Signer) {
+	if configurer != msg.Signer {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Signer)
 	}
 	// if allowed update configuration

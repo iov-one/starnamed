@@ -9,21 +9,20 @@
     - [AccessTypeParam](#wasmd.x.wasmd.v1beta1.AccessTypeParam)
     - [CodeInfo](#wasmd.x.wasmd.v1beta1.CodeInfo)
     - [ContractCodeHistoryEntry](#wasmd.x.wasmd.v1beta1.ContractCodeHistoryEntry)
-    - [ContractHistory](#wasmd.x.wasmd.v1beta1.ContractHistory)
     - [ContractInfo](#wasmd.x.wasmd.v1beta1.ContractInfo)
     - [Model](#wasmd.x.wasmd.v1beta1.Model)
     - [Params](#wasmd.x.wasmd.v1beta1.Params)
-
+  
     - [AccessType](#wasmd.x.wasmd.v1beta1.AccessType)
     - [ContractCodeHistoryOperationType](#wasmd.x.wasmd.v1beta1.ContractCodeHistoryOperationType)
-
+  
 - [x/wasm/internal/types/proposal.proto](#x/wasm/internal/types/proposal.proto)
     - [ClearAdminProposal](#wasmd.x.wasmd.v1beta1.ClearAdminProposal)
     - [InstantiateContractProposal](#wasmd.x.wasmd.v1beta1.InstantiateContractProposal)
     - [MigrateContractProposal](#wasmd.x.wasmd.v1beta1.MigrateContractProposal)
     - [StoreCodeProposal](#wasmd.x.wasmd.v1beta1.StoreCodeProposal)
     - [UpdateAdminProposal](#wasmd.x.wasmd.v1beta1.UpdateAdminProposal)
-
+  
 - [x/wasm/internal/types/query.proto](#x/wasm/internal/types/query.proto)
     - [CodeInfoResponse](#wasmd.x.wasmd.v1beta1.CodeInfoResponse)
     - [ContractInfoWithAddress](#wasmd.x.wasmd.v1beta1.ContractInfoWithAddress)
@@ -43,25 +42,23 @@
     - [QueryRawContractStateResponse](#wasmd.x.wasmd.v1beta1.QueryRawContractStateResponse)
     - [QuerySmartContractStateRequest](#wasmd.x.wasmd.v1beta1.QuerySmartContractStateRequest)
     - [QuerySmartContractStateResponse](#wasmd.x.wasmd.v1beta1.QuerySmartContractStateResponse)
-
+  
     - [Query](#wasmd.x.wasmd.v1beta1.Query)
-
-- [x/wasm/internal/types/types.proto](#x/wasm/internal/types/types.proto)
-    - [AbsoluteTxPosition](#wasmd.x.wasmd.v1beta1.AbsoluteTxPosition)
-    - [AccessConfig](#wasmd.x.wasmd.v1beta1.AccessConfig)
-    - [AccessTypeParam](#wasmd.x.wasmd.v1beta1.AccessTypeParam)
-    - [CodeInfo](#wasmd.x.wasmd.v1beta1.CodeInfo)
-    - [ContractCodeHistoryEntry](#wasmd.x.wasmd.v1beta1.ContractCodeHistoryEntry)
-    - [ContractInfo](#wasmd.x.wasmd.v1beta1.ContractInfo)
-    - [Model](#wasmd.x.wasmd.v1beta1.Model)
-    - [Params](#wasmd.x.wasmd.v1beta1.Params)
-
+  
+- [x/wasm/internal/types/msg.proto](#x/wasm/internal/types/msg.proto)
+    - [MsgClearAdmin](#wasmd.x.wasmd.v1beta1.MsgClearAdmin)
+    - [MsgExecuteContract](#wasmd.x.wasmd.v1beta1.MsgExecuteContract)
+    - [MsgInstantiateContract](#wasmd.x.wasmd.v1beta1.MsgInstantiateContract)
+    - [MsgMigrateContract](#wasmd.x.wasmd.v1beta1.MsgMigrateContract)
+    - [MsgStoreCode](#wasmd.x.wasmd.v1beta1.MsgStoreCode)
+    - [MsgUpdateAdmin](#wasmd.x.wasmd.v1beta1.MsgUpdateAdmin)
+  
 - [x/wasm/internal/types/genesis.proto](#x/wasm/internal/types/genesis.proto)
     - [Code](#wasmd.x.wasmd.v1beta1.Code)
     - [Contract](#wasmd.x.wasmd.v1beta1.Contract)
     - [GenesisState](#wasmd.x.wasmd.v1beta1.GenesisState)
     - [Sequence](#wasmd.x.wasmd.v1beta1.Sequence)
-
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -76,12 +73,12 @@
 <a name="wasmd.x.wasmd.v1beta1.AbsoluteTxPosition"></a>
 
 ### AbsoluteTxPosition
-AbsoluteTxPosition can be used to sort contracts
+AbsoluteTxPosition is a unique transaction position that allows for global ordering of transactions.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| block_height | [int64](#int64) |  | BlockHeight is the block the contract was created at |
+| block_height | [uint64](#uint64) |  | BlockHeight is the block the contract was created at |
 | tx_index | [uint64](#uint64) |  | TxIndex is a monotonic counter within the block (actual transaction index, or gas consumed) |
 
 
@@ -97,9 +94,8 @@ AccessConfig access control type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contract_address | [string](#string) |  |  |
-| contract_info | [ContractInfo](#wasmd.x.wasmd.v1beta1.ContractInfo) |  |  |
-| contract_state | [Model](#wasmd.x.wasmd.v1beta1.Model) | repeated |  |
+| permission | [AccessType](#wasmd.x.wasmd.v1beta1.AccessType) |  |  |
+| address | [string](#string) |  |  |
 
 
 
@@ -130,7 +126,7 @@ CodeInfo is data for the uploaded contract WASM code
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | code_hash | [bytes](#bytes) |  | CodeHash is the unique CodeID |
-| creator | [bytes](#bytes) |  | Creator address who initially stored the code |
+| creator | [string](#string) |  | Creator address who initially stored the code |
 | source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
 | builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
 | instantiate_config | [AccessConfig](#wasmd.x.wasmd.v1beta1.AccessConfig) |  | InstantiateConfig access control to apply on contract creation, optional |
@@ -148,26 +144,10 @@ ContractCodeHistoryEntry metadata to a contract.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
-| contract | [string](#string) |  | Contract is the address of the smart contract |
-
-
-
-
-
-
-<a name="wasmd.x.wasmd.v1beta1.ContractHistory"></a>
-
-### ContractHistory
-ContractHistory contains a sorted list of code updates to a contract
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
-| contract | [string](#string) |  | Contract is the address of the smart contract |
-| msg | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract |
-| sent_funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | SentFunds coins that are transferred to the contract on execution |
+| operation | [ContractCodeHistoryOperationType](#wasmd.x.wasmd.v1beta1.ContractCodeHistoryOperationType) |  |  |
+| code_id | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
+| updated | [AbsoluteTxPosition](#wasmd.x.wasmd.v1beta1.AbsoluteTxPosition) |  | Updated Tx position when the operation was executed. |
+| msg | [bytes](#bytes) |  |  |
 
 
 
@@ -182,9 +162,9 @@ ContractInfo stores a WASM contract instance
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| code_id | [uint64](#uint64) |  | CodeID is the reference to the stored Wasm code |
+| creator | [string](#string) |  | Creator address who initially instantiated the contract |
 | admin | [string](#string) |  | Admin is an optional address that can execute migrations |
-| code_id | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | label | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
 | created | [AbsoluteTxPosition](#wasmd.x.wasmd.v1beta1.AbsoluteTxPosition) |  | Created Tx position when the contract was instantiated. This data should kept internal and not be exposed via query results. Just use for sorting |
 
@@ -201,10 +181,8 @@ Model is a struct that holds a KV pair
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
-| contract | [string](#string) |  | Contract is the address of the smart contract |
-| code_id | [uint64](#uint64) |  | CodeID references the new WASM code |
-| migrate_msg | [bytes](#bytes) |  | MigrateMsg json encoded message to be passed to the contract on migration |
+| key | [bytes](#bytes) |  | hex-encode key to read it better (this is often ascii) |
+| value | [bytes](#bytes) |  | base64-encode raw value |
 
 
 
@@ -213,23 +191,21 @@ Model is a struct that holds a KV pair
 
 <a name="wasmd.x.wasmd.v1beta1.Params"></a>
 
-### MsgStoreCode
-MsgStoreCode submit Wasm code to the system
+### Params
+Params defines the set of wasm parameters.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
-| wasm_byte_code | [bytes](#bytes) |  | WASMByteCode can be raw or gzip compressed |
-| source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
-| builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
-| instantiate_permission | [AccessConfig](#wasmd.x.wasmd.v1beta1.AccessConfig) |  | InstantiatePermission access control to apply on contract creation, optional |
+| code_upload_access | [AccessConfig](#wasmd.x.wasmd.v1beta1.AccessConfig) |  |  |
+| instantiate_default_permission | [AccessType](#wasmd.x.wasmd.v1beta1.AccessType) |  |  |
+| max_wasm_code_size | [uint64](#uint64) |  |  |
 
 
 
 
 
-
+ 
 
 
 <a name="wasmd.x.wasmd.v1beta1.AccessType"></a>
@@ -237,11 +213,12 @@ MsgStoreCode submit Wasm code to the system
 ### AccessType
 AccessType permission types
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| sender | [string](#string) |  | Sender is the that actor that signed the messages |
-| new_admin | [string](#string) |  | NewAdmin address to be set |
-| contract | [string](#string) |  | Contract is the address of the smart contract |
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ACCESS_TYPE_UNSPECIFIED | 0 | AccessTypeUnspecified placeholder for empty value |
+| ACCESS_TYPE_NOBODY | 1 | AccessTypeNobody forbidden |
+| ACCESS_TYPE_ONLY_ADDRESS | 2 | AccessTypeOnlyAddress restricted to an address |
+| ACCESS_TYPE_EVERYBODY | 3 | AccessTypeEverybody unrestricted |
 
 
 
@@ -258,11 +235,11 @@ ContractCodeHistoryOperationType actions that caused a code change
 | CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS | 3 | ContractCodeHistoryOperationTypeGenesis based on genesis data |
 
 
+ 
 
+ 
 
-
-
-
+ 
 
 
 
@@ -370,13 +347,13 @@ UpdateAdminProposal gov proposal content type to set an admin for a contract.
 
 
 
+ 
 
+ 
 
+ 
 
-
-
-
-
+ 
 
 
 
@@ -672,11 +649,11 @@ QuerySmartContractStateResponse is the response type for the Query/SmartContract
 
 
 
+ 
 
+ 
 
-
-
-
+ 
 
 
 <a name="wasmd.x.wasmd.v1beta1.Query"></a>
@@ -695,7 +672,7 @@ Query provides defines the gRPC querier service
 | Code | [QueryCodeRequest](#wasmd.x.wasmd.v1beta1.QueryCodeRequest) | [QueryCodeResponse](#wasmd.x.wasmd.v1beta1.QueryCodeResponse) | Code gets the binary code and metadata for a singe wasm code |
 | Codes | [QueryCodesRequest](#wasmd.x.wasmd.v1beta1.QueryCodesRequest) | [QueryCodesResponse](#wasmd.x.wasmd.v1beta1.QueryCodesResponse) | Codes gets the metadata for all stored wasm codes |
 
-
+ 
 
 
 
@@ -708,14 +685,14 @@ Query provides defines the gRPC querier service
 
 <a name="wasmd.x.wasmd.v1beta1.MsgClearAdmin"></a>
 
-### AbsoluteTxPosition
-AbsoluteTxPosition is a unique transaction position that allows for global ordering of transactions.
+### MsgClearAdmin
+MsgClearAdmin removes any admin stored for a smart contract
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| block_height | [uint64](#uint64) |  | BlockHeight is the block the contract was created at |
-| tx_index | [uint64](#uint64) |  | TxIndex is a monotonic counter within the block (actual transaction index, or gas consumed) |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| contract | [string](#string) |  | Contract is the address of the smart contract |
 
 
 
@@ -730,8 +707,10 @@ MsgExecuteContract submits the given message data to a smart contract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| permission | [AccessType](#wasmd.x.wasmd.v1beta1.AccessType) |  |  |
-| address | [string](#string) |  |  |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| contract | [string](#string) |  | Contract is the address of the smart contract |
+| msg | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract |
+| sent_funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | SentFunds coins that are transferred to the contract on execution |
 
 
 
@@ -746,8 +725,8 @@ MsgInstantiateContract create a new smart contract instance for the given code i
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [bytes](#bytes) |  | Sender is the that actor that signed the messages |
-| admin | [bytes](#bytes) |  | Admin is an optional address that can execute migrations |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| admin | [string](#string) |  | Admin is an optional address that can execute migrations |
 | code_id | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | label | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
 | init_msg | [bytes](#bytes) |  | InitMsg json encoded message to be passed to the contract on instantiation |
@@ -766,11 +745,10 @@ MsgMigrateContract runs a code upgrade/ downgrade for a smart contract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| code_hash | [bytes](#bytes) |  | CodeHash is the unique CodeID |
-| creator | [string](#string) |  | Creator address who initially stored the code |
-| source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
-| builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
-| instantiate_config | [AccessConfig](#wasmd.x.wasmd.v1beta1.AccessConfig) |  | InstantiateConfig access control to apply on contract creation, optional |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| contract | [string](#string) |  | Contract is the address of the smart contract |
+| code_id | [uint64](#uint64) |  | CodeID references the new WASM code |
+| migrate_msg | [bytes](#bytes) |  | MigrateMsg json encoded message to be passed to the contract on migration |
 
 
 
@@ -785,7 +763,7 @@ MsgStoreCode submit Wasm code to the system
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sender | [bytes](#bytes) |  | Sender is the that actor that signed the messages |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
 | wasm_byte_code | [bytes](#bytes) |  | WASMByteCode can be raw or gzip compressed |
 | source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
 | builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
@@ -796,11 +774,29 @@ MsgStoreCode submit Wasm code to the system
 
 
 
-<a name="wasmd.x.wasmd.v1beta1.ContractInfo"></a>
+<a name="wasmd.x.wasmd.v1beta1.MsgUpdateAdmin"></a>
+
+### MsgUpdateAdmin
+MsgUpdateAdmin sets a new admin for a smart contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| sender | [string](#string) |  | Sender is the that actor that signed the messages |
+| new_admin | [string](#string) |  | NewAdmin address to be set |
+| contract | [string](#string) |  | Contract is the address of the smart contract |
 
 
 
 
+
+ 
+
+ 
+
+ 
+
+ 
 
 
 
@@ -819,11 +815,9 @@ Code struct encompasses CodeInfo and CodeBytes
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| code_id | [uint64](#uint64) |  | CodeID is the reference to the stored Wasm code |
-| creator | [string](#string) |  | Creator address who initially instantiated the contract |
-| admin | [string](#string) |  | Admin is an optional address that can execute migrations |
-| label | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
-| created | [AbsoluteTxPosition](#wasmd.x.wasmd.v1beta1.AbsoluteTxPosition) |  | Created Tx position when the contract was instantiated. This data should kept internal and not be exposed via query results. Just use for sorting |
+| code_id | [uint64](#uint64) |  |  |
+| code_info | [CodeInfo](#wasmd.x.wasmd.v1beta1.CodeInfo) |  |  |
+| code_bytes | [bytes](#bytes) |  |  |
 
 
 
@@ -838,7 +832,7 @@ Contract struct encompasses ContractAddress, ContractInfo, and ContractState
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contract_address | [bytes](#bytes) |  |  |
+| contract_address | [string](#string) |  |  |
 | contract_info | [ContractInfo](#wasmd.x.wasmd.v1beta1.ContractInfo) |  |  |
 | contract_state | [Model](#wasmd.x.wasmd.v1beta1.Model) | repeated |  |
 
@@ -880,13 +874,13 @@ Sequence key and value of an id generation counter
 
 
 
+ 
 
+ 
 
+ 
 
-
-
-
-
+ 
 
 
 
@@ -909,3 +903,4 @@ Sequence key and value of an id generation counter
 | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
+
