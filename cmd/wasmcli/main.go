@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CosmWasm/wasmd/app"
+	"github.com/iov-one/wasmd/app"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
