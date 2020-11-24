@@ -9,6 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/wasmd/x/configuration/types"
 	"github.com/spf13/cobra"
@@ -86,7 +88,14 @@ func getCmdUpdateConfig() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				types.ModuleCdc.MustUnmarshalBinaryBare(rawCfg, config)
+				interfaceRegistry := cdctypes.NewInterfaceRegistry()
+				interfaceRegistry.RegisterInterface("cosmos.base.v1beta1.Msg",
+					(*sdk.Msg)(nil),
+					&types.MsgUpdateConfig{},
+					&types.MsgUpdateFees{},
+				)
+				marshaler := codec.NewProtoCodec(interfaceRegistry)
+				marshaler.MustUnmarshalBinaryBare(rawCfg, config)
 			}
 			var signer sdk.AccAddress
 			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag

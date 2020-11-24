@@ -24,7 +24,9 @@ var (
 )
 
 // AppModuleBasic defines the basic application module used by the configuration module.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	cdc codec.Marshaler
+}
 
 // RegisterLegacyAminoCodec registers the amino codec.
 func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
