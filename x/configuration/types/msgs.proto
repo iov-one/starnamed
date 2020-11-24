@@ -4,14 +4,13 @@ package wasmd.x.configuration.v1beta1;
 import "gogoproto/gogo.proto";
 import "x/configuration/types/types.proto";
 
-option go_package="github.com/iov-one/wasmd/x/configuration/types";
+option go_package="github.com/iov-one/starnamed/x/configuration/types";
 
 // MsgUpdateConfig is used to update starname configuration
 message MsgUpdateConfig {
     // Signer is the address of the entity who is doing the transaction
-    bytes signer = 1 [
-        (gogoproto.moretags) = "yaml:\"signer\"",
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    string signer = 1 [
+        (gogoproto.moretags) = "yaml:\"signer\""
     ];
     // NewConfiguration contains the new configuration data
     Config new_configuration = 2 [
@@ -23,8 +22,7 @@ message MsgUpdateConfig {
 // MsgUpdateFees is used to update the starname product fees in the starname module.
 message MsgUpdateFees {
     Fees fees = 1;
-    bytes configurer = 2 [
-        (gogoproto.moretags) = "yaml:\"configurer\"",
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    string configurer = 2 [
+        (gogoproto.moretags) = "yaml:\"configurer\""
     ];
 }

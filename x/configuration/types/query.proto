@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "x/configuration/types/types.proto";
 
-option go_package = "github.com/iov-one/wasmd/x/configuration/types";
+option go_package = "github.com/iov-one/starnamed/x/configuration/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = true;
 

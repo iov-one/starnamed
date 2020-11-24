@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/wasmd/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/cosmos/cosmos-sdk/types"
 )
 

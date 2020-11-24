@@ -4,15 +4,14 @@ package wasmd.x.configuration.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package="github.com/iov-one/wasmd/x/configuration/types";
+option go_package="github.com/iov-one/starnamed/x/configuration/types";
 option (gogoproto.equal_all) = true;
 
 // Config is the configuration of the network
 message Config {
     // Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser
-    bytes configurer = 1 [
-        (gogoproto.moretags) = "yaml:\"configurer\"",
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    string configurer = 1 [
+        (gogoproto.moretags) = "yaml:\"configurer\""
     ];
     // ValidDomainName defines a regexp that determines if a domain name is valid or not
     string valid_domain_name = 2 [

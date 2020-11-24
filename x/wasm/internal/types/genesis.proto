@@ -4,7 +4,7 @@ package wasmd.x.wasmd.v1beta1;
 import "gogoproto/gogo.proto";
 import "x/wasm/internal/types/types.proto";
 
-option go_package = "github.com/iov-one/wasmd/x/wasmd/internal/types";
+option go_package = "github.com/iov-one/starnamed/x/wasmd/internal/types";
 
 // GenesisState - genesis state of x/wasm
 message GenesisState {

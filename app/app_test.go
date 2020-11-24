@@ -10,7 +10,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/iov-one/wasmd/x/wasm"
+	"github.com/iov-one/starnamed/x/wasm"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

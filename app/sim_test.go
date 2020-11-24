@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/iov-one/wasmd/x/wasm"
+	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"

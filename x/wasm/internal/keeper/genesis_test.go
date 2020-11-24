@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/wasmd/x/wasm/internal/types"
-	wasmTypes "github.com/iov-one/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
+	wasmTypes "github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"

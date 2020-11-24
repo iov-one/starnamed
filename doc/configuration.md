@@ -39,7 +39,7 @@ Config is the configuration of the network
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| configurer | [bytes](#bytes) |  | Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser |
+| configurer | [string](#string) |  | Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser |
 | valid_domain_name | [string](#string) |  | ValidDomainName defines a regexp that determines if a domain name is valid or not |
 | valid_account_name | [string](#string) |  | ValidAccountName defines a regexp that determines if an account name is valid or not |
 | valid_uri | [string](#string) |  | ValidURI defines a regexp that determines if resource uri is valid or not |
@@ -212,7 +212,7 @@ MsgUpdateConfig is used to update starname configuration
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| signer | [bytes](#bytes) |  | Signer is the address of the entity who is doing the transaction |
+| signer | [string](#string) |  | Signer is the address of the entity who is doing the transaction |
 | new_configuration | [Config](#wasmd.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
 
 
@@ -229,7 +229,7 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | fees | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
-| configurer | [bytes](#bytes) |  |  |
+| configurer | [string](#string) |  |  |
 
 
 

@@ -7,7 +7,7 @@ import (
 
 // Validate validates the Config object.
 func (c Config) Validate() error {
-	if c.Configurer == nil {
+	if c.Configurer == "" {
 		return fmt.Errorf("empty configurer")
 	}
 	if c.DomainRenewalPeriod < 0 {

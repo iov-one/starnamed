@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/wasmd/x/configuration/types"
+	"github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/spf13/cobra"
 )
 
@@ -62,7 +62,7 @@ func getCmdUpdateFees() *cobra.Command {
 			}
 			msg := types.MsgUpdateFees{
 				Fees:       newFees,
-				Configurer: cliCtx.GetFromAddress(),
+				Configurer: cliCtx.GetFromAddress().String(),
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("invalid tx: %w", err)
@@ -97,16 +97,12 @@ func getCmdUpdateConfig() *cobra.Command {
 				marshaler := codec.NewProtoCodec(interfaceRegistry)
 				marshaler.MustUnmarshalBinaryBare(rawCfg, config)
 			}
-			var signer sdk.AccAddress
+			var signer string
 			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
 			if !cliCtx.GenerateOnly {
-				signer = cliCtx.FromAddress
+				signer = cliCtx.GetFromAddress().String()
 			} else {
-				signerStr, err := cmd.Flags().GetString("signer")
-				if err != nil {
-					return err
-				}
-				signer, err = sdk.AccAddressFromBech32(signerStr)
+				signer, err = cmd.Flags().GetString("signer")
 				if err != nil {
 					return err
 				}
@@ -117,11 +113,7 @@ func getCmdUpdateConfig() *cobra.Command {
 				return
 			}
 			if configurerStr != "" {
-				configurer, err := sdk.AccAddressFromBech32(configurerStr)
-				if err != nil {
-					return err
-				}
-				config.Configurer = configurer
+				config.Configurer = configurerStr
 			}
 			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
 			if err != nil {
