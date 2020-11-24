@@ -1,25 +1,11 @@
 # docker build . -t cosmwasm/wasmd:latest
 # docker run --rm -it cosmwasm/wasmd:latest /bin/sh
-FROM cosmwasm/go-ext-builder:0.8.2-alpine AS rust-builder
+FROM golang:1.15-alpine3.12 AS go-builder
 
-RUN apk add git
-
-# copy all code into /code
-WORKDIR /code
-COPY go.* /code/
-
-# download all deps
-RUN go mod download github.com/CosmWasm/go-cosmwasm
-
-# build go-cosmwasm *.a and install it
-RUN export GO_WASM_DIR=$(go list -f "{{ .Dir }}" -m github.com/CosmWasm/go-cosmwasm) && \
-    cd ${GO_WASM_DIR} && \
-    cargo build --release --features backtraces --example muslc && \
-    mv ${GO_WASM_DIR}/target/release/examples/libmuslc.a /lib/libgo_cosmwasm_muslc.a
-
-
-# --------------------------------------------------------
-FROM cosmwasm/go-ext-builder:0.8.2-alpine AS go-builder
+# this comes from standard alpine nightly file
+#  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
+# with some changes to support our toolchain, etc
+RUN set -eux; apk add --no-cache ca-certificates build-base;
 
 RUN apk add git
 # NOTE: add these to run with LEDGER_ENABLED=true
@@ -28,7 +14,9 @@ RUN apk add git
 WORKDIR /code
 COPY . /code/
 
-COPY --from=rust-builder /lib/libgo_cosmwasm_muslc.a /lib/libgo_cosmwasm_muslc.a
+# See https://github.com/CosmWasm/wasmvm/releases
+ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.12.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
+RUN sha256sum /lib/libwasmvm_muslc.a | grep 00ee24fefe094d919f5f83bf1b32948b1083245479dad8ccd5654c7204827765
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
@@ -40,12 +28,9 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build-gaiaflex
 FROM alpine:3.12
 
 COPY --from=go-builder /code/build/wasmd /usr/bin/wasmd
-COPY --from=go-builder /code/build/wasmcli /usr/bin/wasmcli
 
 # testnet
-COPY --from=go-builder /code/build/coral /usr/bin/coral
 COPY --from=go-builder /code/build/corald /usr/bin/corald
-COPY --from=go-builder /code/build/gaiaflex /usr/bin/gaiaflex
 COPY --from=go-builder /code/build/gaiaflexd /usr/bin/gaiaflexd
 
 COPY docker/* /opt/

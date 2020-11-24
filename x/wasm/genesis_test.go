@@ -8,9 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type contractState struct {
-}
-
 func TestInitGenesis(t *testing.T) {
 	data := setupTest(t)
 
@@ -22,56 +19,13 @@ func TestInitGenesis(t *testing.T) {
 	h := data.module.Route().Handler()
 	q := data.module.LegacyQuerierHandler(nil)
 
-	t.Log("fail with invalid source url")
 	msg := MsgStoreCode{
-		Sender:       creator,
-		WASMByteCode: testContract,
-		Source:       "someinvalidurl",
-		Builder:      "",
-	}
-
-	err := msg.ValidateBasic()
-	require.Error(t, err)
-
-	_, err = h(data.ctx, &msg)
-	require.Error(t, err)
-
-	t.Log("fail with relative source url")
-	msg = MsgStoreCode{
-		Sender:       creator,
-		WASMByteCode: testContract,
-		Source:       "./testdata/escrow.wasm",
-		Builder:      "",
-	}
-
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-
-	_, err = h(data.ctx, &msg)
-	require.Error(t, err)
-
-	t.Log("fail with invalid build tag")
-	msg = MsgStoreCode{
-		Sender:       creator,
-		WASMByteCode: testContract,
-		Source:       "",
-		Builder:      "somerandombuildtag-0.6.2",
-	}
-
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-
-	_, err = h(data.ctx, &msg)
-	require.Error(t, err)
-
-	t.Log("no error with valid source and build tag")
-	msg = MsgStoreCode{
-		Sender:       creator,
+		Sender:       creator.String(),
 		WASMByteCode: testContract,
 		Source:       "https://github.com/CosmWasm/wasmd/blob/master/x/wasm/testdata/escrow.wasm",
 		Builder:      "confio/cosmwasm-opt:0.7.0",
 	}
-	err = msg.ValidateBasic()
+	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
 	res, err := h(data.ctx, &msg)
@@ -87,18 +41,18 @@ func TestInitGenesis(t *testing.T) {
 	require.NoError(t, err)
 
 	initCmd := MsgInstantiateContract{
-		Sender:    creator,
+		Sender:    creator.String(),
 		CodeID:    firstCodeID,
 		InitMsg:   initMsgBz,
 		InitFunds: deposit,
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
-	contractAddr := sdk.AccAddress(res.Data)
+	contractBech32Addr := string(res.Data)
 
 	execCmd := MsgExecuteContract{
-		Sender:    fred,
-		Contract:  contractAddr,
+		Sender:    fred.String(),
+		Contract:  contractBech32Addr,
 		Msg:       []byte(`{"release":{}}`),
 		SentFunds: topUp,
 	}
@@ -109,9 +63,9 @@ func TestInitGenesis(t *testing.T) {
 	assertCodeList(t, q, data.ctx, 1)
 	assertCodeBytes(t, q, data.ctx, 1, testContract)
 
-	assertContractList(t, q, data.ctx, 1, []string{contractAddr.String()})
-	assertContractInfo(t, q, data.ctx, contractAddr, 1, creator)
-	assertContractState(t, q, data.ctx, contractAddr, state{
+	assertContractList(t, q, data.ctx, 1, []string{contractBech32Addr})
+	assertContractInfo(t, q, data.ctx, contractBech32Addr, 1, creator)
+	assertContractState(t, q, data.ctx, contractBech32Addr, state{
 		Verifier:    []byte(fred),
 		Beneficiary: []byte(bob),
 		Funder:      []byte(creator),
@@ -131,9 +85,9 @@ func TestInitGenesis(t *testing.T) {
 	assertCodeList(t, q2, newData.ctx, 1)
 	assertCodeBytes(t, q2, newData.ctx, 1, testContract)
 
-	assertContractList(t, q2, newData.ctx, 1, []string{contractAddr.String()})
-	assertContractInfo(t, q2, newData.ctx, contractAddr, 1, creator)
-	assertContractState(t, q2, newData.ctx, contractAddr, state{
+	assertContractList(t, q2, newData.ctx, 1, []string{contractBech32Addr})
+	assertContractInfo(t, q2, newData.ctx, contractBech32Addr, 1, creator)
+	assertContractState(t, q2, newData.ctx, contractBech32Addr, state{
 		Verifier:    []byte(fred),
 		Beneficiary: []byte(bob),
 		Funder:      []byte(creator),

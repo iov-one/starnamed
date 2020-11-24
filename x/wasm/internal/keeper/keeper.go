@@ -5,9 +5,9 @@ import (
 	"encoding/binary"
 	"path/filepath"
 
-	wasm "github.com/CosmWasm/go-cosmwasm"
-	wasmTypes "github.com/CosmWasm/go-cosmwasm/types"
-	"github.com/iov-one/wasmd/x/wasm/internal/types"
+	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	wasmvm "github.com/CosmWasm/wasmvm"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,7 +50,7 @@ type Keeper struct {
 	wasmer       types.WasmerEngine
 	queryPlugins QueryPlugins
 	messenger    MessageHandler
-	// queryGasLimit is the max wasm gas that can be spent on executing a query with a contract
+	// queryGasLimit is the max wasmvm gas that can be spent on executing a query with a contract
 	queryGasLimit uint64
 	authZPolicy   AuthorizationPolicy
 	paramSpace    paramtypes.Subspace
@@ -73,7 +73,7 @@ func NewKeeper(
 	customEncoders *MessageEncoders,
 	customPlugins *QueryPlugins,
 ) Keeper {
-	wasmer, err := wasm.NewWasmer(filepath.Join(homeDir, "wasm"), supportedFeatures)
+	wasmer, err := wasmvm.NewVM(filepath.Join(homeDir, "wasm"), supportedFeatures, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(err)
 	}
@@ -233,7 +233,7 @@ func (k Keeper) instantiate(ctx sdk.Context, codeID uint64, creator, admin sdk.A
 
 	// create prefixed data store
 	// 0x03 | contractAddress (sdk.AccAddress)
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 
 	// prepare querier
@@ -256,9 +256,9 @@ func (k Keeper) instantiate(ctx sdk.Context, codeID uint64, creator, admin sdk.A
 
 	// persist instance first
 	createdAt := types.NewAbsoluteTxPosition(ctx)
-	instance := types.NewContractInfo(codeID, creator, admin, label, createdAt)
-	store.Set(types.GetContractAddressKey(contractAddress), k.cdc.MustMarshalBinaryBare(&instance))
-	k.appendToContractHistory(ctx, contractAddress, instance.InitialHistory(initMsg))
+	contractInfo := types.NewContractInfo(codeID, creator, admin, label, createdAt)
+	k.storeContractInfo(ctx, contractAddress, &contractInfo)
+	k.appendToContractHistory(ctx, contractAddress, contractInfo.InitialHistory(initMsg))
 
 	// then dispatch so that contract could be called back
 	err = k.dispatchMessages(ctx, contractAddress, res.Messages)
@@ -332,7 +332,7 @@ func (k Keeper) migrate(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 	if contractInfo == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unknown contract")
 	}
-	if !authZ.CanModifyContract(contractInfo.Admin, caller) {
+	if !authZ.CanModifyContract(contractInfo.AdminAddr(), caller) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "can not migrate")
 	}
 
@@ -351,7 +351,7 @@ func (k Keeper) migrate(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 		Plugins: k.queryPlugins,
 	}
 
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	gas := gasForContract(ctx)
 	res, gasUsed, err := k.wasmer.Migrate(newCodeInfo.CodeHash, env, info, msg, &prefixStore, cosmwasmAPI, &querier, gasMeter(ctx), gas)
@@ -364,10 +364,14 @@ func (k Keeper) migrate(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 	events := types.ParseEvents(res.Attributes, contractAddress)
 	ctx.EventManager().EmitEvents(events)
 
+	// delete old secondary index entry
+	k.deleteContractSecondIndex(ctx, contractAddress, contractInfo)
+	// persist migration updates
 	historyEntry := contractInfo.AddMigration(ctx, newCodeID, msg)
 	k.appendToContractHistory(ctx, contractAddress, historyEntry)
-	k.setContractInfo(ctx, contractAddress, contractInfo)
+	k.storeContractInfo(ctx, contractAddress, contractInfo)
 
+	// then dispatch
 	if err := k.dispatchMessages(ctx, contractAddress, res.Messages); err != nil {
 		return nil, sdkerrors.Wrap(err, "dispatch")
 	}
@@ -375,6 +379,10 @@ func (k Keeper) migrate(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 	return &sdk.Result{
 		Data: res.Data,
 	}, nil
+}
+
+func (k Keeper) deleteContractSecondIndex(ctx sdk.Context, contractAddress sdk.AccAddress, contractInfo *types.ContractInfo) {
+	ctx.KVStore(k.storeKey).Delete(types.GetContractByCreatedSecondaryIndexKey(contractAddress, contractInfo))
 }
 
 // UpdateContractAdmin sets the admin value on the ContractInfo. It must be a valid address (use ClearContractAdmin to remove it)
@@ -392,29 +400,40 @@ func (k Keeper) setContractAdmin(ctx sdk.Context, contractAddress, caller, newAd
 	if contractInfo == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unknown contract")
 	}
-	if !authZ.CanModifyContract(contractInfo.Admin, caller) {
+	if !authZ.CanModifyContract(contractInfo.AdminAddr(), caller) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "can not modify contract")
 	}
-	contractInfo.Admin = newAdmin
-	k.setContractInfo(ctx, contractAddress, contractInfo)
+	contractInfo.Admin = newAdmin.String()
+	k.storeContractInfo(ctx, contractAddress, contractInfo)
 	return nil
 }
 
 func (k Keeper) appendToContractHistory(ctx sdk.Context, contractAddr sdk.AccAddress, newEntries ...types.ContractCodeHistoryEntry) {
-	history := k.GetContractHistory(ctx, contractAddr)
-	history.CodeHistoryEntries = append(history.CodeHistoryEntries, newEntries...)
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ContractHistoryStorePrefix)
-	prefixStore.Set(contractAddr, k.cdc.MustMarshalBinaryBare(&history))
+	store := ctx.KVStore(k.storeKey)
+	// find last element position
+	var pos uint64
+	prefixStore := prefix.NewStore(store, types.GetContractCodeHistoryElementPrefix(contractAddr))
+	if iter := prefixStore.ReverseIterator(nil, nil); iter.Valid() {
+		pos = sdk.BigEndianToUint64(iter.Value())
+	}
+	// then store with incrementing position
+	for _, e := range newEntries {
+		pos++
+		key := types.GetContractCodeHistoryElementKey(contractAddr, pos)
+		store.Set(key, k.cdc.MustMarshalBinaryBare(&e))
+	}
 }
 
-func (k Keeper) GetContractHistory(ctx sdk.Context, contractAddr sdk.AccAddress) types.ContractHistory {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ContractHistoryStorePrefix)
-	bz := prefixStore.Get(contractAddr)
-	var history types.ContractHistory
-	if len(bz) != 0 {
-		k.cdc.MustUnmarshalBinaryBare(bz, &history)
+func (k Keeper) GetContractHistory(ctx sdk.Context, contractAddr sdk.AccAddress) []types.ContractCodeHistoryEntry {
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetContractCodeHistoryElementPrefix(contractAddr))
+	r := make([]types.ContractCodeHistoryEntry, 0)
+	iter := prefixStore.Iterator(nil, nil)
+	for ; iter.Valid(); iter.Next() {
+		var e types.ContractCodeHistoryEntry
+		k.cdc.MustUnmarshalBinaryBare(iter.Value(), &e)
+		r = append(r, e)
 	}
-	return history
+	return r
 }
 
 // QuerySmart queries the smart contract itself.
@@ -445,7 +464,7 @@ func (k Keeper) QueryRaw(ctx sdk.Context, contractAddress sdk.AccAddress, key []
 	if key == nil {
 		return nil
 	}
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	return prefixStore.Get(key)
 }
@@ -466,7 +485,7 @@ func (k Keeper) contractInstance(ctx sdk.Context, contractAddress sdk.AccAddress
 	}
 	var codeInfo types.CodeInfo
 	k.cdc.MustUnmarshalBinaryBare(contractInfoBz, &codeInfo)
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	return codeInfo, prefixStore, nil
 }
@@ -487,9 +506,10 @@ func (k Keeper) containsContractInfo(ctx sdk.Context, contractAddress sdk.AccAdd
 	return store.Has(types.GetContractAddressKey(contractAddress))
 }
 
-func (k Keeper) setContractInfo(ctx sdk.Context, contractAddress sdk.AccAddress, contract *types.ContractInfo) {
+func (k Keeper) storeContractInfo(ctx sdk.Context, contractAddress sdk.AccAddress, contract *types.ContractInfo) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.GetContractAddressKey(contractAddress), k.cdc.MustMarshalBinaryBare(contract))
+	store.Set(types.GetContractByCreatedSecondaryIndexKey(contractAddress, contract), []byte{})
 }
 
 func (k Keeper) IterateContractInfo(ctx sdk.Context, cb func(sdk.AccAddress, types.ContractInfo) bool) {
@@ -506,13 +526,13 @@ func (k Keeper) IterateContractInfo(ctx sdk.Context, cb func(sdk.AccAddress, typ
 }
 
 func (k Keeper) GetContractState(ctx sdk.Context, contractAddress sdk.AccAddress) sdk.Iterator {
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	return prefixStore.Iterator(nil, nil)
 }
 
 func (k Keeper) importContractState(ctx sdk.Context, contractAddress sdk.AccAddress, models []types.Model) error {
-	prefixStoreKey := types.GetContractStorePrefixKey(contractAddress)
+	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	for _, model := range models {
 		if model.Value == nil {
@@ -566,7 +586,7 @@ func (k Keeper) GetByteCode(ctx sdk.Context, codeID uint64) ([]byte, error) {
 	return k.wasmer.GetCode(codeInfo.CodeHash)
 }
 
-func (k Keeper) dispatchMessages(ctx sdk.Context, contractAddr sdk.AccAddress, msgs []wasmTypes.CosmosMsg) error {
+func (k Keeper) dispatchMessages(ctx sdk.Context, contractAddr sdk.AccAddress, msgs []wasmvmtypes.CosmosMsg) error {
 	for _, msg := range msgs {
 		if err := k.messenger.Dispatch(ctx, contractAddr, msg); err != nil {
 			return err
@@ -663,7 +683,7 @@ func (k Keeper) importContract(ctx sdk.Context, contractAddr sdk.AccAddress, c *
 
 	historyEntry := c.ResetFromGenesis(ctx)
 	k.appendToContractHistory(ctx, contractAddr, historyEntry)
-	k.setContractInfo(ctx, contractAddr, c)
+	k.storeContractInfo(ctx, contractAddr, c)
 	return k.importContractState(ctx, contractAddr, state)
 }
 
@@ -679,7 +699,7 @@ type MultipiedGasMeter struct {
 	originalMeter sdk.GasMeter
 }
 
-var _ wasm.GasMeter = MultipiedGasMeter{}
+var _ wasmvm.GasMeter = MultipiedGasMeter{}
 
 func (m MultipiedGasMeter) GasConsumed() sdk.Gas {
 	return m.originalMeter.GasConsumed() * GasMultiplier
