@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/codec"

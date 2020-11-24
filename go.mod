@@ -1,4 +1,4 @@
-module github.com/iov-one/wasmd
+module github.com/iov-one/starnamed
 
 go 1.15
 
