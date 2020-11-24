@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/iov-one/wasmd/pkg/queries"
-	"github.com/iov-one/wasmd/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/queries"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"

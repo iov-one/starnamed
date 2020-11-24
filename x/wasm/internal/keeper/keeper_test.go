@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	stypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"

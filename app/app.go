@@ -84,9 +84,9 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/iov-one/wasmd/x/configuration"
-	"github.com/iov-one/wasmd/x/wasm"
-	wasmclient "github.com/iov-one/wasmd/x/wasm/client"
+	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/wasm"
+	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"

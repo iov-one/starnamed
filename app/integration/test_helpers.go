@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	wasmd "github.com/iov-one/wasmd/app"
-	"github.com/iov-one/wasmd/x/wasm"
+	wasmd "github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/x/wasm"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/iov-one/wasmd/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"

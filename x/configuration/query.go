@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/wasmd/pkg/queries"
+	"github.com/iov-one/starnamed/pkg/queries"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
