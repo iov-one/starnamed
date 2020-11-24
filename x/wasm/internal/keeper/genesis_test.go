@@ -50,11 +50,13 @@ func TestGenesisExportImport(t *testing.T) {
 		f.Fuzz(&contract)
 		f.Fuzz(&stateModels)
 		f.NilChance(0).Fuzz(&history)
-		codeID, err := srcKeeper.Create(srcCtx, codeInfo.Creator, wasmCode, codeInfo.Source, codeInfo.Builder, &codeInfo.InstantiateConfig)
+		creatorAddr, err := sdk.AccAddressFromBech32(codeInfo.Creator)
+		require.NoError(t, err)
+		codeID, err := srcKeeper.Create(srcCtx, creatorAddr, wasmCode, codeInfo.Source, codeInfo.Builder, &codeInfo.InstantiateConfig)
 		require.NoError(t, err)
 		contract.CodeID = codeID
 		contractAddr := srcKeeper.generateContractAddress(srcCtx, codeID)
-		srcKeeper.setContractInfo(srcCtx, contractAddr, &contract)
+		srcKeeper.storeContractInfo(srcCtx, contractAddr, &contract)
 		srcKeeper.appendToContractHistory(srcCtx, contractAddr, history...)
 		srcKeeper.importContractState(srcCtx, contractAddr, stateModels)
 	}
@@ -77,10 +79,11 @@ func TestGenesisExportImport(t *testing.T) {
 	exportedGenesis, err := json.Marshal(exportedState)
 	require.NoError(t, err)
 
-	// reset contract history in source DB for comparision with dest DB
+	// reset ContractInfo in source DB for comparison with dest DB
 	srcKeeper.IterateContractInfo(srcCtx, func(address sdk.AccAddress, info wasmTypes.ContractInfo) bool {
+		srcKeeper.deleteContractSecondIndex(srcCtx, address, &info)
 		info.ResetFromGenesis(srcCtx)
-		srcKeeper.setContractInfo(srcCtx, address, &info)
+		srcKeeper.storeContractInfo(srcCtx, address, &info)
 		return false
 	})
 
@@ -99,15 +102,21 @@ func TestGenesisExportImport(t *testing.T) {
 		dstIT := dstCtx.KVStore(dstStoreKeys[j]).Iterator(nil, nil)
 
 		for i := 0; srcIT.Valid(); i++ {
-			require.True(t, dstIT.Valid(), "[%s] destination DB has less elements than source. Missing: %s", srcStoreKeys[j].Name(), srcIT.Key())
-			require.Equal(t, srcIT.Key(), dstIT.Key(), i)
-
-			isContractHistory := srcStoreKeys[j].Name() == types.StoreKey && bytes.HasPrefix(srcIT.Key(), types.ContractHistoryStorePrefix)
-			if !isContractHistory { // only skip history entries because we know they are different
-				require.Equal(t, srcIT.Value(), dstIT.Value(), "[%s] element (%d): %X", srcStoreKeys[j].Name(), i, srcIT.Key())
+			isContractHistory := srcStoreKeys[j].Name() == types.StoreKey && bytes.HasPrefix(srcIT.Key(), types.ContractCodeHistoryElementPrefix)
+			if isContractHistory {
+				// only skip history entries because we know they are different
+				// from genesis they are merged into 1 single entry
+				srcIT.Next()
+				if bytes.HasPrefix(dstIT.Key(), types.ContractCodeHistoryElementPrefix) {
+					dstIT.Next()
+				}
+				continue
 			}
-			srcIT.Next()
+			require.True(t, dstIT.Valid(), "[%s] destination DB has less elements than source. Missing: %x", srcStoreKeys[j].Name(), srcIT.Key())
+			require.Equal(t, srcIT.Key(), dstIT.Key(), i)
+			require.Equal(t, srcIT.Value(), dstIT.Value(), "[%s] element (%d): %X", srcStoreKeys[j].Name(), i, srcIT.Key())
 			dstIT.Next()
+			srcIT.Next()
 		}
 		if !assert.False(t, dstIT.Valid()) {
 			t.Fatalf("dest Iterator still has key :%X", dstIT.Key())
@@ -210,7 +219,7 @@ func TestFailFastImport(t *testing.T) {
 				}},
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					},
 				},
@@ -231,10 +240,10 @@ func TestFailFastImport(t *testing.T) {
 				}},
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					}, {
-						ContractAddress: contractAddress(1, 2),
+						ContractAddress: contractAddress(1, 2).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					},
 				},
@@ -250,7 +259,7 @@ func TestFailFastImport(t *testing.T) {
 			src: types.GenesisState{
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					},
 				},
@@ -266,10 +275,10 @@ func TestFailFastImport(t *testing.T) {
 				}},
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					}, {
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					},
 				},
@@ -285,7 +294,7 @@ func TestFailFastImport(t *testing.T) {
 				}},
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 						ContractState: []types.Model{
 							{
@@ -333,7 +342,7 @@ func TestFailFastImport(t *testing.T) {
 				}},
 				Contracts: []types.Contract{
 					{
-						ContractAddress: contractAddress(1, 1),
+						ContractAddress: contractAddress(1, 1).String(),
 						ContractInfo:    types.ContractInfoFixture(func(c *wasmTypes.ContractInfo) { c.CodeID = 1 }, types.OnlyGenesisFields),
 					},
 				},
@@ -435,7 +444,7 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
 	// verify code info
 	gotCodeInfo := keeper.GetCodeInfo(ctx, 1)
 	require.NotNil(t, gotCodeInfo)
-	codeCreatorAddr, _ := sdk.AccAddressFromBech32("cosmos1qtu5n0cnhfkjj6l2rq97hmky9fd89gwca9yarx")
+	codeCreatorAddr := "cosmos1qtu5n0cnhfkjj6l2rq97hmky9fd89gwca9yarx"
 	expCodeInfo := types.CodeInfo{
 		CodeHash: wasmCodeHash[:],
 		Creator:  codeCreatorAddr,
@@ -452,8 +461,8 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
 	contractAddr, _ := sdk.AccAddressFromBech32("cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5")
 	gotContractInfo := keeper.GetContractInfo(ctx, contractAddr)
 	require.NotNil(t, gotContractInfo)
-	contractCreatorAddr, _ := sdk.AccAddressFromBech32("cosmos13x849jzd03vne42ynpj25hn8npjecxqrjghd8x")
-	adminAddr, _ := sdk.AccAddressFromBech32("cosmos1h5t8zxmjr30e9dqghtlpl40f2zz5cgey6esxtn")
+	contractCreatorAddr := "cosmos13x849jzd03vne42ynpj25hn8npjecxqrjghd8x"
+	adminAddr := "cosmos1h5t8zxmjr30e9dqghtlpl40f2zz5cgey6esxtn"
 
 	expContractInfo := types.ContractInfo{
 		CodeID:  firstCodeID,
@@ -470,7 +479,7 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
 		Updated:   types.NewAbsoluteTxPosition(ctx),
 	},
 	}
-	assert.Equal(t, expHistory, keeper.GetContractHistory(ctx, contractAddr).CodeHistoryEntries)
+	assert.Equal(t, expHistory, keeper.GetContractHistory(ctx, contractAddr))
 }
 
 func setupKeeper(t *testing.T) (*Keeper, sdk.Context, []sdk.StoreKey, func()) {

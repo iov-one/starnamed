@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmWasm/go-cosmwasm"
-	wasmTypes "github.com/CosmWasm/go-cosmwasm/types"
-	"github.com/iov-one/wasmd/x/wasm/internal/types"
+	"github.com/CosmWasm/wasmd/x/wasm/internal/types"
+	cosmwasm "github.com/CosmWasm/wasmvm"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -298,7 +298,15 @@ func TestHandler(k *Keeper) sdk.Handler {
 }
 
 func handleInstantiate(ctx sdk.Context, k *Keeper, msg *types.MsgInstantiateContract) (*sdk.Result, error) {
-	contractAddr, err := k.Instantiate(ctx, msg.CodeID, msg.Sender, msg.Admin, msg.InitMsg, msg.Label, msg.InitFunds)
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "sender")
+	}
+	adminAddr, err := sdk.AccAddressFromBech32(msg.Admin)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "admin")
+	}
+	contractAddr, err := k.Instantiate(ctx, msg.CodeID, senderAddr, adminAddr, msg.InitMsg, msg.Label, msg.InitFunds)
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +318,15 @@ func handleInstantiate(ctx sdk.Context, k *Keeper, msg *types.MsgInstantiateCont
 }
 
 func handleExecute(ctx sdk.Context, k *Keeper, msg *types.MsgExecuteContract) (*sdk.Result, error) {
-	res, err := k.Execute(ctx, msg.Contract, msg.Sender, msg.Msg, msg.SentFunds)
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "sender")
+	}
+	contractAddr, err := sdk.AccAddressFromBech32(msg.Contract)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "admin")
+	}
+	res, err := k.Execute(ctx, contractAddr, senderAddr, msg.Msg, msg.SentFunds)
 	if err != nil {
 		return nil, err
 	}
@@ -319,33 +335,41 @@ func handleExecute(ctx sdk.Context, k *Keeper, msg *types.MsgExecuteContract) (*
 	return res, nil
 }
 
-func AnyAccAddress(_ *testing.T) sdk.AccAddress {
+func RandomBech32AccountAddress(_ *testing.T) string {
 	_, _, addr := keyPubAddr()
-	return addr
+	return addr.String()
 }
 
-type HackatomExampleContract struct {
+type ExampleContract struct {
 	InitialAmount sdk.Coins
 	Creator       crypto.PrivKey
 	CreatorAddr   sdk.AccAddress
 	CodeID        uint64
 }
 
-func StoreHackatomExampleContract(t *testing.T, ctx sdk.Context, keepers TestKeepers) HackatomExampleContract {
+func StoreHackatomExampleContract(t *testing.T, ctx sdk.Context, keepers TestKeepers) ExampleContract {
+	return StoreExampleContract(t, ctx, keepers, "./testdata/hackatom.wasm")
+}
+
+func StoreBurnerExampleContract(t *testing.T, ctx sdk.Context, keepers TestKeepers) ExampleContract {
+	return StoreExampleContract(t, ctx, keepers, "./testdata/burner.wasm")
+}
+
+func StoreExampleContract(t *testing.T, ctx sdk.Context, keepers TestKeepers, wasmFile string) ExampleContract {
 	anyAmount := sdk.NewCoins(sdk.NewInt64Coin("denom", 1000))
 	creator, _, creatorAddr := keyPubAddr()
 	fundAccounts(t, ctx, keepers.AccountKeeper, keepers.BankKeeper, creatorAddr, anyAmount)
 
-	wasmCode, err := ioutil.ReadFile("./testdata/hackatom.wasm")
+	wasmCode, err := ioutil.ReadFile(wasmFile)
 	require.NoError(t, err)
 
 	codeID, err := keepers.WasmKeeper.Create(ctx, creatorAddr, wasmCode, "", "", nil)
 	require.NoError(t, err)
-	return HackatomExampleContract{anyAmount, creator, creatorAddr, codeID}
+	return ExampleContract{anyAmount, creator, creatorAddr, codeID}
 }
 
 type HackatomExampleInstance struct {
-	HackatomExampleContract
+	ExampleContract
 	Contract        sdk.AccAddress
 	Verifier        crypto.PrivKey
 	VerifierAddr    sdk.AccAddress
@@ -366,15 +390,17 @@ func InstantiateHackatomExampleContract(t *testing.T, ctx sdk.Context, keepers T
 		Beneficiary: beneficiaryAddr,
 	}.GetBytes(t)
 	initialAmount := sdk.NewCoins(sdk.NewInt64Coin("denom", 100))
-	contractAddr, err := keepers.WasmKeeper.Instantiate(ctx, contract.CodeID, contract.CreatorAddr, nil, initMsgBz, "demo contract to query", initialAmount)
+
+	adminAddr := contract.CreatorAddr
+	contractAddr, err := keepers.WasmKeeper.Instantiate(ctx, contract.CodeID, contract.CreatorAddr, adminAddr, initMsgBz, "demo contract to query", initialAmount)
 	require.NoError(t, err)
 	return HackatomExampleInstance{
-		HackatomExampleContract: contract,
-		Contract:                contractAddr,
-		Verifier:                verifier,
-		VerifierAddr:            verifierAddr,
-		Beneficiary:             beneficiary,
-		BeneficiaryAddr:         beneficiaryAddr,
+		ExampleContract: contract,
+		Contract:        contractAddr,
+		Verifier:        verifier,
+		VerifierAddr:    verifierAddr,
+		Beneficiary:     beneficiary,
+		BeneficiaryAddr: beneficiaryAddr,
 	}
 }
 
@@ -384,6 +410,16 @@ type HackatomExampleInitMsg struct {
 }
 
 func (m HackatomExampleInitMsg) GetBytes(t *testing.T) []byte {
+	initMsgBz, err := json.Marshal(m)
+	require.NoError(t, err)
+	return initMsgBz
+}
+
+type BurnerExampleInitMsg struct {
+	Payout sdk.AccAddress `json:"payout"`
+}
+
+func (m BurnerExampleInitMsg) GetBytes(t *testing.T) []byte {
 	initMsgBz, err := json.Marshal(m)
 	require.NoError(t, err)
 	return initMsgBz
@@ -422,10 +458,10 @@ var _ types.WasmerEngine = &MockWasmer{}
 // Without a stub function a panic is thrown.
 type MockWasmer struct {
 	CreateFn      func(code cosmwasm.WasmCode) (cosmwasm.CodeID, error)
-	InstantiateFn func(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.InitResponse, uint64, error)
-	ExecuteFn     func(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.HandleResponse, uint64, error)
-	QueryFn       func(code cosmwasm.CodeID, env wasmTypes.Env, queryMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) ([]byte, uint64, error)
-	MigrateFn     func(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, migrateMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.MigrateResponse, uint64, error)
+	InstantiateFn func(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.InitResponse, uint64, error)
+	ExecuteFn     func(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.HandleResponse, uint64, error)
+	QueryFn       func(code cosmwasm.CodeID, env wasmvmtypes.Env, queryMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) ([]byte, uint64, error)
+	MigrateFn     func(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, migrateMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.MigrateResponse, uint64, error)
 	GetCodeFn     func(code cosmwasm.CodeID) (cosmwasm.WasmCode, error)
 	CleanupFn     func()
 }
@@ -437,7 +473,7 @@ func (m *MockWasmer) Create(code cosmwasm.WasmCode) (cosmwasm.CodeID, error) {
 	return m.CreateFn(code)
 }
 
-func (m *MockWasmer) Instantiate(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.InitResponse, uint64, error) {
+func (m *MockWasmer) Instantiate(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.InitResponse, uint64, error) {
 	if m.InstantiateFn == nil {
 		panic("not supposed to be called!")
 	}
@@ -445,21 +481,21 @@ func (m *MockWasmer) Instantiate(code cosmwasm.CodeID, env wasmTypes.Env, info w
 	return m.InstantiateFn(code, env, info, initMsg, store, goapi, querier, gasMeter, gasLimit)
 }
 
-func (m *MockWasmer) Execute(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.HandleResponse, uint64, error) {
+func (m *MockWasmer) Execute(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.HandleResponse, uint64, error) {
 	if m.ExecuteFn == nil {
 		panic("not supposed to be called!")
 	}
 	return m.ExecuteFn(code, env, info, executeMsg, store, goapi, querier, gasMeter, gasLimit)
 }
 
-func (m *MockWasmer) Query(code cosmwasm.CodeID, env wasmTypes.Env, queryMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) ([]byte, uint64, error) {
+func (m *MockWasmer) Query(code cosmwasm.CodeID, env wasmvmtypes.Env, queryMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) ([]byte, uint64, error) {
 	if m.QueryFn == nil {
 		panic("not supposed to be called!")
 	}
 	return m.QueryFn(code, env, queryMsg, store, goapi, querier, gasMeter, gasLimit)
 }
 
-func (m *MockWasmer) Migrate(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, migrateMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.MigrateResponse, uint64, error) {
+func (m *MockWasmer) Migrate(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, migrateMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.MigrateResponse, uint64, error) {
 	if m.MigrateFn == nil {
 		panic("not supposed to be called!")
 	}
@@ -490,16 +526,16 @@ func selfCallingInstMockWasmer(executeCalled *bool) *MockWasmer {
 			anyCodeID := bytes.Repeat([]byte{0x1}, 32)
 			return anyCodeID, nil
 		},
-		InstantiateFn: func(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.InitResponse, uint64, error) {
-			return &wasmTypes.InitResponse{
-				Messages: []wasmTypes.CosmosMsg{
-					{Wasm: &wasmTypes.WasmMsg{Execute: &wasmTypes.ExecuteMsg{ContractAddr: env.Contract.Address, Msg: []byte(`{}`)}}},
+		InstantiateFn: func(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, initMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.InitResponse, uint64, error) {
+			return &wasmvmtypes.InitResponse{
+				Messages: []wasmvmtypes.CosmosMsg{
+					{Wasm: &wasmvmtypes.WasmMsg{Execute: &wasmvmtypes.ExecuteMsg{ContractAddr: env.Contract.Address, Msg: []byte(`{}`)}}},
 				},
 			}, 1, nil
 		},
-		ExecuteFn: func(code cosmwasm.CodeID, env wasmTypes.Env, info wasmTypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmTypes.HandleResponse, uint64, error) {
+		ExecuteFn: func(code cosmwasm.CodeID, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, executeMsg []byte, store cosmwasm.KVStore, goapi cosmwasm.GoAPI, querier cosmwasm.Querier, gasMeter cosmwasm.GasMeter, gasLimit uint64) (*wasmvmtypes.HandleResponse, uint64, error) {
 			*executeCalled = true
-			return &wasmTypes.HandleResponse{}, 1, nil
+			return &wasmvmtypes.HandleResponse{}, 1, nil
 		},
 	}
 }

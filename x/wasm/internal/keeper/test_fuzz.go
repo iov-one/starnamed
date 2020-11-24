@@ -9,22 +9,27 @@ import (
 	tmBytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
-var ModelFuzzers = []interface{}{FuzzAddr, FuzzAbsoluteTxPosition, FuzzContractInfo, FuzzStateModel, FuzzAccessType, FuzzAccessConfig, FuzzContractCodeHistory}
+var ModelFuzzers = []interface{}{FuzzAddr, FuzzAddrString, FuzzAbsoluteTxPosition, FuzzContractInfo, FuzzStateModel, FuzzAccessType, FuzzAccessConfig, FuzzContractCodeHistory}
 
 func FuzzAddr(m *sdk.AccAddress, c fuzz.Continue) {
 	*m = make([]byte, 20)
 	c.Read(*m)
 }
+func FuzzAddrString(m *string, c fuzz.Continue) {
+	var x sdk.AccAddress
+	FuzzAddr(&x, c)
+	*m = x.String()
+}
 
 func FuzzAbsoluteTxPosition(m *types.AbsoluteTxPosition, c fuzz.Continue) {
-	m.BlockHeight = int64(c.RandUint64()) // can't be negative
+	m.BlockHeight = c.RandUint64()
 	m.TxIndex = c.RandUint64()
 }
 
 func FuzzContractInfo(m *types.ContractInfo, c fuzz.Continue) {
 	m.CodeID = c.RandUint64()
-	FuzzAddr(&m.Creator, c)
-	FuzzAddr(&m.Admin, c)
+	FuzzAddrString(&m.Creator, c)
+	FuzzAddrString(&m.Admin, c)
 	m.Label = c.RandString()
 	c.Fuzz(&m.Created)
 }

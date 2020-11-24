@@ -17,7 +17,7 @@ addition of the `x/wasm` module.
 
 ## Supported Systems
 
-The supported systems are limited by the dlls created in [`go-cosmwasm`](https://github.com/CosmWasm/go-cosmwasm). In particular, **we only support MacOS and Linux**. 
+The supported systems are limited by the dlls created in [`wasmvm`](https://github.com/CosmWasm/wasmvm). In particular, **we only support MacOS and Linux**.
 For linux, the default is to build for glibc, and we cross-compile with CentOS 7 to provide
 backwards compatibility for `glibc 2.12+`. This includes all known supported distributions
 using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19). 
@@ -97,7 +97,7 @@ docker run --rm -it \
     --mount type=volume,source=wasmd_data,target=/root \
     cosmwasm/wasmd:latest ./setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
 
-# This will start both wasmd and wasmcli rest-server, only wasmcli output is shown on the screen
+# This will start both wasmd and rest-server, only rest-serve output is shown on the screen
 docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
     --mount type=volume,source=wasmd_data,target=/root \
     cosmwasm/wasmd:latest ./run_all.sh
@@ -126,7 +126,7 @@ sudo chown -R $(id -u):$(id -g) ./template
 # bind to non-/root and pass an argument to run.sh to copy the template into /root
 # we need wasmd_data volume mount not just for restart, but also to view logs
 docker volume rm -f wasmd_data
-docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+docker run --rm -it -p 26657:26657 -p 26656:26656 -p 9090:9090 \
     --mount type=bind,source=$(pwd)/template,target=/template \
     --mount type=volume,source=wasmd_data,target=/root \
     cosmwasm/wasmd:latest ./run_all.sh /template
@@ -150,7 +150,7 @@ to the configuration.
 
 Available flags:
 
-* `-X github.com/CosmWasm/wasmd/app.CLIDir=.coral` - set the config directory for the cli (default `~/.wasmcli`) 
+ 
 * `-X github.com/CosmWasm/wasmd/app.NodeDir=.corald` - set the config/data directory for the node (default `~/.wasmd`)
 * `-X github.com/CosmWasm/wasmd/app.Bech32Prefix=coral` - set the bech32 prefix for all accounts (default `cosmos`)
 * `-X github.com/CosmWasm/wasmd/app.ProposalsEnabled=true` - enable all x/wasm governance proposals (default `false`)

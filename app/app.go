@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
@@ -97,9 +96,8 @@ const appName = "WasmApp"
 
 // We pull these out so we can set them with LDFLAGS in the Makefile
 var (
-	CLIDir       = ".wasmcli"
 	NodeDir      = ".wasmd"
-	Bech32Prefix = sdk.Bech32MainPrefix
+	Bech32Prefix = "wasm"
 
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
@@ -131,8 +129,6 @@ func GetEnabledProposals() []wasm.ProposalType {
 // These are the ones we will want to use in the code, based on
 // any overrides above
 var (
-	// DefaultCLIHome default home directories for wasmcli
-	DefaultCLIHome = os.ExpandEnv("$HOME/") + CLIDir
 	// DefaultNodeHome default home directories for wasmd
 	DefaultNodeHome = os.ExpandEnv("$HOME/") + NodeDir
 
@@ -241,12 +237,6 @@ type WasmApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
-}
-
-// WasmWrapper allows us to use namespacing in the config file
-// This is only used for parsing in the app, x/wasm expects WasmConfig
-type WasmWrapper struct {
-	Wasm wasm.Config `mapstructure:"wasm"`
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -361,13 +351,10 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	var wasmRouter = bApp.Router()
 	wasmDir := filepath.Join(homePath, "wasm")
 
-	wasmWrap := WasmWrapper{Wasm: wasm.DefaultWasmConfig()}
-	err := viper.Unmarshal(&wasmWrap)
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
-	wasmConfig := wasmWrap.Wasm
-
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "staking"
