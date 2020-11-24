@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying

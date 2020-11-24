@@ -2,13 +2,13 @@ package starname
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns/x/starname/controllers/fees"
-	"github.com/iov-one/iovns/x/starname/keeper/executor"
+	"github.com/iov-one/starnamed/x/starname/controllers/fees"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/starname/controllers/domain"
-	"github.com/iov-one/iovns/x/starname/keeper"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/controllers/domain"
+	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {

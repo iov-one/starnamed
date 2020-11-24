@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"errors"
 	"github.com/iov-one/iovns/pkg/utils"
-	"github.com/iov-one/iovns/x/starname/keeper/executor"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"reflect"
 	"testing"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
-	"github.com/iov-one/iovns/x/starname/keeper"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func Test_Close_handlerMsgAddAccountCertificates(t *testing.T) {

@@ -11,7 +11,7 @@ import (
 	"github.com/iov-one/iovns/mock"
 	"github.com/iov-one/iovns/x/configuration"
 	confCdc "github.com/iov-one/iovns/x/configuration/types"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"

@@ -1,6 +1,6 @@
 syntax="proto3";
 
-option go_package="github.com/iov-one/iovns/x/starname/types";
+option go_package="github.com/iov-one/starnamed/x/starname/types";
 
 import "gogoproto/gogo.proto";
 import "x/starname/types/types.proto";

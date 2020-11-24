@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -3,14 +3,14 @@ package starname
 import (
 	"errors"
 	"github.com/iov-one/iovns/pkg/utils"
-	"github.com/iov-one/iovns/x/starname/keeper/executor"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"testing"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
-	"github.com/iov-one/iovns/x/starname/keeper"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func Test_Closed_handleMsgDomainDelete(t *testing.T) {

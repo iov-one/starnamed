@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/iov-one/iovns/pkg/utils"
-	"github.com/iov-one/iovns/x/starname/keeper"
-	"github.com/iov-one/iovns/x/starname/keeper/executor"
-	"github.com/iov-one/iovns/x/starname/types"
+	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestExportGenesis(t *testing.T) {
