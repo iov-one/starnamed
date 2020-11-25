@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,10 +11,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
@@ -58,8 +56,6 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -103,7 +99,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -124,8 +120,6 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -178,7 +172,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -200,8 +194,6 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -251,7 +243,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -273,8 +265,6 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -302,7 +292,7 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -321,8 +311,6 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -355,7 +343,7 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -375,8 +363,6 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -404,7 +390,7 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -424,8 +410,6 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -458,7 +442,7 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -479,8 +463,6 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -546,7 +528,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -570,8 +552,6 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -635,7 +615,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -659,8 +639,6 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -720,7 +698,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
@@ -741,8 +719,6 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -790,7 +766,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 
@@ -812,8 +788,6 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
@@ -850,7 +824,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags

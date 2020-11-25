@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -23,7 +23,7 @@ func handleTxRequest(cliContext client.Context, baseReq rest.BaseReq, msg sdk.Ms
 		rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 	}
 	// write tx
-	utils.WriteGenerateStdTxResponse(writer, cliCtx, baseReq, []sdk.Msg{msg})
+	tx.WriteGeneratedTxResponse(cliCtx, writer, baseReq, msg)
 }
 
 // registerDomain defines the request model used for registerDomainHandler
