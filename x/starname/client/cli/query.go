@@ -2,10 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/iov-one/starnamed/pkg/queries"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -38,6 +36,8 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 }
 
 func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}) (err error) {
+	panic("processQueryCmd() in x/starname/client/cli/query.go needs work!")
+	/* TODO: refactor
 	// get req byres
 	b, err := queries.DefaultQueryEncode(q)
 	if err != nil {
@@ -51,6 +51,8 @@ func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}
 	}
 	_, err = fmt.Fprintf(cliCtx.Output, "%s\n\n", res)
 	return err
+	*/
+	return nil
 }
 
 func getQueryResolveDomain(modulePath string, cdc *codec.Codec) *cobra.Command {

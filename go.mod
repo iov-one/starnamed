@@ -13,6 +13,7 @@ require (
 	github.com/google/gofuzz v1.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
+	github.com/iov-one/cosmos-sdk-crud v0.0.0-00010101000000-000000000000
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
@@ -29,3 +30,8 @@ require (
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+
+// TODO: drop the following
+replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.40.0-rc3
+
+replace github.com/iov-one/cosmos-sdk-crud => github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183504-9820962ef3c7

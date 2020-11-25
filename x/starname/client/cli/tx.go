@@ -11,7 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -54,13 +53,17 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 		Use:   "transfer-domain",
 		Short: "transfer a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			newOwner, err := cmd.Flags().GetString("new-owner")
 			if err != nil {
@@ -69,12 +72,12 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			// get transfer flag
 			transferFlag, err := cmd.Flags().GetInt("transfer-flag")
 			if err != nil {
-				return
+				return err
 			}
 			// get sdk.AccAddress from string
 			newOwnerAddr, err := sdk.AccAddressFromBech32(newOwner)
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -84,13 +87,13 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgTransferDomain{
 				Domain:       domain,
-				Owner:        cliCtx.GetFromAddress(),
+				Owner:        clientCtx.GetFromAddress(),
 				NewAdmin:     newOwnerAddr,
 				TransferFlag: types.TransferFlag(transferFlag),
 				FeePayerAddr: feePayer,
@@ -100,7 +103,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -116,17 +119,21 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 		Use:   "transfer-account",
 		Short: "transfer an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			newOwner, err := cmd.Flags().GetString("new-owner")
 			if err != nil {
@@ -135,7 +142,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			// get sdk.AccAddress from string
 			newOwnerAddr, err := sdk.AccAddressFromBech32(newOwner)
 			if err != nil {
-				return
+				return err
 			}
 
 			reset, err := cmd.Flags().GetString("reset")
@@ -154,14 +161,14 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgTransferAccount{
 				Domain:       domain,
 				Name:         name,
-				Owner:        cliCtx.GetFromAddress(),
+				Owner:        clientCtx.GetFromAddress(),
 				NewOwner:     newOwnerAddr,
 				ToReset:      resetBool,
 				FeePayerAddr: feePayer,
@@ -188,17 +195,21 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 		Use:   "replace-resources",
 		Short: "replace account resources",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			resourcesPath, err := cmd.Flags().GetString("src")
 			if err != nil {
@@ -214,7 +225,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 			var resources []*types.Resource
 			err = json.NewDecoder(f).Decode(&resources)
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -224,7 +235,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
@@ -232,7 +243,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 				Domain:       domain,
 				Name:         name,
 				NewResources: resources,
-				Owner:        cliCtx.GetFromAddress(),
+				Owner:        clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -240,7 +251,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -257,13 +268,17 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 		Use:   "del-domain",
 		Short: "delete a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -273,13 +288,13 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgDeleteDomain{
 				Domain:       domain,
-				Owner:        cliCtx.GetFromAddress(),
+				Owner:        clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -287,7 +302,7 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -301,17 +316,21 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 		Use:   "del-account",
 		Short: "delete an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -321,14 +340,14 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgDeleteAccount{
 				Domain:       domain,
 				Name:         name,
-				Owner:        cliCtx.GetFromAddress(),
+				Owner:        clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -336,7 +355,7 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -351,13 +370,17 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 		Use:   "renew-domain",
 		Short: "renew a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -367,13 +390,13 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgRenewDomain{
 				Domain:       domain,
-				Signer:       cliCtx.GetFromAddress(),
+				Signer:       clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -381,7 +404,7 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -396,17 +419,21 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 		Use:   "renew-account",
 		Short: "renew an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {
@@ -416,14 +443,14 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgRenewAccount{
 				Domain:       domain,
 				Name:         name,
-				Signer:       cliCtx.GetFromAddress(),
+				Signer:       clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -431,7 +458,7 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -447,25 +474,29 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 		Short: "delete certificates of an account",
 		Long:  "delete certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
-				return
+				return err
 			}
 			certFile, err := cmd.Flags().GetString("cert-file")
 			if err != nil {
-				return
+				return err
 			}
 
 			var c []byte
@@ -487,7 +518,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				}
 				var j json.RawMessage
 				if err := json.Unmarshal(cfb, &j); err != nil {
-					return nil
+					return err
 				}
 				c = j
 			}
@@ -499,14 +530,14 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgDeleteAccountCertificate{
 				Domain:            domain,
 				Name:              name,
-				Owner:             cliCtx.GetFromAddress(),
+				Owner:             clientCtx.GetFromAddress(),
 				DeleteCertificate: c,
 				FeePayerAddr:      feePayer,
 			}
@@ -515,7 +546,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -534,7 +565,11 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 		Short: "add certificates to account",
 		Long:  "add certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
@@ -584,14 +619,14 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
 			msg := &types.MsgAddAccountCertificates{
 				Domain:         domain,
 				Name:           name,
-				Owner:          cliCtx.GetFromAddress(),
+				Owner:          clientCtx.GetFromAddress(),
 				NewCertificate: c,
 				FeePayerAddr:   feePayer,
 			}
@@ -600,7 +635,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags
@@ -619,30 +654,34 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 		Short:                      "register an account",
 		SuggestionsMinimumDistance: 2,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			owner, err := cmd.Flags().GetString("owner")
 			if err != nil {
-				return
+				return err
 			}
 			var ownerAddr sdk.AccAddress
 			if owner == "" {
-				ownerAddr = cliCtx.GetFromAddress()
+				ownerAddr = clientCtx.GetFromAddress()
 			} else {
 				// get sdk.AccAddress from string
 				ownerAddr, err = sdk.AccAddressFromBech32(owner)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
@@ -653,7 +692,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			brokerStr, err := cmd.Flags().GetString("broker")
@@ -664,7 +703,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			if brokerStr != "" {
 				broker, err = sdk.AccAddressFromBech32(brokerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			// build msg
@@ -672,7 +711,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 				Domain:       domain,
 				Name:         name,
 				Owner:        ownerAddr,
-				Registerer:   cliCtx.GetFromAddress(),
+				Registerer:   clientCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 				Broker:       broker,
 			}
@@ -681,7 +720,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
@@ -697,7 +736,11 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 		Use:   "register-domain",
 		Short: "register a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
@@ -721,7 +764,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			brokerStr, err := cmd.Flags().GetString("broker")
@@ -732,12 +775,12 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if brokerStr != "" {
 				broker, err = sdk.AccAddressFromBech32(brokerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			msg := &types.MsgRegisterDomain{
 				Name:         domain,
-				Admin:        cliCtx.GetFromAddress(),
+				Admin:        clientCtx.GetFromAddress(),
 				DomainType:   types.DomainType(dType),
 				Broker:       broker,
 				FeePayerAddr: feePayer,
@@ -747,7 +790,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 
@@ -764,17 +807,21 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 		Use:   "set-account-metadata",
 		Short: "sets account metadata",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			metadata, err := cmd.Flags().GetString("metadata")
 			if err != nil {
@@ -788,13 +835,13 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			if feePayerStr != "" {
 				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			msg := &types.MsgReplaceAccountMetadata{
 				Domain:         domain,
 				Name:           name,
-				Owner:          cliCtx.GetFromAddress(),
+				Owner:          clientCtx.GetFromAddress(),
 				FeePayerAddr:   feePayer,
 				NewMetadataURI: metadata,
 			}
@@ -803,7 +850,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(clientCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
 	// add flags

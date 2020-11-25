@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
@@ -13,7 +13,7 @@ import (
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
 // requests it forwards an error to the client in case of error, otherwise it will return a transaction to sign
 // and send to the /tx endpoint to do a request
-func handleTxRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
+func handleTxRequest(cliContext client.Context, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
 	baseReq = baseReq.Sanitize()
 	if !baseReq.ValidateBasic(writer) {
 		return
@@ -33,7 +33,7 @@ type registerDomain struct {
 }
 
 // registerDomainHandler builds the transaction to sign
-func registerDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func registerDomainHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req registerDomain
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -50,7 +50,7 @@ type addAccountCertificates struct {
 }
 
 // addAccountCertificatesHandler builds the transaction to sign to add account certificates
-func addAccountCertificatesHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func addAccountCertificatesHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req addAccountCertificates
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -67,7 +67,7 @@ type delAccountCertificate struct {
 }
 
 // delAccountCertificateHandler builds the transaction to sign to delete account certificates
-func delAccountCertificateHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func delAccountCertificateHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req delAccountCertificate
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -84,7 +84,7 @@ type deleteAccount struct {
 }
 
 // deleteAccountHandler builds the transaction to sign to delete an account
-func deleteAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func deleteAccountHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req deleteAccount
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -101,7 +101,7 @@ type deleteDomain struct {
 }
 
 // deleteDomainHandler builds the transaction to sign to delete a domain
-func deleteDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func deleteDomainHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req deleteDomain
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -118,7 +118,7 @@ type registerAccount struct {
 }
 
 // registerAccountHandler builds the transaction to sign to register an account
-func registerAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func registerAccountHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req registerAccount
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -135,7 +135,7 @@ type renewAccount struct {
 }
 
 // renewAccountHandler builds the transaction request to sign to renew a domain
-func renewAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func renewAccountHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req renewAccount
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -152,7 +152,7 @@ type renewDomain struct {
 }
 
 // renewDomainHandler builds the transaction to sign to renew a domain
-func renewDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func renewDomainHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req renewDomain
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -169,7 +169,7 @@ type replaceAccountResources struct {
 }
 
 // replaceAccountResources builds the transaction to sign to replace account resources
-func replaceAccountResourcesHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func replaceAccountResourcesHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req replaceAccountResources
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -186,7 +186,7 @@ type transferAccount struct {
 }
 
 // transferAccountHandler builds the transaction to sign to transfer accounts
-func transferAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func transferAccountHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req transferAccount
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -203,7 +203,7 @@ type transferDomain struct {
 }
 
 // transferDomainHandler builds the transaction to sign to transfer domains
-func transferDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func transferDomainHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req transferDomain
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
@@ -220,7 +220,7 @@ type setAccountMetadata struct {
 }
 
 // transferDomainHandler builds the transaction to sign to transfer domains
-func setAccountMetadataHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func setAccountMetadataHandler(cliContext client.Context) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req setAccountMetadata
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
