@@ -8,6 +8,12 @@
     - [Domain](#starnamed.x.starname.v1beta1.Domain)
     - [Resource](#starnamed.x.starname.v1beta1.Resource)
   
+- [x/starname/types/query.proto](#x/starname/types/query.proto)
+    - [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest)
+    - [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse)
+  
+    - [Query](#starnamed.x.starname.v1beta1.Query)
+  
 - [x/starname/types/msgs.proto](#x/starname/types/msgs.proto)
     - [MsgAddAccountCertificates](#starnamed.x.starname.v1beta1.MsgAddAccountCertificates)
     - [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount)
@@ -96,6 +102,62 @@ Resource defines a resource owned by an account
  
 
  
+
+ 
+
+
+
+<a name="x/starname/types/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## x/starname/types/query.proto
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryDomainRequest"></a>
+
+### QueryDomainRequest
+QueryDomainRequest is the request type for the Query/Domain RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  | Name is the name of the domain. |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryDomainResponse"></a>
+
+### QueryDomainResponse
+QueryDomainResponse is the response type for the Query/Domain RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [Domain](#starnamed.x.starname.v1beta1.Domain) |  | Domain is the information associated with the domain. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+
+<a name="starnamed.x.starname.v1beta1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Config gets starname configuration. |
 
  
 

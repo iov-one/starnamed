@@ -10,7 +10,10 @@ option (gogoproto.equal_all) = true;
 // Resource defines a resource owned by an account
 message Resource {
     // URI defines the ID of the resource
-    string uri = 1 [(gogoproto.moretags) = "yaml:\"uri\""];
+    string uri = 1 [
+        (gogoproto.moretags) = "yaml:\"uri\"",
+        (gogoproto.customname) = "URI"
+    ];
     // Resource is the resource
     string resource = 2 [(gogoproto.moretags) = "yaml:\"resource\""];
 }

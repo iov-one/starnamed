@@ -1,0 +1,34 @@
+syntax = "proto3";
+package starnamed.x.starname.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "x/starname/types/types.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/starname/types";
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = false;
+
+// QueryDomainRequest is the request type for the Query/Domain RPC method.
+message QueryDomainRequest {
+    // Name is the name of the domain.
+    string name = 1 [
+        (gogoproto.moretags) = "yaml:\"name\""
+    ];
+}
+
+// QueryDomainResponse is the response type for the Query/Domain RPC method.
+message QueryDomainResponse {
+    // Domain is the information associated with the domain.
+    starnamed.x.starname.v1beta1.Domain domain = 1 [
+        (gogoproto.moretags) = "yaml:\"domain\""
+    ];
+}
+
+// Query defines the gRPC querier service.
+service Query {
+   // Config gets starname configuration.
+   rpc Domain (QueryDomainRequest) returns (QueryDomainResponse) {
+       option (google.api.http).get = "/starname/v1beta1/domain/{name}";
+   }
+}
