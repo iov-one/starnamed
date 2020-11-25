@@ -2,19 +2,21 @@ package mock
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func Addresses() (sdk.AccAddress, sdk.AccAddress) {
-	keyBase := keys.NewInMemory()
-	addr1, _, err := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
+	keyBase := keyring.NewInMemory()
+	addr1, _, err := keyBase.NewMnemonic("alice", keyring.English, "", hd.Secp256k1)
 	if err != nil {
 		fmt.Println("unable to generate mock addresses " + err.Error())
 		os.Exit(1)
 	}
-	addr2, _, err := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
+	addr2, _, err := keyBase.NewMnemonic("bob", keyring.English, "", hd.Secp256k1)
 	if err != nil {
 		fmt.Println("unable to generate mock addresses " + err.Error())
 		os.Exit(1)
