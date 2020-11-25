@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/params/subspace"
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/x/configuration"
 	confCdc "github.com/iov-one/starnamed/x/configuration/types"
@@ -82,7 +81,8 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
 	// create config keeper
-	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, subspace.NewSubspace(cdc, nil, nil, "test"))
+	// TODO: FIXME confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, subspace.NewSubspace(cdc, nil, nil, "test"))
+	confKeeper := configuration.Keeper{} // FIXME
 	// create context
 	ctx := sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
