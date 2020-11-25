@@ -31,7 +31,5 @@ require (
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 
-// TODO: drop the following
-replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.40.0-rc3
-
+// TODO: drop the following when possible
 replace github.com/iov-one/cosmos-sdk-crud => github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183504-9820962ef3c7
