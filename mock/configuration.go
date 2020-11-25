@@ -2,7 +2,7 @@ package mock
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/starnamed/x/configuration"
 	"time"
 )
 
