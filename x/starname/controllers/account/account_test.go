@@ -3,9 +3,9 @@ package account
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/mock"
-	"github.com/iov-one/iovns/pkg/utils"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/starnamed/mock"
+	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"

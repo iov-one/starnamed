@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"testing"
 	"time"
 

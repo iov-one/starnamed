@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/starnamed/x/configuration"
 )
 
 var ks, addrs = utils.GeneratePrivKeyAddressPairs(3)

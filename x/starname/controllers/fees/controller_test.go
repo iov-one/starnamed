@@ -1,11 +1,11 @@
 package fees
 
 import (
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )

@@ -3,7 +3,7 @@ package executor
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )

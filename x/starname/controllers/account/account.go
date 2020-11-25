@@ -3,7 +3,7 @@ package account
 import (
 	"bytes"
 	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"regexp"
 	"time"
 
@@ -11,7 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )

@@ -1,7 +1,7 @@
 package starname
 
 import (
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/controllers/fees"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 

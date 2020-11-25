@@ -2,7 +2,7 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"testing"

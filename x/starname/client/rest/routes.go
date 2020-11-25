@@ -2,14 +2,14 @@ package rest
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/queries"
+	"github.com/iov-one/starnamed/pkg/queries"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/starnamed/pkg/utils"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions

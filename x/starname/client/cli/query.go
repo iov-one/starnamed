@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/queries"
+	"github.com/iov-one/starnamed/pkg/queries"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
