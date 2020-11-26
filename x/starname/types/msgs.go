@@ -16,8 +16,8 @@ var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -53,19 +53,18 @@ func (m *MsgAddAccountCertificates) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -101,19 +100,18 @@ func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -150,19 +148,18 @@ func (m *MsgDeleteAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -196,19 +193,18 @@ func (m *MsgDeleteDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Registerer
 }
@@ -244,19 +240,18 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Registerer}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Registerer}
 	}
+	return []sdk.AccAddress{m.Payer, m.Registerer}
 }
 
 var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Admin
 }
@@ -290,19 +285,18 @@ func (m *MsgRegisterDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Admin}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Admin}
 	}
+	return []sdk.AccAddress{m.Payer, m.Admin}
 }
 
 var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Signer
 }
@@ -332,19 +326,18 @@ func (m *MsgRenewAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Signer}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Signer}
 	}
+	return []sdk.AccAddress{m.Payer, m.Signer}
 }
 
 var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Signer
 }
@@ -374,19 +367,18 @@ func (m *MsgRenewDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Signer}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Signer}
 	}
+	return []sdk.AccAddress{m.Payer, m.Signer}
 }
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgReplaceAccountResources) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -422,19 +414,18 @@ func (m *MsgReplaceAccountResources) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountResources) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -470,19 +461,18 @@ func (m *MsgReplaceAccountMetadata) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -522,11 +512,10 @@ func (m *MsgTransferAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
 // TransferFlag defines the type of domain transfer
@@ -547,8 +536,8 @@ var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
 
 // FeePayer implements FeePayer interface
 func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
-	if !m.FeePayerAddr.Empty() {
-		return m.FeePayerAddr
+	if !m.Payer.Empty() {
+		return m.Payer
 	}
 	return m.Owner
 }
@@ -591,9 +580,8 @@ func (m *MsgTransferDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
-	if m.FeePayerAddr.Empty() {
+	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
-	} else {
-		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+	return []sdk.AccAddress{m.Payer, m.Owner}
 }

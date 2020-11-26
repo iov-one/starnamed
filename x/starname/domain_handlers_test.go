@@ -2,10 +2,11 @@ package starname
 
 import (
 	"errors"
-	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"testing"
 	"time"
+
+	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/configuration"
@@ -490,7 +491,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				configSetter := keeper.GetConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Configurer:      keeper.AliceKey,
+					Configurer:      keeper.AliceKey.String(),
 					ValidDomainName: "^(.*?)?",
 				})
 			},

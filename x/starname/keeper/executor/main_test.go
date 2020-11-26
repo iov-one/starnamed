@@ -2,7 +2,12 @@ package executor
 
 import (
 	"fmt"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/mock"
@@ -10,22 +15,19 @@ import (
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
-	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
-	"os"
-	"testing"
-	"time"
 )
 
 var testCtx sdk.Context
 var testKey = sdk.NewKVStoreKey("test")
-var testCdc *codec.Codec
+var testCdc *codec.ProtoCodec
 var _, testAddrs = utils.GeneratePrivKeyAddressPairs(2)
 var aliceKey sdk.AccAddress = testAddrs[0]
 var bobKey sdk.AccAddress = testAddrs[1]
 var testConfig = &configuration.Config{
-	Configurer:           nil,
+	Configurer:           "wasm1fjppc038udty5lquva2fc72967y4mchsu06slw", // bojack
 	DomainRenewalPeriod:  10 * time.Second,
 	AccountRenewalPeriod: 20 * time.Second,
 }
@@ -57,7 +59,22 @@ var testDomain = types.Domain{
 func newTest() error {
 	mockConfig := mock.NewConfiguration(nil, testConfig)
 	// gen test store
-	testCdc = codec.New()
+	interfaceRegistry := cdctypes.NewInterfaceRegistry()
+	interfaceRegistry.RegisterInterface("cosmos.base.v1beta1.Msg",
+		(*sdk.Msg)(nil),
+		&types.MsgRegisterDomain{},
+		&types.MsgTransferDomain{},
+		&types.MsgTransferAccount{},
+		&types.MsgAddAccountCertificates{},
+		&types.MsgDeleteAccountCertificate{},
+		&types.MsgDeleteAccount{},
+		&types.MsgDeleteDomain{},
+		&types.MsgRegisterAccount{},
+		&types.MsgRenewDomain{},
+		&types.MsgReplaceAccountResources{},
+		&types.MsgReplaceAccountMetadata{},
+	)
+	testCdc := codec.NewProtoCodec(interfaceRegistry)
 	mdb := db.NewMemDB()
 	ms := store.NewCommitMultiStore(mdb)
 	ms.MountStoreWithDB(testKey, sdk.StoreTypeIAVL, mdb)
@@ -65,7 +82,7 @@ func newTest() error {
 	if err != nil {
 		return err
 	}
-	testCtx = sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, true, log.NewNopLogger())
+	testCtx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, true, log.NewNopLogger())
 	testKeeper = keeper.NewKeeper(testCdc, testKey, mockConfig, nil, nil)
 	testKeeper.AccountStore(testCtx).Create(&testAccount)
 	testKeeper.DomainStore(testCtx).Create(&testDomain)

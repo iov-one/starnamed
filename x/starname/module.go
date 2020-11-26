@@ -14,6 +14,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/iov-one/starnamed/x/starname/client/cli"
 	"github.com/iov-one/starnamed/x/starname/client/rest"
+	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -31,7 +32,7 @@ type AppModuleBasic struct {
 
 // RegisterLegacyAminoCodec registers the amino codec.
 func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(amino)
+	RegisterCodec(amino)
 }
 
 // RegisterGRPCGatewayRoutes registers the query handler client.
@@ -59,7 +60,7 @@ func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONMarshaler, config cl
 
 // RegisterRESTRoutes registers the REST routes for this module.
 func (AppModuleBasic) RegisterRESTRoutes(cliCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(cliCtx, rtr, AvailableQueries())
+	rest.RegisterRoutes(cliCtx, rtr, keeper.AvailableQueries())
 }
 
 // GetQueryCmd returns no root query command for this module.
@@ -96,12 +97,12 @@ func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterServices allows a module to register services
 func (am AppModule) RegisterServices(configurator module.Configurator) {
-	types.RegisterQueryServer(configurator.QueryServer(), NewQuerier(&am.keeper))
+	types.RegisterQueryServer(configurator.QueryServer(), keeper.NewQuerier(&am.keeper))
 }
 
 // LegacyQuerierHandler provides an sdk.Querier object that uses the legacy amino codec.
 func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
-	return NewLegacyQuerier(&am.keeper)
+	return keeper.NewLegacyQuerier(am.keeper)
 }
 
 // RegisterInvariants registers the configuration module invariants.

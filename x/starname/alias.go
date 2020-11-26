@@ -30,5 +30,5 @@ var (
 	// NewKeeper aliases keeper.NewKeeper
 	NewKeeper = keeper.NewKeeper
 	// RegisterCodec aliases types.RegisterCodec
-	RegisterCodec = types.RegisterCodec
+	RegisterCodec = types.RegisterLegacyAminoCodec
 )

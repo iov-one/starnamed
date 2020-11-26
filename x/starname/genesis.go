@@ -2,27 +2,20 @@ package starname
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud/types"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// GenesisState represents the state of the domain module
-type GenesisState struct {
-	// DomainRecords contains the records of registered domains
-	Domains []types.Domain `json:"domains"`
-	// AccountRecords contains the records of registered accounts
-	Accounts []types.Account `json:"accounts"`
-}
-
 // NewGenesisState builds a genesis state including the domains provided
-func NewGenesisState(domains []types.Domain, accounts []types.Account) GenesisState {
-	return GenesisState{Domains: domains, Accounts: accounts}
+func NewGenesisState(domains []types.Domain, accounts []types.Account) types.GenesisState {
+	return types.GenesisState{Domains: domains, Accounts: accounts}
 }
 
 // ValidateGenesis validates a genesis state
 // checking for domain validity and no domain name repetitions
-func ValidateGenesis(data GenesisState) error {
+func ValidateGenesis(data types.GenesisState) error {
 	namesSet := make(map[string]struct{}, len(data.Domains))
 	for _, domain := range data.Domains {
 		if _, ok := namesSet[domain.Name]; ok {
@@ -37,12 +30,12 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // DefaultGenesisState creates an empty genesis state for the domain module
-func DefaultGenesisState() GenesisState {
-	return GenesisState{Domains: []types.Domain{}, Accounts: []types.Account{}}
+func DefaultGenesisState() types.GenesisState {
+	return types.GenesisState{Domains: []types.Domain{}, Accounts: []types.Account{}}
 }
 
 // InitGenesis builds a state from GenesisState
-func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper Keeper, data types.GenesisState) {
 	// insert domains
 	ds := keeper.DomainStore(ctx)
 	for _, domain := range data.Domains {
@@ -57,7 +50,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 }
 
 // ExportGenesis saves the state of the domain module
-func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
 	var domains []types.Domain
@@ -74,7 +67,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
 		accounts = append(accounts, *account)
 		return true
 	})
-	return GenesisState{
+	return &types.GenesisState{
 		Domains:  domains,
 		Accounts: accounts,
 	}

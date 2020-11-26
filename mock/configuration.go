@@ -1,9 +1,10 @@
 package mock
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/configuration"
-	"time"
 )
 
 type Configuration struct {
@@ -26,7 +27,7 @@ func (c Configuration) GetConfiguration(_ sdk.Context) configuration.Config {
 }
 
 func (c Configuration) IsOwner(_ sdk.Context, addr sdk.AccAddress) bool {
-	return c.conf.Configurer.Equals(addr)
+	return c.conf.Configurer == addr.String()
 }
 
 func (c Configuration) GetValidDomainNameRegexp(_ sdk.Context) string {

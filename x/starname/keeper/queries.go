@@ -2,10 +2,11 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
+
 	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"github.com/iov-one/starnamed/pkg/queries"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -54,8 +55,8 @@ func buildRouter(qrs []queries.QueryHandler) queryRouter {
 	return router
 }
 
-// NewQuerier builds the query handler for the module
-func NewQuerier(k Keeper) sdk.Querier {
+// NewLegacyQuerier builds the query handler for the module
+func NewLegacyQuerier(k Keeper) sdk.Querier {
 	// get queries
 	queries := AvailableQueries()
 	router := buildRouter(queries)
@@ -520,7 +521,7 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 	return respBytes, nil
 }
 
-//  QueryResolveResource gets accounts from a resource
+// QueryResolveResource gets accounts from a resource
 type QueryResolveResource struct {
 	// Resource is the resource we want to query
 	Resource types.Resource `json:"resource"`

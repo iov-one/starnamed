@@ -10,49 +10,47 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
-func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd() *cobra.Command {
 	domainTxCmd := &cobra.Command{
-		Use:                        storeKey,
-		Short:                      fmt.Sprintf("%s transactions subcommands", storeKey),
+		Use:                        types.DomainStoreKey,
+		Short:                      fmt.Sprintf("%s transactions subcommands", types.DomainStoreKey),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 		Aliases:                    []string{"starname"},
 	}
 
-	domainTxCmd.AddCommand(flags.PostCommands(
-		getCmdRegisterDomain(cdc),
-		getCmdAddAccountCerts(cdc),
-		getCmdTransferAccount(cdc),
-		getCmdTransferDomain(cdc),
-		getmCmdReplaceAccountResources(cdc),
-		getCmdDelDomain(cdc),
-		getCmdDelAccount(cdc),
-		getCmdRenewDomain(cdc),
-		getCmdRenewAccount(cdc),
-		getCmdDelAccountCerts(cdc),
-		getCmdRegisterAccount(cdc),
-		getCmdSetAccountMetadata(cdc),
-	)...)
+	domainTxCmd.AddCommand(
+		getCmdRegisterDomain(),
+		getCmdAddAccountCerts(),
+		getCmdTransferAccount(),
+		getCmdTransferDomain(),
+		getmCmdReplaceAccountResources(),
+		getCmdDelDomain(),
+		getCmdDelAccount(),
+		getCmdRenewDomain(),
+		getCmdRenewAccount(),
+		getCmdDelAccountCerts(),
+		getCmdRegisterAccount(),
+		getCmdSetAccountMetadata(),
+	)
 	return domainTxCmd
 }
 
-func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
+func getCmdTransferDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "transfer-domain",
 		Short: "transfer a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -92,14 +90,14 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 				Owner:        clientCtx.GetFromAddress(),
 				NewAdmin:     newOwnerAddr,
 				TransferFlag: types.TransferFlag(transferFlag),
-				FeePayerAddr: feePayer,
+				Payer:        feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -110,13 +108,13 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
+func getCmdTransferAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "transfer-account",
 		Short: "transfer an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -160,19 +158,19 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgTransferAccount{
-				Domain:       domain,
-				Name:         name,
-				Owner:        clientCtx.GetFromAddress(),
-				NewOwner:     newOwnerAddr,
-				ToReset:      resetBool,
-				FeePayerAddr: feePayer,
+				Domain:   domain,
+				Name:     name,
+				Owner:    clientCtx.GetFromAddress(),
+				NewOwner: newOwnerAddr,
+				ToReset:  resetBool,
+				Payer:    feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -184,13 +182,13 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
+func getmCmdReplaceAccountResources() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replace-resources",
 		Short: "replace account resources",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -236,14 +234,14 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 				Name:         name,
 				NewResources: resources,
 				Owner:        clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
+				Payer:        feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -255,13 +253,13 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
+func getCmdDelDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del-domain",
 		Short: "delete a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -283,16 +281,16 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgDeleteDomain{
-				Domain:       domain,
-				Owner:        clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
+				Domain: domain,
+				Owner:  clientCtx.GetFromAddress(),
+				Payer:  feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -301,13 +299,13 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
+func getCmdDelAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del-account",
 		Short: "delete an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -333,17 +331,17 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgDeleteAccount{
-				Domain:       domain,
-				Name:         name,
-				Owner:        clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
+				Domain: domain,
+				Name:   name,
+				Owner:  clientCtx.GetFromAddress(),
+				Payer:  feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -353,13 +351,13 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
+func getCmdRenewDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "renew-domain",
 		Short: "renew a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -381,16 +379,16 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgRenewDomain{
-				Domain:       domain,
-				Signer:       clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
+				Domain: domain,
+				Signer: clientCtx.GetFromAddress(),
+				Payer:  feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -400,13 +398,13 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
+func getCmdRenewAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "renew-account",
 		Short: "renew an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -432,17 +430,17 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgRenewAccount{
-				Domain:       domain,
-				Name:         name,
-				Signer:       clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
+				Domain: domain,
+				Name:   name,
+				Signer: clientCtx.GetFromAddress(),
+				Payer:  feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -452,14 +450,14 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
+func getCmdDelAccountCerts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del-certs",
 		Short: "delete certificates of an account",
 		Long:  "delete certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -521,14 +519,14 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				Name:              name,
 				Owner:             clientCtx.GetFromAddress(),
 				DeleteCertificate: c,
-				FeePayerAddr:      feePayer,
+				Payer:             feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -541,14 +539,14 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
+func getCmdAddAccountCerts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-certs",
 		Short: "add certificates to account",
 		Long:  "add certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -608,14 +606,14 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				Name:           name,
 				Owner:          clientCtx.GetFromAddress(),
 				NewCertificate: c,
-				FeePayerAddr:   feePayer,
+				Payer:          feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags
@@ -628,14 +626,14 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 }
 
 // getCmdRegisterAccount is the cli command to register accounts
-func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
+func getCmdRegisterAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "register-account",
 		Short:                      "register an account",
 		SuggestionsMinimumDistance: 2,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -686,19 +684,19 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgRegisterAccount{
-				Domain:       domain,
-				Name:         name,
-				Owner:        ownerAddr,
-				Registerer:   clientCtx.GetFromAddress(),
-				FeePayerAddr: feePayer,
-				Broker:       broker,
+				Domain:     domain,
+				Name:       name,
+				Owner:      ownerAddr,
+				Registerer: clientCtx.GetFromAddress(),
+				Payer:      feePayer,
+				Broker:     broker,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
@@ -709,13 +707,13 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
+func getCmdRegisterDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-domain",
 		Short: "register a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -755,18 +753,18 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 				}
 			}
 			msg := &types.MsgRegisterDomain{
-				Name:         domain,
-				Admin:        clientCtx.GetFromAddress(),
-				DomainType:   types.DomainType(dType),
-				Broker:       broker,
-				FeePayerAddr: feePayer,
+				Name:       domain,
+				Admin:      clientCtx.GetFromAddress(),
+				DomainType: types.DomainType(dType),
+				Broker:     broker,
+				Payer:      feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
@@ -778,13 +776,13 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
+func getCmdSetAccountMetadata() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-account-metadata",
 		Short: "sets account metadata",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -816,7 +814,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 				Domain:         domain,
 				Name:           name,
 				Owner:          clientCtx.GetFromAddress(),
-				FeePayerAddr:   feePayer,
+				Payer:          feePayer,
 				NewMetadataURI: metadata,
 			}
 			// check if valid
@@ -824,7 +822,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	// add flags

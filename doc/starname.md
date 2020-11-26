@@ -28,6 +28,9 @@
     - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
     - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
   
+- [x/starname/types/genesis.proto](#x/starname/types/genesis.proto)
+    - [GenesisState](#starnamed.x.starname.v1beta1.GenesisState)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -157,7 +160,7 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Config gets starname configuration. |
+| Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname&#39;s domain. |
 
  
 
@@ -181,7 +184,7 @@ MsgAddAccountCertificates is the message used when a user wants to add new certi
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_certificate | [bytes](#bytes) |  | NewCertificate is the new certificate to add |
 
 
@@ -200,7 +203,7 @@ MsgDeleteAccount is the request model used to delete an account
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 
 
 
@@ -218,7 +221,7 @@ MsgDeleteAccountCertificate is the request model used to remove certificates fro
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | delete_certificate | [bytes](#bytes) |  | DeleteCertificate is the certificate to delete |
 
 
@@ -236,7 +239,7 @@ MsgDeleteDomain is the request model to delete a domain
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 
 
 
@@ -254,7 +257,7 @@ MsgRegisterAccount is the request model used to register new accounts
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
 | registerer | [bytes](#bytes) |  | Registerer is the user who registers this account |
 | resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources are the blockchain addresses of the account |
@@ -274,7 +277,7 @@ MsgRegisterDomain is the request used to register new domains
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  |  |
 | admin | [bytes](#bytes) |  |  |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
 | domain_type | [string](#string) |  | DomainType defines the type of the domain |
 
@@ -294,7 +297,7 @@ MsgRenewAccount is the request model used to renew accounts
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | signer | [bytes](#bytes) |  | Signer is the signer of the request |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 
 
 
@@ -311,7 +314,7 @@ MsgRenewDomain is the request model used to renew a domain
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
 | signer | [bytes](#bytes) |  | Signer is the signer of the request |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 
 
 
@@ -329,7 +332,7 @@ MsgReplaceAccountMetadata is the function used to set accounts metadata
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_metadata_uri | [string](#string) |  | NewMetadataURI is the metadata URI of the account we want to update or insert |
 
 
@@ -348,7 +351,7 @@ MsgReplaceAccountResources is the request model used to renew resources associat
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | NewResources are the new resources |
 
 
@@ -367,7 +370,7 @@ MsgTransferAccount is the request model used to transfer accounts
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_owner | [bytes](#bytes) |  | NewOwner is the new owner of the account |
 | reset | [bool](#bool) |  | ToReset if true, removes all old data from account |
 
@@ -386,9 +389,41 @@ MsgTransferDomain is the request model used to transfer a domain
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the name of the domain |
 | owner | [bytes](#bytes) |  | Owner is the owner of the domain |
-| fee_payer | [bytes](#bytes) |  | FeePayer is the address of the entity that has to pay product fees |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_admin | [bytes](#bytes) |  | NewAdmin is the new owner of the domain |
 | transfer_flag | [int64](#int64) |  | TransferFlag controls the operations that occurs on a domain&#39;s accounts |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="x/starname/types/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## x/starname/types/genesis.proto
+
+
+
+<a name="starnamed.x.starname.v1beta1.GenesisState"></a>
+
+### GenesisState
+GenesisState - genesis state of x/starname
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domains | [Domain](#starnamed.x.starname.v1beta1.Domain) | repeated |  |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated |  |
 
 
 

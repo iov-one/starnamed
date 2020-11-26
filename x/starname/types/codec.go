@@ -4,17 +4,13 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ModuleCdc instantiates a new codec for the domain module
-var ModuleCdc = codec.New()
-
-func init() {
-	RegisterCodec(ModuleCdc)
-}
-
-// RegisterCodec registers the sdk.Msg for the module
-func RegisterCodec(cdc *codec.Codec) {
+// RegisterLegacyAminoCodec registers the account types and interface.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRegisterDomain{}, fmt.Sprintf("%s/RegisterDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferDomain{}, fmt.Sprintf("%s/TransferDomainAll", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferAccount{}, fmt.Sprintf("%s/TransferAccount", ModuleName), nil)
@@ -27,4 +23,35 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&MsgRenewDomain{}, fmt.Sprintf("%s/RenewDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountResources{}, fmt.Sprintf("%s/ReplaceAccountResources", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountMetadata{}, fmt.Sprintf("%s/SetAccountMetadata", ModuleName), nil)
+}
+
+// RegisterInterfaces registers implementations for the protobuf marshaler.
+func RegisterInterfaces(registry types.InterfaceRegistry) {
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&MsgRegisterDomain{},
+		&MsgTransferDomain{},
+		&MsgTransferAccount{},
+		&MsgAddAccountCertificates{},
+		&MsgDeleteAccountCertificate{},
+		&MsgDeleteAccount{},
+		&MsgDeleteDomain{},
+		&MsgRegisterAccount{},
+		&MsgRenewDomain{},
+		&MsgReplaceAccountResources{},
+		&MsgReplaceAccountMetadata{},
+	)
+}
+
+var (
+	amino = codec.NewLegacyAmino()
+
+	// ModuleCdc references the global x/starname module codec.
+	ModuleCdc = codec.NewAminoCodec(amino)
+)
+
+func init() {
+	RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+	amino.Seal()
 }

@@ -1,61 +1,37 @@
 package cli
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
 
 // GetQueryCmd builds the commands for queries in the domain module
-func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd() *cobra.Command {
 	domainQueryCmd := &cobra.Command{
-		Use:                        moduleQueryPath, // store key is same as module name
-		Short:                      "querying commands for the domain module",
+		Use:                        types.ModuleName,
+		Short:                      "querying commands for the starname module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
-		Aliases:                    []string{"starname"},
 	}
 	domainQueryCmd.AddCommand(
-		flags.GetCommands(
-			getQueryResolveDomain(moduleQueryPath, cdc),
-			getQueryResolveAccount(moduleQueryPath, cdc),
-			getQueryDomainAccounts(moduleQueryPath, cdc),
-			getQueryOwnerAccount(moduleQueryPath, cdc),
-			getQueryOwnerDomain(moduleQueryPath, cdc),
-			getQueryResourcesAccount(moduleQueryPath, cdc),
-		)...,
+		GetQueryResolveDomain(),
+		/* TODO: FIXME
+		getQueryResolveAccount(moduleQueryPath, cdc),
+		getQueryDomainAccounts(moduleQueryPath, cdc),
+		getQueryOwnerAccount(moduleQueryPath, cdc),
+		getQueryOwnerDomain(moduleQueryPath, cdc),
+		getQueryResourcesAccount(moduleQueryPath, cdc),
+		*/
 	)
 	return domainQueryCmd
 }
 
-func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}) (err error) {
-	panic("processQueryCmd() in x/starname/client/cli/query.go needs work!")
-	/* TODO: refactor
-	// get req byres
-	b, err := queries.DefaultQueryEncode(q)
-	if err != nil {
-		return
-	}
-	// get cli ctx
-	cliCtx := context.NewCLIContext().WithCodec(cdc)
-	res, _, err := cliCtx.QueryWithData(path, b)
-	if err != nil {
-		return
-	}
-	_, err = fmt.Fprintf(cliCtx.Output, "%s\n\n", res)
-	return err
-	*/
-	return nil
-}
-
-func getQueryResolveDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
+// GetQueryResolveDomain implements the resolve domain command.
+func GetQueryResolveDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domain-info",
 		Short: "resolve a domain",
@@ -65,22 +41,30 @@ func getQueryResolveDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryResolveDomain{Name: domain}
-			if err = q.Validate(); err != nil {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveDomainResponse))
+			res, err := types.NewQueryClient(clientCtx).Domain(
+				context.Background(),
+				&types.QueryDomainRequest{
+					Name: domain,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(res.Domain)
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name you want to resolve")
+	cmd.Flags().String("domain", "", "the name of the domain that you want to resolve")
 	// return cmd
 	return cmd
 }
 
+/* TODO: FIXME
 func getQueryDomainAccounts(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domain-accounts",
@@ -292,3 +276,4 @@ func getQueryResourcesAccount(modulePath string, cdc *codec.Codec) *cobra.Comman
 	// return cmd
 	return cmd
 }
+*/

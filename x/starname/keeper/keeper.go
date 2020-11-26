@@ -2,8 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"time"
+
+	"github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,12 +51,12 @@ type Keeper struct {
 	SupplyKeeper        SupplyKeeper
 	// default fields
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
-	Cdc        *codec.Codec
+	Cdc        codec.Marshaler
 	paramspace ParamSubspace
 }
 
 // NewKeeper creates aliceAddr domain keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		StoreKey:            storeKey,
 		Cdc:                 cdc,

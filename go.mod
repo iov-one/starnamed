@@ -31,5 +31,5 @@ require (
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 
-// TODO: drop the following when possible
+// TODO: drop the following when possible (tag thanks to https://stackoverflow.com/a/59440771/5887599)
 replace github.com/iov-one/cosmos-sdk-crud => github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183504-9820962ef3c7

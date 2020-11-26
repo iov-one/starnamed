@@ -5,15 +5,15 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/x/configuration"
-	confCdc "github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/stretchr/testify/require"
-	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
@@ -48,12 +48,14 @@ func (m *DullMsg) GetSigners() []sdk.AccAddress {
 }
 
 // NewTestCodec generates aliceAddr mock codec for keeper module
-func NewTestCodec() *codec.Codec {
+func NewTestCodec() *codec.AminoCodec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module
-	cdc := codec.New()
-	codec.RegisterCrypto(cdc)
-	confCdc.RegisterCodec(cdc)
+	amino := codec.NewLegacyAmino()
+	cdc := codec.NewAminoCodec(amino)
+	types.RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+	amino.Seal()
 	return cdc
 }
 
@@ -84,7 +86,7 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// TODO: FIXME confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, subspace.NewSubspace(cdc, nil, nil, "test"))
 	confKeeper := configuration.Keeper{} // FIXME
 	// create context
-	ctx := sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
 	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
 }

@@ -3,9 +3,7 @@ package types
 import (
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud/types"
-	"github.com/iov-one/starnamed/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -51,6 +49,7 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
+/* TODO: FIXME
 type accountCodecAlias struct {
 	Underlying *Account
 	NameNil    bool
@@ -63,7 +62,7 @@ func (m *Account) MarshalCRUD() interface{} {
 	}
 }
 
-func (m *Account) UnmarshalCRUD(cdc *codec.Codec, b []byte) {
+func (m *Account) UnmarshalCRUD(cdc codec.Marshaler, b []byte) {
 	trg := new(accountCodecAlias)
 	cdc.MustUnmarshalBinaryBare(b, trg)
 	*m = *trg.Underlying
@@ -71,6 +70,7 @@ func (m *Account) UnmarshalCRUD(cdc *codec.Codec, b []byte) {
 		m.Name = utils.StrPtr("")
 	}
 }
+*/
 
 func (m *Account) PrimaryKey() crud.PrimaryKey {
 	if len(m.Domain) == 0 || m.Name == nil {

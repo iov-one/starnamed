@@ -20,14 +20,14 @@ message QueryDomainRequest {
 // QueryDomainResponse is the response type for the Query/Domain RPC method.
 message QueryDomainResponse {
     // Domain is the information associated with the domain.
-    starnamed.x.starname.v1beta1.Domain domain = 1 [
+    Domain domain = 1 [
         (gogoproto.moretags) = "yaml:\"domain\""
     ];
 }
 
 // Query defines the gRPC querier service.
 service Query {
-   // Config gets starname configuration.
+   // Domain gets a starname's domain.
    rpc Domain (QueryDomainRequest) returns (QueryDomainResponse) {
        option (google.api.http).get = "/starname/v1beta1/domain/{name}";
    }

@@ -67,6 +67,6 @@ message Account {
     // MetadataURI contains a link to extra information regarding the account
     string metadata_uri = 8 [
         (gogoproto.moretags) = "yaml:\"metadata_uri\"",
-        (gogoproto.customname) = "ValidURI"
+        (gogoproto.customname) = "MetadataURI"
     ];
 }
