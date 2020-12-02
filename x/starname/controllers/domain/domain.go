@@ -1,10 +1,11 @@
 package domain
 
 import (
-	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-	"github.com/iov-one/starnamed/pkg/utils"
 	"regexp"
 	"time"
+
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/iov-one/starnamed/pkg/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"

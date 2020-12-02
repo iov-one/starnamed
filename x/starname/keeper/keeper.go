@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/tendermint/tendermint/libs/log"

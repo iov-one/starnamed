@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-	"github.com/iov-one/starnamed/pkg/queries"
-	"github.com/iov-one/starnamed/pkg/utils"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/iov-one/starnamed/pkg/queries"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

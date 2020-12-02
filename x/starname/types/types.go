@@ -3,9 +3,8 @@ package types
 import (
 	"strings"
 
-	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud/types"
-
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 )
 
 const DomainAdminIndex = 0x1

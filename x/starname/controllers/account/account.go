@@ -2,10 +2,11 @@ package account
 
 import (
 	"bytes"
-	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
-	"github.com/iov-one/starnamed/pkg/utils"
 	"regexp"
 	"time"
+
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/iov-one/starnamed/pkg/utils"
 
 	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 
