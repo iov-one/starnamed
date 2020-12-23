@@ -242,8 +242,8 @@ func (a *Account) requireAccount() error {
 		return nil
 	}
 	account := new(types.Account)
-	ok := a.store.Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
-	if !ok {
+	err := a.store.Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
+	if err != nil {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}
 	a.account = account

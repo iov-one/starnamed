@@ -3,11 +3,12 @@ package starname
 import (
 	"bytes"
 	"errors"
-	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/configuration"
@@ -368,8 +369,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				expected := [][]byte{[]byte("test")}
 				account := new(types.Account)
-				ok := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("test")}).PrimaryKey(), account)
-				if !ok {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("test")}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				if !reflect.DeepEqual(account.Certificates, expected) {
@@ -413,8 +413,7 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				ok := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("test")}).PrimaryKey(), account)
-				if !ok {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("test")}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				for _, cert := range account.Certificates {
@@ -609,8 +608,7 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// check if certificate is still present
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				for _, cert := range account.Certificates {
@@ -654,8 +652,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -785,8 +782,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -844,8 +840,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -885,8 +880,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -926,8 +920,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -998,8 +991,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -1028,8 +1020,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -1111,8 +1102,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account test not found")
 				}
 				if account.ValidUntil != types.MaxValidUntil {
@@ -1197,8 +1187,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account test not found")
 				}
 				expected := utils.TimeToSeconds(time.Unix(11, 0))
@@ -1656,8 +1645,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				want := ctx.BlockTime().Add(k.ConfigurationKeeper.GetConfiguration(ctx).AccountRenewalPeriod)
@@ -1703,13 +1691,11 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				domain := new(types.Domain)
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), domain)
-				if !exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), domain); err != nil {
 					t.Fatal("domain not found")
 				}
 				account := new(types.Account)
-				exists = k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				if domain.ValidUntil != account.ValidUntil {
@@ -2115,8 +2101,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Resource: "valid",
 				}}
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				if !reflect.DeepEqual(expected, account.Resources) {
@@ -2397,8 +2382,7 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				expected := "https://test.com"
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("account not found")
 				}
 				if !reflect.DeepEqual(expected, account.MetadataURI) {
@@ -2454,8 +2438,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					panic("unexpected account deletion")
 				}
 				if !account.Owner.Equals(keeper.CharlieKey) {
@@ -2504,8 +2487,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					panic("unexpected account deletion")
 				}
 				if account.Resources != nil {
@@ -2568,8 +2550,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					panic("unexpected account deletion")
 				}
 				if !account.Owner.Equals(keeper.CharlieKey) {
@@ -2618,8 +2599,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					t.Fatal("unexpected account deletion")
 				}
 				if account.Resources == nil {
@@ -2827,8 +2807,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				exists := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account)
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
 					panic("unexpected account deletion")
 				}
 				if account.Resources != nil {

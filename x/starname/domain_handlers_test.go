@@ -59,16 +59,13 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
@@ -109,16 +106,13 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
@@ -165,16 +159,13 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
@@ -222,16 +213,13 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if !exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if !exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should exist")
 				}
 			},
@@ -415,16 +403,13 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
@@ -466,16 +451,13 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain))
-				if exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
-				if exists {
+				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
@@ -516,12 +498,10 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// TODO do reflect.DeepEqual checks on expected results vs results returned
-				exists := k.DomainStore(ctx).Read((&types.Domain{Name: "domain-closed"}).PrimaryKey(), new(types.Domain))
-				if !exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "domain-closed"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-closed'")
 				}
-				exists = k.DomainStore(ctx).Read((&types.Domain{Name: "domain-open"}).PrimaryKey(), new(types.Domain))
-				if !exists {
+				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "domain-open"}).PrimaryKey(), new(types.Domain)); err != nil {
 					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-open'")
 				}
 			},

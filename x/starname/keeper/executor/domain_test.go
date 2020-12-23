@@ -1,11 +1,12 @@
 package executor
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"testing"
 )
 
 func TestDomain_Transfer(t *testing.T) {
@@ -55,12 +56,15 @@ func TestDomain_Transfer(t *testing.T) {
 	t.Run("transfer owned", func(t *testing.T) {
 		k, ctx, ex := init()
 		ex.Transfer(types.TransferOwned, keeper.AliceKey)
-		filter := k.AccountStore(ctx).Filter(&types.Account{
-			Domain: "test",
-		})
-		for ; filter.Valid(); filter.Next() {
-			acc := new(types.Account)
-			filter.Read(acc)
+		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		acc := new(types.Account)
+		for ; cursor.Valid(); cursor.Next() {
+			if err = cursor.Read(acc); err != nil {
+				t.Fatal(err)
+			}
 			if !acc.Owner.Equals(keeper.AliceKey) && *acc.Name != "not-owned" {
 				t.Fatal("owner mismatch")
 			}
@@ -72,13 +76,16 @@ func TestDomain_Transfer(t *testing.T) {
 	t.Run("transfer-flush", func(t *testing.T) {
 		k, ctx, ex := init()
 		ex.Transfer(types.TransferFlush, keeper.AliceKey)
-		filter := k.AccountStore(ctx).Filter(&types.Account{
-			Domain: "test",
-		})
+		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		acc := new(types.Account)
 		emptyAccountExists := false
-		for ; filter.Valid(); filter.Next() {
-			acc := new(types.Account)
-			filter.Read(acc)
+		for ; cursor.Valid(); cursor.Next() {
+			if err = cursor.Read(acc); err != nil {
+				t.Fatal(err)
+			}
 			// only empty account is expected
 			if *acc.Name != types.EmptyAccountName {
 				t.Fatalf("only empty account is expected to exist, got: %s", *acc.Name)
@@ -94,12 +101,15 @@ func TestDomain_Transfer(t *testing.T) {
 	t.Run("transfer-reset-none", func(t *testing.T) {
 		k, ctx, ex := init()
 		ex.Transfer(types.TransferResetNone, keeper.AliceKey)
-		filter := k.AccountStore(ctx).Filter(&types.Account{
-			Domain: "test",
-		})
-		for ; filter.Valid(); filter.Next() {
-			acc := new(types.Account)
-			filter.Read(acc)
+		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		acc := new(types.Account)
+		for ; cursor.Valid(); cursor.Next() {
+			if err = cursor.Read(acc); err != nil {
+				t.Fatal(err)
+			}
 			switch *acc.Name {
 			case types.EmptyAccountName:
 				if !acc.Owner.Equals(keeper.AliceKey) {
@@ -130,8 +140,7 @@ func TestDomain_Renew(t *testing.T) {
 		ex := NewDomain(testCtx, testKeeper, testDomain)
 		ex.Renew()
 		newDom := new(types.Domain)
-		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom)
-		if !ok {
+		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
 			t.Fatal("domain does not exist anymore")
 		}
 		if newDom.ValidUntil != testDomain.ValidUntil+int64(testConfig.DomainRenewalPeriod.Seconds()) {
@@ -144,8 +153,7 @@ func TestDomain_Renew(t *testing.T) {
 		ex := NewDomain(testCtx, testKeeper, testDomain)
 		ex.Renew(accValidUntil)
 		newDom := new(types.Domain)
-		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom)
-		if !ok {
+		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
 			t.Fatal("domain does not exist anymore")
 		}
 		if newDom.ValidUntil != accValidUntil {
@@ -158,8 +166,7 @@ func TestDomain_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
 		NewDomain(testCtx, testKeeper, testDomain).Delete()
-		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{})
-		if ok {
+		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{}); err == nil {
 			t.Fatal("domain was not deleted")
 		}
 	})

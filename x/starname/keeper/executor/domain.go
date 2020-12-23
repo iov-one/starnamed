@@ -1,6 +1,8 @@
 package executor
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/pkg/utils"
@@ -49,10 +51,12 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	d.domains.Update(d.domain)
 	// update empty account
 	account := new(types.Account)
-	fltr := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
-	fltr.Read(account)
+	cursor := d.getEmptyNameAccountCursor()
+	if err := cursor.Read(account); err != nil {
+		panic(err)
+	}
 	account.ValidUntil = d.domain.ValidUntil
-	fltr.Update(account)
+	cursor.Update(account)
 }
 
 // Delete deletes a domain from the kvstore
@@ -60,9 +64,12 @@ func (d *Domain) Delete() {
 	if d.domain == nil {
 		panic("cannot execute delete state change on non present domain")
 	}
-	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-	for ; filter.Valid(); filter.Next() {
-		filter.Delete()
+	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
+	if err != nil {
+		panic(err)
+	}
+	for ; cursor.Valid(); cursor.Next() {
+		cursor.Delete()
 	}
 	d.domains.Delete(d.domain.PrimaryKey())
 }
@@ -78,9 +85,11 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	d.domain.Admin = newOwner
 	d.domains.Update(d.domain)
 	// transfer empty account
-	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
 	emptyAccount := new(types.Account)
-	filter.Read(emptyAccount)
+	cursor := d.getEmptyNameAccountCursor()
+	if err := cursor.Read(emptyAccount); err != nil {
+		panic(err)
+	}
 	ac := NewAccount(d.ctx, d.k, *emptyAccount)
 	ac.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
@@ -90,10 +99,15 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		return
 	// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
 	case types.TransferFlush:
-		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-		for ; filter.Valid(); filter.Next() {
-			acc := new(types.Account)
-			filter.Read(acc)
+		cursor, err := d.accounts.Query().Where().Index(types.AccountAdminIndex).Equals([]byte(d.domain.Name)).Do()
+		if err != nil {
+			panic(err)
+		}
+		acc := new(types.Account)
+		for ; cursor.Valid(); cursor.Next() {
+			if err = cursor.Read(acc); err != nil {
+				panic(err)
+			}
 			ex := NewAccount(d.ctx, d.k, *acc)
 			// transfer empty account
 			if *acc.Name == types.EmptyAccountName {
@@ -104,10 +118,15 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		}
 	// transfer owned transfers only accounts owned by the old owner
 	case types.TransferOwned:
-		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
-		for ; filter.Valid(); filter.Next() {
+		cursor, err := d.accounts.Query().Where().
+			Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).And().
+			Index(types.AccountAdminIndex).Equals(oldOwner.Bytes()).Do()
+		if err != nil {
+			panic(err)
+		}
+		for ; cursor.Valid(); cursor.Next() {
 			acc := new(types.Account)
-			filter.Read(acc)
+			cursor.Read(acc)
 			ex := NewAccount(d.ctx, d.k, *acc)
 			// transfer accounts without reset
 			ex.Transfer(newOwner, false)
@@ -132,4 +151,22 @@ func (d *Domain) Create() {
 		MetadataURI:  "",
 	}
 	d.accounts.Create(emptyAccount)
+}
+
+// Gets the empty name account cursor
+func (d *Domain) getEmptyNameAccountCursor() crud.Cursor {
+	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
+	if err != nil {
+		panic(err)
+	}
+	account := new(types.Account)
+	for ; cursor.Valid(); cursor.Next() {
+		if err := cursor.Read(account); err != nil {
+			panic(err)
+		}
+		if account.Name != nil && *account.Name == types.EmptyAccountName {
+			return cursor
+		}
+	}
+	panic(fmt.Sprintf("failed to get empty account in domain %s", d.domain.Name))
 }

@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/pkg/queries"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
@@ -136,28 +135,32 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	if err = query.Validate(); err != nil {
 		return nil, err
 	}
-	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
+	keys := make([]byte, 0, query.ResultsPerPage)
 	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	// iterate keys
-	as := k.AccountStore(ctx)
+	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(query.Domain)).Do()
+	if err != nil {
+		panic(err) // TODO: not panic?
+	}
 	accounts := make([]*types.Account, 0, len(keys))
-	filter := as.Filter(&types.Account{Domain: query.Domain})
+	account := new(types.Account)
 	for {
-		if !filter.Valid() {
+		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
-			acc := new(types.Account)
-			filter.Read(acc)
-			accounts = append(accounts, acc)
+			if err := cursor.Read(account); err != nil {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
+			}
+			accounts = append(accounts, account)
 		}
 		if i == indexEnd {
 			break
 		}
-		filter.Next()
+		cursor.Next()
 		i++
 	}
 	// return response
@@ -233,29 +236,32 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		return nil, err
 	}
 	// generate expected keys
-	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
+	keys := make([]byte, 0, query.ResultsPerPage)
 	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	// iterate account keys
-	as := k.AccountStore(ctx)
-	// iterate keys
+	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountAdminIndex).Equals(query.Owner.Bytes()).Do()
+	if err != nil {
+		panic(err) // TODO: not panic?
+	}
 	accounts := make([]types.Account, 0, len(keys))
-	filter := as.Filter(&types.Account{Owner: query.Owner})
+	account := new(types.Account)
 	for {
-		if !filter.Valid() {
+		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
-			acc := new(types.Account)
-			filter.Read(acc)
-			accounts = append(accounts, *acc)
+			if err := cursor.Read(account); err != nil {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
+			}
+			accounts = append(accounts, *account)
 		}
 		if i == indexEnd {
 			break
 		}
-		filter.Next()
+		cursor.Next()
 		i++
 	}
 	// return response
@@ -332,30 +338,34 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	}
 	// get domain keys
 	// generate expected keys
-	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
+	keys := make([]byte, 0, query.ResultsPerPage)
 	i := 0
 	// calculate i range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	// fill domain keys
-	ds := k.DomainStore(ctx)
-	// iterate keys
+	cursor, err := k.DomainStore(ctx).Query().Where().Index(types.DomainAdminIndex).Equals(query.Owner.Bytes()).Do()
+	if err != nil {
+		panic(err) // TODO: not panic?
+	}
 	domains := make([]types.Domain, 0, len(keys))
-	filter := ds.Filter(&types.Domain{Admin: query.Owner})
+	domain := new(types.Domain)
 	for {
-		if !filter.Valid() {
+		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
-			dom := new(types.Domain)
-			filter.Read(dom)
-			domains = append(domains, *dom)
+			cursor.Read(domain)
+			if err := cursor.Read(domain); err != nil {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
+			}
 
+			domains = append(domains, *domain)
 		}
 		if i == indexEnd {
 			break
 		}
-		filter.Next()
+		cursor.Next()
 		i++
 	}
 	respBytes, err := queries.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
@@ -442,8 +452,7 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 	// do query
 	account := new(types.Account)
 	pk := (&types.Account{Name: utils.StrPtr(q.Name), Domain: q.Domain}).PrimaryKey()
-	exists := k.AccountStore(ctx).Read(pk, account)
-	if !exists {
+	if err := k.AccountStore(ctx).Read(pk, account); err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", q.Domain, q.Name)
 	}
 	// return response
@@ -508,8 +517,7 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 	}
 	filter := &types.Domain{Name: q.Name}
 	domain := new(types.Domain)
-	ok := k.DomainStore(ctx).Read(filter.PrimaryKey(), domain)
-	if !ok {
+	if err = k.DomainStore(ctx).Read(filter.PrimaryKey(), domain); err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", q.Name)
 	}
 	// return response
@@ -575,28 +583,32 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 		return nil, err
 	}
 	// generate expected keys
-	keys := make([]crud.PrimaryKey, 0, q.ResultsPerPage)
+	keys := make([]byte, 0, q.ResultsPerPage)
 	// calculate index range
 	indexStart := q.ResultsPerPage*q.Offset - q.ResultsPerPage // start index
 	indexEnd := indexStart + q.ResultsPerPage - 1              // index end
 	i := 0
 	// iterate keys
-	as := k.AccountStore(ctx)
+	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountResourcesIndex).Equals([]byte(q.Resource.Resource)).Do()
+	if err != nil {
+		panic(err) // TODO: not panic?
+	}
 	accounts := make([]types.Account, 0, len(keys))
-	filter := as.Filter(&types.Account{Resources: []*types.Resource{&q.Resource}})
+	account := new(types.Account)
 	for {
-		if !filter.Valid() {
+		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
-			acc := new(types.Account)
-			filter.Read(acc)
-			accounts = append(accounts, *acc)
+			if err := cursor.Read(account); err != nil {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
+			}
+			accounts = append(accounts, *account)
 		}
 		if i == indexEnd {
 			break
 		}
-		filter.Next()
+		cursor.Next()
 		i++
 	}
 	// return response

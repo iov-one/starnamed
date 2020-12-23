@@ -216,8 +216,7 @@ func (c *Domain) requireDomain() error {
 		return nil
 	}
 	domain := new(types.Domain)
-	ok := c.store.Read((&types.Domain{Name: c.domainName}).PrimaryKey(), domain)
-	if !ok {
+	if err := c.store.Read((&types.Domain{Name: c.domainName}).PrimaryKey(), domain); err != nil {
 		return sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", c.domainName)
 	}
 	c.domain = domain

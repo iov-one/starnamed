@@ -30,8 +30,7 @@ func (q grpcQuerier) Domain(c context.Context, req *types.QueryDomainRequest) (*
 func queryDomain(ctx sdk.Context, name string, keeper *Keeper) (*types.QueryDomainResponse, error) {
 	domain := new(types.Domain)
 	filter := &types.Domain{Name: name}
-	ok := keeper.DomainStore(ctx).Read(filter.PrimaryKey(), domain)
-	if !ok {
+	if err := keeper.DomainStore(ctx).Read(filter.PrimaryKey(), domain); err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", name)
 	}
 

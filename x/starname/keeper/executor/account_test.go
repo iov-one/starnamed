@@ -1,10 +1,11 @@
 package executor
 
 import (
-	"github.com/iov-one/starnamed/x/starname/keeper"
-	"github.com/iov-one/starnamed/x/starname/types"
 	"reflect"
 	"testing"
+
+	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestAccount_AddCertificate(t *testing.T) {
@@ -47,8 +48,7 @@ func TestAccount_Renew(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	NewAccount(testCtx, testKeeper, testAccount).Renew()
 	newAcc := new(types.Account)
-	ok := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), newAcc)
-	if !ok {
+	if err := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), newAcc); err != nil {
 		t.Fatal("account was deleted")
 	}
 	if newAcc.ValidUntil != testAccount.ValidUntil+int64(testConfig.AccountRenewalPeriod.Seconds()) {
@@ -130,8 +130,7 @@ func TestAccount_Delete(t *testing.T) {
 	ex := NewAccount(testCtx, testKeeper, testAccount)
 	ex.Delete()
 	got := new(types.Account)
-	found := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
-	if found {
+	if err := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got); err == nil {
 		t.Fatal("account was not deleted")
 	}
 }

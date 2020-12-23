@@ -70,9 +70,11 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		return f.moduleFees.RenewDomainOpen
 	}
 	var accountN int64
-	as := f.k.AccountStore(f.ctx)
-	filter := as.Filter(&types.Account{Domain: f.domain.Name})
-	for ; filter.Valid(); filter.Next() {
+	cursor, err := f.k.AccountStore(f.ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
+	if err != nil {
+		panic(err) // TODO: not panic?
+	}
+	for ; cursor.Valid(); cursor.Next() {
 		accountN++
 	}
 	fee := f.moduleFees.RegisterAccountClosed

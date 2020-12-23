@@ -7,26 +7,28 @@ import (
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
 
-const DomainAdminIndex = 0x1
-const AccountAdminIndex = 0x1
-const AccountDomainIndex = 0x2
-const AccountResourcesIndex = 0x3
+const DomainAdminIndex crud.IndexID = 0x1
+const AccountAdminIndex crud.IndexID = 0x1
+const AccountDomainIndex crud.IndexID = 0x2
+const AccountResourcesIndex crud.IndexID = 0x3
 
 // StarnameSeparator defines the starname separator identifier
 const StarnameSeparator = "*"
 
-func (m *Domain) PrimaryKey() crud.PrimaryKey {
+// PrimaryKey fulfills part of the crud.Object interface
+func (m *Domain) PrimaryKey() []byte {
 	if m.Name == "" {
 		return nil
 	}
-	return crud.NewPrimaryKeyFromString(m.Name)
+	return []byte(m.Name)
 }
 
 func (m *Domain) SecondaryKeys() []crud.SecondaryKey {
 	if m.Admin.Empty() {
 		return nil
 	}
-	return []crud.SecondaryKey{crud.NewSecondaryKey(DomainAdminIndex, m.Admin)}
+	sk := crud.SecondaryKey{DomainAdminIndex, m.Admin}
+	return []crud.SecondaryKey{sk}
 }
 
 // DomainType defines the type of the domain
@@ -71,24 +73,24 @@ func (m *Account) UnmarshalCRUD(cdc codec.Marshaler, b []byte) {
 }
 */
 
-func (m *Account) PrimaryKey() crud.PrimaryKey {
+func (m *Account) PrimaryKey() []byte {
 	if len(m.Domain) == 0 || m.Name == nil {
 		return nil
 	}
 	j := strings.Join([]string{m.Domain, *m.Name}, "*")
-	return crud.NewPrimaryKeyFromString(j)
+	return []byte(j)
 }
 
 func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 	var sk []crud.SecondaryKey
 	// index by owner
 	if !m.Owner.Empty() {
-		ownerIndex := crud.NewSecondaryKey(AccountAdminIndex, m.Owner)
+		ownerIndex := crud.SecondaryKey{AccountAdminIndex, m.Owner}
 		sk = append(sk, ownerIndex)
 	}
 	// index by domain
 	if len(m.Domain) != 0 {
-		domainIndex := crud.NewSecondaryKey(AccountDomainIndex, []byte(m.Domain))
+		domainIndex := crud.SecondaryKey{AccountDomainIndex, []byte(m.Domain)}
 		sk = append(sk, domainIndex)
 	}
 	// index by resources
@@ -99,7 +101,7 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 		}
 		resKey := strings.Join([]string{res.URI, res.Resource}, "")
 		// append resource
-		sk = append(sk, crud.NewSecondaryKey(AccountResourcesIndex, []byte(resKey)))
+		sk = append(sk, crud.SecondaryKey{AccountResourcesIndex, []byte(resKey)})
 	}
 	// return keys
 	return sk

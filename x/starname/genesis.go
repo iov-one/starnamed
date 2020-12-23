@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -51,22 +50,33 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data types.GenesisState) {
 
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
-	ds := k.DomainStore(ctx)
-	as := k.AccountStore(ctx)
+	// domains
+	cursor, err := k.DomainStore(ctx).Query().Where().Index(0x2).Equals([]byte{0x2}).Do() // HARD-CODE in conjunction with keeper.go
+	if err != nil {
+		panic(err)
+	}
 	var domains []types.Domain
-	var accounts []types.Account
-	ds.IterateKeys(func(pk crud.PrimaryKey) bool {
-		domain := new(types.Domain)
-		ds.Read(pk, domain)
+	domain := new(types.Domain)
+	for ; cursor.Valid(); cursor.Next() {
+		err = cursor.Read(domain)
+		if err != nil {
+			panic(err)
+		}
 		domains = append(domains, *domain)
-		return true
-	})
-	as.IterateKeys(func(pk crud.PrimaryKey) bool {
-		account := new(types.Account)
-		as.Read(pk, account)
+	}
+
+	// accounts
+	cursor, err = k.AccountStore(ctx).Query().Where().Index(0x1).Equals([]byte{0x1}).Do() // HARD-CODE in conjunction with keeper.go
+	var accounts []types.Account
+	account := new(types.Account)
+	for ; cursor.Valid(); cursor.Next() {
+		err = cursor.Read(account)
+		if err != nil {
+			panic(err)
+		}
 		accounts = append(accounts, *account)
-		return true
-	})
+	}
+
 	return &types.GenesisState{
 		Domains:  domains,
 		Accounts: accounts,

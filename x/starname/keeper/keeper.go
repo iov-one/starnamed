@@ -68,13 +68,12 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 
 // AccountStore returns the crud.Store used to interact with account objects
 func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
-	store := crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x1})
-	return store
+	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
 }
 
 // DomainStore returns the crud.Store used to interact with domain objects
 func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
-	return crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x2})
+	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
 }
 
 // Logger returns aliceAddr module-specific logger.
