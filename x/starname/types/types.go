@@ -7,10 +7,10 @@ import (
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
 
-const DomainAdminIndex crud.IndexID = 0x1
-const AccountAdminIndex crud.IndexID = 0x1
-const AccountDomainIndex crud.IndexID = 0x2
-const AccountResourcesIndex crud.IndexID = 0x3
+const DomainAdminIndex byte = 0x1
+const AccountAdminIndex byte = 0x1
+const AccountDomainIndex byte = 0x2
+const AccountResourcesIndex byte = 0x3
 
 // StarnameSeparator defines the starname separator identifier
 const StarnameSeparator = "*"

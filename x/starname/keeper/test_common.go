@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/mock"
@@ -48,14 +48,25 @@ func (m *DullMsg) GetSigners() []sdk.AccAddress {
 }
 
 // NewTestCodec generates aliceAddr mock codec for keeper module
-func NewTestCodec() *codec.AminoCodec {
+func NewTestCodec() *codec.ProtoCodec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module
-	amino := codec.NewLegacyAmino()
-	cdc := codec.NewAminoCodec(amino)
-	types.RegisterLegacyAminoCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
-	amino.Seal()
+	interfaceRegistry := cdctypes.NewInterfaceRegistry()
+	interfaceRegistry.RegisterInterface("cosmos.base.v1beta1.Msg",
+		(*sdk.Msg)(nil),
+		&types.MsgRegisterDomain{},
+		&types.MsgTransferDomain{},
+		&types.MsgTransferAccount{},
+		&types.MsgAddAccountCertificates{},
+		&types.MsgDeleteAccountCertificate{},
+		&types.MsgDeleteAccount{},
+		&types.MsgDeleteDomain{},
+		&types.MsgRegisterAccount{},
+		&types.MsgRenewDomain{},
+		&types.MsgReplaceAccountResources{},
+		&types.MsgReplaceAccountMetadata{},
+	)
+	cdc := codec.NewProtoCodec(interfaceRegistry)
 	return cdc
 }
 

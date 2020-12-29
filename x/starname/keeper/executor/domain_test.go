@@ -53,6 +53,25 @@ func TestDomain_Transfer(t *testing.T) {
 		ex = NewDomain(ctx, k, domain)
 		return
 	}
+	t.Run("success init", func(t *testing.T) {
+		_, _, ex := init()
+		//cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		cursor, err := ex.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		n := 0
+		account := new(types.Account)
+		for ; cursor.Valid(); cursor.Next() {
+			if err := cursor.Read(account); err != nil {
+				t.Fatal(err)
+			}
+			n++
+		}
+		if n != 4 {
+			t.Fatalf("expected accounts acc{1,2,3} and the empty account but got a total of %d", n)
+		}
+	})
 	t.Run("transfer owned", func(t *testing.T) {
 		k, ctx, ex := init()
 		ex.Transfer(types.TransferOwned, keeper.AliceKey)

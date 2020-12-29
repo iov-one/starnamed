@@ -50,13 +50,9 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	// set domain
 	d.domains.Update(d.domain)
 	// update empty account
-	account := new(types.Account)
-	cursor := d.getEmptyNameAccountCursor()
-	if err := cursor.Read(account); err != nil {
-		panic(err)
-	}
+	account, cursor := d.getEmptyNameAccount()
 	account.ValidUntil = d.domain.ValidUntil
-	cursor.Update(account)
+	(*cursor).Update(account)
 }
 
 // Delete deletes a domain from the kvstore
@@ -69,7 +65,9 @@ func (d *Domain) Delete() {
 		panic(err)
 	}
 	for ; cursor.Valid(); cursor.Next() {
-		cursor.Delete()
+		if err = cursor.Delete(); err != nil {
+			panic(err)
+		}
 	}
 	d.domains.Delete(d.domain.PrimaryKey())
 }
@@ -85,35 +83,29 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	d.domain.Admin = newOwner
 	d.domains.Update(d.domain)
 	// transfer empty account
-	emptyAccount := new(types.Account)
-	cursor := d.getEmptyNameAccountCursor()
-	if err := cursor.Read(emptyAccount); err != nil {
-		panic(err)
-	}
-	ac := NewAccount(d.ctx, d.k, *emptyAccount)
-	ac.Transfer(newOwner, false)
+	account, _ := d.getEmptyNameAccount()
+	executor := NewAccount(d.ctx, d.k, *account)
+	executor.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
 	// reset none is simply skipped as empty account is already transferred during domain transfer
 	case types.TransferResetNone:
 		return
-	// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
+	// transfer flush, deletes all domain's accounts except the empty one since it was transferred in the first step
 	case types.TransferFlush:
-		cursor, err := d.accounts.Query().Where().Index(types.AccountAdminIndex).Equals([]byte(d.domain.Name)).Do()
+		cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
 		if err != nil {
-			panic(err)
+			panic(err) // TODO not panic?
 		}
-		acc := new(types.Account)
 		for ; cursor.Valid(); cursor.Next() {
-			if err = cursor.Read(acc); err != nil {
-				panic(err)
+			if err = cursor.Read(account); err != nil {
+				panic(err) // TODO not panic?
 			}
-			ex := NewAccount(d.ctx, d.k, *acc)
-			// transfer empty account
-			if *acc.Name == types.EmptyAccountName {
-				ex.Transfer(newOwner, true)
+			// skip empty account
+			if *account.Name == types.EmptyAccountName {
 				continue
 			}
+			ex := NewAccount(d.ctx, d.k, *account)
 			ex.Delete()
 		}
 	// transfer owned transfers only accounts owned by the old owner
@@ -122,12 +114,13 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).And().
 			Index(types.AccountAdminIndex).Equals(oldOwner.Bytes()).Do()
 		if err != nil {
-			panic(err)
+			panic(err) // TODO not panic?
 		}
 		for ; cursor.Valid(); cursor.Next() {
-			acc := new(types.Account)
-			cursor.Read(acc)
-			ex := NewAccount(d.ctx, d.k, *acc)
+			if err = cursor.Read(account); err != nil {
+				panic(err) // TODO not panic?
+			}
+			ex := NewAccount(d.ctx, d.k, *account)
 			// transfer accounts without reset
 			ex.Transfer(newOwner, false)
 		}
@@ -144,7 +137,7 @@ func (d *Domain) Create() {
 		Domain:       d.domain.Name,
 		Name:         utils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
-		ValidUntil:   d.domain.ValidUntil, // is this right per spec?
+		ValidUntil:   d.domain.ValidUntil,
 		Resources:    nil,
 		Certificates: nil,
 		Broker:       nil,
@@ -153,19 +146,19 @@ func (d *Domain) Create() {
 	d.accounts.Create(emptyAccount)
 }
 
-// Gets the empty name account cursor
-func (d *Domain) getEmptyNameAccountCursor() crud.Cursor {
+// Gets the empty name account and cursor
+func (d *Domain) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
 	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
 	if err != nil {
-		panic(err)
+		panic(err) // TODO: not panic?
 	}
 	account := new(types.Account)
 	for ; cursor.Valid(); cursor.Next() {
-		if err := cursor.Read(account); err != nil {
-			panic(err)
+		if err = cursor.Read(account); err != nil {
+			panic(err) // TODO: not panic?
 		}
 		if account.Name != nil && *account.Name == types.EmptyAccountName {
-			return cursor
+			return account, &cursor
 		}
 	}
 	panic(fmt.Sprintf("failed to get empty account in domain %s", d.domain.Name))

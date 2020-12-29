@@ -67,6 +67,9 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 
 	// accounts
 	cursor, err = k.AccountStore(ctx).Query().Where().Index(0x1).Equals([]byte{0x1}).Do() // HARD-CODE in conjunction with keeper.go
+	if err != nil {
+		panic(err)
+	}
 	var accounts []types.Account
 	account := new(types.Account)
 	for ; cursor.Valid(); cursor.Next() {

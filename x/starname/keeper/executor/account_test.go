@@ -69,7 +69,6 @@ func TestAccount_ReplaceResources(t *testing.T) {
 	if !reflect.DeepEqual(got.Resources, newRes) {
 		t.Fatal("unexpected result")
 	}
-
 }
 
 func TestAccount_State(t *testing.T) {

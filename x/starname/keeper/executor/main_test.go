@@ -74,7 +74,7 @@ func newTest() error {
 		&types.MsgReplaceAccountResources{},
 		&types.MsgReplaceAccountMetadata{},
 	)
-	testCdc := codec.NewProtoCodec(interfaceRegistry)
+	testCdc = codec.NewProtoCodec(interfaceRegistry)
 	mdb := db.NewMemDB()
 	ms := store.NewCommitMultiStore(mdb)
 	ms.MountStoreWithDB(testKey, sdk.StoreTypeIAVL, mdb)
@@ -82,7 +82,7 @@ func newTest() error {
 	if err != nil {
 		return err
 	}
-	testCtx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, true, log.NewNopLogger())
+	testCtx = sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, true, log.NewNopLogger())
 	testKeeper = keeper.NewKeeper(testCdc, testKey, mockConfig, nil, nil)
 	testKeeper.AccountStore(testCtx).Create(&testAccount)
 	testKeeper.DomainStore(testCtx).Create(&testDomain)
