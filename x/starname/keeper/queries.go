@@ -143,7 +143,7 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	// iterate keys
 	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(query.Domain)).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	accounts := make([]*types.Account, 0, len(keys))
 	account := new(types.Account)
@@ -244,7 +244,7 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	// iterate account keys
 	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountAdminIndex).Equals(query.Owner.Bytes()).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	accounts := make([]types.Account, 0, len(keys))
 	account := new(types.Account)
@@ -346,7 +346,7 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	// fill domain keys
 	cursor, err := k.DomainStore(ctx).Query().Where().Index(types.DomainAdminIndex).Equals(query.Owner.Bytes()).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	domains := make([]types.Domain, 0, len(keys))
 	domain := new(types.Domain)
@@ -591,7 +591,7 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 	// iterate keys
 	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountResourcesIndex).Equals([]byte(q.Resource.Resource)).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	accounts := make([]types.Account, 0, len(keys))
 	account := new(types.Account)

@@ -72,7 +72,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 	var accountN int64
 	cursor, err := f.k.AccountStore(f.ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	for ; cursor.Valid(); cursor.Next() {
 		accountN++

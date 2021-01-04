@@ -95,11 +95,11 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	case types.TransferFlush:
 		cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
 		if err != nil {
-			panic(err) // TODO not panic?
+			panic(err)
 		}
 		for ; cursor.Valid(); cursor.Next() {
 			if err = cursor.Read(account); err != nil {
-				panic(err) // TODO not panic?
+				panic(err)
 			}
 			// skip empty account
 			if *account.Name == types.EmptyAccountName {
@@ -114,11 +114,11 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).And().
 			Index(types.AccountAdminIndex).Equals(oldOwner.Bytes()).Do()
 		if err != nil {
-			panic(err) // TODO not panic?
+			panic(err)
 		}
 		for ; cursor.Valid(); cursor.Next() {
 			if err = cursor.Read(account); err != nil {
-				panic(err) // TODO not panic?
+				panic(err)
 			}
 			ex := NewAccount(d.ctx, d.k, *account)
 			// transfer accounts without reset
@@ -150,12 +150,12 @@ func (d *Domain) Create() {
 func (d *Domain) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
 	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
 	if err != nil {
-		panic(err) // TODO: not panic?
+		panic(err)
 	}
 	account := new(types.Account)
 	for ; cursor.Valid(); cursor.Next() {
 		if err = cursor.Read(account); err != nil {
-			panic(err) // TODO: not panic?
+			panic(err)
 		}
 		if account.Name != nil && *account.Name == types.EmptyAccountName {
 			return account, &cursor

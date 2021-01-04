@@ -54,9 +54,8 @@ func TestDomain_Transfer(t *testing.T) {
 		return
 	}
 	t.Run("success init", func(t *testing.T) {
-		_, _, ex := init()
-		//cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
-		cursor, err := ex.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
+		k, ctx, _ := init()
+		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
 		if err != nil {
 			t.Fatal(err)
 		}
