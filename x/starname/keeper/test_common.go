@@ -94,8 +94,7 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
 	// create config keeper
-	// TODO: FIXME confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, subspace.NewSubspace(cdc, nil, nil, "test"))
-	confKeeper := configuration.Keeper{} // FIXME
+	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
 	// create context
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
