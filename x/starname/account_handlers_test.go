@@ -652,7 +652,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -782,7 +782,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -840,7 +840,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -880,7 +880,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -920,7 +920,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -991,7 +991,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
@@ -1020,7 +1020,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account := new(types.Account)
-				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err != nil {
+				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
 			},
