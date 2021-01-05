@@ -62,6 +62,7 @@ func TestDomain_Transfer(t *testing.T) {
 		n := 0
 		account := new(types.Account)
 		for ; cursor.Valid(); cursor.Next() {
+			account.Reset() // stictly not necessary but is required in most cases, so consider it best practice
 			if err := cursor.Read(account); err != nil {
 				t.Fatal(err)
 			}
@@ -80,6 +81,7 @@ func TestDomain_Transfer(t *testing.T) {
 		}
 		acc := new(types.Account)
 		for ; cursor.Valid(); cursor.Next() {
+			acc.Reset()
 			if err = cursor.Read(acc); err != nil {
 				t.Fatal(err)
 			}
@@ -101,6 +103,7 @@ func TestDomain_Transfer(t *testing.T) {
 		acc := new(types.Account)
 		emptyAccountExists := false
 		for ; cursor.Valid(); cursor.Next() {
+			acc.Reset()
 			if err = cursor.Read(acc); err != nil {
 				t.Fatal(err)
 			}
@@ -125,6 +128,7 @@ func TestDomain_Transfer(t *testing.T) {
 		}
 		acc := new(types.Account)
 		for ; cursor.Valid(); cursor.Next() {
+			acc.Reset()
 			if err = cursor.Read(acc); err != nil {
 				t.Fatal(err)
 			}

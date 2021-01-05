@@ -98,6 +98,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			panic(err)
 		}
 		for ; cursor.Valid(); cursor.Next() {
+			account.Reset()
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
@@ -117,6 +118,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			panic(err)
 		}
 		for ; cursor.Valid(); cursor.Next() {
+			account.Reset()
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
@@ -154,6 +156,7 @@ func (d *Domain) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
 	}
 	account := new(types.Account)
 	for ; cursor.Valid(); cursor.Next() {
+		account.Reset()
 		if err = cursor.Read(account); err != nil {
 			panic(err)
 		}

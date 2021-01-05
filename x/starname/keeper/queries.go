@@ -146,12 +146,12 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		panic(err)
 	}
 	accounts := make([]*types.Account, 0, len(keys))
-	account := new(types.Account)
 	for {
 		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
+			account := new(types.Account)
 			if err := cursor.Read(account); err != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
 			}
@@ -247,12 +247,12 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		panic(err)
 	}
 	accounts := make([]types.Account, 0, len(keys))
-	account := new(types.Account)
 	for {
 		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
+			account := new(types.Account)
 			if err := cursor.Read(account); err != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
 			}
@@ -349,13 +349,12 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		panic(err)
 	}
 	domains := make([]types.Domain, 0, len(keys))
-	domain := new(types.Domain)
 	for {
 		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
-			cursor.Read(domain)
+			domain := new(types.Domain)
 			if err := cursor.Read(domain); err != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
 			}
@@ -594,12 +593,12 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 		panic(err)
 	}
 	accounts := make([]types.Account, 0, len(keys))
-	account := new(types.Account)
 	for {
 		if !cursor.Valid() {
 			break
 		}
 		if i >= indexStart {
+			account := new(types.Account)
 			if err := cursor.Read(account); err != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, err.Error())
 			}
