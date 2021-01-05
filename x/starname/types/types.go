@@ -50,29 +50,6 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
-/* TODO: FIXME
-type accountCodecAlias struct {
-	Underlying *Account
-	NameNil    bool
-}
-
-func (m *Account) MarshalCRUD() interface{} {
-	return accountCodecAlias{
-		Underlying: m,
-		NameNil:    m.Name == nil,
-	}
-}
-
-func (m *Account) UnmarshalCRUD(cdc codec.Marshaler, b []byte) {
-	trg := new(accountCodecAlias)
-	cdc.MustUnmarshalBinaryBare(b, trg)
-	*m = *trg.Underlying
-	if m.Name == nil && !trg.NameNil {
-		m.Name = utils.StrPtr("")
-	}
-}
-*/
-
 func (m *Account) PrimaryKey() []byte {
 	if len(m.Domain) == 0 || m.Name == nil {
 		return nil
