@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	wasmUtils "github.com/iov-one/starnamed/x/wasm/client/utils"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	wasmUtils "github.com/iov-one/starnamed/x/wasm/client/utils"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
 )
 
 func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
@@ -29,6 +29,7 @@ type storeCodeReq struct {
 
 type instantiateContractReq struct {
 	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Label   string       `json:"label" yaml:"label"`
 	Deposit sdk.Coins    `json:"deposit" yaml:"deposit"`
 	Admin   string       `json:"admin,omitempty" yaml:"admin"`
 	InitMsg []byte       `json:"init_msg" yaml:"init_msg"`
@@ -107,8 +108,9 @@ func instantiateContractHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := types.MsgInstantiateContract{
-			Sender:    cliCtx.GetFromAddress().String(),
+			Sender:    req.BaseReq.From,
 			CodeID:    codeID,
+			Label:     req.Label,
 			InitFunds: req.Deposit,
 			InitMsg:   req.InitMsg,
 			Admin:     req.Admin,
@@ -138,7 +140,7 @@ func executeContractHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := types.MsgExecuteContract{
-			Sender:    cliCtx.GetFromAddress().String(),
+			Sender:    req.BaseReq.From,
 			Contract:  contractAddr,
 			Msg:       req.ExecMsg,
 			SentFunds: req.Amount,

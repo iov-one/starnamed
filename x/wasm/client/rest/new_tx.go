@@ -3,11 +3,11 @@ package rest
 import (
 	"net/http"
 
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	"github.com/iov-one/starnamed/x/wasm/internal/types"
 )
 
 func registerNewTxRoutes(cliCtx client.Context, r *mux.Router) {
@@ -42,7 +42,7 @@ func setContractAdminHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := &types.MsgUpdateAdmin{
-			Sender:   cliCtx.GetFromAddress().String(),
+			Sender:   req.BaseReq.From,
 			NewAdmin: req.Admin,
 			Contract: contractAddr,
 		}
@@ -70,7 +70,7 @@ func migrateContractHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := &types.MsgMigrateContract{
-			Sender:     cliCtx.GetFromAddress().String(),
+			Sender:     req.BaseReq.From,
 			Contract:   contractAddr,
 			CodeID:     req.CodeID,
 			MigrateMsg: req.MigrateMsg,
