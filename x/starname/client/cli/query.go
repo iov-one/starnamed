@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
@@ -41,8 +42,7 @@ func GetQueryResolveDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -55,12 +55,12 @@ func GetQueryResolveDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(res.Domain)
+			return clientCtx.PrintProto(res.Domain)
 		},
 	}
 	// add flags
 	cmd.Flags().String("domain", "", "the name of the domain that you want to resolve")
-	// return cmd
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 

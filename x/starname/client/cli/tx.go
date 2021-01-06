@@ -7,11 +7,11 @@ import (
 	"os"
 	"strconv"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,6 @@ func GetTxCmd() *cobra.Command {
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
-		Aliases:                    []string{"starname"},
 	}
 
 	domainTxCmd.AddCommand(
@@ -49,8 +48,7 @@ func getCmdTransferDomain() *cobra.Command {
 		Use:   "transfer-domain",
 		Short: "transfer a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -113,8 +111,7 @@ func getCmdTransferAccount() *cobra.Command {
 		Use:   "transfer-account",
 		Short: "transfer an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -187,8 +184,7 @@ func getmCmdReplaceAccountResources() *cobra.Command {
 		Use:   "replace-resources",
 		Short: "replace account resources",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -258,8 +254,7 @@ func getCmdDelDomain() *cobra.Command {
 		Use:   "del-domain",
 		Short: "delete a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -304,8 +299,7 @@ func getCmdDelAccount() *cobra.Command {
 		Use:   "del-account",
 		Short: "delete an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -356,8 +350,7 @@ func getCmdRenewDomain() *cobra.Command {
 		Use:   "renew-domain",
 		Short: "renew a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -403,8 +396,7 @@ func getCmdRenewAccount() *cobra.Command {
 		Use:   "renew-account",
 		Short: "renew an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -456,8 +448,7 @@ func getCmdDelAccountCerts() *cobra.Command {
 		Short: "delete certificates of an account",
 		Long:  "delete certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -545,8 +536,7 @@ func getCmdAddAccountCerts() *cobra.Command {
 		Short: "add certificates to account",
 		Long:  "add certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -632,8 +622,7 @@ func getCmdRegisterAccount() *cobra.Command {
 		Short:                      "register an account",
 		SuggestionsMinimumDistance: 2,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -712,8 +701,7 @@ func getCmdRegisterDomain() *cobra.Command {
 		Use:   "register-domain",
 		Short: "register a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -773,6 +761,7 @@ func getCmdRegisterDomain() *cobra.Command {
 	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	cmd.Flags().String("broker", "", "address of the broker, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -781,8 +770,7 @@ func getCmdSetAccountMetadata() *cobra.Command {
 		Use:   "set-account-metadata",
 		Short: "sets account metadata",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err = client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}

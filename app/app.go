@@ -86,6 +86,7 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
 	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
 
@@ -172,6 +173,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		configuration.AppModuleBasic{},
+		starname.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -228,6 +230,7 @@ type WasmApp struct {
 	transferKeeper   ibctransferkeeper.Keeper
 	wasmKeeper       wasm.Keeper
 	configKeeper     configuration.Keeper
+	starnameKeeper   starname.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -259,7 +262,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		wasm.StoreKey, configuration.StoreKey,
+		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -382,6 +385,15 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.getSubspace(configuration.ModuleName),
 	)
 
+	// starname keeper
+	app.starnameKeeper = starname.NewKeeper(
+		appCodec,
+		keys[starname.DomainStoreKey],
+		app.configKeeper,
+		app.bankKeeper,
+		app.getSubspace(starname.ModuleName),
+	)
+
 	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
@@ -427,6 +439,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		params.NewAppModule(app.paramsKeeper),
 		transferModule,
 		configuration.NewAppModule(app.configKeeper),
+		starname.NewAppModule(app.starnameKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -448,7 +461,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
 		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, ibctransfertypes.ModuleName,
-		wasm.ModuleName, configuration.ModuleName,
+		wasm.ModuleName, configuration.ModuleName, starname.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -654,6 +667,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(configuration.ModuleName)
+	paramsKeeper.Subspace(starname.ModuleName)
 
 	return paramsKeeper
 }
