@@ -103,6 +103,7 @@ func getCmdTransferDomain() *cobra.Command {
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
 	cmd.Flags().Int("transfer-flag", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -176,6 +177,7 @@ func getCmdTransferAccount() *cobra.Command {
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
 	cmd.Flags().String("reset", "false", "true: reset all data associated with the account, false: preserves the data")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -245,7 +247,7 @@ func getmCmdReplaceAccountResources() *cobra.Command {
 	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
 	cmd.Flags().String("src", "resources.json", "the file containing the new resources in json format")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
-	// return cmd
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -291,6 +293,7 @@ func getCmdDelDomain() *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to delete")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -342,6 +345,7 @@ func getCmdDelAccount() *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account you want to delete")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -387,7 +391,7 @@ func getCmdRenewDomain() *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to renew")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
-	// return
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -439,6 +443,7 @@ func getCmdRenewAccount() *cobra.Command {
 	cmd.Flags().String("domain", "", "domain name of the account")
 	cmd.Flags().String("name", "", "account name you want to renew")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -526,7 +531,7 @@ func getCmdDelAccountCerts() *cobra.Command {
 	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
 	cmd.Flags().String("cert-file", "", "directory of certificate file")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
-	// return cmd
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -612,6 +617,7 @@ func getCmdAddAccountCerts() *cobra.Command {
 	cmd.Flags().BytesBase64("cert", []byte{}, "certificate json you want to add in base64 encoded format")
 	cmd.Flags().String("cert-file", "", "directory of certificate file in json format")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -693,6 +699,7 @@ func getCmdRegisterAccount() *cobra.Command {
 	cmd.Flags().String("owner", "", "the address of the owner, if no owner provided signer is the owner")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	cmd.Flags().String("broker", "", "address of the broker, optional")
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -818,6 +825,6 @@ func getCmdSetAccountMetadata() *cobra.Command {
 	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
 	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
 	cmd.Flags().String("fee_payer", "", "address of the fee payer, optional")
-	// return cmd
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

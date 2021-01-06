@@ -9,6 +9,8 @@
     - [Resource](#starnamed.x.starname.v1beta1.Resource)
   
 - [x/starname/types/query.proto](#x/starname/types/query.proto)
+    - [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest)
+    - [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse)
     - [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest)
     - [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse)
   
@@ -117,6 +119,37 @@ Resource defines a resource owned by an account
 
 
 
+<a name="starnamed.x.starname.v1beta1.QueryDomainAccountsRequest"></a>
+
+### QueryDomainAccountsRequest
+QueryDomainAccountsRequest is the request type for the Query/DomainAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the name of the domain. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryDomainAccountsResponse"></a>
+
+### QueryDomainAccountsResponse
+QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Domain is the information associated with the domain. |
+
+
+
+
+
+
 <a name="starnamed.x.starname.v1beta1.QueryDomainRequest"></a>
 
 ### QueryDomainRequest
@@ -160,7 +193,8 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname&#39;s domain. |
+| Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname&#39;s domain info. |
+| DomainAccounts | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. |
 
  
 

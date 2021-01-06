@@ -4,12 +4,26 @@ package starnamed.x.starname.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "x/starname/types/types.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 
 option go_package = "github.com/iov-one/starnamed/x/starname/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = false;
 
-// QueryDomainRequest is the request type for the Query/Domain RPC method.
+// Query defines the gRPC querier service.
+service Query {
+    // Domain gets a starname's domain info.
+    rpc Domain (QueryDomainRequest) returns (QueryDomainResponse) {
+        option (google.api.http).get = "/starname/v1beta1/domain/{name}";
+    }
+
+    // DomainAccounts gets accounts associated with a given domain.
+    rpc DomainAccounts (QueryDomainAccountsRequest) returns (QueryDomainAccountsResponse) {
+        option (google.api.http).get = "/starname/v1beta1/domain/accounts/{domain}";
+    }
+}
+
+ // QueryDomainRequest is the request type for the Query/Domain RPC method.
 message QueryDomainRequest {
     // Name is the name of the domain.
     string name = 1 [
@@ -25,10 +39,19 @@ message QueryDomainResponse {
     ];
 }
 
-// Query defines the gRPC querier service.
-service Query {
-   // Domain gets a starname's domain.
-   rpc Domain (QueryDomainRequest) returns (QueryDomainResponse) {
-       option (google.api.http).get = "/starname/v1beta1/domain/{name}";
-   }
+// QueryDomainAccountsRequest is the request type for the Query/DomainAccounts RPC method.
+message QueryDomainAccountsRequest {
+    // Domain is the name of the domain.
+    string domain = 1 [
+        (gogoproto.moretags) = "yaml:\"domain\""
+    ];
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method.
+message QueryDomainAccountsResponse {
+    // Domain is the information associated with the domain.
+    repeated Account accounts = 1 [
+        (gogoproto.moretags) = "yaml:\"accounts\""
+    ];
 }

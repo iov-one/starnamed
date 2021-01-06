@@ -19,20 +19,19 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	domainQueryCmd.AddCommand(
-		GetQueryResolveDomain(),
+		getQueryResolveDomain(),
+		// TODO: FIXME getQueryResolveAccount(),
+		getQueryDomainAccounts(),
 		/* TODO: FIXME
-		getQueryResolveAccount(moduleQueryPath, cdc),
-		getQueryDomainAccounts(moduleQueryPath, cdc),
-		getQueryOwnerAccount(moduleQueryPath, cdc),
-		getQueryOwnerDomain(moduleQueryPath, cdc),
-		getQueryResourcesAccount(moduleQueryPath, cdc),
+		getQueryOwnerAccount(),
+		getQueryOwnerDomain(),
+		getQueryResourcesAccount(),
 		*/
 	)
 	return domainQueryCmd
 }
 
-// GetQueryResolveDomain implements the resolve domain command.
-func GetQueryResolveDomain() *cobra.Command {
+func getQueryResolveDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domain-info",
 		Short: "resolve a domain",
@@ -55,7 +54,7 @@ func GetQueryResolveDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(res.Domain)
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
@@ -64,8 +63,7 @@ func GetQueryResolveDomain() *cobra.Command {
 	return cmd
 }
 
-/* TODO: FIXME
-func getQueryDomainAccounts(modulePath string, cdc *codec.Codec) *cobra.Command {
+func getQueryDomainAccounts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domain-accounts",
 		Short: "get accounts in a domain",
@@ -75,37 +73,36 @@ func getQueryDomainAccounts(modulePath string, cdc *codec.Codec) *cobra.Command 
 			if err != nil {
 				return err
 			}
-			rpp, err := cmd.Flags().GetInt("rpp")
+			pagination, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
-			offset, err := cmd.Flags().GetInt("offset")
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryAccountsInDomain{
-				Domain:         domain,
-				ResultsPerPage: rpp,
-				Offset:         offset,
-			}
-			if err = q.Validate(); err != nil {
+			res, err := types.NewQueryClient(clientCtx).DomainAccounts(
+				context.Background(),
+				&types.QueryDomainAccountsRequest{
+					Domain:     domain,
+					Pagination: pagination,
+				},
+			)
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsInDomainResponse))
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name you want to resolve")
-	cmd.Flags().Int("offset", 1, "the page offset")
-	cmd.Flags().Int("rpp", 100, "results per page")
-	// return cmd
+	cmd.Flags().String("domain", "", "the domain of interest")
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "domain accounts")
 	return cmd
 }
 
-func getQueryOwnerAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
+/*
+func getQueryOwnerAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "owner-accounts",
 		Short: "get accounts owned by an address",
@@ -143,11 +140,11 @@ func getQueryOwnerAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
 	cmd.Flags().Int("offset", 1, "the page offset")
 	cmd.Flags().Int("rpp", 100, "results per page")
-	// return cmd
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
-func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
+func getQueryOwnerDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "owner-domains",
 		Short: "get domains owned by an address",
@@ -185,11 +182,11 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
 	cmd.Flags().Int("offset", 1, "the page offset")
 	cmd.Flags().Int("rpp", 100, "results per page")
-	// return cmd
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
-func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
+func getQueryResolveAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve",
 		Short: "resolve an account, provide either starname or name/domain",
@@ -225,11 +222,11 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 	cmd.Flags().String("starname", "", "the starname representation of the account")
 	cmd.Flags().String("domain", "", "the domain name of the account")
 	cmd.Flags().String("name", "", "the name of the account you want to resolve")
-	// return cmd
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
-func getQueryResourcesAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
+func getQueryResourcesAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve-resource",
 		Short: "resolves a resource into accounts",
@@ -273,7 +270,7 @@ func getQueryResourcesAccount(modulePath string, cdc *codec.Codec) *cobra.Comman
 	cmd.Flags().String("resource", "", "resource")
 	cmd.Flags().Int("offset", 1, "the page offset")
 	cmd.Flags().Int("rpp", 100, "results per page")
-	// return cmd
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 */

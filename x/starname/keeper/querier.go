@@ -36,3 +36,30 @@ func queryDomain(ctx sdk.Context, name string, keeper *Keeper) (*types.QueryDoma
 
 	return &types.QueryDomainResponse{Domain: domain}, nil
 }
+
+func (q grpcQuerier) DomainAccounts(c context.Context, req *types.QueryDomainAccountsRequest) (*types.QueryDomainAccountsResponse, error) {
+	if req.Domain == "" {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Domain)
+	}
+	// TODO: pagination
+	return queryDomainAccounts(sdk.UnwrapSDKContext(c), req.Domain, q.keeper)
+}
+
+func queryDomainAccounts(ctx sdk.Context, domain string, keeper *Keeper) (*types.QueryDomainAccountsResponse, error) {
+	// TODO: pagination
+	cursor, err := keeper.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(domain)).Do()
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
+	}
+
+	accounts := make([]*types.Account, 0)
+	for ; cursor.Valid(); cursor.Next() {
+		account := new(types.Account)
+		if err := cursor.Read(account); err != nil {
+			return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
+		}
+		accounts = append(accounts, account)
+	}
+
+	return &types.QueryDomainAccountsResponse{Accounts: accounts}, nil
+}
