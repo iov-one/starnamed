@@ -43,8 +43,10 @@ func getCmdUpdateFees() *cobra.Command {
 		Use:   "update-fees",
 		Short: "update fees using a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := client.GetClientContextFromCmd(cmd)
-			cliCtx, err := client.ReadTxCommandFlags(cliCtx, cmd.Flags())
+			cliCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return fmt.Errorf("unable to get context: %s", err)
+			}
 			// get fees file
 			feeFile, err := cmd.Flags().GetString("fees-file")
 			if err != nil {
@@ -80,8 +82,10 @@ func getCmdUpdateConfig() *cobra.Command {
 		Use:   "update-config",
 		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := client.GetClientContextFromCmd(cmd)
-			cliCtx, err = client.ReadTxCommandFlags(cliCtx, cmd.Flags())
+			cliCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return fmt.Errorf("unable to get context: %s", err)
+			}
 			config := &types.Config{}
 			if !cliCtx.GenerateOnly {
 				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
