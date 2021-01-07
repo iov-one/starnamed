@@ -54,4 +54,5 @@ message QueryDomainAccountsResponse {
     repeated Account accounts = 1 [
         (gogoproto.moretags) = "yaml:\"accounts\""
     ];
+    cosmos.base.query.v1beta1.PageResponse page = 2;
 }

@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -13,6 +14,11 @@ var _ types.QueryServer = &grpcQuerier{}
 type grpcQuerier struct {
 	keeper *Keeper
 }
+
+const (
+	defaultStart uint64 = 0
+	defaultLimit uint64 = 100
+)
 
 // NewQuerier provides a gRPC querier
 // TODO: this needs proper tests and doc
@@ -41,13 +47,28 @@ func (q grpcQuerier) DomainAccounts(c context.Context, req *types.QueryDomainAcc
 	if req.Domain == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Domain)
 	}
-	// TODO: pagination
-	return queryDomainAccounts(sdk.UnwrapSDKContext(c), req.Domain, q.keeper)
+
+	start := defaultStart
+	end := start + defaultLimit
+	count := false
+	if req.Pagination != nil {
+		if req.Pagination.Key != nil {
+			return nil, sdkerrors.Wrapf(types.ErrInvalidRequest, "pagination by key is not implemented")
+		}
+		start = req.Pagination.GetOffset()
+		limit := req.Pagination.GetLimit()
+		if limit == 0 {
+			limit = defaultLimit
+		}
+		end = start + limit
+		count = req.Pagination.GetCountTotal()
+	}
+
+	return queryDomainAccounts(sdk.UnwrapSDKContext(c), q.keeper, req.Domain, start, end, count)
 }
 
-func queryDomainAccounts(ctx sdk.Context, domain string, keeper *Keeper) (*types.QueryDomainAccountsResponse, error) {
-	// TODO: pagination
-	cursor, err := keeper.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(domain)).Do()
+func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, end uint64, count bool) (*types.QueryDomainAccountsResponse, error) {
+	cursor, err := keeper.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(domain)).WithRange().Start(start).End(end).Do()
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
 	}
@@ -61,5 +82,18 @@ func queryDomainAccounts(ctx sdk.Context, domain string, keeper *Keeper) (*types
 		accounts = append(accounts, account)
 	}
 
-	return &types.QueryDomainAccountsResponse{Accounts: accounts}, nil
+	var page *query.PageResponse
+	if count {
+		cursor, err := keeper.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(domain)).Do()
+		if err != nil {
+			return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
+		}
+
+		page = new(query.PageResponse)
+		for ; cursor.Valid(); cursor.Next() {
+			page.Total++
+		}
+	}
+
+	return &types.QueryDomainAccountsResponse{Accounts: accounts, Page: page}, nil
 }

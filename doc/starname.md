@@ -144,6 +144,7 @@ QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RP
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Domain is the information associated with the domain. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
 
 
 
