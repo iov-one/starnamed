@@ -21,6 +21,11 @@ service Query {
     rpc DomainAccounts (QueryDomainAccountsRequest) returns (QueryDomainAccountsResponse) {
         option (google.api.http).get = "/starname/v1beta1/domain/accounts/{domain}";
     }
+
+    // Starname gets accounts associated with a given domain.
+    rpc Starname (QueryStarnameRequest) returns (QueryStarnameResponse) {
+        option (google.api.http).get = "/starname/v1beta1/{starname}";
+    }
 }
 
  // QueryDomainRequest is the request type for the Query/Domain RPC method.
@@ -55,4 +60,20 @@ message QueryDomainAccountsResponse {
         (gogoproto.moretags) = "yaml:\"accounts\""
     ];
     cosmos.base.query.v1beta1.PageResponse page = 2;
+}
+
+// QueryStarnameRequest is the request type for the Query/Starname RPC method.
+message QueryStarnameRequest {
+    // Starname is the of the form account*domain.
+    string starname = 1 [
+        (gogoproto.moretags) = "yaml:\"starname\""
+    ];
+}
+
+// QueryStarnameResponse is the response type for the Query/Starname RPC method.
+message QueryStarnameResponse {
+    // Account is the information associated with the starname.
+     Account account = 1 [
+        (gogoproto.moretags) = "yaml:\"account\""
+    ];
 }

@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -96,4 +98,21 @@ func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, 
 	}
 
 	return &types.QueryDomainAccountsResponse{Accounts: accounts, Page: page}, nil
+}
+
+func (q grpcQuerier) Starname(c context.Context, req *types.QueryStarnameRequest) (*types.QueryStarnameResponse, error) {
+	if req.Starname == "" || !strings.Contains(req.Starname, types.StarnameSeparator) {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "'%s'", req.Starname)
+	}
+	return queryStarname(sdk.UnwrapSDKContext(c), q.keeper, req.Starname)
+}
+
+func queryStarname(ctx sdk.Context, keeper *Keeper, starname string) (*types.QueryStarnameResponse, error) {
+	parts := strings.Split(starname, types.StarnameSeparator)
+	filter := types.Account{Domain: parts[1], Name: utils.StrPtr(parts[0])}
+	account := new(types.Account)
+	if err := keeper.AccountStore(ctx).Read(filter.PrimaryKey(), account); err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", starname)
+	}
+	return &types.QueryStarnameResponse{Account: account}, nil
 }

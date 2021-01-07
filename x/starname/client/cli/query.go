@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -20,7 +22,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 	domainQueryCmd.AddCommand(
 		getQueryResolveDomain(),
-		// TODO: FIXME getQueryResolveAccount(),
+		getQueryResolveAccount(),
 		getQueryDomainAccounts(),
 		/* TODO: FIXME
 		getQueryOwnerAccount(),
@@ -185,11 +187,12 @@ func getQueryOwnerDomain() *cobra.Command {
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
+*/
 
 func getQueryResolveAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve",
-		Short: "resolve an account, provide either starname or name/domain",
+		Short: "resolve an account by providing either --starname or --name and --domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
@@ -204,18 +207,28 @@ func getQueryResolveAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryResolveAccount{
-				Domain:   domain,
-				Name:     name,
-				Starname: starname,
+			if len(domain) > 0 {
+				if len(starname) > 0 {
+					return errors.New("either specify starname or name and domain")
+				}
+
+				starname = strings.Join([]string{name, domain}, types.StarnameSeparator)
 			}
-			if err = q.Validate(); err != nil {
+			// TODO: Validate() that starname is well formed
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveAccountResponse))
+			res, err := types.NewQueryClient(clientCtx).Starname(
+				context.Background(),
+				&types.QueryStarnameRequest{
+					Starname: starname,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
@@ -223,9 +236,11 @@ func getQueryResolveAccount() *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of the account")
 	cmd.Flags().String("name", "", "the name of the account you want to resolve")
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "resolve account")
 	return cmd
 }
 
+/*
 func getQueryResourcesAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve-resource",

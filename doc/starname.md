@@ -13,6 +13,8 @@
     - [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse)
     - [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest)
     - [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse)
+    - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
+    - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
   
     - [Query](#starnamed.x.starname.v1beta1.Query)
   
@@ -180,6 +182,36 @@ QueryDomainResponse is the response type for the Query/Domain RPC method.
 
 
 
+
+<a name="starnamed.x.starname.v1beta1.QueryStarnameRequest"></a>
+
+### QueryStarnameRequest
+QueryStarnameRequest is the request type for the Query/Starname RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| starname | [string](#string) |  | Starname is the of the form account*domain. |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryStarnameResponse"></a>
+
+### QueryStarnameResponse
+QueryStarnameResponse is the response type for the Query/Starname RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| account | [Account](#starnamed.x.starname.v1beta1.Account) |  | Account is the information associated with the starname. |
+
+
+
+
+
  
 
  
@@ -196,6 +228,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------|
 | Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname&#39;s domain info. |
 | DomainAccounts | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. |
+| Starname | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. |
 
  
 
