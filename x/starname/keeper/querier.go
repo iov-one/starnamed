@@ -168,3 +168,38 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	}
 	return &types.QueryOwnerAccountsResponse{Accounts: accounts, Page: page}, nil
 }
+
+func (q grpcQuerier) OwnerDomains(c context.Context, req *types.QueryOwnerDomainsRequest) (*types.QueryOwnerDomainsResponse, error) {
+	address, err := sdk.AccAddressFromBech32(req.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' isn't a vaild address", req.Owner)
+	}
+	start, end, count, err := getPagination(req.Pagination)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed pagination")
+	}
+	return queryOwnerDomains(sdk.UnwrapSDKContext(c), q.keeper, address, start, end, count)
+}
+
+func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, start, end uint64, count bool) (*types.QueryOwnerDomainsResponse, error) {
+	query := func() crud.FinalizedIndexStatement {
+		return keeper.DomainStore(ctx).Query().Where().Index(types.DomainAdminIndex).Equals(owner)
+	}
+	cursor, err := query().WithRange().Start(start).End(end).Do()
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+	}
+	domains := make([]*types.Domain, 0)
+	for ; cursor.Valid(); cursor.Next() {
+		domain := new(types.Domain)
+		if err := cursor.Read(domain); err != nil {
+			return nil, sdkerrors.Wrap(err, "failed to read")
+		}
+		domains = append(domains, domain)
+	}
+	page, err := getPageResponse(count, query())
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+	}
+	return &types.QueryOwnerDomainsResponse{Domains: domains, Page: page}, nil
+}

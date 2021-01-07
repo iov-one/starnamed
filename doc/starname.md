@@ -15,6 +15,8 @@
     - [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse)
     - [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest)
     - [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse)
+    - [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest)
+    - [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
   
@@ -217,6 +219,38 @@ QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC 
 
 
 
+<a name="starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest"></a>
+
+### QueryOwnerDomainsRequest
+QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| owner | [string](#string) |  | Owner is the owner of accounts. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse"></a>
+
+### QueryOwnerDomainsResponse
+QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domains | [Domain](#starnamed.x.starname.v1beta1.Domain) | repeated | Accounts is the accounts associated with owner. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
+
+
+
 <a name="starnamed.x.starname.v1beta1.QueryStarnameRequest"></a>
 
 ### QueryStarnameRequest
@@ -264,6 +298,7 @@ Query defines the gRPC querier service.
 | DomainAccounts | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. |
 | Starname | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. |
 | OwnerAccounts | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. |
+| OwnerDomains | [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest) | [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse) | OwnerDomains gets domains associated with a given owner. |
 
  
 

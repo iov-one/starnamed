@@ -25,8 +25,8 @@ func GetQueryCmd() *cobra.Command {
 		getQueryResolveAccount(),
 		getQueryDomainAccounts(),
 		getQueryOwnerAccounts(),
+		getQueryOwnerDomains(),
 		/* TODO: FIXME
-		getQueryOwnerDomain(),
 		getQueryResourcesAccount(),
 		*/
 	)
@@ -141,8 +141,7 @@ func getQueryOwnerAccounts() *cobra.Command {
 	return cmd
 }
 
-/*
-func getQueryOwnerDomain() *cobra.Command {
+func getQueryOwnerDomains() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "owner-domains",
 		Short: "get domains owned by an address",
@@ -152,38 +151,33 @@ func getQueryOwnerDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// verify if address is correct
-			accAddress, err := sdk.AccAddressFromBech32(owner)
-			rpp, err := cmd.Flags().GetInt("rpp")
+			pagination, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
-			offset, err := cmd.Flags().GetInt("offset")
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryDomainsWithOwner{
-				Owner:          accAddress,
-				ResultsPerPage: rpp,
-				Offset:         offset,
-			}
-			if err = q.Validate(); err != nil {
+			res, err := types.NewQueryClient(clientCtx).OwnerDomains(
+				context.Background(),
+				&types.QueryOwnerDomainsRequest{
+					Owner:      owner,
+					Pagination: pagination,
+				},
+			)
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryDomainsWithOwnerResponse))
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
 	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
-	cmd.Flags().Int("offset", 1, "the page offset")
-	cmd.Flags().Int("rpp", 100, "results per page")
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "owner domains")
 	return cmd
 }
-*/
 
 func getQueryResolveAccount() *cobra.Command {
 	cmd := &cobra.Command{
