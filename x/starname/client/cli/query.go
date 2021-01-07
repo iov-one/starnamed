@@ -24,8 +24,8 @@ func GetQueryCmd() *cobra.Command {
 		getQueryResolveDomain(),
 		getQueryResolveAccount(),
 		getQueryDomainAccounts(),
+		getQueryOwnerAccounts(),
 		/* TODO: FIXME
-		getQueryOwnerAccount(),
 		getQueryOwnerDomain(),
 		getQueryResourcesAccount(),
 		*/
@@ -103,8 +103,7 @@ func getQueryDomainAccounts() *cobra.Command {
 	return cmd
 }
 
-/*
-func getQueryOwnerAccount() *cobra.Command {
+func getQueryOwnerAccounts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "owner-accounts",
 		Short: "get accounts owned by an address",
@@ -114,38 +113,35 @@ func getQueryOwnerAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// verify if address is correct
-			accAddress, err := sdk.AccAddressFromBech32(owner)
-			rpp, err := cmd.Flags().GetInt("rpp")
+			pagination, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
-			offset, err := cmd.Flags().GetInt("offset")
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryAccountsWithOwner{
-				Owner:          accAddress,
-				ResultsPerPage: rpp,
-				Offset:         offset,
-			}
-			if err = q.Validate(); err != nil {
+			res, err := types.NewQueryClient(clientCtx).OwnerAccounts(
+				context.Background(),
+				&types.QueryOwnerAccountsRequest{
+					Owner:      owner,
+					Pagination: pagination,
+				},
+			)
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsWithOwnerResponse))
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
 	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
-	cmd.Flags().Int("offset", 1, "the page offset")
-	cmd.Flags().Int("rpp", 100, "results per page")
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "owner accounts")
 	return cmd
 }
 
+/*
 func getQueryOwnerDomain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "owner-domains",

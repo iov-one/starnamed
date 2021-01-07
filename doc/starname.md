@@ -13,6 +13,8 @@
     - [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse)
     - [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest)
     - [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse)
+    - [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest)
+    - [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
   
@@ -145,7 +147,7 @@ QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RP
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Domain is the information associated with the domain. |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Accounts is the accounts associated with the domain. |
 | page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
 
 
@@ -177,6 +179,38 @@ QueryDomainResponse is the response type for the Query/Domain RPC method.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | domain | [Domain](#starnamed.x.starname.v1beta1.Domain) |  | Domain is the information associated with the domain. |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest"></a>
+
+### QueryOwnerAccountsRequest
+QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| owner | [string](#string) |  | Owner is the owner of accounts. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse"></a>
+
+### QueryOwnerAccountsResponse
+QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Accounts is the accounts associated with owner. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
 
 
 
@@ -229,6 +263,7 @@ Query defines the gRPC querier service.
 | Domain | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname&#39;s domain info. |
 | DomainAccounts | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. |
 | Starname | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. |
+| OwnerAccounts | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. |
 
  
 
