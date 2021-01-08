@@ -19,27 +19,27 @@ service Query {
 
     // DomainAccounts gets accounts associated with a given domain.
     rpc DomainAccounts (QueryDomainAccountsRequest) returns (QueryDomainAccountsResponse) {
-        option (google.api.http).get = "/starname/v1beta1/domain/accounts/{domain}";
+        option (google.api.http).get = "/starname/v1beta1/accounts/domain/{domain}";
     }
 
     // Starname gets accounts associated with a given domain.
     rpc Starname (QueryStarnameRequest) returns (QueryStarnameResponse) {
-        option (google.api.http).get = "/starname/v1beta1/{starname}";
+        option (google.api.http).get = "/starname/v1beta1/account/{starname}";
     }
 
     // OwnerAccounts gets accounts associated with a given owner.
     rpc OwnerAccounts (QueryOwnerAccountsRequest) returns (QueryOwnerAccountsResponse) {
-        option (google.api.http).get = "/starname/v1beta1/owner/accounts/{owner}";
+        option (google.api.http).get = "/starname/v1beta1/accounts/owner/{owner}";
     }
 
     // OwnerDomains gets domains associated with a given owner.
     rpc OwnerDomains (QueryOwnerDomainsRequest) returns (QueryOwnerDomainsResponse) {
-        option (google.api.http).get = "/starname/v1beta1/owner/domains/{owner}";
+        option (google.api.http).get = "/starname/v1beta1/domains/owner/{owner}";
     }
 
     // ResourceAccounts gets accounts associated with a given resource.
     rpc ResourceAccounts (QueryResourceAccountsRequest) returns (QueryResourceAccountsResponse) {
-        option (google.api.http).get = "/starname/v1beta1/resource/accounts/{uri}/{resource}";
+        option (google.api.http).get = "/starname/v1beta1/accounts/resource/{uri}/{resource}";
     }
 }
 

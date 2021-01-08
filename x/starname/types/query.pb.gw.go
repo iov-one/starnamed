@@ -762,15 +762,15 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 var (
 	pattern_Query_Domain_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"starname", "v1beta1", "domain", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_DomainAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 2}, []string{"starname", "v1beta1", "domain", "accounts"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DomainAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"starname", "v1beta1", "accounts", "domain"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Starname_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 0}, []string{"starname", "v1beta1"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Starname_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 0}, []string{"starname", "v1beta1", "account"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_OwnerAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 2}, []string{"starname", "v1beta1", "owner", "accounts"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_OwnerAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"starname", "v1beta1", "accounts", "owner"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_OwnerDomains_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 2}, []string{"starname", "v1beta1", "owner", "domains"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_OwnerDomains_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"starname", "v1beta1", "domains", "owner"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_ResourceAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 2}, []string{"starname", "v1beta1", "resource", "accounts", "uri"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_ResourceAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 3}, []string{"starname", "v1beta1", "accounts", "resource", "uri"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
