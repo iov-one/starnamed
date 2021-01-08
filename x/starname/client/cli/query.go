@@ -15,7 +15,7 @@ import (
 func GetQueryCmd() *cobra.Command {
 	domainQueryCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "querying commands for the starname module",
+		Short:                      "query commands for the starname module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -33,8 +33,9 @@ func GetQueryCmd() *cobra.Command {
 
 func getQueryResolveDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "domain-info",
-		Short: "resolve a domain",
+		Use:     "resolve-domain",
+		Aliases: []string{"rd", "domain-resolve", "dr", "domain-info", "di"},
+		Short:   "resolve a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
@@ -58,15 +59,16 @@ func getQueryResolveDomain() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the name of the domain that you want to resolve")
+	cmd.Flags().StringP("domain", "d", "", "the name of the domain that you want to resolve")
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
 func getQueryDomainAccounts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "domain-accounts",
-		Short: "get accounts in a domain",
+		Use:     "accounts-by-domain",
+		Aliases: []string{"abd", "domain-accounts", "da"},
+		Short:   "get accounts in a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
@@ -95,7 +97,7 @@ func getQueryDomainAccounts() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain of interest")
+	cmd.Flags().StringP("domain", "d", "", "the domain of interest")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "domain accounts")
 	return cmd
@@ -103,11 +105,12 @@ func getQueryDomainAccounts() *cobra.Command {
 
 func getQueryOwnerAccounts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "owner-accounts",
-		Short: "get accounts owned by an address",
+		Use:     "accounts-by-owner",
+		Aliases: []string{"abo", "owner-accounts", "oa"},
+		Short:   "get accounts owned by an address",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
-			owner, err := cmd.Flags().GetString("owner")
+			owner, err := cmd.Flags().GetString("address")
 			if err != nil {
 				return err
 			}
@@ -133,7 +136,7 @@ func getQueryOwnerAccounts() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
+	cmd.Flags().StringP("address", "a", "", "the bech32 address of the owner")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "owner accounts")
 	return cmd
@@ -141,11 +144,12 @@ func getQueryOwnerAccounts() *cobra.Command {
 
 func getQueryOwnerDomains() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "owner-domains",
-		Short: "get domains owned by an address",
+		Use:     "domains-by-owner",
+		Aliases: []string{"dbo", "owner-domains", "od"},
+		Short:   "get domains owned by an address",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
-			owner, err := cmd.Flags().GetString("owner")
+			owner, err := cmd.Flags().GetString("address")
 			if err != nil {
 				return err
 			}
@@ -171,7 +175,7 @@ func getQueryOwnerDomains() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("owner", "", "the bech32 address of the owner you want to lookup")
+	cmd.Flags().StringP("address", "a", "", "the bech32 address of the owner")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "owner domains")
 	return cmd
@@ -179,8 +183,9 @@ func getQueryOwnerDomains() *cobra.Command {
 
 func getQueryResolveAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolve",
-		Short: "resolve an account by providing either --starname or --name and --domain",
+		Use:     "resolve-account",
+		Aliases: []string{"ra", "account-resolve", "ar", "resolve", "resolve-starname", "starname-resolve", "sr"},
+		Short:   "resolve an account by providing either --starname or --name and --domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
@@ -220,9 +225,9 @@ func getQueryResolveAccount() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("starname", "", "the starname representation of the account")
-	cmd.Flags().String("domain", "", "the domain name of the account")
-	cmd.Flags().String("name", "", "the name of the account you want to resolve")
+	cmd.Flags().StringP("starname", "s", "", "the starname representation of the account, eg antoine*iov")
+	cmd.Flags().StringP("domain", "d", "", "the domain of the account")
+	cmd.Flags().StringP("name", "n", "", "the name of the account")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "resolve account")
 	return cmd
@@ -230,8 +235,9 @@ func getQueryResolveAccount() *cobra.Command {
 
 func getQueryResourceAccounts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolve-resource",
-		Short: "resolves a resource into accounts",
+		Use:     "accounts-by-resource",
+		Aliases: []string{"abr", "resource-accounts", "ra", "resolve-resource", "rr", "resource-resolve"},
+		Short:   "get accounts associated with a resource",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			uri, err := cmd.Flags().GetString("uri")

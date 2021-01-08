@@ -28,15 +28,15 @@ func GetTxCmd() *cobra.Command {
 
 	domainTxCmd.AddCommand(
 		getCmdRegisterDomain(),
-		getCmdAddAccountCerts(),
+		getCmdAddAccountCertificates(),
 		getCmdTransferAccount(),
 		getCmdTransferDomain(),
-		getmCmdReplaceAccountResources(),
-		getCmdDelDomain(),
-		getCmdDelAccount(),
+		getmCmdSetAccountResources(),
+		getCmdDeleteDomain(),
+		getCmdDeleteAccount(),
 		getCmdRenewDomain(),
 		getCmdRenewAccount(),
-		getCmdDelAccountCerts(),
+		getCmdDeleteAccountCertificates(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
 	)
@@ -45,8 +45,9 @@ func GetTxCmd() *cobra.Command {
 
 func getCmdTransferDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "transfer-domain",
-		Short: "transfer a domain",
+		Use:     "domain-transfer",
+		Aliases: []string{"dt", "transfer-domain", "td"},
+		Short:   "transfer a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -71,7 +72,7 @@ func getCmdTransferDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -99,18 +100,19 @@ func getCmdTransferDomain() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name to transfer")
-	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
-	cmd.Flags().Int("transfer-flag", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "the domain name to transfer")
+	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 func getCmdTransferAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "transfer-account",
-		Short: "transfer an account",
+		Use:     "account-transfer",
+		Aliases: []string{"at", "transfer-account", "ta"},
+		Short:   "transfer an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -143,7 +145,7 @@ func getCmdTransferAccount() *cobra.Command {
 			if resetBool, err = strconv.ParseBool(reset); err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -172,19 +174,20 @@ func getCmdTransferAccount() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account you want to transfer")
-	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
-	cmd.Flags().String("reset", "false", "true: reset all data associated with the account, false: preserves the data")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
+	cmd.Flags().StringP("name", "n", "", "the name of the account you want to transfer")
+	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("reset", "r", "false", "true: reset all data associated with the account, false: preserves the data")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-func getmCmdReplaceAccountResources() *cobra.Command {
+func getmCmdSetAccountResources() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "replace-resources",
-		Short: "replace account resources",
+		Use:     "account-set-resources",
+		Aliases: []string{"asr", "set-resources", "sr", "replace-resources", "rr"},
+		Short:   "set resources for an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -215,7 +218,7 @@ func getmCmdReplaceAccountResources() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -243,18 +246,19 @@ func getmCmdReplaceAccountResources() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
-	cmd.Flags().String("src", "resources.json", "the file containing the new resources in json format")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
+	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
+	cmd.Flags().StringP("src", "r", "resources.json", "the file containing the new resources in json format")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-func getCmdDelDomain() *cobra.Command {
+func getCmdDeleteDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "del-domain",
-		Short: "delete a domain",
+		Use:     "domain-delete",
+		Aliases: []string{"dd", "delete-domain", "del-domain"},
+		Short:   "delete a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -265,7 +269,7 @@ func getCmdDelDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -291,16 +295,17 @@ func getCmdDelDomain() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "name of the domain you want to delete")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "name of the domain you want to delete")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-func getCmdDelAccount() *cobra.Command {
+func getCmdDeleteAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "del-account",
-		Short: "delete an account",
+		Use:     "account-delete",
+		Aliases: []string{"ad", "delete-account", "da", "del-account", "starname-delete", "delete-starname"},
+		Short:   "delete an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -315,7 +320,7 @@ func getCmdDelAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -342,17 +347,18 @@ func getCmdDelAccount() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account you want to delete")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
+	cmd.Flags().StringP("name", "n", "", "the name of the account you want to delete")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 func getCmdRenewDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "renew-domain",
-		Short: "renew a domain",
+		Use:     "domain-renew",
+		Aliases: []string{"dn", "renew-domain", "nd"},
+		Short:   "renew a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -363,7 +369,7 @@ func getCmdRenewDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -389,16 +395,17 @@ func getCmdRenewDomain() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "name of the domain you want to renew")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "name of the domain you want to renew")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 func getCmdRenewAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "renew-account",
-		Short: "renew an account",
+		Use:     "account-renew",
+		Aliases: []string{"an", "renew-account", "na"},
+		Short:   "renew an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -413,7 +420,7 @@ func getCmdRenewAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -440,18 +447,19 @@ func getCmdRenewAccount() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "domain name of the account")
-	cmd.Flags().String("name", "", "account name you want to renew")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "domain name of the account")
+	cmd.Flags().StringP("name", "n", "", "account name you want to renew")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-func getCmdDelAccountCerts() *cobra.Command {
+func getCmdDeleteAccountCertificates() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "del-certs",
-		Short: "delete certificates of an account",
-		Long:  "delete certificates of an account. Either use cert or cert-file flags",
+		Use:     "account-delete-certificates",
+		Aliases: []string{"adc", "delete-certificates", "dc", "del-certs"},
+		Short:   "delete certificates from an account",
+		Long:    "delete certificates from an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -466,11 +474,11 @@ func getCmdDelAccountCerts() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			cert, err := cmd.Flags().GetBytesBase64("cert")
+			cert, err := cmd.Flags().GetBytesBase64("certificate")
 			if err != nil {
 				return err
 			}
-			certFile, err := cmd.Flags().GetString("cert-file")
+			certFile, err := cmd.Flags().GetString("certificate-file")
 			if err != nil {
 				return err
 			}
@@ -498,7 +506,7 @@ func getCmdDelAccountCerts() *cobra.Command {
 				}
 				c = j
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -526,20 +534,21 @@ func getCmdDelAccountCerts() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "domain name of the account")
-	cmd.Flags().String("name", "", "account name")
-	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
-	cmd.Flags().String("cert-file", "", "directory of certificate file")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "domain name of the account")
+	cmd.Flags().StringP("name", "n", "", "account name")
+	cmd.Flags().BytesBase64P("certificate", "c", []byte{}, "certificate you want to add in base64 encoded format")
+	cmd.Flags().StringP("certificate-file", "f", "", "directory of certificate file")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-func getCmdAddAccountCerts() *cobra.Command {
+func getCmdAddAccountCertificates() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-certs",
-		Short: "add certificates to account",
-		Long:  "add certificates of an account. Either use cert or cert-file flags",
+		Use:     "account-add-certificates",
+		Aliases: []string{"aac", "add-certificates", "ac", "add-certs"},
+		Short:   "add certificates to an account",
+		Long:    "add certificates of an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -554,11 +563,11 @@ func getCmdAddAccountCerts() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			cert, err := cmd.Flags().GetBytesBase64("cert")
+			cert, err := cmd.Flags().GetBytesBase64("certificate")
 			if err != nil {
 				return err
 			}
-			certFile, err := cmd.Flags().GetString("cert-file")
+			certFile, err := cmd.Flags().GetString("certificate-file")
 			if err != nil {
 				return err
 			}
@@ -584,7 +593,7 @@ func getCmdAddAccountCerts() *cobra.Command {
 					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -612,11 +621,11 @@ func getCmdAddAccountCerts() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "domain of the account")
-	cmd.Flags().String("name", "", "name of the account")
-	cmd.Flags().BytesBase64("cert", []byte{}, "certificate json you want to add in base64 encoded format")
-	cmd.Flags().String("cert-file", "", "directory of certificate file in json format")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "domain of the account")
+	cmd.Flags().StringP("name", "n", "", "name of the account")
+	cmd.Flags().BytesBase64P("certificate", "c", []byte{}, "certificate json you want to add in base64 encoded format")
+	cmd.Flags().StringP("certificate-file", "f", "", "directory of certificate file in json format")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
@@ -624,9 +633,9 @@ func getCmdAddAccountCerts() *cobra.Command {
 // getCmdRegisterAccount is the cli command to register accounts
 func getCmdRegisterAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "register-account",
-		Short:                      "register an account",
-		SuggestionsMinimumDistance: 2,
+		Use:     "account-register",
+		Aliases: []string{"ar", "register-account", "ra"},
+		Short:   "register an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -655,7 +664,7 @@ func getCmdRegisterAccount() *cobra.Command {
 					return err
 				}
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -694,19 +703,20 @@ func getCmdRegisterAccount() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-	cmd.Flags().String("domain", "", "the existing domain name for your account")
-	cmd.Flags().String("name", "", "the name of your account")
-	cmd.Flags().String("owner", "", "the address of the owner, if no owner provided signer is the owner")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
-	cmd.Flags().String("broker", "", "address of the broker, optional")
+	cmd.Flags().StringP("domain", "d", "", "the existing domain for your account")
+	cmd.Flags().StringP("name", "n", "", "the name of your account")
+	cmd.Flags().StringP("owner", "o", "", "the address of the owner, if no owner provided signer is the owner")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("broker", "r", "", "address of the broker, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 func getCmdRegisterDomain() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "register-domain",
-		Short: "register a domain",
+		Use:     "domain-register",
+		Aliases: []string{"dr", "register-domain", "rd"},
+		Short:   "register a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -725,7 +735,7 @@ func getCmdRegisterDomain() *cobra.Command {
 			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -764,18 +774,19 @@ func getCmdRegisterDomain() *cobra.Command {
 	}
 
 	// add flags
-	cmd.Flags().String("domain", "", "name of the domain you want to register")
-	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
-	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
-	cmd.Flags().String("broker", "", "address of the broker, optional")
+	cmd.Flags().StringP("domain", "d", "", "name of the domain you want to register")
+	cmd.Flags().StringP("type", "t", types.ClosedDomain, "type of the domain")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("broker", "r", "", "address of the broker, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 func getCmdSetAccountMetadata() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-account-metadata",
-		Short: "sets account metadata",
+		Use:     "account-set-metadata",
+		Aliases: []string{"asm", "set-metadata", "sm", "set-account-metadata", "sam"},
+		Short:   "set metadata for an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -794,7 +805,7 @@ func getCmdSetAccountMetadata() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("fee_payer")
+			feePayerStr, err := cmd.Flags().GetString("payer")
 			if err != nil {
 				return err
 			}
@@ -821,10 +832,10 @@ func getCmdSetAccountMetadata() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
-	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
-	cmd.Flags().String("fee_payer", "", "address of the fee payer, optional")
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
+	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
+	cmd.Flags().StringP("metadata", "m", "", "the new metadata, leave empty to unset")
+	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
