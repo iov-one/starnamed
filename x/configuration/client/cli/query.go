@@ -35,8 +35,7 @@ func getCmdQueryConfig() *cobra.Command {
 		Short: "gets the current configuration",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := client.GetClientContextFromCmd(cmd)
-			cliCtx, err := client.ReadQueryCommandFlags(cliCtx, cmd.Flags())
+			cliCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -59,8 +58,10 @@ func getCmdQueryFees() *cobra.Command {
 		Short: "gets the current fees",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := client.GetClientContextFromCmd(cmd)
-			cliCtx, err := client.ReadQueryCommandFlags(cliCtx, cmd.Flags())
+			cliCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 			path := fmt.Sprintf("custom/%s/%s", types.StoreKey, types.QueryFees)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {

@@ -1,0 +1,72 @@
+syntax="proto3";
+package starnamed.x.starname.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package="github.com/iov-one/starnamed/x/starname/types";
+option (gogoproto.equal_all) = true;
+
+// Resource defines a resource owned by an account
+message Resource {
+    // URI defines the ID of the resource
+    string uri = 1 [
+        (gogoproto.moretags) = "yaml:\"uri\"",
+        (gogoproto.customname) = "URI"
+    ];
+    // Resource is the resource
+    string resource = 2 [(gogoproto.moretags) = "yaml:\"resource\""];
+}
+
+// Domain defines a domain
+message Domain {
+    // Name is the name of the domain
+    string name = 1 [(gogoproto.moretags) = "yaml:\"name\""];
+    // Admin is the owner of the domain
+    bytes admin = 2 [
+        (gogoproto.moretags) = "yaml:\"admin\"",
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    ];
+    bytes broker = 3 [
+         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+         (gogoproto.moretags) = "yaml:\"broker\""
+    ];
+    // ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds
+    int64 valid_until = 4 [(gogoproto.moretags) = "yaml:\"valid_until\""];
+    // Type defines the type of the domain
+    string type = 5 [
+        (gogoproto.moretags) = "yaml:\"type\"",
+        (gogoproto.casttype) = "DomainType"
+    ];
+}
+
+// Account defines an account that belongs to a domain
+// NOTE: It should not be confused with cosmos-sdk auth account
+// github.com/cosmos/cosmos-sdk/x/auth.Account
+message Account {
+    // Domain references the domain this account belongs to
+    string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
+    // Name is the name of the account
+    google.protobuf.StringValue name = 2 [(gogoproto.wktpointer) = true, (gogoproto.moretags) = "yaml:\"name\""];
+    // Owner is the address that owns the account
+    bytes owner = 3 [
+        (gogoproto.moretags) = "yaml:\"owner\"",
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    ];
+    // Broker identifies an entity that facilitated the transaction of the account and can be empty
+    bytes broker = 4 [
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+        (gogoproto.moretags) = "yaml:\"broker\""
+    ];
+    // ValidUntil defines a unix timestamp of the expiration of the account in seconds
+    int64 valid_until = 5 [(gogoproto.moretags) = "yaml:\"valid_until\""];
+    // Resources is the list of resources an account resolves to
+    repeated Resource resources = 6 [(gogoproto.moretags) = "yaml:\"resources\""];
+    // Certificates contains the list of certificates to identify the account owner
+    repeated bytes certificates = 7 [(gogoproto.moretags) = "yaml:\"certificates\""];
+    // MetadataURI contains a link to extra information regarding the account
+    string metadata_uri = 8 [
+        (gogoproto.moretags) = "yaml:\"metadata_uri\"",
+        (gogoproto.customname) = "MetadataURI"
+    ];
+}
