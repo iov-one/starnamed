@@ -18,6 +18,7 @@ docs/tutorial
 dist
 tools-stamp
 docs/node_modules
+scripts/integration/node_modules
 
 # Data - ideally these don't exist
 baseapp/data/*
