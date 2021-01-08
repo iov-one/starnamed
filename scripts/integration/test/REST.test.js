@@ -1,4 +1,4 @@
-import { chain, fetchObject, gasPrices, iovnscli, memo, msig1, msig1SignTx, postTx, signAndPost, signer, signTx, txUpdateConfigArgs, urlRest, w1, w2, writeTmpJson, } from "./common";
+import { chain, fetchObject, gasPrices, cli, denomFee, memo, msig1, msig1SignTx, postTx, signAndPost, signer, signTx, txUpdateConfigArgs, urlRest, w1, w2, writeTmpJson, } from "./common";
 import { Base64 } from "js-base64";
 import compareObjects from "./compareObjects";
 
@@ -78,10 +78,10 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should send.`, async () => {
       const amount = 1e6;
       const recipient = w1;
-      const balance0 = iovnscli( [ "query", "account", recipient ] );
-      const unsigned = iovnscli( [ "tx", "send", signer, recipient, `${amount}uvoi`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const balance0 = cli( [ "query", "account", recipient ] );
+      const unsigned = cli( [ "tx", "send", signer, recipient, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
-      const balance = iovnscli( [ "query", "account", recipient ] );
+      const balance = cli( [ "query", "account", recipient ] );
 
       expect( posted.ok ).toEqual( true );
       expect( +balance.value.coins[0].amount - +balance0.value.coins[0].amount ).toEqual( amount );
@@ -90,7 +90,7 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should register a domain, query domainInfo, and delete the domain.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
@@ -100,7 +100,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( domainInfo.result.domain.admin ).toEqual( signer );
       expect( domainInfo.result.domain.type.toLowerCase() ).toEqual( "closed" );
 
-      const delDomain = iovnscli( [ "tx", "starname", "del-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const delDomain = cli( [ "tx", "starname", "del-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const deleted = await signAndPost( delDomain );
       const noDomain = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -119,9 +119,9 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = iovnscli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -146,9 +146,9 @@ describe.skip( "Tests the REST API.", () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Why the uri suffix?";
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -171,7 +171,7 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should register and delete an account and query resolve.`, async () => {
       const domain = "iov";
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -181,7 +181,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
 
-      const delAccount = iovnscli( [ "tx", "starname", "del-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const delAccount = cli( [ "tx", "starname", "del-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const deleted = await signAndPost( delAccount );
       const noAccount = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -195,9 +195,9 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const base64 = Base64.encode( certificate );
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = iovnscli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -216,7 +216,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.certificates[0] ).toEqual( base64 );
       expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( certificate );
 
-      const delCerts = iovnscli( [ "tx", "starname", "del-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const delCerts = cli( [ "tx", "starname", "del-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const deleted = await signAndPost( delCerts );
       const noCerts = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -230,9 +230,9 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const file = writeTmpJson( certificate );
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = iovnscli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert-file", file, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert-file", file, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -256,7 +256,7 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should register a domain, transfer it with reset flag 2 (ResetNone, the default), and query domainInfo.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
@@ -266,7 +266,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( domainInfo.result.domain.admin ).toEqual( signer );
 
       const recipient = w1;
-      const transferDomain = iovnscli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferDomain = cli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const transferred = await signAndPost( transferDomain );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -282,10 +282,10 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -309,7 +309,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolvedEmpty.result.account.metadata_uri ).toEqual( metadataEmpty );
 
       const recipient = w1;
-      const transferDomain = iovnscli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferDomain = cli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const transferred = await signAndPost( transferDomain );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( { name: domain } ) } );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -332,11 +332,11 @@ describe.skip( "Tests the REST API.", () => {
       const other = w2; // 3rd party account owner in this case
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccountOther = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", nameOther, "--owner", other, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccountOther = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", nameOther, "--owner", other, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
 
       unsigned.value.msg.push( registerAccount.value.msg[0] );
@@ -364,7 +364,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolvedOther.result.account.owner ).toEqual( other );
 
       const recipient = w1;
-      const transferDomain = iovnscli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferDomain = cli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const transferred = await signAndPost( transferDomain );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( { name: domain } ) } );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -384,7 +384,7 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should register a domain with a broker.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
 
       unsigned.value.msg[0].value.broker = broker;
@@ -401,7 +401,7 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should register an account with a broker.`, async () => {
       const domain = "iov";
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
 
       unsigned.value.msg[0].value.broker = broker;
@@ -429,10 +429,10 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = iovnscli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = iovnscli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerAccount ) );
 
       unsigned.value.msg[0].value.broker = broker;
@@ -456,7 +456,7 @@ describe.skip( "Tests the REST API.", () => {
       compareObjects( resources, resolved.result.account.resources );
 
       const recipient = w1;
-      const transferAccount = iovnscli( [ "tx", "starname", "transfer-account", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const transferred = await signAndPost( transferAccount );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -485,10 +485,10 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = iovnscli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = iovnscli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const unsigned = JSON.parse( JSON.stringify( registerAccount ) );
 
       unsigned.value.msg[0].value.broker = broker;
@@ -512,7 +512,7 @@ describe.skip( "Tests the REST API.", () => {
       compareObjects( resources, resolved.result.account.resources );
 
       const recipient = w1;
-      const transferAccount = iovnscli( [ "tx", "starname", "transfer-account", "--reset", "true", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--reset", "true", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const transferred = await signAndPost( transferAccount );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -528,7 +528,7 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should renew a domain.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
@@ -537,7 +537,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( domainInfo ).toBeTruthy();
 
       const configuration = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
-      const renew = iovnscli( [ "tx", "starname", "renew-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const renew = cli( [ "tx", "starname", "renew-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const renewed = await signAndPost( renew );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -549,7 +549,7 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should renew an account.`, async () => {
       const domain = "iov";
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -558,7 +558,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved ).toBeTruthy();
 
       const configuration = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
-      const renew = iovnscli( [ "tx", "starname", "renew-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const renew = cli( [ "tx", "starname", "renew-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const renewed = await signAndPost( renew );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -571,7 +571,7 @@ describe.skip( "Tests the REST API.", () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const recipient = w1;
       const payer = signer;
-      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
 
       // give the payer credit for brokering the registration
       unsigned.value.msg[0].value.broker = payer;
@@ -582,11 +582,11 @@ describe.skip( "Tests the REST API.", () => {
       // payer must be first signature
       signedPayer.value.signatures = [ signedPayer.value.signatures[1], signedPayer.value.signatures[0] ];
 
-      const balance0 = iovnscli( [ "query", "account", recipient ] );
-      const balance0Payer = iovnscli( [ "query", "account", payer ] );
+      const balance0 = cli( [ "query", "account", recipient ] );
+      const balance0Payer = cli( [ "query", "account", payer ] );
       const posted = await postTx( signedPayer );
-      const balance = iovnscli( [ "query", "account", recipient ] );
-      const balancePayer = iovnscli( [ "query", "account", payer ] );
+      const balance = cli( [ "query", "account", recipient ] );
+      const balancePayer = cli( [ "query", "account", payer ] );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -604,7 +604,7 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const recipient = w1;
       const payer = signer;
-      const unsigned = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
 
       // give the payer credit for brokering the registration
       unsigned.value.msg[0].value.broker = payer;
@@ -615,11 +615,11 @@ describe.skip( "Tests the REST API.", () => {
       // payer must be first signature
       signedPayer.value.signatures = [ signedPayer.value.signatures[1], signedPayer.value.signatures[0] ];
 
-      const balance0 = iovnscli( [ "query", "account", recipient ] );
-      const balance0Payer = iovnscli( [ "query", "account", payer ] );
+      const balance0 = cli( [ "query", "account", recipient ] );
+      const balance0Payer = cli( [ "query", "account", payer ] );
       const posted = await postTx( signedPayer );
-      const balance = iovnscli( [ "query", "account", recipient ] );
-      const balancePayer = iovnscli( [ "query", "account", payer ] );
+      const balance = cli( [ "query", "account", recipient ] );
+      const balancePayer = cli( [ "query", "account", payer ] );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -633,13 +633,13 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should do a multisig send.`, async () => { // https://github.com/iov-one/iovns/blob/master/docs/cli/MULTISIG.md
       const amount = 1000000;
-      const signed = msig1SignTx( [ "tx", "send", msig1, w1, `${amount}uvoi`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed = msig1SignTx( [ "tx", "send", msig1, w1, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
 
-      const balance0 = iovnscli( [ "query", "account", w1 ] );
-      const balance0Payer = iovnscli( [ "query", "account", msig1 ] );
+      const balance0 = cli( [ "query", "account", w1 ] );
+      const balance0Payer = cli( [ "query", "account", msig1 ] );
       const posted = await postTx( signed );
-      const balance = iovnscli( [ "query", "account", w1 ] );
-      const balancePayer = iovnscli( [ "query", "account", msig1 ] );
+      const balance = cli( [ "query", "account", w1 ] );
+      const balancePayer = cli( [ "query", "account", msig1 ] );
 
       expect( posted.ok ).toEqual( true );
       expect( +balance.value.coins[0].amount ).toEqual( amount + +balance0.value.coins[0].amount );
@@ -709,9 +709,9 @@ describe.skip( "Tests the REST API.", () => {
          "string": "free-form",
       };
       const tmpMessage0 = writeTmpJson( message0 );
-      const created = iovnscli( [ "tx", "signutil", "create", "--file", tmpMessage0, "--from", signer, "--memo", memo(), "--generate-only" ] );
+      const created = cli( [ "tx", "signutil", "create", "--file", tmpMessage0, "--from", signer, "--memo", memo(), "--generate-only" ] );
       const tmpCreated = writeTmpJson( created );
-      const signed = iovnscli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
+      const signed = cli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
       const body = JSON.stringify( signed );
       const verified = await fetchObject( `${urlRest}/signutil/query/verify`, { method: "POST", body: body } );
 

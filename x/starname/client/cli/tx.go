@@ -28,7 +28,7 @@ func GetTxCmd() *cobra.Command {
 
 	domainTxCmd.AddCommand(
 		getCmdRegisterDomain(),
-		getCmdAddAccountCertificates(),
+		getCmdAddAccountCertificate(),
 		getCmdTransferAccount(),
 		getCmdTransferDomain(),
 		getmCmdSetAccountResources(),
@@ -36,7 +36,7 @@ func GetTxCmd() *cobra.Command {
 		getCmdDeleteAccount(),
 		getCmdRenewDomain(),
 		getCmdRenewAccount(),
-		getCmdDeleteAccountCertificates(),
+		getCmdDeleteAccountCertificate(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
 	)
@@ -454,12 +454,12 @@ func getCmdRenewAccount() *cobra.Command {
 	return cmd
 }
 
-func getCmdDeleteAccountCertificates() *cobra.Command {
+func getCmdDeleteAccountCertificate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "account-delete-certificates",
-		Aliases: []string{"adc", "delete-certificates", "dc", "del-certs"},
-		Short:   "delete certificates from an account",
-		Long:    "delete certificates from an account; either use the --certificate or --certificate-file flag",
+		Use:     "account-delete-certificate",
+		Aliases: []string{"adc", "delete-certificate", "dc", "del-certs"},
+		Short:   "delete a certificate from an account",
+		Long:    "delete a certificate from an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -543,12 +543,12 @@ func getCmdDeleteAccountCertificates() *cobra.Command {
 	return cmd
 }
 
-func getCmdAddAccountCertificates() *cobra.Command {
+func getCmdAddAccountCertificate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "account-add-certificates",
-		Aliases: []string{"aac", "add-certificates", "ac", "add-certs"},
-		Short:   "add certificates to an account",
-		Long:    "add certificates of an account; either use the --certificate or --certificate-file flag",
+		Use:     "account-add-certificate",
+		Aliases: []string{"aac", "add-certificate", "ac", "add-certs"},
+		Short:   "add a certificate to an account",
+		Long:    "add a certificate of an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

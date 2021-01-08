@@ -1,11 +1,13 @@
 #!/bin/bash
 set -o errexit -o nounset -o pipefail
 
+source .env
+
 BINARY=wasmd
 PASSWORD=${PASSWORD:-1234567890}
-STAKE=${STAKE_TOKEN:-ustake}
-FEE=${FEE_TOKEN:-tiov}
-CHAIN_ID=${CHAIN_ID:-testing}
+STAKE=${DENOM_STAKE:-ustake}
+FEE=${DENOM_FEE:-tiov}
+CHAIN_ID=${CHAIN:-testing}
 MONIKER=${MONIKER:-node001}
 
 ${BINARY} init --chain-id "$CHAIN_ID" "$MONIKER"
