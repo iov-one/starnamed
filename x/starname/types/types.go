@@ -12,6 +12,16 @@ const AccountAdminIndex crud.IndexID = 0x1
 const AccountDomainIndex crud.IndexID = 0x2
 const AccountResourcesIndex crud.IndexID = 0x3
 
+// Delimit the uri and resource in GetResourceKey() with an ineligible
+// character since, technically, it'd be possible to have uri "d" and
+// resource "ave" collide with uri "da" and resource "ve".
+const resourceDelimiter = "\t"
+
+// GetResourceKey computes the index key for a given uri and resource
+func GetResourceKey(uri, resource string) []byte {
+	return []byte(strings.Join([]string{uri, resource}, resourceDelimiter))
+}
+
 // StarnameSeparator defines the starname separator identifier
 const StarnameSeparator = "*"
 
@@ -76,9 +86,9 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 		if res.Resource == "" || res.URI == "" {
 			continue
 		}
-		resKey := strings.Join([]string{res.URI, res.Resource}, "")
+		key := GetResourceKey(res.URI, res.Resource)
 		// append resource
-		sk = append(sk, crud.SecondaryKey{AccountResourcesIndex, []byte(resKey)})
+		sk = append(sk, crud.SecondaryKey{AccountResourcesIndex, key})
 	}
 	// return keys
 	return sk

@@ -17,6 +17,8 @@
     - [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse)
     - [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest)
     - [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse)
+    - [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest)
+    - [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
   
@@ -251,6 +253,39 @@ QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC me
 
 
 
+<a name="starnamed.x.starname.v1beta1.QueryResourceAccountsRequest"></a>
+
+### QueryResourceAccountsRequest
+QueryResourceAccountsRequest is the request type for the Query/ResourceAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| uri | [string](#string) |  | Uri is the uri of the resource. query.pb.gw.to doesn&#39;t respect gogoproto.customname, so we&#39;re stuck with Uri. |
+| resource | [string](#string) |  | Resource is the resource of interest. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryResourceAccountsResponse"></a>
+
+### QueryResourceAccountsResponse
+QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Accounts are the accounts associated with the resource. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
+
+
+
 <a name="starnamed.x.starname.v1beta1.QueryStarnameRequest"></a>
 
 ### QueryStarnameRequest
@@ -299,6 +334,7 @@ Query defines the gRPC querier service.
 | Starname | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. |
 | OwnerAccounts | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. |
 | OwnerDomains | [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest) | [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse) | OwnerDomains gets domains associated with a given owner. |
+| ResourceAccounts | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. |
 
  
 

@@ -203,3 +203,41 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	}
 	return &types.QueryOwnerDomainsResponse{Domains: domains, Page: page}, nil
 }
+
+func (q grpcQuerier) ResourceAccounts(c context.Context, req *types.QueryResourceAccountsRequest) (*types.QueryResourceAccountsResponse, error) {
+	if req.Uri == "" {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidResource, "'%s'", req.Uri)
+	}
+	if req.Resource == "" {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidResource, "'%s'", req.Resource)
+	}
+	start, end, count, err := getPagination(req.Pagination)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed pagination")
+	}
+	return queryResourceAccounts(sdk.UnwrapSDKContext(c), q.keeper, req.Uri, req.Resource, start, end, count)
+}
+
+func queryResourceAccounts(ctx sdk.Context, keeper *Keeper, uri string, resource string, start, end uint64, count bool) (*types.QueryResourceAccountsResponse, error) {
+	key := types.GetResourceKey(uri, resource)
+	query := func() crud.FinalizedIndexStatement {
+		return keeper.AccountStore(ctx).Query().Where().Index(types.AccountResourcesIndex).Equals(key)
+	}
+	cursor, err := query().WithRange().Start(start).End(end).Do()
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s:%s' caused error", uri, resource)
+	}
+	accounts := make([]*types.Account, 0)
+	for ; cursor.Valid(); cursor.Next() {
+		account := new(types.Account)
+		if err := cursor.Read(account); err != nil {
+			return nil, sdkerrors.Wrap(err, "failed to read")
+		}
+		accounts = append(accounts, account)
+	}
+	page, err := getPageResponse(count, query())
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s:%s' caused error", uri, resource)
+	}
+	return &types.QueryResourceAccountsResponse{Accounts: accounts, Page: page}, nil
+}

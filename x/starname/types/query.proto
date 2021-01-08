@@ -36,6 +36,11 @@ service Query {
     rpc OwnerDomains (QueryOwnerDomainsRequest) returns (QueryOwnerDomainsResponse) {
         option (google.api.http).get = "/starname/v1beta1/owner/domains/{owner}";
     }
+
+    // ResourceAccounts gets accounts associated with a given resource.
+    rpc ResourceAccounts (QueryResourceAccountsRequest) returns (QueryResourceAccountsResponse) {
+        option (google.api.http).get = "/starname/v1beta1/resource/accounts/{uri}/{resource}";
+    }
 }
 
  // QueryDomainRequest is the request type for the Query/Domain RPC method.
@@ -120,6 +125,28 @@ message QueryOwnerDomainsResponse {
     // Accounts is the accounts associated with owner.
     repeated Domain domains = 1 [
         (gogoproto.moretags) = "yaml:\"domains\""
+    ];
+    cosmos.base.query.v1beta1.PageResponse page = 2;
+}
+
+// QueryResourceAccountsRequest is the request type for the Query/ResourceAccounts RPC method.
+message QueryResourceAccountsRequest {
+    // Uri is the uri of the resource. query.pb.gw.to doesn't respect gogoproto.customname, so we're stuck with Uri.
+    string uri = 1 [
+        (gogoproto.moretags) = "yaml:\"uri\""
+    ];
+    // Resource is the resource of interest.
+    string resource = 2 [
+        (gogoproto.moretags) = "yaml:\"resource\""
+    ];
+    cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+// QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method.
+message QueryResourceAccountsResponse {
+    // Accounts are the accounts associated with the resource.
+    repeated Account accounts = 1 [
+        (gogoproto.moretags) = "yaml:\"accounts\""
     ];
     cosmos.base.query.v1beta1.PageResponse page = 2;
 }

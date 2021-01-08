@@ -26,9 +26,7 @@ func GetQueryCmd() *cobra.Command {
 		getQueryDomainAccounts(),
 		getQueryOwnerAccounts(),
 		getQueryOwnerDomains(),
-		/* TODO: FIXME
-		getQueryResourcesAccount(),
-		*/
+		getQueryResourceAccounts(),
 	)
 	return domainQueryCmd
 }
@@ -230,52 +228,46 @@ func getQueryResolveAccount() *cobra.Command {
 	return cmd
 }
 
-/*
-func getQueryResourcesAccount() *cobra.Command {
+func getQueryResourceAccounts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve-resource",
 		Short: "resolves a resource into accounts",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
-			id, err := cmd.Flags().GetString("uri")
+			uri, err := cmd.Flags().GetString("uri")
 			if err != nil {
 				return err
 			}
-			addr, err := cmd.Flags().GetString("resource")
+			resource, err := cmd.Flags().GetString("resource")
 			if err != nil {
 				return err
 			}
-			rpp, err := cmd.Flags().GetInt("rpp")
+			pagination, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
-			offset, err := cmd.Flags().GetInt("offset")
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			// get query & validate
-			q := keeper.QueryResolveResource{
-				Resource: types.Resource{
-					URI:      id,
-					Resource: addr,
+			res, err := types.NewQueryClient(clientCtx).ResourceAccounts(
+				context.Background(),
+				&types.QueryResourceAccountsRequest{
+					Uri:        uri,
+					Resource:   resource,
+					Pagination: pagination,
 				},
-				ResultsPerPage: rpp,
-				Offset:         offset,
-			}
-			if err = q.Validate(); err != nil {
+			)
+			if err != nil {
 				return err
 			}
-			// get query path
-			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveResourceResponse))
+			return clientCtx.PrintProto(res)
 		},
 	}
 	// add flags
 	cmd.Flags().String("uri", "", "the resource uri")
 	cmd.Flags().String("resource", "", "resource")
-	cmd.Flags().Int("offset", 1, "the page offset")
-	cmd.Flags().Int("rpp", 100, "results per page")
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "resource accounts")
 	return cmd
 }
-*/
