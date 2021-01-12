@@ -30,17 +30,17 @@ func ValidateGenesis(data types.GenesisState) error {
 func DefaultGenesisState() types.GenesisState {
 	// set default configs
 	config := types.Config{
-		Configurer:             "wasm1fjppc038udty5lquva2fc72967y4mchsu06slw", // bojack
+		Configurer:             "wasm1enqynlqt9wm6yskcn3ek5cld0ywjphwt0hktf5", // msig1
 		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
 		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
 		ValidURI:               "[-a-z0-9A-Z:]+$",
 		ValidResource:          "^[a-z0-9A-Z]+$",
-		DomainRenewalPeriod:    31557600,
+		DomainRenewalPeriod:    31557600 * 1e9,
 		DomainRenewalCountMax:  2,
-		DomainGracePeriod:      2592000,
-		AccountRenewalPeriod:   31557600,
+		DomainGracePeriod:      2592000 * 1e9,
+		AccountRenewalPeriod:   31557600 * 1e9,
 		AccountRenewalCountMax: 3,
-		AccountGracePeriod:     2592000,
+		AccountGracePeriod:     2592000 * 1e9,
 		ResourcesMax:           3,
 		CertificateSizeMax:     10000,
 		CertificateCountMax:    3,
