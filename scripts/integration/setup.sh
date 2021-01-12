@@ -22,7 +22,7 @@ echo "$PASSWORD" | ${BINARY} add-genesis-account validator "1000000000$STAKE,100
 # (optionally) add a few more genesis accounts
 for addr in bojack w1 w2 w3 msig1; do
   echo $addr
-  ${BINARY} add-genesis-account "$addr" "1000000000$STAKE,1000000000$FEE" --keyring-backend test
+  ${BINARY} add-genesis-account "$addr" "1000000000$STAKE,1000000000000$FEE" --keyring-backend test
 done
 # submit a genesis validator tx
 ## Workraround for https://github.com/cosmos/cosmos-sdk/issues/8251

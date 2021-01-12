@@ -20,7 +20,7 @@ describe( "Tests the CLI.", () => {
          // no-op on no delegations yet
       }
 
-      const amount = 1.25e9;
+      const amount = 1.25e6;
       const signed = msig1SignTx( [ "tx", "staking", "delegate", validator, `${amount}${denomStake}`, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signedTmp = writeTmpJson( signed );
 
@@ -217,7 +217,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.only( `Should do a multisig reward withdrawl.`, async () => {
+   it( `Should do a multisig reward withdrawl.`, async () => {
       const signed = msig1SignTx( [ "tx", "distribution", "withdraw-rewards", validator, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signedTmp = writeTmpJson( signed );
 
@@ -234,26 +234,27 @@ describe( "Tests the CLI.", () => {
       const transferFlag = "0";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const metadata = "Why the uri suffix?";
+      const metadata = "obviated by resource";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
 
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "100000000";
+      unsigned.auth_info.fee.gas_limit = "600000";
 
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
       if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved      = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
       const resolvedEmpty = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( resolved.account.domain ).toEqual( domain );
@@ -291,26 +292,26 @@ describe( "Tests the CLI.", () => {
       const other = w2; // 3rd party account owner in this case
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccountOther = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", nameOther, "--owner", other, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", nameOther, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
 
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( registerAccountOther.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "100000000";
+      unsigned.auth_info.fee.gas_limit = "600000";
 
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
       if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved      = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
       const resolvedEmpty = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
       const resolvedOther = cli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
 
@@ -328,8 +329,8 @@ describe( "Tests the CLI.", () => {
       expect( transferred.gas_used ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
 
-      const newDomainInfo = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
-      const newResolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const newDomainInfo    = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const newResolved      = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
       const newResolvedEmpty = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
       const newResolvedOther = cli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
 
@@ -345,26 +346,60 @@ describe( "Tests the CLI.", () => {
 
    it( `Should register a domain, transfer it with reset flag 2 (ResetNone, the default), and query domain-info.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const nameOther = `${Math.floor( Math.random() * 1e9 )}`;
+      const other = w2; // 3rd party account owner in this case
+      const metadata = "Why the uri suffix?";
+      const metadataEmpty = "top-level corporate info"; // metadata for the empty account
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", nameOther, "--owner", other, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
 
-      expect( registered.txhash ).toBeDefined();
-      if ( !registered.logs ) throw new Error( registered.raw_log );
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "100000000";
+      unsigned.auth_info.fee.gas_limit = "600000";
 
-      const domainInfo = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const broadcasted = signAndBroadcastTx( unsigned );
 
-      expect( domainInfo.domain.name ).toEqual( domain );
-      expect( domainInfo.domain.admin ).toEqual( signer );
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved      = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolvedEmpty = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const resolvedOther = cli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.metadata_uri ).toEqual( metadata );
+      expect( resolvedEmpty.account.owner ).toEqual( signer );
+      expect( resolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
+      expect( resolvedOther.account.owner ).toEqual( other );
 
       const recipient = w1;
       const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
 
-      expect( transferred.txhash ).toBeDefined();
+      expect( transferred.gas_used ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
 
-      const newDomainInfo = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const newDomainInfo    = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const newResolved      = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const newResolvedEmpty = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const newResolvedOther = cli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
+      expect( newResolved.account.owner ).toEqual( recipient );
+      expect( newResolved.account.metadata_uri ).toEqual( metadata );
+      expect( newResolvedEmpty.account.owner ).toEqual( recipient );
+      expect( newResolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
+      expect( newResolvedOther.account.owner ).toEqual( other );
    } );
 
 
@@ -398,7 +433,6 @@ describe( "Tests the CLI.", () => {
    it( `Should register and renew domain.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-
       const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
@@ -418,8 +452,8 @@ describe( "Tests the CLI.", () => {
       const starname = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
-      expect( newDomainInfo.domain.valid_until ).toBeGreaterThan( domainInfo.domain.valid_until );
-      expect( newDomainInfo.domain.valid_until ).toEqual( starname.account.valid_until );
+      expect( +newDomainInfo.domain.valid_until ).toBeGreaterThan( +domainInfo.domain.valid_until );
+      expect( +newDomainInfo.domain.valid_until ).toEqual( +starname.account.valid_until );
    } );
 
 
@@ -448,22 +482,47 @@ describe( "Tests the CLI.", () => {
 
 
    it( `Should do a reverse look-up.`, async () => {
-      const uri = "asset:eth";
-      const resource = "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7"; // 01node*iov
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const uri = "cosmos:iov-mainnet-2";
+      const resource = "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk";
+      const resources = [
+         {
+            "uri": uri,
+            "resource": resource,
+         }
+      ];
+      const fileResources = writeTmpJson( resources );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
+
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "400000";
+      unsigned.auth_info.fee.gas_limit = "400000";
+
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
       const result = cli( [ "query", "starname", "resolve-resource", "--uri", uri, "--resource", resource ] );
 
-      expect( result.accounts.length ).toEqual( 1 );
+      expect( result.accounts.length ).toBeGreaterThan( 0 );
 
-      const account0 = result.accounts[0];
+      const account = result.accounts.find( a => a.domain == domain );
 
-      expect( account0.name ).toEqual( "01node" );
-      expect( account0.domain ).toEqual( "iov" );
-      expect( account0.resources.find( r => r.uri == uri && r.resource == resource ) ).toBeDefined();
+      expect( account ).toBeDefined();
+      expect( account.domain ).toEqual( domain );
+      expect( account.name ).toEqual( "" );
+      expect( account.resources.find( r => r.uri == uri && r.resource == resource ) ).toBeDefined();
    } );
 
 
-   // don't skip once https://github.com/iov-one/iovns/issues/369 is closed
-   it.skip( `Should register a domain and account, set resources, and delete resources.`, async () => {
+   // TODO: don't skip once https://github.com/iov-one/iovns/issues/369 is closed
+   it.only( `Should register a domain, set resources, and delete resources.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const resources = [
@@ -473,77 +532,78 @@ describe( "Tests the CLI.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
 
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( replaceResources.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "400000";
-      unsigned.value.fee.gas = "400000";
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "400000";
+      unsigned.auth_info.fee.gas_limit = "400000";
 
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
       if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( resolved.account.domain ).toEqual( domain );
-      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.name ).toEqual( "" );
       expect( resolved.account.owner ).toEqual( signer );
       compareObjects( resources, resolved.account.resources );
 
       const emptyResources = null;
       const tmpResources = writeTmpJson( emptyResources );
-      const replaceResources1 = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources1 = cli( [ "tx", "starname", "set-resources", "--domain", domain, "--name", "", "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broadcasted1 = signAndBroadcastTx( replaceResources1 );
 
       expect( broadcasted1.gas_used ).toBeDefined();
       if ( !broadcasted1.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       compareObjects( emptyResources, resolved1.account.resources );
    } );
 
 
-   // don't skip once https://github.com/iov-one/iovns/issues/370 is closed
-   it.skip( `Should register a domain and account, set metadata, and delete metadata.`, async () => {
+   // TODO: don't skip once https://github.com/iov-one/iovns/issues/370 is closed
+   it.only( `Should register a domain, set metadata, and delete metadata.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const name = `${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Not empty.";
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const atomic = [
+         cli( [ "tx", "starname", "register-domain", ...common ] ),
+         cli( [ "tx", "starname", "set-account-metadata", "--name", "", "--metadata", metadata, ...common ] ),
+      ]
+      const unsigned = atomic.shift();
 
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "400000";
-      unsigned.value.fee.gas = "400000";
+      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+      unsigned.auth_info.fee.amount[0].amount = "400000";
+      unsigned.auth_info.fee.gas_limit = "400000";
 
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
       if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( resolved.account.domain ).toEqual( domain );
-      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.name ).toEqual( "" );
       expect( resolved.account.owner ).toEqual( signer );
       expect( resolved.account.metadata_uri ).toEqual( metadata );
 
       const metadata1 = "";
-      const setMetadata1 = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata1, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata1 = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadata1, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broadcasted1 = signAndBroadcastTx( setMetadata1 );
 
       expect( broadcasted1.gas_used ).toBeDefined();
       if ( !broadcasted1.logs ) throw new Error( broadcasted.raw_log );
 
-      const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( resolved1.account.metadata_uri ).toEqual( metadata1 );
    } );
