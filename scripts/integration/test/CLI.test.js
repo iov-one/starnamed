@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { gasPrices, cli, denomFee, denomStake, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson } from "./common";
+import { gasPrices, cli, denomFee, denomStake, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
 import compareObjects from "./compareObjects";
 import forge from "node-forge";
 
@@ -95,17 +95,11 @@ describe( "Tests the CLI.", () => {
       const certificate0 = validCertificate;
       const base64 = Base64.encode( certificate0 );
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "domain-register", ...common ] ),
          cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
          cli( [ "tx", "starname", "account-add-certificate", "--name", name, "--certificate", base64, ...common ] ),
-      ];
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "100000000";
-      unsigned.auth_info.fee.gas_limit = "400000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
       const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
 
@@ -141,17 +135,11 @@ describe( "Tests the CLI.", () => {
       const invalid = certificate0.replace( "hjkwbdkj", invalidity ); // invalidate the certificate
       const base64 = Base64.encode( invalid );
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "domain-register", ...common ] ),
          cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
          cli( [ "tx", "starname", "account-add-certificate", "--name", name, "--certificate", base64, ...common ] ),
-      ];
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "100000000";
-      unsigned.auth_info.fee.gas_limit = "400000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
       const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
 
@@ -237,18 +225,12 @@ describe( "Tests the CLI.", () => {
       const metadata = "obviated by resource";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "100000000";
-      unsigned.auth_info.fee.gas_limit = "600000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
@@ -293,19 +275,13 @@ describe( "Tests the CLI.", () => {
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", nameOther, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "100000000";
-      unsigned.auth_info.fee.gas_limit = "600000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
@@ -352,19 +328,13 @@ describe( "Tests the CLI.", () => {
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", nameOther, "--owner", other, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "100000000";
-      unsigned.auth_info.fee.gas_limit = "600000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
@@ -493,16 +463,10 @@ describe( "Tests the CLI.", () => {
       ];
       const fileResources = writeTmpJson( resources );
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "400000";
-      unsigned.auth_info.fee.gas_limit = "400000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
@@ -522,9 +486,8 @@ describe( "Tests the CLI.", () => {
 
 
    // TODO: don't skip once https://github.com/iov-one/iovns/issues/369 is closed
-   it.only( `Should register a domain, set resources, and delete resources.`, async () => {
+   it( `Should register a domain, set resources, and delete resources.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const name = `${Math.floor( Math.random() * 1e9 )}`;
       const resources = [
          {
             "uri": "cosmos:iov-mainnet-2",
@@ -533,16 +496,10 @@ describe( "Tests the CLI.", () => {
       ];
       const fileResources = writeTmpJson( resources );
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "400000";
-      unsigned.auth_info.fee.gas_limit = "400000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();
@@ -570,20 +527,14 @@ describe( "Tests the CLI.", () => {
 
 
    // TODO: don't skip once https://github.com/iov-one/iovns/issues/370 is closed
-   it.only( `Should register a domain, set metadata, and delete metadata.`, async () => {
+   it( `Should register a domain, set metadata, and delete metadata.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Not empty.";
       const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
-      const atomic = [
+      const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "", "--metadata", metadata, ...common ] ),
-      ]
-      const unsigned = atomic.shift();
-
-      atomic.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
-      unsigned.auth_info.fee.amount[0].amount = "400000";
-      unsigned.auth_info.fee.gas_limit = "400000";
-
+      );
       const broadcasted = signAndBroadcastTx( unsigned );
 
       expect( broadcasted.gas_used ).toBeDefined();

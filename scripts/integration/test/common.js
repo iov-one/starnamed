@@ -168,3 +168,23 @@ export const txUpdateConfigArgs = ( configuration, from ) => {
 export const getBalance = ( response, denomination = denomFee ) => {
    return response.balances.filter( balance => balance.denom == denomination )[0].amount;
 }
+
+
+/**
+ * Returns a tx object given the array of msgs to include in the tx.
+ * @param {Array} msgs the messages to be included in the tx
+ * @returns {object} the tx
+ **/
+export const makeTx = ( ...msgs ) => {
+   const n = msgs.length;
+   const limit = 200000;
+   const gas = n * limit;
+   const unsigned = msgs.shift();
+
+   msgs.forEach( tx => unsigned.body.messages.push( tx.body.messages[0] ) );
+
+   unsigned.auth_info.fee.amount[0].amount = String( gas * parseFloat( gasPrices ) );
+   unsigned.auth_info.fee.gas_limit = String( gas );
+
+   return unsigned;
+}
