@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"bytes"
+	"fmt"
 	"testing"
 	"time"
 
@@ -99,4 +101,47 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
 	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+}
+
+// CompareAccounts compares two accounts
+func CompareAccounts(got, want *types.Account) error {
+	if got.Domain != want.Domain {
+		return fmt.Errorf("got Domain '%s', want '%s'", got.Domain, want.Domain)
+	}
+	if *got.Name != *want.Name {
+		return fmt.Errorf("got Name '%s', want '%s'", *got.Name, *want.Name)
+	}
+	if !got.Owner.Equals(want.Owner) {
+		return fmt.Errorf("got Owner '%s', want '%s'", got.Owner.String(), want.Owner.String())
+	}
+	if !got.Broker.Equals(want.Broker) {
+		return fmt.Errorf("got Broker '%s', want '%s'", got.Broker.String(), want.Broker.String())
+	}
+	if got.ValidUntil != want.ValidUntil {
+		return fmt.Errorf("got ValidUntil '%d', want '%d'", got.ValidUntil, want.ValidUntil)
+	}
+	if got.Resources != nil {
+		for i, goti := range got.Resources {
+			wanti := want.Resources[i]
+			if goti.URI == wanti.URI {
+				return fmt.Errorf("got URI '%s', want '%s'", goti.URI, wanti.URI)
+			}
+			if goti.Resource == wanti.Resource {
+				return fmt.Errorf("got Resource '%s', want '%s'", goti.Resource, wanti.Resource)
+			}
+		}
+	}
+	if got.Certificates != nil {
+		for i, goti := range got.Certificates {
+			wanti := want.Certificates[i]
+
+			if bytes.Compare(goti, wanti) != 0 {
+				return fmt.Errorf("got Certificate '%s', want '%s'", string(goti), string(wanti))
+			}
+		}
+	}
+	if got.MetadataURI != want.MetadataURI {
+		return fmt.Errorf("got MetadataURI '%s', want '%s'", got.MetadataURI, want.MetadataURI)
+	}
+	return nil
 }
