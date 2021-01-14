@@ -22,6 +22,7 @@ func TestDomainAccounts(t *testing.T) {
 		t.Fatalf("failed to create domain '%s'", domain)
 	}
 
+	accounts := make([]*types.Account, 0) // in primary key order
 	for i, owner := range owners {
 		name := fmt.Sprintf("%d", i)
 		account := types.Account{
@@ -32,20 +33,8 @@ func TestDomainAccounts(t *testing.T) {
 		if err := keeper.AccountStore(ctx).Create(&account); err != nil {
 			t.Fatalf("failed to create account '%s'", name)
 		}
-	}
-
-	// populate accounts in the IAVL order, which is a function of insertion order
-	accounts := make([]*types.Account, 0)
-	cursor, err := keeper.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(domain)).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for ; cursor.Valid(); cursor.Next() {
-		account := new(types.Account)
-		if err := cursor.Read(account); err != nil {
-			t.Fatal(err)
-		}
-		accounts = append(accounts, account)
+		accounts = append(accounts, &account)
+		//fmt.Printf("%s %x %x %x\n", account.GetStarname(), account.PrimaryKey(), account.SecondaryKeys()[0].Value, account.SecondaryKeys()[1].Value)
 	}
 
 	tests := map[string]struct {
@@ -73,8 +62,10 @@ func TestDomainAccounts(t *testing.T) {
 				}
 				for i, got := range response.Accounts {
 					want := accounts[i]
+					//fmt.Printf("got  %s %x %x %x\n", got.GetStarname(), got.PrimaryKey(), got.SecondaryKeys()[0].Value, got.SecondaryKeys()[1].Value)
+					//fmt.Printf("want %s %x %x %x\n", want.GetStarname(), want.PrimaryKey(), want.SecondaryKeys()[0].Value, want.SecondaryKeys()[1].Value)
 					if err := CompareAccounts(got, want); err != nil {
-						t.Fatal(sdkErrors.Wrapf(err, "%s%s%s", *want.Name, types.StarnameSeparator, want.Domain))
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}
 			},
@@ -97,8 +88,10 @@ func TestDomainAccounts(t *testing.T) {
 				limited := accounts[1:3] // slice to offset and limit
 				for i, got := range response.Accounts {
 					want := limited[i]
+					//fmt.Printf("got  %s %x %x %x\n", got.GetStarname(), got.PrimaryKey(), got.SecondaryKeys()[0].Value, got.SecondaryKeys()[1].Value)
+					//fmt.Printf("want %s %x %x %x\n", want.GetStarname(), want.PrimaryKey(), want.SecondaryKeys()[0].Value, want.SecondaryKeys()[1].Value)
 					if err := CompareAccounts(got, want); err != nil {
-						t.Fatal(sdkErrors.Wrapf(err, "%s%s%s", *want.Name, types.StarnameSeparator, want.Domain))
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}
 			},

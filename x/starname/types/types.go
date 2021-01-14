@@ -60,11 +60,18 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
+func (m *Account) GetStarname() string {
+	if len(m.Domain) == 0 || m.Name == nil {
+		return "invalid Domain or Name"
+	}
+	return strings.Join([]string{*m.Name, m.Domain}, StarnameSeparator)
+}
+
 func (m *Account) PrimaryKey() []byte {
 	if len(m.Domain) == 0 || m.Name == nil {
 		return nil
 	}
-	j := strings.Join([]string{m.Domain, *m.Name}, "*")
+	j := strings.Join([]string{m.Domain, *m.Name}, StarnameSeparator)
 	return []byte(j)
 }
 
