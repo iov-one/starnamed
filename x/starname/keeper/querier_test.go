@@ -15,8 +15,13 @@ import (
 
 func TestDomain(t *testing.T) {
 	name := "test"
-	admin := aliceAddr
-	domain := types.Domain{Name: name, Admin: admin}
+	domain := types.Domain{
+		Name:       name,
+		Admin:      aliceAddr,
+		Broker:     bobAddr,
+		ValidUntil: 69,
+		Type:       "open",
+	}
 	keeper, ctx, _ := NewTestKeeper(t, false)
 	if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
 		t.Fatalf("failed to create domain '%s'", name)
