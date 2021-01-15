@@ -188,7 +188,7 @@ func CompareDomains(got, want *types.Domain) error {
 // DebugDomain prints relevant info about a types.Domain to the console
 func DebugDomain(domain *types.Domain) {
 	if len(os.Args) > 0 {
-		fmt.Printf("%20s %-20x %x %x\n", domain.GetName(), domain.PrimaryKey(), domain.SecondaryKeys()[0].Value, domain.SecondaryKeys()[1].Value)
+		fmt.Printf("%20s %-20x %x\n", domain.GetName(), domain.PrimaryKey(), domain.SecondaryKeys()[0].Value)
 	}
 }
 

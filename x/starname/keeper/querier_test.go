@@ -548,3 +548,126 @@ func TestResourceAccounts(t *testing.T) {
 		}
 	}
 }
+
+func TestOwnerDomains(t *testing.T) {
+	names := []string{"0", "1", "2", "3", "4"}
+	keeper, ctx, _ := NewTestKeeper(t, false)
+	// create domains
+	domains := make([]*types.Domain, 0)
+	domainsByOwner := make(map[string][]*types.Domain)
+
+	for i, name := range names {
+		admin := owners[i&1] // pseudo random admin
+		domain := types.Domain{
+			Name:  name,
+			Admin: admin,
+		}
+		if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
+			t.Fatal(err)
+		}
+		domains = append(domains, &domain)
+		domainsByOwner[admin.String()] = append(domainsByOwner[admin.String()], &domain)
+	}
+	// sort on primary key
+	sort.Slice(domains, func(i, j int) bool {
+		return bytes.Compare(domains[i].PrimaryKey(), domains[j].PrimaryKey()) < 0
+	})
+	DebugDomains("domains", domains)
+	for owner, slice := range domainsByOwner {
+		sort.Slice(slice, func(i, j int) bool {
+			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
+		})
+		DebugDomains(owner, slice)
+	}
+
+	tests := map[string]struct {
+		request  types.QueryOwnerDomainsRequest
+		wantErr  func(error) error
+		validate func(*types.QueryOwnerDomainsResponse)
+	}{
+		"query invalid owner": {
+			request: types.QueryOwnerDomainsRequest{
+				Owner:      "",
+				Pagination: nil,
+			},
+			wantErr: func(err error) error {
+				if err == nil || strings.Index(err.Error(), "isn't a vaild address") == -1 {
+					t.Fatal("wrong error")
+				}
+				return nil
+			},
+			validate: nil,
+		},
+		"query valid owner without pagination": {
+			request: types.QueryOwnerDomainsRequest{
+				Owner:      owners[0].String(),
+				Pagination: nil,
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryOwnerDomainsResponse) {
+				if response.Domains == nil {
+					t.Fatal("wanted non-nil domains")
+				}
+				wants := domainsByOwner[owners[0].String()]
+				if len(response.Domains) != len(wants) {
+					t.Fatalf("wanted %d domains, got %d", len(wants), len(response.Domains))
+				}
+				for i, got := range response.Domains {
+					want := wants[i]
+					if err := CompareDomains(got, want); err != nil {
+						DebugDomain(got)
+						DebugDomain(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.Name))
+					}
+				}
+			},
+		},
+		"query valid owner with pagination": {
+			request: types.QueryOwnerDomainsRequest{
+				Owner: owners[0].String(),
+				Pagination: &query.PageRequest{
+					Key:        nil,
+					Offset:     1,
+					Limit:      2,
+					CountTotal: true,
+				},
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryOwnerDomainsResponse) {
+				if response.Page == nil {
+					t.Fatal("wanted non-nil Page")
+				}
+				wants := domainsByOwner[owners[0].String()]
+				if response.Page.Total != uint64(len(wants)) {
+					t.Fatalf("wanted %d domains, got %d", len(wants), response.Page.Total)
+				}
+				if response.Domains == nil {
+					t.Fatalf("wanted non-nil domains")
+				}
+				if len(response.Domains) != 2 {
+					t.Fatalf("wanted %d domains, got %d", 2, len(response.Domains))
+				}
+				limited := wants[1:3] // slice to offset and limit
+				DebugDomains("limited", limited)
+				for i, got := range response.Domains {
+					want := limited[i]
+					if err := CompareDomains(got, want); err != nil {
+						DebugDomain(got)
+						DebugDomain(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.Name))
+					}
+				}
+			},
+		},
+	}
+
+	for _, test := range tests {
+		res, err := NewQuerier(&keeper).OwnerDomains(sdk.WrapSDKContext(ctx), &test.request)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
+		}
+		if test.validate != nil {
+			test.validate(res)
+		}
+	}
+}
