@@ -9,6 +9,10 @@
     - [Resource](#starnamed.x.starname.v1beta1.Resource)
   
 - [x/starname/types/query.proto](#x/starname/types/query.proto)
+    - [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest)
+    - [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse)
+    - [QueryBrokerDomainsRequest](#starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest)
+    - [QueryBrokerDomainsResponse](#starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse)
     - [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest)
     - [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse)
     - [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest)
@@ -124,6 +128,70 @@ Resource defines a resource owned by an account
 <p align="right"><a href="#top">Top</a></p>
 
 ## x/starname/types/query.proto
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest"></a>
+
+### QueryBrokerAccountsRequest
+QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| broker | [string](#string) |  | Broker is the broker of accounts. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse"></a>
+
+### QueryBrokerAccountsResponse
+QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| accounts | [Account](#starnamed.x.starname.v1beta1.Account) | repeated | Accounts is the accounts associated with broker. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest"></a>
+
+### QueryBrokerDomainsRequest
+QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| broker | [string](#string) |  | Broker is the broker of accounts. |
+| pagination | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse"></a>
+
+### QueryBrokerDomainsResponse
+QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domains | [Domain](#starnamed.x.starname.v1beta1.Domain) | repeated | Accounts is the accounts associated with broker. |
+| page | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
 
 
 
@@ -335,6 +403,8 @@ Query defines the gRPC querier service.
 | OwnerAccounts | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. |
 | OwnerDomains | [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest) | [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse) | OwnerDomains gets domains associated with a given owner. |
 | ResourceAccounts | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. |
+| BrokerAccounts | [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest) | [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse) | BrokerAccounts gets accounts associated with a given broker. |
+| BrokerDomains | [QueryBrokerDomainsRequest](#starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest) | [QueryBrokerDomainsResponse](#starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse) | BrokerDomains gets domains associated with a given broker. |
 
  
 
