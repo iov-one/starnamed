@@ -169,10 +169,10 @@ func TestDomainAccounts(t *testing.T) {
 				Pagination: nil,
 			},
 			wantErr: func(err error) error {
-				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidDomainName, "''")) {
-					return nil
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidDomainName, "''")) {
+					t.Fatal("wrong error")
 				}
-				return errors.New("failed expected error test")
+				return nil
 			},
 			validate: nil,
 		},
@@ -338,10 +338,10 @@ func TestOwnerAccounts(t *testing.T) {
 				Pagination: nil,
 			},
 			wantErr: func(err error) error {
-				if strings.Index(err.Error(), "bogus") != -1 {
-					return nil
+				if strings.Index(err.Error(), "bogus") == -1 {
+					t.Fatal("wrong error")
 				}
-				return errors.New("failed expected error test")
+				return nil
 			},
 			validate: nil,
 		},
@@ -450,10 +450,10 @@ func TestResourceAccounts(t *testing.T) {
 				Pagination: nil,
 			},
 			wantErr: func(err error) error {
-				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
-					return nil
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
+					t.Fatal("wrong error")
 				}
-				return errors.New("failed expected error test")
+				return nil
 			},
 			validate: nil,
 		},
@@ -464,10 +464,10 @@ func TestResourceAccounts(t *testing.T) {
 				Pagination: nil,
 			},
 			wantErr: func(err error) error {
-				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
-					return nil
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
+					t.Fatal("wrong error")
 				}
-				return errors.New("failed expected error test")
+				return nil
 			},
 			validate: nil,
 		},
@@ -480,7 +480,7 @@ func TestResourceAccounts(t *testing.T) {
 			wantErr: nil,
 			validate: func(response *types.QueryResourceAccountsResponse) {
 				if response.Accounts == nil {
-					t.Fatalf("wanted non-nil accounts")
+					t.Fatal("wanted non-nil accounts")
 				}
 				key := string(types.GetResourceKey(resources[0].URI, resources[0].Resource))
 				wants := accountsByResource[key]
