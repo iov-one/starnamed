@@ -276,44 +276,29 @@ func TestDomainAccounts(t *testing.T) {
 }
 
 func TestStarname(t *testing.T) {
-	name := "test"
-	domain := "domain"
-	account := types.Account{
-		Domain:     domain,
-		Name:       &name,
-		Owner:      aliceAddr,
-		Broker:     bobAddr,
-		ValidUntil: 69,
-		Resources: []*types.Resource{
-			&types.Resource{URI: "uri0", Resource: "resource0"},
-			&types.Resource{URI: "uri1", Resource: "resource1"},
-		},
-		Certificates: [][]byte{
-			[]byte("cert0"),
-			[]byte("cert1"),
-		},
-		MetadataURI: "metadata",
-	}
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	if err := keeper.AccountStore(ctx).Create(&account); err != nil {
-		t.Fatalf("failed to create account '%s'", account.GetStarname())
-	}
+	populateAccounts(t, keeper, ctx)
 
 	tests := map[string]struct {
 		request  types.QueryStarnameRequest
-		wantErr  error
+		wantErr  func(error) error
 		validate func(*types.QueryStarnameResponse)
 	}{
 		"query invalid Starname": {
 			request: types.QueryStarnameRequest{
 				Starname: "",
 			},
-			wantErr:  sdkerrors.Wrapf(types.ErrInvalidAccountName, "''"),
+			wantErr: func(err error) error {
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidAccountName, "''")) {
+					t.Fatal("wrong error")
+				}
+				return nil
+			},
 			validate: nil,
 		},
 		"query valid starname": {
 			request: types.QueryStarnameRequest{
-				Starname: account.GetStarname(),
+				Starname: accounts[0].GetStarname(),
 			},
 			wantErr: nil,
 			validate: func(response *types.QueryStarnameResponse) {
@@ -321,28 +306,33 @@ func TestStarname(t *testing.T) {
 					t.Fatal("nil Account")
 				}
 				got := response.Account
-				if err := CompareAccounts(got, &account); err != nil {
+				want := accounts[0]
+				if err := CompareAccounts(got, want); err != nil {
 					DebugAccount(got)
-					DebugAccount(&account)
-					t.Fatal(sdkErrors.Wrapf(err, name))
+					DebugAccount(want)
+					t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 				}
 			},
 		},
 		"query non-existent starname": {
 			request: types.QueryStarnameRequest{
-				Starname: account.GetStarname()[1:],
+				Starname: "this does not exist",
 			},
-			wantErr:  sdkerrors.Wrap(types.ErrAccountDoesNotExist, ""),
+			wantErr: func(err error) error {
+				if strings.Index(err.Error(), "this does not exist") == -1 {
+					t.Fatal("wrong error")
+				}
+				return nil
+			},
 			validate: nil,
 		},
 	}
 
 	for _, test := range tests {
 		res, err := NewQuerier(&keeper).Starname(sdk.WrapSDKContext(ctx), &test.request)
-		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
-			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
 		}
-
 		if test.validate != nil {
 			test.validate(res)
 		}
