@@ -14,12 +14,6 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// domains for populateAccounts()
-var domains = []string{"a", "b"}
-
-// account names for populateAccounts()
-var names = []string{"", "4", "3", "2", "1"}
-
 // account owners for populateAccounts()
 var alice, bob = genTestAddress()
 var owners = []sdk.AccAddress{alice, bob}
@@ -31,18 +25,19 @@ var resources = []types.Resource{
 	{URI: "u2", Resource: "r2"},
 }
 
-// populateAccounts uses vars domains, names, and owners to create crud objects
-func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account, accountsByDomain map[string][]*types.Account, accountsByResource map[string][]*types.Account) {
-	accounts = make([]*types.Account, 0)
-	accountsByOwner = make(map[string][]*types.Account)
-	accountsByDomain = make(map[string][]*types.Account)
-	accountsByResource = make(map[string][]*types.Account)
+// account groups populated in populateAccounts()
+var accounts = make([]*types.Account, 0)
+var accountsByOwner = make(map[string][]*types.Account)
+var accountsByDomain = make(map[string][]*types.Account)
+var accountsByResource = make(map[string][]*types.Account)
 
+// populateAccounts uses vars domains, names, and owners to create crud objects
+func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) {
 	n := len(owners)
 	m := len(resources)
-	for i, domain := range domains {
+	for i, domain := range []string{"a", "b"} { // domains
 		domain := domain
-		for j, name := range names {
+		for j, name := range []string{"", "4", "3", "2", "1"} { // names
 			name := name
 			owner := owners[(i+j)%n] // pseudo random owner
 			bech32 := owner.String()
@@ -87,8 +82,6 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []
 		})
 		DebugAccounts(key, slice)
 	}
-
-	return accounts, accountsByOwner, accountsByDomain, accountsByResource
 }
 
 func TestDomain(t *testing.T) {
@@ -157,7 +150,8 @@ func TestDomain(t *testing.T) {
 
 func TestDomainAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, _, accountsByDomain, _ := populateAccounts(t, keeper, ctx)
+	populateAccounts(t, keeper, ctx)
+
 	tests := map[string]struct {
 		request  types.QueryDomainAccountsRequest
 		wantErr  func(error) error
@@ -178,7 +172,7 @@ func TestDomainAccounts(t *testing.T) {
 		},
 		"query valid domain without pagination": {
 			request: types.QueryDomainAccountsRequest{
-				Domain:     domains[0],
+				Domain:     accounts[0].Domain,
 				Pagination: nil,
 			},
 			wantErr: nil,
@@ -186,7 +180,7 @@ func TestDomainAccounts(t *testing.T) {
 				if response.Accounts == nil {
 					t.Fatalf("wanted non-nil accounts")
 				}
-				wants := accountsByDomain[domains[0]]
+				wants := accountsByDomain[accounts[0].Domain]
 				if len(response.Accounts) != len(wants) {
 					t.Fatalf("wanted %d accounts, got %d", len(wants), len(response.Accounts))
 				}
@@ -202,7 +196,7 @@ func TestDomainAccounts(t *testing.T) {
 		},
 		"query valid domain with pagination": {
 			request: types.QueryDomainAccountsRequest{
-				Domain: domains[0],
+				Domain: accounts[0].Domain,
 				Pagination: &query.PageRequest{
 					Key:        nil,
 					Offset:     1,
@@ -215,7 +209,7 @@ func TestDomainAccounts(t *testing.T) {
 				if response.Page == nil {
 					t.Fatal("wanted non-nil Page")
 				}
-				wants := accountsByDomain[domains[0]]
+				wants := accountsByDomain[accounts[0].Domain]
 				if response.Page.Total != uint64(len(wants)) {
 					t.Fatalf("wanted %d accounts, got %d", len(wants), response.Page.Total)
 				}
@@ -326,7 +320,8 @@ func TestStarname(t *testing.T) {
 
 func TestOwnerAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, accountsByOwner, _, _ := populateAccounts(t, keeper, ctx)
+	populateAccounts(t, keeper, ctx)
+
 	tests := map[string]struct {
 		request  types.QueryOwnerAccountsRequest
 		wantErr  func(error) error
@@ -421,7 +416,8 @@ func TestOwnerAccounts(t *testing.T) {
 
 func TestResourceAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, _, _, accountsByResource := populateAccounts(t, keeper, ctx)
+	populateAccounts(t, keeper, ctx)
+
 	tests := map[string]struct {
 		request  types.QueryResourceAccountsRequest
 		wantErr  func(error) error
