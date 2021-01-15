@@ -31,13 +31,17 @@ var accountsByOwner = make(map[string][]*types.Account)
 var accountsByDomain = make(map[string][]*types.Account)
 var accountsByResource = make(map[string][]*types.Account)
 
-// populateAccounts uses vars domains, names, and owners to create crud objects
+// domain groups populated in populateDomains()
+var domains = make([]*types.Domain, 0)
+var domainsByOwner = make(map[string][]*types.Domain)
+
+// populateAccounts creates crud objects and populates vars accounts*.
 func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) {
 	n := len(owners)
 	m := len(resources)
-	for i, domain := range []string{"a", "b"} { // domains
+	for i, domain := range []string{"a", "b"} { // domain names
 		domain := domain
-		for j, name := range []string{"", "4", "3", "2", "1"} { // names
+		for j, name := range []string{"", "4", "3", "2", "1"} { // account names
 			name := name
 			owner := owners[(i+j)%n] // pseudo random owner
 			bech32 := owner.String()
@@ -84,35 +88,57 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) {
 	}
 }
 
+// populateDomains creates crud objects and populates vars domains*.
+func populateDomains(t *testing.T, keeper Keeper, ctx sdk.Context) {
+	for i, name := range []string{"0", "1", "2", "3", "4"} { // domain names
+		admin := owners[i&1] // pseudo random admin
+		domain := types.Domain{
+			Name:  name,
+			Admin: admin,
+		}
+		if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
+			t.Fatal(err)
+		}
+		domains = append(domains, &domain)
+		domainsByOwner[admin.String()] = append(domainsByOwner[admin.String()], &domain)
+	}
+	// sort on primary key
+	sort.Slice(domains, func(i, j int) bool {
+		return bytes.Compare(domains[i].PrimaryKey(), domains[j].PrimaryKey()) < 0
+	})
+	DebugDomains("domains", domains)
+	for owner, slice := range domainsByOwner {
+		sort.Slice(slice, func(i, j int) bool {
+			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
+		})
+		DebugDomains(owner, slice)
+	}
+}
+
 func TestDomain(t *testing.T) {
-	name := "test"
-	domain := types.Domain{
-		Name:       name,
-		Admin:      aliceAddr,
-		Broker:     bobAddr,
-		ValidUntil: 69,
-		Type:       "open",
-	}
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
-		t.Fatalf("failed to create domain '%s'", name)
-	}
+	populateDomains(t, keeper, ctx)
 
 	tests := map[string]struct {
 		request  types.QueryDomainRequest
-		wantErr  error
+		wantErr  func(error) error
 		validate func(*types.QueryDomainResponse)
 	}{
 		"query invalid domain": {
 			request: types.QueryDomainRequest{
 				Name: "",
 			},
-			wantErr:  sdkerrors.Wrapf(types.ErrInvalidDomainName, "''"),
+			wantErr: func(err error) error {
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidDomainName, "''")) {
+					t.Fatal("wrong error")
+				}
+				return nil
+			},
 			validate: nil,
 		},
 		"query valid domain": {
 			request: types.QueryDomainRequest{
-				Name: name,
+				Name: domains[0].Name,
 			},
 			wantErr: nil,
 			validate: func(response *types.QueryDomainResponse) {
@@ -120,28 +146,33 @@ func TestDomain(t *testing.T) {
 					t.Fatal("nil Domain")
 				}
 				got := response.Domain
-				if err := CompareDomains(got, &domain); err != nil {
+				want := domains[0]
+				if err := CompareDomains(got, want); err != nil {
 					DebugDomain(got)
-					DebugDomain(&domain)
-					t.Fatal(sdkErrors.Wrapf(err, name))
+					DebugDomain(want)
+					t.Fatal(sdkErrors.Wrapf(err, want.Name))
 				}
 			},
 		},
 		"query non-existent domain": {
 			request: types.QueryDomainRequest{
-				Name: name[1:],
+				Name: domains[0].Name[1:],
 			},
-			wantErr:  sdkerrors.Wrap(types.ErrDomainDoesNotExist, ""),
+			wantErr: func(err error) error {
+				if !errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidDomainName, "''")) {
+					t.Fatal("wrong error")
+				}
+				return nil
+			},
 			validate: nil,
 		},
 	}
 
 	for _, test := range tests {
 		res, err := NewQuerier(&keeper).Domain(sdk.WrapSDKContext(ctx), &test.request)
-		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
-			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
 		}
-
 		if test.validate != nil {
 			test.validate(res)
 		}
@@ -546,35 +577,8 @@ func TestResourceAccounts(t *testing.T) {
 }
 
 func TestOwnerDomains(t *testing.T) {
-	names := []string{"0", "1", "2", "3", "4"}
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	// create domains
-	domains := make([]*types.Domain, 0)
-	domainsByOwner := make(map[string][]*types.Domain)
-
-	for i, name := range names {
-		admin := owners[i&1] // pseudo random admin
-		domain := types.Domain{
-			Name:  name,
-			Admin: admin,
-		}
-		if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
-			t.Fatal(err)
-		}
-		domains = append(domains, &domain)
-		domainsByOwner[admin.String()] = append(domainsByOwner[admin.String()], &domain)
-	}
-	// sort on primary key
-	sort.Slice(domains, func(i, j int) bool {
-		return bytes.Compare(domains[i].PrimaryKey(), domains[j].PrimaryKey()) < 0
-	})
-	DebugDomains("domains", domains)
-	for owner, slice := range domainsByOwner {
-		sort.Slice(slice, func(i, j int) bool {
-			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
-		})
-		DebugDomains(owner, slice)
-	}
+	populateDomains(t, keeper, ctx)
 
 	tests := map[string]struct {
 		request  types.QueryOwnerDomainsRequest
