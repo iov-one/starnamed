@@ -24,23 +24,34 @@ var names = []string{"", "4", "3", "2", "1"}
 var alice, bob = genTestAddress()
 var owners = []sdk.AccAddress{alice, bob}
 
+// resources for populateAccounts()
+var resources = []types.Resource{
+	{URI: "u0", Resource: "r0"},
+	{URI: "u1", Resource: "r1"},
+	{URI: "u2", Resource: "r2"},
+}
+
 // populateAccounts uses vars domains, names, and owners to create crud objects
-func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account, accountsByDomain map[string][]*types.Account) {
+func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account, accountsByDomain map[string][]*types.Account, accountsByResource map[string][]*types.Account) {
 	accounts = make([]*types.Account, 0)
 	accountsByOwner = make(map[string][]*types.Account)
 	accountsByDomain = make(map[string][]*types.Account)
+	accountsByResource = make(map[string][]*types.Account)
 
 	n := len(owners)
+	m := len(resources)
 	for i, domain := range domains {
 		domain := domain
 		for j, name := range names {
 			name := name
 			owner := owners[(i+j)%n] // pseudo random owner
 			bech32 := owner.String()
+			resource := resources[(i+j)%m] // pseudo random resource
 			account := types.Account{
-				Owner:  owner,
-				Domain: domain,
-				Name:   &name,
+				Owner:     owner,
+				Domain:    domain,
+				Name:      &name,
+				Resources: []*types.Resource{&resource},
 			}
 			if err := keeper.AccountStore(ctx).Create(&account); err != nil {
 				t.Fatal(err)
@@ -48,6 +59,8 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []
 			accounts = append(accounts, &account)
 			accountsByOwner[bech32] = append(accountsByOwner[bech32], &account)
 			accountsByDomain[domain] = append(accountsByDomain[domain], &account)
+			key := string(types.GetResourceKey(resource.URI, resource.Resource))
+			accountsByResource[key] = append(accountsByResource[key], &account)
 		}
 	}
 
@@ -68,8 +81,14 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []
 		})
 		DebugAccounts(domain, slice)
 	}
+	for key, slice := range accountsByResource {
+		sort.Slice(slice, func(i, j int) bool {
+			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
+		})
+		DebugAccounts(key, slice)
+	}
 
-	return accounts, accountsByOwner, accountsByDomain
+	return accounts, accountsByOwner, accountsByDomain, accountsByResource
 }
 
 func TestDomain(t *testing.T) {
@@ -138,7 +157,7 @@ func TestDomain(t *testing.T) {
 
 func TestDomainAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, _, accountsByDomain := populateAccounts(t, keeper, ctx)
+	_, _, accountsByDomain, _ := populateAccounts(t, keeper, ctx)
 	tests := map[string]struct {
 		request  types.QueryDomainAccountsRequest
 		wantErr  func(error) error
@@ -307,7 +326,7 @@ func TestStarname(t *testing.T) {
 
 func TestOwnerAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, accountsByOwner, _ := populateAccounts(t, keeper, ctx)
+	_, accountsByOwner, _, _ := populateAccounts(t, keeper, ctx)
 	tests := map[string]struct {
 		request  types.QueryOwnerAccountsRequest
 		wantErr  func(error) error
@@ -338,7 +357,7 @@ func TestOwnerAccounts(t *testing.T) {
 				}
 				wants := accountsByOwner[owners[0].String()]
 				if len(response.Accounts) != len(wants) {
-					t.Fatalf("wanted %d accounts, got %d", len(response.Accounts), len(wants))
+					t.Fatalf("wanted %d accounts, got %d", len(wants), len(response.Accounts))
 				}
 				for i, got := range response.Accounts {
 					want := wants[i]
@@ -391,6 +410,136 @@ func TestOwnerAccounts(t *testing.T) {
 
 	for _, test := range tests {
 		res, err := NewQuerier(&keeper).OwnerAccounts(sdk.WrapSDKContext(ctx), &test.request)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
+		}
+		if test.validate != nil {
+			test.validate(res)
+		}
+	}
+}
+
+func TestResourceAccounts(t *testing.T) {
+	keeper, ctx, _ := NewTestKeeper(t, false)
+	_, _, _, accountsByResource := populateAccounts(t, keeper, ctx)
+	tests := map[string]struct {
+		request  types.QueryResourceAccountsRequest
+		wantErr  func(error) error
+		validate func(*types.QueryResourceAccountsResponse)
+	}{
+		"query non-existent resource": {
+			request: types.QueryResourceAccountsRequest{
+				Uri:        "bogus",
+				Resource:   "equally bogus",
+				Pagination: nil,
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryResourceAccountsResponse) {
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				if len(response.Accounts) != 0 {
+					t.Fatalf("wanted 0 accounts")
+				}
+			},
+		},
+		"query invalid uri": {
+			request: types.QueryResourceAccountsRequest{
+				Uri:        "",
+				Resource:   "valid",
+				Pagination: nil,
+			},
+			wantErr: func(err error) error {
+				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
+					return nil
+				}
+				return errors.New("failed expected error test")
+			},
+			validate: nil,
+		},
+		"query invalid resource": {
+			request: types.QueryResourceAccountsRequest{
+				Uri:        "valid",
+				Resource:   "",
+				Pagination: nil,
+			},
+			wantErr: func(err error) error {
+				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidResource, "''")) {
+					return nil
+				}
+				return errors.New("failed expected error test")
+			},
+			validate: nil,
+		},
+		"query valid resource without pagination": {
+			request: types.QueryResourceAccountsRequest{
+				Uri:        resources[0].URI,
+				Resource:   resources[0].Resource,
+				Pagination: nil,
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryResourceAccountsResponse) {
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				key := string(types.GetResourceKey(resources[0].URI, resources[0].Resource))
+				wants := accountsByResource[key]
+				if len(response.Accounts) != len(wants) {
+					t.Fatalf("wanted %d accounts, got %d", len(wants), len(response.Accounts))
+				}
+				for i, got := range response.Accounts {
+					want := wants[i]
+					if err := CompareAccounts(got, want); err != nil {
+						DebugAccount(got)
+						DebugAccount(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
+					}
+				}
+			},
+		},
+		"query valid owner with pagination": {
+			request: types.QueryResourceAccountsRequest{
+				Uri:      resources[0].URI,
+				Resource: resources[0].Resource,
+				Pagination: &query.PageRequest{
+					Key:        nil,
+					Offset:     1,
+					Limit:      2,
+					CountTotal: true,
+				},
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryResourceAccountsResponse) {
+				if response.Page == nil {
+					t.Fatal("wanted non-nil Page")
+				}
+				key := string(types.GetResourceKey(resources[0].URI, resources[0].Resource))
+				wants := accountsByResource[key]
+				if response.Page.Total != uint64(len(wants)) {
+					t.Fatalf("wanted %d accounts, got %d", len(wants), response.Page.Total)
+				}
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				if len(response.Accounts) != 2 {
+					t.Fatalf("wanted %d accounts, got %d", 2, len(response.Accounts))
+				}
+				limited := wants[1:3] // slice to offset and limit
+				DebugAccounts("limited", limited)
+				for i, got := range response.Accounts {
+					want := limited[i]
+					if err := CompareAccounts(got, want); err != nil {
+						DebugAccount(got)
+						DebugAccount(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
+					}
+				}
+			},
+		},
+	}
+
+	for _, test := range tests {
+		res, err := NewQuerier(&keeper).ResourceAccounts(sdk.WrapSDKContext(ctx), &test.request)
 		if test.wantErr != nil && test.wantErr(err) != nil {
 			t.Fatalf("failed err test on: %s", err)
 		}
