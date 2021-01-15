@@ -1,8 +1,11 @@
 package keeper
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +15,56 @@ import (
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
+
+// domains for populateAccounts()
+var domains = []string{"a", "b"}
+
+// account names for populateAccounts()
+var names = []string{"", "4", "3", "2", "1"}
+
+// account owners for populateAccounts()
+var alice, bob = genTestAddress()
+var owners = []sdk.AccAddress{alice, bob}
+
+// populateAccounts uses vars domains, names, and owners to create crud objects
+func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account) {
+	accounts = make([]*types.Account, 0)
+	accountsByOwner = make(map[string][]*types.Account)
+
+	n := len(owners)
+	for i, domain := range domains {
+		domain := domain
+		for j, name := range names {
+			name := name
+			owner := owners[(i+j)%n] // pseudo random owner
+			bech32 := owner.String()
+			account := types.Account{
+				Owner:  owner,
+				Domain: domain,
+				Name:   &name,
+			}
+			if err := keeper.AccountStore(ctx).Create(&account); err != nil {
+				t.Fatal(err)
+			}
+			accounts = append(accounts, &account)
+			accountsByOwner[bech32] = append(accountsByOwner[bech32], &account)
+		}
+	}
+
+	// sort test vectors on primary key
+	sort.Slice(accounts, func(i, j int) bool {
+		return bytes.Compare(accounts[i].PrimaryKey(), accounts[j].PrimaryKey()) < 0
+	})
+	DebugAccounts("accounts", accounts)
+	for owner, slice := range accountsByOwner {
+		sort.Slice(slice, func(i, j int) bool {
+			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
+		})
+		DebugAccounts(owner, slice)
+	}
+
+	return accounts, accountsByOwner
+}
 
 func TestDomain(t *testing.T) {
 	name := "test"
@@ -247,6 +300,102 @@ func TestStarname(t *testing.T) {
 		res, err := NewQuerier(&keeper).Starname(sdk.WrapSDKContext(ctx), &test.request)
 		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
 			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		}
+
+		if test.validate != nil {
+			test.validate(res)
+		}
+	}
+}
+
+func TestOwnerAccounts(t *testing.T) {
+	keeper, ctx, _ := NewTestKeeper(t, false)
+	_, accountsByOwner := populateAccounts(t, keeper, ctx)
+	tests := map[string]struct {
+		request  types.QueryOwnerAccountsRequest
+		wantErr  func(error) error
+		validate func(*types.QueryOwnerAccountsResponse)
+	}{
+		"query invalid owner": {
+			request: types.QueryOwnerAccountsRequest{
+				Owner:      "bogus",
+				Pagination: nil,
+			},
+			wantErr: func(err error) error {
+				if strings.Index(err.Error(), "bogus") != -1 {
+					return nil
+				}
+				return errors.New("failed expected error test")
+			},
+			validate: nil,
+		},
+		"query valid owner without pagination": {
+			request: types.QueryOwnerAccountsRequest{
+				Owner:      owners[0].String(),
+				Pagination: nil,
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryOwnerAccountsResponse) {
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				wants := accountsByOwner[owners[0].String()]
+				if len(response.Accounts) != len(wants) {
+					t.Fatalf("wanted %d accounts, got %d", len(response.Accounts), len(wants))
+				}
+				for i, got := range response.Accounts {
+					want := wants[i]
+					if err := CompareAccounts(got, want); err != nil {
+						DebugAccount(got)
+						DebugAccount(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
+					}
+				}
+			},
+		},
+		"query valid owner with pagination": {
+			request: types.QueryOwnerAccountsRequest{
+				Owner: owners[0].String(),
+				Pagination: &query.PageRequest{
+					Key:        nil,
+					Offset:     1,
+					Limit:      2,
+					CountTotal: true,
+				},
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryOwnerAccountsResponse) {
+				if response.Page == nil {
+					t.Fatal("wanted non-nil Page")
+				}
+				wants := accountsByOwner[owners[0].String()]
+				if response.Page.Total != uint64(len(wants)) {
+					t.Fatalf("wanted %d accounts, got %d", len(wants), response.Page.Total)
+				}
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				if len(response.Accounts) != 2 {
+					t.Fatalf("wanted %d accounts, got %d", 2, len(response.Accounts))
+				}
+				limited := wants[1:3] // slice to offset and limit
+				DebugAccounts("limited", limited)
+				for i, got := range response.Accounts {
+					want := limited[i]
+					if err := CompareAccounts(got, want); err != nil {
+						DebugAccount(got)
+						DebugAccount(want)
+						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
+					}
+				}
+			},
+		},
+	}
+
+	for _, test := range tests {
+		res, err := NewQuerier(&keeper).OwnerAccounts(sdk.WrapSDKContext(ctx), &test.request)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
 		}
 
 		if test.validate != nil {
