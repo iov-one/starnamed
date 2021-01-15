@@ -124,10 +124,10 @@ func CompareAccounts(got, want *types.Account) error {
 	if got.Resources != nil {
 		for i, goti := range got.Resources {
 			wanti := want.Resources[i]
-			if goti.URI == wanti.URI {
+			if goti.URI != wanti.URI {
 				return fmt.Errorf("got URI '%s', want '%s'", goti.URI, wanti.URI)
 			}
-			if goti.Resource == wanti.Resource {
+			if goti.Resource != wanti.Resource {
 				return fmt.Errorf("got Resource '%s', want '%s'", goti.Resource, wanti.Resource)
 			}
 		}
@@ -147,19 +147,19 @@ func CompareAccounts(got, want *types.Account) error {
 	return nil
 }
 
-// DebugStarname prints relevant info about a types.Account to the console
-func DebugStarname(starname *types.Account) {
+// DebugAccount prints relevant info about a types.Account to the console
+func DebugAccount(account *types.Account) {
 	if len(os.Args) > 0 {
-		fmt.Printf("%20s %-20x %x %x\n", starname.GetStarname(), starname.PrimaryKey(), starname.SecondaryKeys()[0].Value, starname.SecondaryKeys()[1].Value)
+		fmt.Printf("%20s %-20x %x %x\n", account.GetStarname(), account.PrimaryKey(), account.SecondaryKeys()[0].Value, account.SecondaryKeys()[1].Value)
 	}
 }
 
-// DebugStarnames prints relevant info about a slice of types.Accounts to the console
-func DebugStarnames(name string, starnames []*types.Account) {
+// DebugAccounts prints relevant info about a slice of types.Accounts to the console
+func DebugAccounts(name string, accounts []*types.Account) {
 	if len(os.Args) > 0 {
 		fmt.Printf("___  %s ___\n", name)
-		for _, starname := range starnames {
-			DebugStarname(starname)
+		for _, starname := range accounts {
+			DebugAccount(starname)
 		}
 		fmt.Printf("___ ~%s ___\n", name)
 	}

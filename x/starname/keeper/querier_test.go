@@ -54,10 +54,6 @@ func TestDomain(t *testing.T) {
 					DebugDomain(&domain)
 					t.Fatal(sdkErrors.Wrapf(err, name))
 				}
-
-				if response.Domain.Name != domain.Name {
-					t.Fatalf("wanted Name '%s', got '%s'", domain.Name, response.Domain.Name)
-				}
 			},
 		},
 		"query non-existent domain": {
@@ -103,7 +99,7 @@ func TestDomainAccounts(t *testing.T) {
 		}
 		accounts = append(accounts, &account)
 	}
-	DebugStarnames("accounts", accounts)
+	DebugAccounts("accounts", accounts)
 
 	tests := map[string]struct {
 		request  types.QueryDomainAccountsRequest
@@ -131,8 +127,8 @@ func TestDomainAccounts(t *testing.T) {
 				for i, got := range response.Accounts {
 					want := accounts[i]
 					if err := CompareAccounts(got, want); err != nil {
-						DebugStarname(got)
-						DebugStarname(want)
+						DebugAccount(got)
+						DebugAccount(want)
 						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}
@@ -160,12 +156,12 @@ func TestDomainAccounts(t *testing.T) {
 					t.Fatalf("wanted %d accounts, got %d", 2, len(response.Accounts))
 				}
 				limited := accounts[1:3] // slice to offset and limit
-				DebugStarnames("limited", limited)
+				DebugAccounts("limited", limited)
 				for i, got := range response.Accounts {
 					want := limited[i]
 					if err := CompareAccounts(got, want); err != nil {
-						DebugStarname(got)
-						DebugStarname(want)
+						DebugAccount(got)
+						DebugAccount(want)
 						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}
@@ -175,6 +171,80 @@ func TestDomainAccounts(t *testing.T) {
 
 	for _, test := range tests {
 		res, err := NewQuerier(&keeper).DomainAccounts(sdk.WrapSDKContext(ctx), &test.request)
+		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
+			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		}
+
+		if test.validate != nil {
+			test.validate(res)
+		}
+	}
+}
+
+func TestStarname(t *testing.T) {
+	name := "test"
+	domain := "domain"
+	account := types.Account{
+		Domain:     domain,
+		Name:       &name,
+		Owner:      aliceAddr,
+		Broker:     bobAddr,
+		ValidUntil: 69,
+		Resources: []*types.Resource{
+			&types.Resource{URI: "uri0", Resource: "resource0"},
+			&types.Resource{URI: "uri1", Resource: "resource1"},
+		},
+		Certificates: [][]byte{
+			[]byte("cert0"),
+			[]byte("cert1"),
+		},
+		MetadataURI: "metadata",
+	}
+	keeper, ctx, _ := NewTestKeeper(t, false)
+	if err := keeper.AccountStore(ctx).Create(&account); err != nil {
+		t.Fatalf("failed to create account '%s'", account.GetStarname())
+	}
+
+	tests := map[string]struct {
+		request  types.QueryStarnameRequest
+		wantErr  error
+		validate func(*types.QueryStarnameResponse)
+	}{
+		"query invalid Starname": {
+			request: types.QueryStarnameRequest{
+				Starname: "",
+			},
+			wantErr:  sdkerrors.Wrapf(types.ErrInvalidAccountName, "''"),
+			validate: nil,
+		},
+		"query valid starname": {
+			request: types.QueryStarnameRequest{
+				Starname: account.GetStarname(),
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryStarnameResponse) {
+				if response.Account == nil {
+					t.Fatal("nil Account")
+				}
+				got := response.Account
+				if err := CompareAccounts(got, &account); err != nil {
+					DebugAccount(got)
+					DebugAccount(&account)
+					t.Fatal(sdkErrors.Wrapf(err, name))
+				}
+			},
+		},
+		"query non-existent starname": {
+			request: types.QueryStarnameRequest{
+				Starname: account.GetStarname()[1:],
+			},
+			wantErr:  sdkerrors.Wrap(types.ErrAccountDoesNotExist, ""),
+			validate: nil,
+		},
+	}
+
+	for _, test := range tests {
+		res, err := NewQuerier(&keeper).Starname(sdk.WrapSDKContext(ctx), &test.request)
 		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
 			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
 		}

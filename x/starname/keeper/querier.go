@@ -62,11 +62,11 @@ func bech32FromBytes(bytes []byte) string {
 }
 
 // NewQuerier provides a gRPC querier
-// TODO: this needs proper tests and doc
 func NewQuerier(keeper *Keeper) grpcQuerier {
 	return grpcQuerier{keeper: keeper}
 }
 
+// Domain returns a types.Domain if the domain exists and nil on error
 func (q grpcQuerier) Domain(c context.Context, req *types.QueryDomainRequest) (*types.QueryDomainResponse, error) {
 	if req.Name == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Name)
@@ -83,6 +83,7 @@ func queryDomain(ctx sdk.Context, name string, keeper *Keeper) (*types.QueryDoma
 	return &types.QueryDomainResponse{Domain: domain}, nil
 }
 
+// DomainAccounts returns types.Accounts associated with a given domain and nil on error
 func (q grpcQuerier) DomainAccounts(c context.Context, req *types.QueryDomainAccountsRequest) (*types.QueryDomainAccountsResponse, error) {
 	if req.Domain == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Domain)
@@ -117,6 +118,7 @@ func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, 
 	return &types.QueryDomainAccountsResponse{Accounts: accounts, Page: page}, nil
 }
 
+// Starname returns the types.Account associated with a given starname and nil on error
 func (q grpcQuerier) Starname(c context.Context, req *types.QueryStarnameRequest) (*types.QueryStarnameResponse, error) {
 	if req.Starname == "" || !strings.Contains(req.Starname, types.StarnameSeparator) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "'%s'", req.Starname)
@@ -134,6 +136,7 @@ func queryStarname(ctx sdk.Context, keeper *Keeper, starname string) (*types.Que
 	return &types.QueryStarnameResponse{Account: account}, nil
 }
 
+// OwnerAccounts returns types.Accounts associated with a given owner and nil on error
 func (q grpcQuerier) OwnerAccounts(c context.Context, req *types.QueryOwnerAccountsRequest) (*types.QueryOwnerAccountsResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
@@ -169,6 +172,7 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	return &types.QueryOwnerAccountsResponse{Accounts: accounts, Page: page}, nil
 }
 
+// OwnerDomains returns types.Domains associated with a given owner and nil on error
 func (q grpcQuerier) OwnerDomains(c context.Context, req *types.QueryOwnerDomainsRequest) (*types.QueryOwnerDomainsResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
@@ -204,6 +208,7 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	return &types.QueryOwnerDomainsResponse{Domains: domains, Page: page}, nil
 }
 
+// ResourceAccounts returns types.Accounts associated with a given resource and nil on error
 func (q grpcQuerier) ResourceAccounts(c context.Context, req *types.QueryResourceAccountsRequest) (*types.QueryResourceAccountsResponse, error) {
 	if req.Uri == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidResource, "'%s'", req.Uri)
