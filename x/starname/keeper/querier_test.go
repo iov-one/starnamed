@@ -13,6 +13,69 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
+func TestDomain(t *testing.T) {
+	name := "test"
+	admin := aliceAddr
+	domain := types.Domain{Name: name, Admin: admin}
+	keeper, ctx, _ := NewTestKeeper(t, false)
+	if err := keeper.DomainStore(ctx).Create(&domain); err != nil {
+		t.Fatalf("failed to create domain '%s'", name)
+	}
+
+	tests := map[string]struct {
+		request  types.QueryDomainRequest
+		wantErr  error
+		validate func(*types.QueryDomainResponse)
+	}{
+		"query invalid domain": {
+			request: types.QueryDomainRequest{
+				Name: "",
+			},
+			wantErr:  sdkerrors.Wrapf(types.ErrInvalidDomainName, "''"),
+			validate: nil,
+		},
+		"query valid domain": {
+			request: types.QueryDomainRequest{
+				Name: name,
+			},
+			wantErr: nil,
+			validate: func(response *types.QueryDomainResponse) {
+				if response.Domain == nil {
+					t.Fatal("nil Domain")
+				}
+				got := response.Domain
+				if err := CompareDomains(got, &domain); err != nil {
+					DebugDomain(got)
+					DebugDomain(&domain)
+					t.Fatal(sdkErrors.Wrapf(err, name))
+				}
+
+				if response.Domain.Name != domain.Name {
+					t.Fatalf("wanted Name '%s', got '%s'", domain.Name, response.Domain.Name)
+				}
+			},
+		},
+		"query non-existent domain": {
+			request: types.QueryDomainRequest{
+				Name: name[1:],
+			},
+			wantErr:  sdkerrors.Wrap(types.ErrDomainDoesNotExist, ""),
+			validate: nil,
+		},
+	}
+
+	for _, test := range tests {
+		res, err := NewQuerier(&keeper).Domain(sdk.WrapSDKContext(ctx), &test.request)
+		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
+			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		}
+
+		if test.validate != nil {
+			test.validate(res)
+		}
+	}
+}
+
 func TestDomainAccounts(t *testing.T) {
 	domain := "test"
 	admin := aliceAddr
@@ -34,8 +97,8 @@ func TestDomainAccounts(t *testing.T) {
 			t.Fatalf("failed to create account '%s'", name)
 		}
 		accounts = append(accounts, &account)
-		//fmt.Printf("%s %x %x %x\n", account.GetStarname(), account.PrimaryKey(), account.SecondaryKeys()[0].Value, account.SecondaryKeys()[1].Value)
 	}
+	DebugStarnames("accounts", accounts)
 
 	tests := map[string]struct {
 		request  types.QueryDomainAccountsRequest
@@ -62,9 +125,9 @@ func TestDomainAccounts(t *testing.T) {
 				}
 				for i, got := range response.Accounts {
 					want := accounts[i]
-					//fmt.Printf("got  %s %x %x %x\n", got.GetStarname(), got.PrimaryKey(), got.SecondaryKeys()[0].Value, got.SecondaryKeys()[1].Value)
-					//fmt.Printf("want %s %x %x %x\n", want.GetStarname(), want.PrimaryKey(), want.SecondaryKeys()[0].Value, want.SecondaryKeys()[1].Value)
 					if err := CompareAccounts(got, want); err != nil {
+						DebugStarname(got)
+						DebugStarname(want)
 						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}
@@ -82,15 +145,22 @@ func TestDomainAccounts(t *testing.T) {
 			},
 			wantErr: nil,
 			validate: func(response *types.QueryDomainAccountsResponse) {
+				if response.Page == nil {
+					t.Fatal("wanted non-nil Page")
+				}
+				if response.Page.Total != uint64(len(accounts)) {
+					t.Fatalf("wanted %d total accounts, got %d", len(accounts), response.Page.Total)
+				}
 				if len(response.Accounts) != 2 {
 					t.Fatalf("wanted %d accounts, got %d", 2, len(response.Accounts))
 				}
 				limited := accounts[1:3] // slice to offset and limit
+				DebugStarnames("limited", limited)
 				for i, got := range response.Accounts {
 					want := limited[i]
-					//fmt.Printf("got  %s %x %x %x\n", got.GetStarname(), got.PrimaryKey(), got.SecondaryKeys()[0].Value, got.SecondaryKeys()[1].Value)
-					//fmt.Printf("want %s %x %x %x\n", want.GetStarname(), want.PrimaryKey(), want.SecondaryKeys()[0].Value, want.SecondaryKeys()[1].Value)
 					if err := CompareAccounts(got, want); err != nil {
+						DebugStarname(got)
+						DebugStarname(want)
 						t.Fatal(sdkErrors.Wrapf(err, want.GetStarname()))
 					}
 				}

@@ -3,6 +3,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -144,4 +145,60 @@ func CompareAccounts(got, want *types.Account) error {
 		return fmt.Errorf("got MetadataURI '%s', want '%s'", got.MetadataURI, want.MetadataURI)
 	}
 	return nil
+}
+
+// DebugStarname prints relevant info about a types.Account to the console
+func DebugStarname(starname *types.Account) {
+	if len(os.Args) > 0 {
+		fmt.Printf("%20s %-20x %x %x\n", starname.GetStarname(), starname.PrimaryKey(), starname.SecondaryKeys()[0].Value, starname.SecondaryKeys()[1].Value)
+	}
+}
+
+// DebugStarnames prints relevant info about a slice of types.Accounts to the console
+func DebugStarnames(name string, starnames []*types.Account) {
+	if len(os.Args) > 0 {
+		fmt.Printf("___  %s ___\n", name)
+		for _, starname := range starnames {
+			DebugStarname(starname)
+		}
+		fmt.Printf("___ ~%s ___\n", name)
+	}
+}
+
+// CompareDomains compares two domains
+func CompareDomains(got, want *types.Domain) error {
+	if got.Name != want.Name {
+		return fmt.Errorf("got Name '%s', want '%s'", got.Name, want.Name)
+	}
+	if !got.Admin.Equals(want.Admin) {
+		return fmt.Errorf("got Admin '%s', want '%s'", got.Admin.String(), want.Admin.String())
+	}
+	if !got.Broker.Equals(want.Broker) {
+		return fmt.Errorf("got Broker '%s', want '%s'", got.Broker.String(), want.Broker.String())
+	}
+	if got.ValidUntil != want.ValidUntil {
+		return fmt.Errorf("got ValidUntil '%d', want '%d'", got.ValidUntil, want.ValidUntil)
+	}
+	if got.Type != want.Type {
+		return fmt.Errorf("got Type '%s', want '%s'", got.Type, want.Type)
+	}
+	return nil
+}
+
+// DebugDomain prints relevant info about a types.Domain to the console
+func DebugDomain(domain *types.Domain) {
+	if len(os.Args) > 0 {
+		fmt.Printf("%20s %-20x %x %x\n", domain.GetName(), domain.PrimaryKey(), domain.SecondaryKeys()[0].Value, domain.SecondaryKeys()[1].Value)
+	}
+}
+
+// DebugDomains prints relevant info about a slice of types.Domains to the console
+func DebugDomains(description string, domains []*types.Domain) {
+	if len(os.Args) > 0 {
+		fmt.Printf("___  %s ___\n", description)
+		for _, domain := range domains {
+			DebugDomain(domain)
+		}
+		fmt.Printf("___ ~%s ___\n", description)
+	}
 }
