@@ -3,7 +3,6 @@ package keeper
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"sort"
 	"strings"
 	"testing"
@@ -12,7 +11,6 @@ import (
 	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -27,9 +25,10 @@ var alice, bob = genTestAddress()
 var owners = []sdk.AccAddress{alice, bob}
 
 // populateAccounts uses vars domains, names, and owners to create crud objects
-func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account) {
+func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []*types.Account, accountsByOwner map[string][]*types.Account, accountsByDomain map[string][]*types.Account) {
 	accounts = make([]*types.Account, 0)
 	accountsByOwner = make(map[string][]*types.Account)
+	accountsByDomain = make(map[string][]*types.Account)
 
 	n := len(owners)
 	for i, domain := range domains {
@@ -48,6 +47,7 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []
 			}
 			accounts = append(accounts, &account)
 			accountsByOwner[bech32] = append(accountsByOwner[bech32], &account)
+			accountsByDomain[domain] = append(accountsByDomain[domain], &account)
 		}
 	}
 
@@ -62,8 +62,14 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) (accounts []
 		})
 		DebugAccounts(owner, slice)
 	}
+	for domain, slice := range accountsByDomain {
+		sort.Slice(slice, func(i, j int) bool {
+			return bytes.Compare(slice[i].PrimaryKey(), slice[j].PrimaryKey()) < 0
+		})
+		DebugAccounts(domain, slice)
+	}
 
-	return accounts, accountsByOwner
+	return accounts, accountsByOwner, accountsByDomain
 }
 
 func TestDomain(t *testing.T) {
@@ -131,32 +137,11 @@ func TestDomain(t *testing.T) {
 }
 
 func TestDomainAccounts(t *testing.T) {
-	domain := "test"
-	admin := aliceAddr
-	owners := []sdk.AccAddress{aliceAddr, bobAddr, aliceAddr, bobAddr, aliceAddr}
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	if err := keeper.DomainStore(ctx).Create(&types.Domain{Name: domain, Admin: admin}); err != nil {
-		t.Fatalf("failed to create domain '%s'", domain)
-	}
-
-	accounts := make([]*types.Account, 0) // in primary key order
-	for i, owner := range owners {
-		name := fmt.Sprintf("%d", i)
-		account := types.Account{
-			Domain: domain,
-			Name:   utils.StrPtr(name),
-			Owner:  owner,
-		}
-		if err := keeper.AccountStore(ctx).Create(&account); err != nil {
-			t.Fatalf("failed to create account '%s'", name)
-		}
-		accounts = append(accounts, &account)
-	}
-	DebugAccounts("accounts", accounts)
-
+	_, _, accountsByDomain := populateAccounts(t, keeper, ctx)
 	tests := map[string]struct {
 		request  types.QueryDomainAccountsRequest
-		wantErr  error
+		wantErr  func(error) error
 		validate func(*types.QueryDomainAccountsResponse)
 	}{
 		"query invalid domain": {
@@ -164,21 +149,30 @@ func TestDomainAccounts(t *testing.T) {
 				Domain:     "",
 				Pagination: nil,
 			},
-			wantErr:  sdkerrors.Wrapf(types.ErrInvalidDomainName, "''"),
+			wantErr: func(err error) error {
+				if errors.Is(err, sdkerrors.Wrapf(types.ErrInvalidDomainName, "''")) {
+					return nil
+				}
+				return errors.New("failed expected error test")
+			},
 			validate: nil,
 		},
 		"query valid domain without pagination": {
 			request: types.QueryDomainAccountsRequest{
-				Domain:     domain,
+				Domain:     domains[0],
 				Pagination: nil,
 			},
 			wantErr: nil,
 			validate: func(response *types.QueryDomainAccountsResponse) {
-				if len(response.Accounts) != len(accounts) {
-					t.Fatalf("wanted %d accounts, got %d", len(response.Accounts), len(accounts))
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
+				}
+				wants := accountsByDomain[domains[0]]
+				if len(response.Accounts) != len(wants) {
+					t.Fatalf("wanted %d accounts, got %d", len(wants), len(response.Accounts))
 				}
 				for i, got := range response.Accounts {
-					want := accounts[i]
+					want := wants[i]
 					if err := CompareAccounts(got, want); err != nil {
 						DebugAccount(got)
 						DebugAccount(want)
@@ -189,7 +183,7 @@ func TestDomainAccounts(t *testing.T) {
 		},
 		"query valid domain with pagination": {
 			request: types.QueryDomainAccountsRequest{
-				Domain: domain,
+				Domain: domains[0],
 				Pagination: &query.PageRequest{
 					Key:        nil,
 					Offset:     1,
@@ -202,13 +196,17 @@ func TestDomainAccounts(t *testing.T) {
 				if response.Page == nil {
 					t.Fatal("wanted non-nil Page")
 				}
-				if response.Page.Total != uint64(len(accounts)) {
-					t.Fatalf("wanted %d total accounts, got %d", len(accounts), response.Page.Total)
+				wants := accountsByDomain[domains[0]]
+				if response.Page.Total != uint64(len(wants)) {
+					t.Fatalf("wanted %d accounts, got %d", len(wants), response.Page.Total)
+				}
+				if response.Accounts == nil {
+					t.Fatalf("wanted non-nil accounts")
 				}
 				if len(response.Accounts) != 2 {
 					t.Fatalf("wanted %d accounts, got %d", 2, len(response.Accounts))
 				}
-				limited := accounts[1:3] // slice to offset and limit
+				limited := wants[1:3] // slice to offset and limit
 				DebugAccounts("limited", limited)
 				for i, got := range response.Accounts {
 					want := limited[i]
@@ -224,10 +222,9 @@ func TestDomainAccounts(t *testing.T) {
 
 	for _, test := range tests {
 		res, err := NewQuerier(&keeper).DomainAccounts(sdk.WrapSDKContext(ctx), &test.request)
-		if test.wantErr != nil && !errors.Is(err, test.wantErr) {
-			t.Fatalf("wanted err: %s, got: %s", test.wantErr, err)
+		if test.wantErr != nil && test.wantErr(err) != nil {
+			t.Fatalf("failed err test on: %s", err)
 		}
-
 		if test.validate != nil {
 			test.validate(res)
 		}
@@ -310,7 +307,7 @@ func TestStarname(t *testing.T) {
 
 func TestOwnerAccounts(t *testing.T) {
 	keeper, ctx, _ := NewTestKeeper(t, false)
-	_, accountsByOwner := populateAccounts(t, keeper, ctx)
+	_, accountsByOwner, _ := populateAccounts(t, keeper, ctx)
 	tests := map[string]struct {
 		request  types.QueryOwnerAccountsRequest
 		wantErr  func(error) error
@@ -397,7 +394,6 @@ func TestOwnerAccounts(t *testing.T) {
 		if test.wantErr != nil && test.wantErr(err) != nil {
 			t.Fatalf("failed err test on: %s", err)
 		}
-
 		if test.validate != nil {
 			test.validate(res)
 		}
