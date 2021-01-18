@@ -57,10 +57,6 @@ func getPageResponse(count bool, statement crud.FinalizedIndexStatement) (*query
 	return page, nil
 }
 
-func bech32FromBytes(bytes []byte) string {
-	return sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), bytes)
-}
-
 // NewQuerier provides a gRPC querier
 func NewQuerier(keeper *Keeper) grpcQuerier {
 	return grpcQuerier{keeper: keeper}
@@ -155,7 +151,7 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	accounts := make([]*types.Account, 0)
 	for ; cursor.Valid(); cursor.Next() {
@@ -167,7 +163,7 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	return &types.QueryOwnerAccountsResponse{Accounts: accounts, Page: page}, nil
 }
@@ -191,7 +187,7 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	domains := make([]*types.Domain, 0)
 	for ; cursor.Valid(); cursor.Next() {
@@ -203,7 +199,7 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	return &types.QueryOwnerDomainsResponse{Domains: domains, Page: page}, nil
 }
@@ -266,7 +262,7 @@ func queryBrokerAccounts(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress,
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(broker))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	accounts := make([]*types.Account, 0)
 	for ; cursor.Valid(); cursor.Next() {
@@ -278,7 +274,7 @@ func queryBrokerAccounts(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress,
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(broker))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	return &types.QueryBrokerAccountsResponse{Accounts: accounts, Page: page}, nil
 }
@@ -302,7 +298,7 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(broker))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	domains := make([]*types.Domain, 0)
 	for ; cursor.Valid(); cursor.Next() {
@@ -314,7 +310,7 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(broker))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
 }
