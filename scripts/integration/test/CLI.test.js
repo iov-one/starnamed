@@ -262,7 +262,7 @@ describe( "Tests the CLI.", () => {
 
       expect( () => {
          cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
-      } ).toThrow( `account does not exist: not found in domain ${domain}: ${name}` );
+      } ).toThrow( `${name}*${domain}: account does not exist` );
    } );
 
 
@@ -427,7 +427,8 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
+   // TODO: don't skip when the message signing module is integrated
+   it.skip( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
       const message = "Hello, World!";
       const created = cli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--memo", memo(), "--generate-only" ] );
       const tmpCreated = writeTmpJson( created );

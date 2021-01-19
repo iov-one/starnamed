@@ -102,11 +102,13 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			// skip empty account
+			ex := NewAccount(d.ctx, d.k, *account)
+			// reset the empty account...
 			if *account.Name == types.EmptyAccountName {
+				ex.Transfer(newOwner, true)
 				continue
 			}
-			ex := NewAccount(d.ctx, d.k, *account)
+			// ...delete all others
 			ex.Delete()
 		}
 	// transfer owned transfers only accounts owned by the old owner
