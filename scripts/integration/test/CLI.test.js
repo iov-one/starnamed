@@ -365,7 +365,7 @@ describe( "Tests the CLI.", () => {
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
-      expect( newResolved.account.owner ).toEqual( recipient );
+      expect( newResolved.account.owner ).toEqual( signer );
       expect( newResolved.account.metadata_uri ).toEqual( metadata );
       expect( newResolvedEmpty.account.owner ).toEqual( recipient );
       expect( newResolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
