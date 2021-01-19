@@ -78,16 +78,8 @@ func runQueryTests(t *testing.T, cases map[string]subTest) {
 			if err != nil {
 				t.Fatalf("marshal error: %s", err)
 			}
-			var ifce interface{}
-			if err = json.Unmarshal(got, &ifce); err != nil {
-				t.Fatalf("failed to unmarshal: %s due to %s", got, err)
-			}
-			sorted, err := queries.DefaultQueryEncode(ifce)
-			if err != nil {
-				t.Fatalf("failed to marshal: %s due to %s", got, err)
-			}
-			if !bytes.Equal(sorted, expectedBytes) {
-				t.Fatalf("unexpected response: \nwant:\t %s \ngot:\t %s", expectedBytes, got)
+			if !bytes.Equal(got, expectedBytes) {
+				t.Fatalf("unexpected response: \nwant:\t %s, \ngot:\t %s", expectedBytes, got)
 			}
 		})
 	}
