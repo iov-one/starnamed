@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/dvsekhvalnov/jose2go/base64url"
 	"github.com/iov-one/starnamed/x/wasm/internal/keeper"
 	"github.com/iov-one/starnamed/x/wasm/internal/types"
@@ -22,23 +23,24 @@ import (
 )
 
 type testData struct {
-	module     module.AppModule
-	ctx        sdk.Context
-	acctKeeper authkeeper.AccountKeeper
-	keeper     Keeper
-	bankKeeper bankkeeper.Keeper
+	module        module.AppModule
+	ctx           sdk.Context
+	acctKeeper    authkeeper.AccountKeeper
+	keeper        Keeper
+	bankKeeper    bankkeeper.Keeper
+	stakingKeeper stakingkeeper.Keeper
 }
 
 // returns a cleanup function, which must be defered on
 func setupTest(t *testing.T) testData {
 	ctx, keepers := CreateTestInput(t, false, "staking", nil, nil)
-	acctKeeper, wasmKeeper, bankKeeper := keepers.AccountKeeper, keepers.WasmKeeper, keepers.BankKeeper
 	data := testData{
-		module:     NewAppModule(wasmKeeper),
-		ctx:        ctx,
-		acctKeeper: acctKeeper,
-		keeper:     *wasmKeeper,
-		bankKeeper: bankKeeper,
+		module:        NewAppModule(keepers.WasmKeeper, keepers.StakingKeeper),
+		ctx:           ctx,
+		acctKeeper:    keepers.AccountKeeper,
+		keeper:        *keepers.WasmKeeper,
+		bankKeeper:    keepers.BankKeeper,
+		stakingKeeper: keepers.StakingKeeper,
 	}
 	return data
 }
@@ -152,7 +154,7 @@ func TestHandleInstantiate(t *testing.T) {
 	}
 	res, err := h(data.ctx, msg)
 	require.NoError(t, err)
-	require.Equal(t, res.Data, []byte("1"))
+	assertStoreCodeResponse(t, res.Data, 1)
 
 	_, _, bob := keyPubAddr()
 	_, _, fred := keyPubAddr()
@@ -173,7 +175,8 @@ func TestHandleInstantiate(t *testing.T) {
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
-	contractBech32Addr := string(res.Data)
+	contractBech32Addr := parseInitResponse(t, res.Data)
+
 	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", contractBech32Addr)
 	// this should be standard x/wasm init event, nothing from contract
 	require.Equal(t, 2, len(res.Events), prettyEvents(res.Events))
@@ -211,7 +214,7 @@ func TestHandleExecute(t *testing.T) {
 	}
 	res, err := h(data.ctx, msg)
 	require.NoError(t, err)
-	require.Equal(t, res.Data, []byte("1"))
+	assertStoreCodeResponse(t, res.Data, 1)
 
 	_, _, bob := keyPubAddr()
 	initMsg := initMsg{
@@ -229,7 +232,8 @@ func TestHandleExecute(t *testing.T) {
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
-	contractBech32Addr := string(res.Data)
+	contractBech32Addr := parseInitResponse(t, res.Data)
+
 	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", contractBech32Addr)
 	// this should be standard x/wasm init event, plus a bank send event (2), with no custom contract events
 	require.Equal(t, 3, len(res.Events), prettyEvents(res.Events))
@@ -263,6 +267,9 @@ func TestHandleExecute(t *testing.T) {
 	}
 	res, err = h(data.ctx, &execCmd)
 	require.NoError(t, err)
+	// from https://github.com/CosmWasm/cosmwasm/blob/master/contracts/hackatom/src/contract.rs#L167
+	assertExecuteResponse(t, res.Data, []byte{0xf0, 0x0b, 0xaa})
+
 	// this should be standard x/wasm init event, plus 2 bank send event, plus a special event from the contract
 	require.Equal(t, 4, len(res.Events), prettyEvents(res.Events))
 
@@ -325,7 +332,6 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	}
 	res, err := h(data.ctx, msg)
 	require.NoError(t, err)
-	require.Equal(t, res.Data, []byte("1"))
 
 	_, _, bob := keyPubAddr()
 	initMsg := map[string]interface{}{
@@ -343,7 +349,7 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
-	contractBech32Addr := string(res.Data)
+	contractBech32Addr := parseInitResponse(t, res.Data)
 	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", contractBech32Addr)
 
 	handleMsg := map[string]interface{}{
@@ -360,6 +366,8 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	}
 	res, err = h(data.ctx, &execCmd)
 	require.NoError(t, err)
+	// from https://github.com/CosmWasm/cosmwasm/blob/master/contracts/hackatom/src/contract.rs#L167
+	assertExecuteResponse(t, res.Data, []byte{0xf0, 0x0b, 0xaa})
 
 	// ensure bob now exists and got both payments released
 	bobAcct := data.acctKeeper.GetAccount(data.ctx, bob)

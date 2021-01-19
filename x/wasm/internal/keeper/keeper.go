@@ -42,6 +42,10 @@ const InstanceCost uint64 = 40_000
 // CompileCost is how much SDK gas we charge *per byte* for compiling WASM code.
 const CompileCost uint64 = 2
 
+// contractMemoryLimit is the memory limit of each contract execution (in MiB)
+// constant value so all nodes run with the same limit.
+const contractMemoryLimit = 32
+
 // Keeper will have a reference to Wasmer with it's own data directory.
 type Keeper struct {
 	storeKey      sdk.StoreKey
@@ -75,7 +79,7 @@ func NewKeeper(
 	customEncoders *MessageEncoders,
 	customPlugins *QueryPlugins,
 ) Keeper {
-	wasmer, err := wasmvm.NewVM(filepath.Join(homeDir, "wasm"), supportedFeatures, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	wasmer, err := wasmvm.NewVM(filepath.Join(homeDir, "wasm"), supportedFeatures, contractMemoryLimit, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(err)
 	}
@@ -624,14 +628,17 @@ func (k Keeper) generateContractAddress(ctx sdk.Context, codeID uint64) sdk.AccA
 	return contractAddress(codeID, instanceID)
 }
 
+// contractAddress builds an sdk account address for a contract.
+// Intentionally kept private as this is module internal logic.
 func contractAddress(codeID, instanceID uint64) sdk.AccAddress {
 	// NOTE: It is possible to get a duplicate address if either codeID or instanceID
 	// overflow 32 bits. This is highly improbable, but something that could be refactored.
 	contractID := codeID<<32 + instanceID
 	return addrFromUint64(contractID)
-
 }
 
+// GetNextCodeID reads the next sequence id used for storing wasm code.
+// Read only operation.
 func (k Keeper) GetNextCodeID(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyLastCodeID)
