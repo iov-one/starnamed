@@ -94,19 +94,22 @@ func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) 
 // AppModule implements an application module for the wasm module.
 type AppModule struct {
 	AppModuleBasic
-	keeper *Keeper
+	keeper             *Keeper
+	validatorSetSource keeper.ValidatorSetSource
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(keeper *Keeper) AppModule {
+func NewAppModule(keeper *Keeper, validatorSetSource keeper.ValidatorSetSource) AppModule {
 	return AppModule{
-		AppModuleBasic: AppModuleBasic{},
-		keeper:         keeper,
+		AppModuleBasic:     AppModuleBasic{},
+		keeper:             keeper,
+		validatorSetSource: validatorSetSource,
 	}
 }
 
-func (am AppModule) RegisterServices(configurator module.Configurator) {
-	types.RegisterQueryServer(configurator.QueryServer(), NewQuerier(am.keeper))
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	types.RegisterQueryServer(cfg.QueryServer(), NewQuerier(am.keeper))
 }
 
 func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
@@ -131,10 +134,11 @@ func (AppModule) QuerierRoute() string {
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	if err := InitGenesis(ctx, am.keeper, genesisState); err != nil {
+	validators, err := InitGenesis(ctx, am.keeper, genesisState, am.validatorSetSource, am.Route().Handler())
+	if err != nil {
 		panic(err)
 	}
-	return []abci.ValidatorUpdate{}
+	return validators
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the wasm

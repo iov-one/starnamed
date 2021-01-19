@@ -2,10 +2,17 @@
 
 ## [Unreleased](https://github.com/CosmWasm/wasmd/tree/HEAD)
 
-[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.13.0...HEAD)
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.14.0...HEAD)
 
+## [v0.14.0](https://github.com/CosmWasm/wasmd/tree/v0.14.0) (2021-01-11)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.13.0...v0.14.0)
 
 **Features:**
+- Upgrade to cosmos-sdk v0.40.0 final [\#354](https://github.com/CosmWasm/wasmd/pull/369)
+- Refactor to GRPC message server [\#366](https://github.com/CosmWasm/wasmd/pull/366)
+- Make it easy to initialize contracts in genesis file with new CLI commands[\#326](https://github.com/CosmWasm/wasmd/issues/326)
+- Upgrade to WasmVM v0.13.0 [\#358](https://github.com/CosmWasm/wasmd/pull/358)
 - Upgrade to cosmos-sdk v0.40.0-rc6 [\#354](https://github.com/CosmWasm/wasmd/pull/354)
 - Upgrade to cosmos-sdk v0.40.0-rc5 [\#344](https://github.com/CosmWasm/wasmd/issues/344)
 - Add Dependabot to keep dependencies secure and up-to-date [\#336](https://github.com/CosmWasm/wasmd/issues/336)

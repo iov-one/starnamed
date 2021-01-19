@@ -9,18 +9,42 @@
 
 This repository hosts `Wasmd`, the first implementation of a cosmos zone with wasm smart contracts enabled.
 
-This code was forked from the `cosmos/gaia` repository as a basis and then we added `x/wasm` and cleaned up 
+This code was forked from the `cosmos/gaia` repository as a basis and then we added `x/wasm` and cleaned up
 many gaia-specific files. However, the `wasmd` binary should function just like `gaiad` except for the
 addition of the `x/wasm` module.
 
 **Note**: Requires [Go 1.15+](https://golang.org/dl/)
+
+## Compatibility with CosmWasm contracts
+
+## Compatibility
+
+A VM can support one or more contract-VM interface versions. The interface
+version is communicated by the contract via a Wasm export. This is the current
+compatibility list:
+
+| wasmd | cosmwasm-vm | cosmwasm-std |
+| ----- | ----------- | ------------ |
+| 0.14  | 0.13        | 0.11-0.13    |
+| 0.13  | 0.12        | 0.11-0.13    |
+| 0.12  | 0.12        | 0.11-0.13    |
+| 0.11  | 0.11        | 0.11-0.13    |
+| 0.10  | 0.10        | 0.10         |
+| 0.9   | 0.9         | 0.9          |
+| 0.8   | 0.8         | 0.8          |
+
+Note that `cosmwasm-std` version defines which contracts are compatible with this system. The wasm code uploaded must
+have been compiled with one of the supported `cosmwasm-std` versions, or will be rejeted upon upload (with some error
+message about "contract too old?" or "contract too new?"). `cosmwasm-vm` version defines the runtime used. It is a
+breaking change to switch runtimes (you will need to organize a chain upgrade). As of `cosmwasm-vm 0.13` we are
+using [wasmer](https://github.com/wasmerio/wasmer/) 1.0, which is significantly more performant than the older versions.
 
 ## Supported Systems
 
 The supported systems are limited by the dlls created in [`wasmvm`](https://github.com/CosmWasm/wasmvm). In particular, **we only support MacOS and Linux**.
 For linux, the default is to build for glibc, and we cross-compile with CentOS 7 to provide
 backwards compatibility for `glibc 2.12+`. This includes all known supported distributions
-using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19). 
+using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19).
 
 As of `0.9.0` we support `muslc` Linux systems, in particular **Alpine linux**,
 which is popular in docker distributions. Note that we do **not** store the
@@ -33,8 +57,8 @@ binary for `muslc`. (Or just use this Dockerfile for your production setup).
 
 **This is alpha software, do not run on a production system.** Notably, we currently provide **no migration path** not even "dump state and restart" to move to future versions. At **beta** we will begin to offer migrations and better backwards compatibility guarantees.
 
-With the `v0.6.0` tag, we entered semver. That means anything with `v0.6.x` tags is compatible with each other, 
-and everything with `v0.7.x` tags is compatible with each other. 
+With the `v0.6.0` tag, we entered semver. That means anything with `v0.6.x` tags is compatible with each other,
+and everything with `v0.7.x` tags is compatible with each other.
 Between these minor versions, there is API breakage with no upgrade path provided.
 
 We will have a stable `v0.x` version before the final `v1.0.0` version with
@@ -48,11 +72,11 @@ given feedback to improve stability.
 ## Encoding
 The used cosmos-sdk version is in transition migrating from amino encoding to protobuf for state. So are we now.
 
-We use standard cosmos-sdk encoding (amino) for all sdk Messages. However, the message body sent to all contracts, 
-as well as the internal state is encoded using JSON. Cosmwasm allows arbitrary bytes with the contract itself 
+We use standard cosmos-sdk encoding (amino) for all sdk Messages. However, the message body sent to all contracts,
+as well as the internal state is encoded using JSON. Cosmwasm allows arbitrary bytes with the contract itself
 responsible for decodng. For better UX, we often use `json.RawMessage` to contain these bytes, which enforces that it is
 valid json, but also give a much more readable interface.  If you want to use another encoding in the contracts, that is
-a relatively minor change to wasmd but would currently require a fork. Please open in issue if this is important for 
+a relatively minor change to wasmd but would currently require a fork. Please open in issue if this is important for
 your use case.
 
 ## Quick Start
@@ -95,17 +119,12 @@ docker volume rm -f wasmd_data
 docker run --rm -it \
     -e PASSWORD=xxxxxxxxx \
     --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest ./setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
+    cosmwasm/wasmd:latest /opt/setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
 
-# This will start both wasmd and rest-server, only rest-serve output is shown on the screen
+# This will start both wasmd and rest-server, both are logged
 docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
     --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest ./run_all.sh
-
-# view wasmd logs in another shell
-docker run --rm -it \
-    --mount type=volume,source=wasmd_data,target=/root,readonly \
-    cosmwasm/wasmd:latest ./logs.sh
+    cosmwasm/wasmd:latest /opt/run_wasmd.sh
 ```
 
 ### CI
@@ -118,7 +137,7 @@ rm -rf ./template && mkdir ./template
 docker run --rm -it \
     -e PASSWORD=xxxxxxxxx \
     --mount type=bind,source=$(pwd)/template,target=/root \
-    cosmwasm/wasmd:latest ./setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
+    cosmwasm/wasmd:latest /opt/setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
 
 sudo chown -R $(id -u):$(id -g) ./template
 
@@ -129,17 +148,12 @@ docker volume rm -f wasmd_data
 docker run --rm -it -p 26657:26657 -p 26656:26656 -p 9090:9090 \
     --mount type=bind,source=$(pwd)/template,target=/template \
     --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest ./run_all.sh /template
+    cosmwasm/wasmd:latest /opt/run_wasmd.sh /template
 
 # RESTART CHAIN with existing state
 docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
     --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest ./run_all.sh
-
-# view wasmd logs in another shell
-docker run --rm -it \
-    --mount type=volume,source=wasmd_data,target=/root,readonly \
-    cosmwasm/wasmd:latest ./logs.sh
+    cosmwasm/wasmd:latest /opt/run_wasmd.sh
 ```
 
 ## Runtime flags
@@ -150,11 +164,11 @@ to the configuration.
 
 Available flags:
 
- 
+
 * `-X github.com/CosmWasm/wasmd/app.NodeDir=.corald` - set the config/data directory for the node (default `~/.wasmd`)
 * `-X github.com/CosmWasm/wasmd/app.Bech32Prefix=coral` - set the bech32 prefix for all accounts (default `cosmos`)
 * `-X github.com/CosmWasm/wasmd/app.ProposalsEnabled=true` - enable all x/wasm governance proposals (default `false`)
-* `-X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin` - 
+* `-X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin` -
     enable a subset of the x/wasm governance proposal types (overrides `ProposalsEnabled`)
 
 Examples:
