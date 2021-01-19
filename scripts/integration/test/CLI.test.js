@@ -278,7 +278,7 @@ describe( "Tests the CLI.", () => {
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
-         cli( [ "tx", "starname", "register-account",  "--name", nameOther, ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", nameOther, "--owner", other, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
       );
