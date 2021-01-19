@@ -442,9 +442,6 @@ func (m *MsgReplaceAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.NewMetadataURI == "" {
-		return errors.Wrapf(ErrInvalidRequest, "metadata uri is empty")
-	}
 	if m.Owner.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}

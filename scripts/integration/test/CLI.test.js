@@ -526,7 +526,6 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   // TODO: don't skip once https://github.com/iov-one/iovns/issues/370 is closed
    it( `Should register a domain, set metadata, and delete metadata.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Not empty.";
