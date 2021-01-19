@@ -26,20 +26,26 @@ var resources = []types.Resource{
 	{URI: "u2", Resource: "r2"},
 }
 
-// account groups populated in populateAccounts()
-var accounts = make([]*types.Account, 0)
-var accountsByOwner = make(map[string][]*types.Account)
-var accountsByDomain = make(map[string][]*types.Account)
-var accountsByResource = make(map[string][]*types.Account)
-var accountsByBroker = make(map[string][]*types.Account)
+// account groups populated in populateAccounts() and used in account related tests
+var accounts []*types.Account
+var accountsByOwner map[string][]*types.Account
+var accountsByDomain map[string][]*types.Account
+var accountsByResource map[string][]*types.Account
+var accountsByBroker map[string][]*types.Account
 
-// domain groups populated in populateDomains()
-var domains = make([]*types.Domain, 0)
-var domainsByOwner = make(map[string][]*types.Domain)
-var domainsByBroker = make(map[string][]*types.Domain)
+// domain groups populated in populateDomains() and used in domain related tests
+var domains []*types.Domain
+var domainsByOwner map[string][]*types.Domain
+var domainsByBroker map[string][]*types.Domain
 
 // populateAccounts creates crud objects and populates vars accounts*.
 func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) {
+	accounts = make([]*types.Account, 0)
+	accountsByOwner = make(map[string][]*types.Account)
+	accountsByDomain = make(map[string][]*types.Account)
+	accountsByResource = make(map[string][]*types.Account)
+	accountsByBroker = make(map[string][]*types.Account)
+
 	n := len(owners)
 	m := len(resources)
 	for i, domain := range []string{"a", "b"} { // domain names
@@ -101,6 +107,10 @@ func populateAccounts(t *testing.T, keeper Keeper, ctx sdk.Context) {
 
 // populateDomains creates crud objects and populates vars domains*.
 func populateDomains(t *testing.T, keeper Keeper, ctx sdk.Context) {
+	domains = make([]*types.Domain, 0)
+	domainsByOwner = make(map[string][]*types.Domain)
+	domainsByBroker = make(map[string][]*types.Domain)
+
 	for i, name := range []string{"0", "1", "2", "3", "4", "5"} { // domain names
 		admin := owners[i&1]      // pseudo random admin
 		broker := owners[(i+1)&1] // pseudo random broker

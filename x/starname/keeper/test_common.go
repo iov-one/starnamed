@@ -149,14 +149,14 @@ func CompareAccounts(got, want *types.Account) error {
 
 // DebugAccount prints relevant info about a types.Account to the console
 func DebugAccount(account *types.Account) {
-	if len(os.Args) > 0 {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
 		fmt.Printf("%20s %-20x %x %x\n", account.GetStarname(), account.PrimaryKey(), account.SecondaryKeys()[0].Value, account.SecondaryKeys()[1].Value)
 	}
 }
 
 // DebugAccounts prints relevant info about a slice of types.Accounts to the console
 func DebugAccounts(name string, accounts []*types.Account) {
-	if len(os.Args) > 0 {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
 		fmt.Printf("___  %s ___\n", name)
 		for _, starname := range accounts {
 			DebugAccount(starname)
@@ -187,14 +187,14 @@ func CompareDomains(got, want *types.Domain) error {
 
 // DebugDomain prints relevant info about a types.Domain to the console
 func DebugDomain(domain *types.Domain) {
-	if len(os.Args) > 0 {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
 		fmt.Printf("%20s %-20x %x\n", domain.GetName(), domain.PrimaryKey(), domain.SecondaryKeys()[0].Value)
 	}
 }
 
 // DebugDomains prints relevant info about a slice of types.Domains to the console
 func DebugDomains(description string, domains []*types.Domain) {
-	if len(os.Args) > 0 {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
 		fmt.Printf("___  %s ___\n", description)
 		for _, domain := range domains {
 			DebugDomain(domain)
