@@ -43,7 +43,7 @@ func getCmdUpdateFees() *cobra.Command {
 		Use:   "update-fees",
 		Short: "update fees using a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx, err := client.GetClientQueryContext(cmd)
+			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return fmt.Errorf("unable to get context: %s", err)
 			}
@@ -82,7 +82,7 @@ func getCmdUpdateConfig() *cobra.Command {
 		Use:   "update-config",
 		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx, err := client.GetClientQueryContext(cmd)
+			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return fmt.Errorf("unable to get context: %s", err)
 			}
