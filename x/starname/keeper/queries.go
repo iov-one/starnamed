@@ -588,7 +588,7 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 	indexEnd := indexStart + q.ResultsPerPage - 1              // index end
 	i := 0
 	// iterate keys
-	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountResourcesIndex).Equals([]byte(q.Resource.Resource)).Do()
+	cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountResourcesIndex).Equals(types.GetResourceKey(q.Resource.URI, q.Resource.Resource)).Do()
 	if err != nil {
 		panic(err)
 	}
