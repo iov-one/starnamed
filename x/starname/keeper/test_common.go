@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"bytes"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -99,4 +102,103 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
 	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+}
+
+// CompareAccounts compares two accounts
+func CompareAccounts(got, want *types.Account) error {
+	if got.Domain != want.Domain {
+		return fmt.Errorf("got Domain '%s', want '%s'", got.Domain, want.Domain)
+	}
+	if *got.Name != *want.Name {
+		return fmt.Errorf("got Name '%s', want '%s'", *got.Name, *want.Name)
+	}
+	if !got.Owner.Equals(want.Owner) {
+		return fmt.Errorf("got Owner '%s', want '%s'", got.Owner.String(), want.Owner.String())
+	}
+	if !got.Broker.Equals(want.Broker) {
+		return fmt.Errorf("got Broker '%s', want '%s'", got.Broker.String(), want.Broker.String())
+	}
+	if got.ValidUntil != want.ValidUntil {
+		return fmt.Errorf("got ValidUntil '%d', want '%d'", got.ValidUntil, want.ValidUntil)
+	}
+	if got.Resources != nil {
+		for i, goti := range got.Resources {
+			wanti := want.Resources[i]
+			if goti.URI != wanti.URI {
+				return fmt.Errorf("got URI '%s', want '%s'", goti.URI, wanti.URI)
+			}
+			if goti.Resource != wanti.Resource {
+				return fmt.Errorf("got Resource '%s', want '%s'", goti.Resource, wanti.Resource)
+			}
+		}
+	}
+	if got.Certificates != nil {
+		for i, goti := range got.Certificates {
+			wanti := want.Certificates[i]
+
+			if bytes.Compare(goti, wanti) != 0 {
+				return fmt.Errorf("got Certificate '%s', want '%s'", string(goti), string(wanti))
+			}
+		}
+	}
+	if got.MetadataURI != want.MetadataURI {
+		return fmt.Errorf("got MetadataURI '%s', want '%s'", got.MetadataURI, want.MetadataURI)
+	}
+	return nil
+}
+
+// DebugAccount prints relevant info about a types.Account to the console
+func DebugAccount(account *types.Account) {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
+		fmt.Printf("%20s %-20x %x %x\n", account.GetStarname(), account.PrimaryKey(), account.SecondaryKeys()[0].Value, account.SecondaryKeys()[1].Value)
+	}
+}
+
+// DebugAccounts prints relevant info about a slice of types.Accounts to the console
+func DebugAccounts(name string, accounts []*types.Account) {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
+		fmt.Printf("___  %s ___\n", name)
+		for _, starname := range accounts {
+			DebugAccount(starname)
+		}
+		fmt.Printf("___ ~%s ___\n", name)
+	}
+}
+
+// CompareDomains compares two domains
+func CompareDomains(got, want *types.Domain) error {
+	if got.Name != want.Name {
+		return fmt.Errorf("got Name '%s', want '%s'", got.Name, want.Name)
+	}
+	if !got.Admin.Equals(want.Admin) {
+		return fmt.Errorf("got Admin '%s', want '%s'", got.Admin.String(), want.Admin.String())
+	}
+	if !got.Broker.Equals(want.Broker) {
+		return fmt.Errorf("got Broker '%s', want '%s'", got.Broker.String(), want.Broker.String())
+	}
+	if got.ValidUntil != want.ValidUntil {
+		return fmt.Errorf("got ValidUntil '%d', want '%d'", got.ValidUntil, want.ValidUntil)
+	}
+	if got.Type != want.Type {
+		return fmt.Errorf("got Type '%s', want '%s'", got.Type, want.Type)
+	}
+	return nil
+}
+
+// DebugDomain prints relevant info about a types.Domain to the console
+func DebugDomain(domain *types.Domain) {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
+		fmt.Printf("%20s %-20x %x\n", domain.GetName(), domain.PrimaryKey(), domain.SecondaryKeys()[0].Value)
+	}
+}
+
+// DebugDomains prints relevant info about a slice of types.Domains to the console
+func DebugDomains(description string, domains []*types.Domain) {
+	if len(os.Getenv("VSCODE_CLI")) > 0 {
+		fmt.Printf("___  %s ___\n", description)
+		for _, domain := range domains {
+			DebugDomain(domain)
+		}
+		fmt.Printf("___ ~%s ___\n", description)
+	}
 }

@@ -20,7 +20,7 @@ type grpcQuerier struct {
 
 const (
 	defaultStart uint64 = 0
-	defaultLimit uint64 = 100
+	defaultLimit uint64 = 100 // TODO: read this from config.toml
 )
 
 func getPagination(pageRequest *query.PageRequest) (uint64, uint64, bool, error) {
@@ -57,16 +57,12 @@ func getPageResponse(count bool, statement crud.FinalizedIndexStatement) (*query
 	return page, nil
 }
 
-func bech32FromBytes(bytes []byte) string {
-	return sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), bytes)
-}
-
 // NewQuerier provides a gRPC querier
-// TODO: this needs proper tests and doc
 func NewQuerier(keeper *Keeper) grpcQuerier {
 	return grpcQuerier{keeper: keeper}
 }
 
+// Domain returns a types.Domain if the domain exists and nil on error
 func (q grpcQuerier) Domain(c context.Context, req *types.QueryDomainRequest) (*types.QueryDomainResponse, error) {
 	if req.Name == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Name)
@@ -83,6 +79,7 @@ func queryDomain(ctx sdk.Context, name string, keeper *Keeper) (*types.QueryDoma
 	return &types.QueryDomainResponse{Domain: domain}, nil
 }
 
+// DomainAccounts returns types.Accounts associated with a given domain and nil on error
 func (q grpcQuerier) DomainAccounts(c context.Context, req *types.QueryDomainAccountsRequest) (*types.QueryDomainAccountsResponse, error) {
 	if req.Domain == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", req.Domain)
@@ -102,7 +99,7 @@ func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, 
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -117,6 +114,7 @@ func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, 
 	return &types.QueryDomainAccountsResponse{Accounts: accounts, Page: page}, nil
 }
 
+// Starname returns the types.Account associated with a given starname and nil on error
 func (q grpcQuerier) Starname(c context.Context, req *types.QueryStarnameRequest) (*types.QueryStarnameResponse, error) {
 	if req.Starname == "" || !strings.Contains(req.Starname, types.StarnameSeparator) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "'%s'", req.Starname)
@@ -134,6 +132,7 @@ func queryStarname(ctx sdk.Context, keeper *Keeper, starname string) (*types.Que
 	return &types.QueryStarnameResponse{Account: account}, nil
 }
 
+// OwnerAccounts returns types.Accounts associated with a given owner and nil on error
 func (q grpcQuerier) OwnerAccounts(c context.Context, req *types.QueryOwnerAccountsRequest) (*types.QueryOwnerAccountsResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
@@ -152,9 +151,9 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -164,11 +163,12 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	return &types.QueryOwnerAccountsResponse{Accounts: accounts, Page: page}, nil
 }
 
+// OwnerDomains returns types.Domains associated with a given owner and nil on error
 func (q grpcQuerier) OwnerDomains(c context.Context, req *types.QueryOwnerDomainsRequest) (*types.QueryOwnerDomainsResponse, error) {
 	address, err := sdk.AccAddressFromBech32(req.Owner)
 	if err != nil {
@@ -187,9 +187,9 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	}
 	cursor, err := query().WithRange().Start(start).End(end).Do()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
-	domains := make([]*types.Domain, 0)
+	domains := make([]*types.Domain, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		domain := new(types.Domain)
 		if err := cursor.Read(domain); err != nil {
@@ -199,11 +199,12 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	}
 	page, err := getPageResponse(count, query())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "'%s' caused error", bech32FromBytes(owner))
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
 	return &types.QueryOwnerDomainsResponse{Domains: domains, Page: page}, nil
 }
 
+// ResourceAccounts returns types.Accounts associated with a given resource and nil on error
 func (q grpcQuerier) ResourceAccounts(c context.Context, req *types.QueryResourceAccountsRequest) (*types.QueryResourceAccountsResponse, error) {
 	if req.Uri == "" {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidResource, "'%s'", req.Uri)
@@ -227,7 +228,7 @@ func queryResourceAccounts(ctx sdk.Context, keeper *Keeper, uri string, resource
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s:%s' caused error", uri, resource)
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -240,4 +241,76 @@ func queryResourceAccounts(ctx sdk.Context, keeper *Keeper, uri string, resource
 		return nil, sdkerrors.Wrapf(err, "'%s:%s' caused error", uri, resource)
 	}
 	return &types.QueryResourceAccountsResponse{Accounts: accounts, Page: page}, nil
+}
+
+// BrokerAccounts returns types.Accounts associated with a given broker and nil on error
+func (q grpcQuerier) BrokerAccounts(c context.Context, req *types.QueryBrokerAccountsRequest) (*types.QueryBrokerAccountsResponse, error) {
+	address, err := sdk.AccAddressFromBech32(req.Broker)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' isn't a vaild address", req.Broker)
+	}
+	start, end, count, err := getPagination(req.Pagination)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed pagination")
+	}
+	return queryBrokerAccounts(sdk.UnwrapSDKContext(c), q.keeper, address, start, end, count)
+}
+
+func queryBrokerAccounts(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, start, end uint64, count bool) (*types.QueryBrokerAccountsResponse, error) {
+	query := func() crud.FinalizedIndexStatement {
+		return keeper.AccountStore(ctx).Query().Where().Index(types.AccountBrokerIndex).Equals(broker)
+	}
+	cursor, err := query().WithRange().Start(start).End(end).Do()
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
+	}
+	accounts := make([]*types.Account, 0, end-start)
+	for ; cursor.Valid(); cursor.Next() {
+		account := new(types.Account)
+		if err := cursor.Read(account); err != nil {
+			return nil, sdkerrors.Wrap(err, "failed to read")
+		}
+		accounts = append(accounts, account)
+	}
+	page, err := getPageResponse(count, query())
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
+	}
+	return &types.QueryBrokerAccountsResponse{Accounts: accounts, Page: page}, nil
+}
+
+// BrokerDomains returns types.Domains associated with a given broker and nil on error
+func (q grpcQuerier) BrokerDomains(c context.Context, req *types.QueryBrokerDomainsRequest) (*types.QueryBrokerDomainsResponse, error) {
+	address, err := sdk.AccAddressFromBech32(req.Broker)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' isn't a vaild address", req.Broker)
+	}
+	start, end, count, err := getPagination(req.Pagination)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed pagination")
+	}
+	return queryBrokerDomains(sdk.UnwrapSDKContext(c), q.keeper, address, start, end, count)
+}
+
+func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, start, end uint64, count bool) (*types.QueryBrokerDomainsResponse, error) {
+	query := func() crud.FinalizedIndexStatement {
+		return keeper.DomainStore(ctx).Query().Where().Index(types.DomainBrokerIndex).Equals(broker)
+	}
+	cursor, err := query().WithRange().Start(start).End(end).Do()
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
+	}
+	domains := make([]*types.Domain, 0, end-start)
+	for ; cursor.Valid(); cursor.Next() {
+		domain := new(types.Domain)
+		if err := cursor.Read(domain); err != nil {
+			return nil, sdkerrors.Wrap(err, "failed to read")
+		}
+		domains = append(domains, domain)
+	}
+	page, err := getPageResponse(count, query())
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
+	}
+	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
 }

@@ -41,6 +41,16 @@ service Query {
     rpc ResourceAccounts (QueryResourceAccountsRequest) returns (QueryResourceAccountsResponse) {
         option (google.api.http).get = "/starname/v1beta1/accounts/resource/{uri}/{resource}";
     }
+
+    // BrokerAccounts gets accounts associated with a given broker.
+    rpc BrokerAccounts (QueryBrokerAccountsRequest) returns (QueryBrokerAccountsResponse) {
+        option (google.api.http).get = "/starname/v1beta1/accounts/broker/{broker}";
+    }
+
+    // BrokerDomains gets domains associated with a given broker.
+    rpc BrokerDomains (QueryBrokerDomainsRequest) returns (QueryBrokerDomainsResponse) {
+        option (google.api.http).get = "/starname/v1beta1/domains/broker/{broker}";
+    }
 }
 
  // QueryDomainRequest is the request type for the Query/Domain RPC method.
@@ -147,6 +157,42 @@ message QueryResourceAccountsResponse {
     // Accounts are the accounts associated with the resource.
     repeated Account accounts = 1 [
         (gogoproto.moretags) = "yaml:\"accounts\""
+    ];
+    cosmos.base.query.v1beta1.PageResponse page = 2;
+}
+
+// QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts RPC method.
+message QueryBrokerAccountsRequest {
+    // Broker is the broker of accounts.
+    string broker = 1 [
+        (gogoproto.moretags) = "yaml:\"broker\""
+    ];
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method.
+message QueryBrokerAccountsResponse {
+    // Accounts is the accounts associated with broker.
+    repeated Account accounts = 1 [
+        (gogoproto.moretags) = "yaml:\"accounts\""
+    ];
+    cosmos.base.query.v1beta1.PageResponse page = 2;
+}
+
+// QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC method.
+message QueryBrokerDomainsRequest {
+    // Broker is the broker of accounts.
+    string broker = 1 [
+        (gogoproto.moretags) = "yaml:\"broker\""
+    ];
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method.
+message QueryBrokerDomainsResponse {
+    // Accounts is the accounts associated with broker.
+    repeated Domain domains = 1 [
+        (gogoproto.moretags) = "yaml:\"domains\""
     ];
     cosmos.base.query.v1beta1.PageResponse page = 2;
 }

@@ -8,13 +8,16 @@ import (
 )
 
 const DomainAdminIndex crud.IndexID = 0x1
+const DomainBrokerIndex crud.IndexID = 0x2
 const AccountAdminIndex crud.IndexID = 0x1
 const AccountDomainIndex crud.IndexID = 0x2
 const AccountResourcesIndex crud.IndexID = 0x3
+const AccountBrokerIndex crud.IndexID = 0x4
 
 // Delimit the uri and resource in GetResourceKey() with an ineligible
 // character since, technically, it'd be possible to have uri "d" and
-// resource "ave" collide with uri "da" and resource "ve".
+// resource "ave" collide with uri "da" and resource "ve" without a
+// delimiter.
 const resourceDelimiter = "\t"
 
 // GetResourceKey computes the index key for a given uri and resource
@@ -34,11 +37,18 @@ func (m *Domain) PrimaryKey() []byte {
 }
 
 func (m *Domain) SecondaryKeys() []crud.SecondaryKey {
-	if m.Admin.Empty() {
-		return nil
+	var sks []crud.SecondaryKey
+	// index by owner
+	if !m.Admin.Empty() {
+		idx := crud.SecondaryKey{DomainAdminIndex, m.Admin}
+		sks = append(sks, idx)
 	}
-	sk := crud.SecondaryKey{DomainAdminIndex, m.Admin}
-	return []crud.SecondaryKey{sk}
+	// index by broker
+	if !m.Broker.Empty() {
+		idx := crud.SecondaryKey{DomainBrokerIndex, m.Broker}
+		sks = append(sks, idx)
+	}
+	return sks
 }
 
 // DomainType defines the type of the domain
@@ -60,11 +70,18 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
+func (m *Account) GetStarname() string {
+	if len(m.Domain) == 0 || m.Name == nil {
+		return "invalid Domain or Name"
+	}
+	return strings.Join([]string{*m.Name, m.Domain}, StarnameSeparator)
+}
+
 func (m *Account) PrimaryKey() []byte {
 	if len(m.Domain) == 0 || m.Name == nil {
 		return nil
 	}
-	j := strings.Join([]string{m.Domain, *m.Name}, "*")
+	j := strings.Join([]string{m.Domain, *m.Name}, StarnameSeparator)
 	return []byte(j)
 }
 
@@ -79,6 +96,11 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 	if len(m.Domain) != 0 {
 		domainIndex := crud.SecondaryKey{AccountDomainIndex, []byte(m.Domain)}
 		sk = append(sk, domainIndex)
+	}
+	// index by broker
+	if !m.Broker.Empty() {
+		brokerIndex := crud.SecondaryKey{AccountBrokerIndex, m.Broker}
+		sk = append(sk, brokerIndex)
 	}
 	// index by resources
 	for _, res := range m.Resources {

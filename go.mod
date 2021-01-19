@@ -4,11 +4,11 @@ go 1.15
 
 require (
 	github.com/CosmWasm/wasmvm v0.12.0
-	github.com/cosmos/cosmos-sdk v0.40.0-rc6
+	github.com/cosmos/cosmos-sdk v0.40.0
 	github.com/cosmos/iavl v0.15.3
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/fatih/structs v1.1.0
-	github.com/gogo/protobuf v1.3.1
+	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.4.3
 	github.com/google/gofuzz v1.2.0
 	github.com/gorilla/mux v1.8.0
@@ -23,7 +23,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	github.com/tendermint/tendermint v0.34.0
+	github.com/tendermint/tendermint v0.34.2
 	github.com/tendermint/tm-db v0.6.3
 	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11 // indirect
 	golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f // indirect
