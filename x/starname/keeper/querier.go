@@ -99,7 +99,7 @@ func queryDomainAccounts(ctx sdk.Context, keeper *Keeper, domain string, start, 
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomainName, "'%s'", domain)
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -153,7 +153,7 @@ func queryOwnerAccounts(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, s
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -189,7 +189,7 @@ func queryOwnerDomains(ctx sdk.Context, keeper *Keeper, owner sdk.AccAddress, st
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", owner.String())
 	}
-	domains := make([]*types.Domain, 0)
+	domains := make([]*types.Domain, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		domain := new(types.Domain)
 		if err := cursor.Read(domain); err != nil {
@@ -228,7 +228,7 @@ func queryResourceAccounts(ctx sdk.Context, keeper *Keeper, uri string, resource
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s:%s' caused error", uri, resource)
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -264,7 +264,7 @@ func queryBrokerAccounts(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress,
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
-	accounts := make([]*types.Account, 0)
+	accounts := make([]*types.Account, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		account := new(types.Account)
 		if err := cursor.Read(account); err != nil {
@@ -300,7 +300,7 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
-	domains := make([]*types.Domain, 0)
+	domains := make([]*types.Domain, 0, end-start)
 	for ; cursor.Valid(); cursor.Next() {
 		domain := new(types.Domain)
 		if err := cursor.Read(domain); err != nil {
