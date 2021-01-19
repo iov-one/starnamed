@@ -486,7 +486,6 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   // TODO: don't skip once https://github.com/iov-one/iovns/issues/369 is closed
    it( `Should register a domain, set resources, and delete resources.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const resources = [
@@ -513,7 +512,7 @@ describe( "Tests the CLI.", () => {
       expect( resolved.account.owner ).toEqual( signer );
       compareObjects( resources, resolved.account.resources );
 
-      const emptyResources = null;
+      const emptyResources = [];
       const tmpResources = writeTmpJson( emptyResources );
       const replaceResources1 = cli( [ "tx", "starname", "set-resources", "--domain", domain, "--name", "", "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broadcasted1 = signAndBroadcastTx( replaceResources1 );

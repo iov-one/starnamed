@@ -401,9 +401,6 @@ func (m *MsgReplaceAccountResources) ValidateBasic() error {
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if len(m.NewResources) == 0 {
-		return errors.Wrap(ErrInvalidRequest, "empty resources")
-	}
 	return nil
 }
 
