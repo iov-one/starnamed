@@ -79,7 +79,7 @@ script:
         docker logout;
       fi;
     fi;
-  - ./scripts/integration/setup.sh
+  - ( cd scripts/integration && ./setup.sh )
   - wasmd start --minimum-gas-prices='1.0tiov' > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall wasmd )
 
