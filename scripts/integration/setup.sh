@@ -16,7 +16,7 @@ sed --in-place 's/enable = false/enable = true/' "$HOME"/.${BINARY}/config/app.t
 # staking/governance token is hardcoded in config, change this
 ## OSX requires: -i.
 sed -i. "s/\"stake\"/\"$STAKE\"/" "$HOME"/.${BINARY}/config/genesis.json
-if ! ${BINARY} keys show validator --keyring-backend test; then
+if ! ${BINARY} keys show validator --keyring-backend test 2> /dev/null ; then
   (echo "$PASSWORD"; echo "$PASSWORD") | ${BINARY} keys add validator --keyring-backend test
 fi
 # hardcode the validator account for this instance
