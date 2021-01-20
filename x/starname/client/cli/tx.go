@@ -186,7 +186,7 @@ func getCmdTransferAccount() *cobra.Command {
 func getmCmdSetAccountResources() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "account-resources-set",
-		Aliases: []string{"ars", "account-set-resources", "asr", "set-resources", "sr", "replace-resources", "rr"},
+		Aliases: []string{"ars", "account-set-resources", "asr", "set-resources", "sr", "replace-resources", "rr", "account-resources"},
 		Short:   "set resources for an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -304,7 +304,7 @@ func getCmdDeleteDomain() *cobra.Command {
 func getCmdDeleteAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "account-delete",
-		Aliases: []string{"ad", "delete-account", "da", "del-account", "starname-delete", "delete-starname"},
+		Aliases: []string{"ad", "account-del", "delete-account", "da", "del-account", "starname-delete", "delete-starname"},
 		Short:   "delete an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -457,7 +457,7 @@ func getCmdRenewAccount() *cobra.Command {
 func getCmdDeleteAccountCertificate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "account-certificate-delete",
-		Aliases: []string{"acd", "account-delete-certificate", "adc", "delete-certificate", "dc", "del-certs"},
+		Aliases: []string{"acd", "account-delete-certificate", "adc", "delete-certificate", "dc", "del-certs", "certificate-delete", "cd"},
 		Short:   "delete a certificate from an account",
 		Long:    "delete a certificate from an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -546,7 +546,7 @@ func getCmdDeleteAccountCertificate() *cobra.Command {
 func getCmdAddAccountCertificate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "account-certificate-add",
-		Aliases: []string{"aca", "account-add-certificate", "aac", "add-certificate", "ac", "add-certs"},
+		Aliases: []string{"aca", "account-add-certificate", "aac", "add-certificate", "ac", "add-certs", "certificate-add", "ca"},
 		Short:   "add a certificate to an account",
 		Long:    "add a certificate of an account; either use the --certificate or --certificate-file flag",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -785,7 +785,7 @@ func getCmdRegisterDomain() *cobra.Command {
 func getCmdSetAccountMetadata() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "account-metadata-set",
-		Aliases: []string{"ams", "account-set-metadata", "asm", "set-metadata", "sm", "set-account-metadata", "sam"},
+		Aliases: []string{"ams", "account-set-metadata", "asm", "set-metadata", "sm", "set-account-metadata", "sam", "account-metadata"},
 		Short:   "set metadata for an account",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
