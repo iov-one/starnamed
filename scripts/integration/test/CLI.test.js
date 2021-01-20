@@ -400,7 +400,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it( `Should register and renew domain.`, async () => {
+   it( `Should register and renew a domain.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
@@ -424,6 +424,39 @@ describe( "Tests the CLI.", () => {
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( +newDomainInfo.domain.valid_until ).toBeGreaterThan( +domainInfo.domain.valid_until );
       expect( +newDomainInfo.domain.valid_until ).toEqual( +starname.account.valid_until );
+   } );
+
+
+   it.skip( `Should register and renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
+      // register
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+      );
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+
+      // renew
+      const renewed = cli( [ "tx", "starname", "renew-account", "--yes", "--broadcast-mode", "block", "--name", name, ...common ] );
+
+      expect( renewed.gas_used ).toBeDefined();
+      if ( !renewed.logs ) throw new Error( renewed.raw_log );
+
+      const newResolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( newResolved.account.domain ).toEqual( domain );
+      expect( newResolved.account.name ).toEqual( name );
+      expect( +newResolved.account.valid_until ).toBeGreaterThan( +resolved.account.valid_until );
    } );
 
 

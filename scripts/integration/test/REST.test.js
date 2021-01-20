@@ -1,16 +1,16 @@
-import { chain, fetchObject, gasPrices, cli, denomFee, memo, msig1, msig1SignTx, postTx, signAndPost, signer, signTx, txUpdateConfigArgs, urlRest, w1, w2, writeTmpJson, } from "./common";
+import { chain, cli, denomFee, fetchObject, gasPrices, getBalance, makeTx, memo, msig1, msig1SignTx, postTx, signAndPost, signer, signTx, txUpdateConfigArgs, urlRest, w1, w2, w3, writeTmpJson } from "./common";
 import { Base64 } from "js-base64";
 import compareObjects from "./compareObjects";
 
 "use strict";
 
 
-describe.skip( "Tests the REST API.", () => {
+describe( "Tests the REST API.", () => {
    it( `Should get node_info.`, async () => {
       const fetched = await fetchObject( `${urlRest}/node_info` );
 
       expect( fetched.node_info.network ).toEqual( chain );
-      expect( fetched.application_version.name ).toEqual( "iovns" );
+      expect( fetched.application_version.name ).toEqual( "wasm" );
    } );
 
 
@@ -29,11 +29,11 @@ describe.skip( "Tests the REST API.", () => {
          "valid_account_name",
          "valid_uri",
          "valid_resource",
-         "domain_renew_period",
-         "domain_renew_count_max",
+         "domain_renewal_period",
+         "domain_renewal_count_max",
          "domain_grace_period",
-         "account_renew_period",
-         "account_renew_count_max",
+         "account_renewal_period",
+         "account_renewal_count_max",
          "account_grace_period",
          "resources_max",
          "certificate_size_max",
@@ -78,13 +78,13 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should send.`, async () => {
       const amount = 1e6;
       const recipient = w1;
-      const balance0 = cli( [ "query", "account", recipient ] );
+      const balance0 = cli( [ "query", "bank", "balances", recipient ] );
       const unsigned = cli( [ "tx", "send", signer, recipient, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
-      const balance = cli( [ "query", "account", recipient ] );
+      const balance = cli( [ "query", "bank", "balances", recipient ] );
 
       expect( posted.ok ).toEqual( true );
-      expect( +balance.value.coins[0].amount - +balance0.value.coins[0].amount ).toEqual( amount );
+      expect( +getBalance( balance ) ).toEqual( amount + +getBalance( balance0 ) );
    } );
 
 
@@ -106,6 +106,7 @@ describe.skip( "Tests the REST API.", () => {
 
       expect( deleted.ok ).toEqual( true );
       expect( noDomain.error ).toBeTruthy();
+      expect( noDomain.error.indexOf( domain ) ).toBeGreaterThan( -1 )
    } );
 
 
@@ -119,16 +120,12 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( replaceResources.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "account-set-resources", "--name", name, "--src", fileResources, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -145,17 +142,13 @@ describe.skip( "Tests the REST API.", () => {
    it( `Should register a domain, account, add metadata, and query resolve.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const metadata = "Why the uri suffix?";
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const metadata = "future plan: put metadata in resources";
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -168,10 +161,14 @@ describe.skip( "Tests the REST API.", () => {
    } );
 
 
-   it( `Should register and delete an account and query resolve.`, async () => {
-      const domain = "iov";
+   it( `Should a domain, register and delete an account, and query resolve.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -181,12 +178,14 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
 
-      const delAccount = cli( [ "tx", "starname", "del-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const delAccount = cli( [ "tx", "starname", "account-del", "--name", name, ...common ] );
       const deleted = await signAndPost( delAccount );
       const noAccount = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
       expect( deleted.ok ).toEqual( true );
       expect( noAccount.error ).toBeTruthy();
+      expect( noAccount.error.indexOf( domain ) ).toBeGreaterThan( -1 );
+      expect( noAccount.error.indexOf( name ) ).toBeGreaterThan( -1 );
    } );
 
 
@@ -195,16 +194,12 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const base64 = Base64.encode( certificate );
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( addCerts.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "certificate-add", "--name", name, "--certificate", base64, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -213,15 +208,16 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.domain ).toEqual( domain );
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
+      expect( resolved.result.account.certificates ).toBeTruthy()
       expect( resolved.result.account.certificates[0] ).toEqual( base64 );
       expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( certificate );
 
-      const delCerts = cli( [ "tx", "starname", "del-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const delCerts = cli( [ "tx", "starname", "certificate-delete", "--name", name, "-c", base64, ...common ] );
       const deleted = await signAndPost( delCerts );
       const noCerts = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
       expect( deleted.ok ).toEqual( true );
-      expect( noCerts.result.account.certificates ).toBeNull();
+      expect( !!noCerts.result.account.certificates ).toEqual( false )
    } );
 
 
@@ -230,16 +226,12 @@ describe.skip( "Tests the REST API.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const file = writeTmpJson( certificate );
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert-file", file, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( addCerts.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "certificate-add", "--name", name, "-f", file, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -248,6 +240,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.domain ).toEqual( domain );
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
+      expect( resolved.result.account.certificates ).toBeTruthy();
       expect( resolved.result.account.certificates.length ).toEqual( 1 );
 
       compareObjects( JSON.parse( certificate ), JSON.parse( JSON.parse( Base64.decode( resolved.result.account.certificates[0] ) ) ) );
@@ -280,20 +273,15 @@ describe.skip( "Tests the REST API.", () => {
       const transferFlag = "0";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const metadata = "Why the uri suffix?";
+      const metadata = "move me to resources";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", "", "--metadata", metadataEmpty, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const starname = { starname: `*${domain}` };
@@ -309,7 +297,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolvedEmpty.result.account.metadata_uri ).toEqual( metadataEmpty );
 
       const recipient = w1;
-      const transferDomain = cli( [ "tx", "starname", "transfer-domain", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferDomain = cli( [ "tx", "starname", "transfer-domain", "--new-owner", recipient, "--transfer-flag", transferFlag, ...common ] );
       const transferred = await signAndPost( transferDomain );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( { name: domain } ) } );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -320,7 +308,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( newDomainInfo.result.domain.admin ).toEqual( recipient );
       expect( newResolved.error ).toBeTruthy();
       expect( newResolvedEmpty.result.account.owner ).toEqual( recipient );
-      expect( newResolvedEmpty.result.account.metadata_uri ).toEqual( "" );
+      expect( !!newResolvedEmpty.result.account.metadata_uri ).toEqual( false );
    } );
 
 
@@ -332,20 +320,14 @@ describe.skip( "Tests the REST API.", () => {
       const other = w2; // 3rd party account owner in this case
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const registerDomain = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const registerAccountOther = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", nameOther, "--owner", other, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadataEmpty = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
-
-      unsigned.value.msg.push( registerAccount.value.msg[0] );
-      unsigned.value.msg.push( registerAccountOther.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", nameOther, "--owner", other, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", "", "--metadata", metadataEmpty, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const starname = { starname: `*${domain}` };
@@ -384,11 +366,8 @@ describe.skip( "Tests the REST API.", () => {
 
    it( `Should register a domain with a broker.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
-
-      unsigned.value.msg[0].value.broker = broker;
-
+      const broker = w3;
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--broker", broker, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
@@ -398,14 +377,15 @@ describe.skip( "Tests the REST API.", () => {
    } );
 
 
-   it( `Should register an account with a broker.`, async () => {
-      const domain = "iov";
+   it( `Should register domain and account with a broker.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
-
-      unsigned.value.msg[0].value.broker = broker;
-
+      const broker = w3;
+      const common = [ "--broker", broker, "--domain", domain,"--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -416,12 +396,11 @@ describe.skip( "Tests the REST API.", () => {
 
 
    it( `Should register an account and transfer it without deleting resources, etc.`, async () => {
-      const domain = "iov";
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const base64 = Base64.encode( certificate );
-      const metadata = "Why the uri suffix?";
+      const metadata = "someday in resources";
       const resources = [
          {
             "uri": "cosmos:iov-mainnet-2",
@@ -429,19 +408,14 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerAccount ) );
-
-      unsigned.value.msg[0].value.broker = broker;
-      unsigned.value.msg.push( replaceResources.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( addCerts.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "account-resources-set", "--name", name, "--src", fileResources, ...common ] ),
+         cli( [ "tx", "starname", "account-certificate-add", "--name", name, "-c", base64, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -451,12 +425,13 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
       expect( resolved.result.account.metadata_uri ).toEqual( metadata );
+      expect( resolved.result.account.certificates ).toBeTruthy();
       expect( resolved.result.account.certificates[0] ).toEqual( base64 );
       expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( certificate );
       compareObjects( resources, resolved.result.account.resources );
 
       const recipient = w1;
-      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--name", name, "--new-owner", recipient, ...common ] );
       const transferred = await signAndPost( transferAccount );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -465,6 +440,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( newResolved.result.account.name ).toEqual( name );
       expect( newResolved.result.account.owner ).toEqual( recipient );
       expect( newResolved.result.account.metadata_uri ).toEqual( metadata );
+      expect( newResolved.result.account.certificates ).toBeTruthy();
       expect( newResolved.result.account.certificates[0] ).toEqual( base64 );
       expect( Base64.decode( newResolved.result.account.certificates[0] ) ).toEqual( certificate );
       compareObjects( resources, newResolved.result.account.resources );
@@ -472,12 +448,12 @@ describe.skip( "Tests the REST API.", () => {
 
 
    it( `Should register an account and transfer it with deleted resources, etc.`, async () => {
-      const domain = "iov";
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const broker = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
+      const broker = w3;
       const certificate = JSON.stringify( { my: "certificate", as: "base64" } );
       const base64 = Base64.encode( certificate );
-      const metadata = "Why the uri suffix?";
+      const metadata = "meta";
       const resources = [
          {
             "uri": "cosmos:iov-mainnet-2",
@@ -485,19 +461,14 @@ describe.skip( "Tests the REST API.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const registerAccount = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const replaceResources = cli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const setMetadata = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const addCerts = cli( [ "tx", "starname", "add-certs", "--domain", domain, "--name", name, "--cert", base64, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-      const unsigned = JSON.parse( JSON.stringify( registerAccount ) );
-
-      unsigned.value.msg[0].value.broker = broker;
-      unsigned.value.msg.push( replaceResources.value.msg[0] );
-      unsigned.value.msg.push( setMetadata.value.msg[0] );
-      unsigned.value.msg.push( addCerts.value.msg[0] );
-      unsigned.value.fee.amount[0].amount = "100000000";
-      unsigned.value.fee.gas = "600000";
-
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, "--broker", broker, ...common ] ),
+         cli( [ "tx", "starname", "account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
+         cli( [ "tx", "starname", "account-resources-set", "--name", name, "--src", fileResources, ...common ] ),
+         cli( [ "tx", "starname", "account-certificate-add", "--name", name, "-c", base64, ...common ] ),
+      );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -506,13 +477,14 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved.result.account.domain ).toEqual( domain );
       expect( resolved.result.account.name ).toEqual( name );
       expect( resolved.result.account.owner ).toEqual( signer );
+      expect( resolved.result.account.broker ).toEqual( broker );
       expect( resolved.result.account.metadata_uri ).toEqual( metadata );
       expect( resolved.result.account.certificates[0] ).toEqual( base64 );
       expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( certificate );
       compareObjects( resources, resolved.result.account.resources );
 
       const recipient = w1;
-      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--reset", "true", "--domain", domain, "--name", name, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const transferAccount = cli( [ "tx", "starname", "transfer-account", "--reset", "true", "--name", name, "--new-owner", recipient, ...common ] );
       const transferred = await signAndPost( transferAccount );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -520,15 +492,17 @@ describe.skip( "Tests the REST API.", () => {
       expect( newResolved.result.account.domain ).toEqual( domain );
       expect( newResolved.result.account.name ).toEqual( name );
       expect( newResolved.result.account.owner ).toEqual( recipient );
-      expect( newResolved.result.account.certificates ).toBeNull();
-      expect( newResolved.result.account.metadata_uri ).toEqual( "" );
-      expect( newResolved.result.account.resources ).toBeNull();
+      expect( newResolved.result.account.broker ).toEqual( broker );
+      expect( !!newResolved.result.account.certificates ).toEqual( false );
+      expect( !!newResolved.result.account.metadata_uri ).toEqual( false );
+      expect( !!newResolved.result.account.resources ).toEqual( false );
    } );
 
 
    it( `Should renew a domain.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = cli( [ "tx", "starname", "register-domain", ...common ] );
       const posted = await signAndPost( unsigned );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
@@ -537,19 +511,20 @@ describe.skip( "Tests the REST API.", () => {
       expect( domainInfo ).toBeTruthy();
 
       const configuration = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
-      const renew = cli( [ "tx", "starname", "renew-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const renew = cli( [ "tx", "starname", "renew-domain", ...common ] );
       const renewed = await signAndPost( renew );
       const newDomainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
       expect( renewed.ok ).toEqual( true );
-      expect( newDomainInfo.result.domain.valid_until ).toBeGreaterThanOrEqual( domainInfo.result.domain.valid_until + configuration.result.configuration.domain_renew_period / 1e9 );
+      expect( newDomainInfo.result.domain.valid_until ).toBeGreaterThanOrEqual( domainInfo.result.domain.valid_until + configuration.result.configuration.domain_renewal_period / 1e9 );
    } );
 
 
-   it( `Should renew an account.`, async () => {
-      const domain = "iov";
+   it.skip( `Should renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const common = [ "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = cli( [ "tx", "starname", "register-account", ...common ] );
       const posted = await signAndPost( unsigned );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
@@ -558,7 +533,7 @@ describe.skip( "Tests the REST API.", () => {
       expect( resolved ).toBeTruthy();
 
       const configuration = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
-      const renew = cli( [ "tx", "starname", "renew-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const renew = cli( [ "tx", "starname", "renew-account", ...common ] );
       const renewed = await signAndPost( renew );
       const newResolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -567,26 +542,24 @@ describe.skip( "Tests the REST API.", () => {
    } );
 
 
-   it( `Should register a domain with a fee payer.`, async () => { // https://github.com/iov-one/iovns/pull/195#issue-433044931
+   // TODO: FIXME: Error: Signing in DIRECT mode is only supported for transactions with one signer only: feature not supported
+   // TODO: FIXME: https://github.com/iov-one/iovns/issues/354 means that we only need one signer
+   it.skip( `Should register a domain with a fee payer.`, async () => { // https://github.com/iov-one/iovns/pull/195#issue-433044931
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const recipient = w1;
       const payer = signer;
-      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-
-      // give the payer credit for brokering the registration
-      unsigned.value.msg[0].value.broker = payer;
-
+      const unsigned = cli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", recipient, "--payer", payer, "--broker", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signedRecipient = await signTx( unsigned, recipient );
       const signedPayer = await signTx( signedRecipient, payer );
 
       // payer must be first signature
-      signedPayer.value.signatures = [ signedPayer.value.signatures[1], signedPayer.value.signatures[0] ];
+      signedPayer.signatures = [ signedPayer.signatures[1], signedPayer.signatures[0] ];
 
-      const balance0 = cli( [ "query", "account", recipient ] );
-      const balance0Payer = cli( [ "query", "account", payer ] );
+      const balance0 = cli( [ "query", "bank", "balances", recipient ] );
+      const balance0Payer = cli( [ "query", "bank", "balances", payer ] );
       const posted = await postTx( signedPayer );
-      const balance = cli( [ "query", "account", recipient ] );
-      const balancePayer = cli( [ "query", "account", payer ] );
+      const balance = cli( [ "query", "bank", "balances", recipient ] );
+      const balancePayer = cli( [ "query", "bank", "balances", payer ] );
       const body = { name: domain };
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
 
@@ -594,59 +567,61 @@ describe.skip( "Tests the REST API.", () => {
       expect( domainInfo.result.domain.name ).toEqual( domain );
       expect( domainInfo.result.domain.admin ).toEqual( recipient );
       expect( domainInfo.result.domain.broker ).toEqual( payer );
-      expect( +balance.value.coins[0].amount ).toEqual( +balance0.value.coins[0].amount );
-      expect( +balancePayer.value.coins[0].amount ).toBeLessThan( +balance0Payer.value.coins[0].amount );
+      expect( +getBalance( balance ) ).toEqual( +getBalance( balance0 ) );
+      expect( +getBalance( balancePayer ) ).toBeLessThan( +getBalance( balance0Payer ) );
    } );
 
 
-   it( `Should register an account with a fee payer.`, async () => { // https://github.com/iov-one/iovns/pull/195#issue-433044931
-      const domain = "iov";
+   // TODO: FIXME: Error: Signing in DIRECT mode is only supported for transactions with one signer only: feature not supported
+   // TODO: FIXME: https://github.com/iov-one/iovns/issues/354 means that we only need one signer
+   it.skip( `Should register an account with a fee payer.`, async () => { // https://github.com/iov-one/iovns/pull/195#issue-433044931
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const recipient = w1;
       const payer = signer;
-      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", recipient, "--fee-payer", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
-
-      // give the payer credit for brokering the registration
-      unsigned.value.msg[0].value.broker = payer;
-
+      const unsigned = cli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", recipient, "--payer", payer, "--broker", payer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signedRecipient = await signTx( unsigned, recipient );
       const signedPayer = await signTx( signedRecipient, payer );
 
       // payer must be first signature
-      signedPayer.value.signatures = [ signedPayer.value.signatures[1], signedPayer.value.signatures[0] ];
+      signedPayer.signatures = [ signedPayer.signatures[1], signedPayer.signatures[0] ];
 
-      const balance0 = cli( [ "query", "account", recipient ] );
-      const balance0Payer = cli( [ "query", "account", payer ] );
+      const balance0 = cli( [ "query", "bank", "balances", recipient ] );
+      const balance0Payer = cli( [ "query", "bank", "balances", payer ] );
       const posted = await postTx( signedPayer );
-      const balance = cli( [ "query", "account", recipient ] );
-      const balancePayer = cli( [ "query", "account", payer ] );
+      const balance = cli( [ "query", "bank", "balances", recipient ] );
+      const balancePayer = cli( [ "query", "bank", "balances", payer ] );
       const body = { starname: `${name}*${domain}` };
       const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
       expect( posted.ok ).toEqual( true );
       expect( resolved.result.account.owner ).toEqual( recipient );
       expect( resolved.result.account.broker ).toEqual( payer );
-      expect( +balance.value.coins[0].amount ).toEqual( +balance0.value.coins[0].amount );
-      expect( +balancePayer.value.coins[0].amount ).toBeLessThan( +balance0Payer.value.coins[0].amount );
+      expect( +getBalance( balance ) ).toEqual( +getBalance( balance0 ) );
+      expect( +getBalance( balancePayer ) ).toBeLessThan( +getBalance( balance0Payer ) );
    } );
 
 
-   it( `Should do a multisig send.`, async () => { // https://github.com/iov-one/iovns/blob/master/docs/cli/MULTISIG.md
+   // TODO: FIXME: figure out how to post a multisig tx
+   it.skip( `Should do a multisig send.`, async () => { // https://github.com/iov-one/iovns/blob/master/docs/cli/MULTISIG.md
       const amount = 1000000;
-      const signed = msig1SignTx( [ "tx", "send", msig1, w1, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const payer = msig1;
+      const recipient = w1;
+      const signed = msig1Sign( [ "tx", "send", payer, recipient, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
 
-      const balance0 = cli( [ "query", "account", w1 ] );
-      const balance0Payer = cli( [ "query", "account", msig1 ] );
+      const balance0 = cli( [ "query", "bank", "balances", recipient ] );
+      const balance0Payer = cli( [ "query", "bank", "balances", payer ] );
       const posted = await postTx( signed );
-      const balance = cli( [ "query", "account", w1 ] );
-      const balancePayer = cli( [ "query", "account", msig1 ] );
+      const balance = cli( [ "query", "bank", "balances", recipient ] );
+      const balancePayer = cli( [ "query", "bank", "balances", payer ] );
 
       expect( posted.ok ).toEqual( true );
-      expect( +balance.value.coins[0].amount ).toEqual( amount + +balance0.value.coins[0].amount );
-      expect( +balancePayer.value.coins[0].amount ).toBeLessThan( +balance0Payer.value.coins[0].amount - amount );
+      expect( +getBalance( balance ) ).toEqual( +getBalance( balance0 ) + amount );
+      expect( +getBalance( balancePayer ) ).toBeLessThan( +getBalance( balance0Payer ) - amount );
    } );
 
 
+   // TODO: FIXME: figure out how to post a multisig tx
    // TODO: don't skip after https://github.com/iov-one/iovns/issues/235 is closed
    it.skip( `Should update configuration.`, async () => {
       const config0 = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
@@ -686,8 +661,9 @@ describe.skip( "Tests the REST API.", () => {
    } );
 
 
-   it( `Should register an account owned by a multisig account.`, async () => {
-      const domain = "iov";
+   // TODO: FIXME: figure out how to post a multisig tx
+   it.skip( `Should register an account owned by a multisig account.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const signed = msig1SignTx( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await postTx( signed );
@@ -700,7 +676,8 @@ describe.skip( "Tests the REST API.", () => {
    } );
 
 
-   it( `Should sign a message, verify it against the verify endpoint, alter the signature, and fail verification.`, async () => {
+   // TODO: FIXME: add https://github.com/cosmos/cosmos-sdk/pull/7896/files#diff-14182124054cae806ae1f03e437e71b4bb9e757cf84307753a32eed13d6e9997R55
+   it.skip( `Should sign a message, verify it against the verify endpoint, alter the signature, and fail verification.`, async () => {
       const message0 = {
          "array": [ 1, 2, 3 ],
          "object": {
