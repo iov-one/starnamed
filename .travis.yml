@@ -79,8 +79,8 @@ script:
         docker logout;
       fi;
     fi;
-  - ( cd scripts/integration && node setup.js && bash -x ./setup.sh )
-  - wasmd start --minimum-gas-prices='1.0tiov' > /dev/null &
+  - ( cd scripts/integration && node setup.js && ./setup.sh )
+  - wasmd start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall wasmd )
 
 notifications:
