@@ -1,6 +1,7 @@
 module.exports = async ( globalConfig ) => {
-   const { spawnSync } = await import( "child_process" );
-   const log = process.env.CONTINUOUS_INTEGRATION ? console.log : () => {};
+   const spawnSync = require( "child_process" ).spawnSync;
+   // dmjp const log = process.env.CONTINUOUS_INTEGRATION ? console.log : () => {};
+   const log = console.log; // dmjp
    const binary = "wasmd";
 
 
