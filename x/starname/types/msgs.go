@@ -401,9 +401,6 @@ func (m *MsgReplaceAccountResources) ValidateBasic() error {
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if len(m.NewResources) == 0 {
-		return errors.Wrap(ErrInvalidRequest, "empty resources")
-	}
 	return nil
 }
 
@@ -444,9 +441,6 @@ func (m *MsgReplaceAccountMetadata) Type() string {
 func (m *MsgReplaceAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
-	}
-	if m.NewMetadataURI == "" {
-		return errors.Wrapf(ErrInvalidRequest, "metadata uri is empty")
 	}
 	if m.Owner.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")

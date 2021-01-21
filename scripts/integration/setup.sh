@@ -10,11 +10,13 @@ FEE=${DENOM_FEE:-tiov}
 CHAIN_ID=${CHAIN:-testing}
 MONIKER=${MONIKER:-node001}
 
-${BINARY} init --chain-id "$CHAIN_ID" "$MONIKER"
+${BINARY} init --chain-id "$CHAIN_ID" "$MONIKER" 2>&1 | jq .chain_id
+sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$HOME"/.${BINARY}/config/config.toml
+sed --in-place 's/enable = false/enable = true/' "$HOME"/.${BINARY}/config/app.toml # enable api
 # staking/governance token is hardcoded in config, change this
 ## OSX requires: -i.
 sed -i. "s/\"stake\"/\"$STAKE\"/" "$HOME"/.${BINARY}/config/genesis.json
-if ! ${BINARY} keys show validator --keyring-backend test; then
+if ! ${BINARY} keys show validator --keyring-backend test 2> /dev/null ; then
   (echo "$PASSWORD"; echo "$PASSWORD") | ${BINARY} keys add validator --keyring-backend test
 fi
 # hardcode the validator account for this instance
@@ -30,3 +32,4 @@ done
 ## should be:
 # (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | ${BINARY} gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID"
 ${BINARY} collect-gentxs
+${BINARY} validate-genesis

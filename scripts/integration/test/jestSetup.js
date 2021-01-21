@@ -1,5 +1,5 @@
 module.exports = async ( globalConfig ) => {
-   const { spawnSync } = await import( "child_process" );
+   const spawnSync = require( "child_process" ).spawnSync;
    const log = process.env.CONTINUOUS_INTEGRATION ? console.log : () => {};
    const binary = "wasmd";
 
@@ -47,7 +47,6 @@ module.exports = async ( globalConfig ) => {
       if ( need[key] ) cliKeysAdd( key, [ "--recover" ], keysWithMnemonic[key] )
    } );
 
-   if ( need.p1 )   cliKeysAdd( "p1",    [ "--pubkey=wasmpub1addwnpepqvjrkztsjvjx62s06pg3846af39rsjmcxkj4cg4scskmqn5nk347ugc3hnw" ] );
    if ( need.msig1) cliKeysAdd( "msig1", [ "--multisig=w1,w2,w3,p1", "--multisig-threshold=3" ]);
 
    log( JSON.stringify( cli( [ "keys", "list", "--keyring-backend", "test" ] ), null, "   " ) );

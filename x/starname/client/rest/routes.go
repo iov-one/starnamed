@@ -5,13 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/iov-one/starnamed/pkg/queries"
-	"github.com/iov-one/starnamed/x/configuration/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	"github.com/iov-one/starnamed/pkg/queries"
 	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions

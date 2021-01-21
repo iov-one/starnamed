@@ -262,7 +262,7 @@ describe( "Tests the CLI.", () => {
 
       expect( () => {
          cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
-      } ).toThrow( `account does not exist: not found in domain ${domain}: ${name}` );
+      } ).toThrow( `${name}*${domain}: account does not exist` );
    } );
 
 
@@ -278,7 +278,7 @@ describe( "Tests the CLI.", () => {
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
-         cli( [ "tx", "starname", "register-account",  "--name", nameOther, ...common ] ),
+         cli( [ "tx", "starname", "register-account",  "--name", nameOther, "--owner", other, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", name, "--metadata", metadata, ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "",   "--metadata", metadataEmpty, ...common ] ),
       );
@@ -365,7 +365,7 @@ describe( "Tests the CLI.", () => {
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
-      expect( newResolved.account.owner ).toEqual( recipient );
+      expect( newResolved.account.owner ).toEqual( signer );
       expect( newResolved.account.metadata_uri ).toEqual( metadata );
       expect( newResolvedEmpty.account.owner ).toEqual( recipient );
       expect( newResolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
@@ -400,7 +400,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it( `Should register and renew domain.`, async () => {
+   it( `Should register and renew a domain.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
@@ -427,7 +427,41 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
+   it.skip( `Should register and renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
+      // register
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const unsigned = makeTx(
+         cli( [ "tx", "starname", "domain-register", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+      );
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+
+      // renew
+      const renewed = cli( [ "tx", "starname", "renew-account", "--yes", "--broadcast-mode", "block", "--name", name, ...common ] );
+
+      expect( renewed.gas_used ).toBeDefined();
+      if ( !renewed.logs ) throw new Error( renewed.raw_log );
+
+      const newResolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( newResolved.account.domain ).toEqual( domain );
+      expect( newResolved.account.name ).toEqual( name );
+      expect( +newResolved.account.valid_until ).toBeGreaterThan( +resolved.account.valid_until );
+   } );
+
+
+   // TODO: don't skip when the message signing module is integrated
+   it.skip( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
       const message = "Hello, World!";
       const created = cli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--memo", memo(), "--generate-only" ] );
       const tmpCreated = writeTmpJson( created );
@@ -485,7 +519,6 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   // TODO: don't skip once https://github.com/iov-one/iovns/issues/369 is closed
    it( `Should register a domain, set resources, and delete resources.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const resources = [
@@ -512,7 +545,7 @@ describe( "Tests the CLI.", () => {
       expect( resolved.account.owner ).toEqual( signer );
       compareObjects( resources, resolved.account.resources );
 
-      const emptyResources = null;
+      const emptyResources = [];
       const tmpResources = writeTmpJson( emptyResources );
       const replaceResources1 = cli( [ "tx", "starname", "set-resources", "--domain", domain, "--name", "", "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const broadcasted1 = signAndBroadcastTx( replaceResources1 );
@@ -526,7 +559,6 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   // TODO: don't skip once https://github.com/iov-one/iovns/issues/370 is closed
    it( `Should register a domain, set metadata, and delete metadata.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Not empty.";
