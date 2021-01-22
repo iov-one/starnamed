@@ -5,15 +5,12 @@ import (
 	"regexp"
 	"time"
 
-	crud "github.com/iov-one/cosmos-sdk-crud"
-	"github.com/iov-one/starnamed/pkg/utils"
-
-	"github.com/iov-one/starnamed/x/starname/controllers/domain"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -34,8 +31,7 @@ type Account struct {
 	conf         *configuration.Config
 
 	ctx        sdk.Context
-	k          keeper.Keeper
-	store      crud.Store
+	store      *crud.Store
 	domainCtrl *domain.Domain
 }
 
@@ -162,7 +158,7 @@ func (a *Account) ResettableBy(addr sdk.AccAddress, reset bool) *Account {
 	return a
 }
 
-// ResettableBy checks if the account attributes resettable by the provided address
+// ResourceLimitNotExceeded checks if the number of elements in the provided resource array exceeds the configuration limit
 func (a *Account) ResourceLimitNotExceeded(resources []*types.Resource) *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.resourceLimitNotExceeded(resources)
@@ -196,13 +192,11 @@ func (a *Account) CertificateNotExist(cert []byte) *Account {
 }
 
 // NewController is Account constructor
-func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Account {
+func NewController(ctx sdk.Context, domain, name string) *Account {
 	return &Account{
 		name:   name,
 		domain: domain,
 		ctx:    ctx,
-		k:      k,
-		store:  k.AccountStore(ctx),
 	}
 }
 
@@ -218,6 +212,12 @@ func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
 	return a
 }
 
+// WithStore allows to specify a cached crud store
+func (a *Account) WithStore(store *crud.Store) *Account {
+	a.store = store
+	return a
+}
+
 // WithAccount allows to specify a cached account
 func (a *Account) WithAccount(acc types.Account) *Account {
 	a.account = &acc
@@ -228,10 +228,9 @@ func (a *Account) WithAccount(acc types.Account) *Account {
 
 // requireDomain builds the domain controller after asserting domain existence
 func (a *Account) requireDomain() error {
-	if a.domainCtrl != nil {
-		return nil
+	if a.domainCtrl == nil {
+		panic("missing domain controller")
 	}
-	a.domainCtrl = domain.NewController(a.ctx, a.k, a.domain)
 	return a.domainCtrl.MustExist().Validate()
 }
 
@@ -241,8 +240,11 @@ func (a *Account) requireAccount() error {
 	if a.account != nil {
 		return nil
 	}
+	if a.store == nil {
+		panic("store is missing")
+	}
 	account := new(types.Account)
-	err := a.store.Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
+	err := (*a.store).Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
 	if err != nil {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}
@@ -267,11 +269,9 @@ func (a *Account) mustNotExist() error {
 // requireConfiguration updates the configuration
 // if it is not already set, and caches it after
 func (a *Account) requireConfiguration() {
-	if a.conf != nil {
-		return
+	if a.conf == nil {
+		panic("configuration is missing")
 	}
-	conf := a.k.ConfigurationKeeper.GetConfiguration(a.ctx)
-	a.conf = &conf
 }
 
 // validName is the unexported function used by ValidAccountName

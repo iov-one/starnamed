@@ -4,13 +4,11 @@ import (
 	"regexp"
 	"time"
 
-	crud "github.com/iov-one/cosmos-sdk-crud"
-	"github.com/iov-one/starnamed/pkg/utils"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -24,21 +22,24 @@ type Domain struct {
 	ctx        sdk.Context
 	domain     *types.Domain
 	conf       *configuration.Config
-	k          keeper.Keeper
-	store      crud.Store
+	store      *crud.Store
 }
 
 // NewController is the constructor for Domain
 // everything is processed sequentially, a wrong order of the sequence
 // is forbidden, example: asserting domain expiration on a non existing
 // domain causes a panic as it violates the condition scope of action.
-func NewController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
+func NewController(ctx sdk.Context, domain string) *Domain {
 	return &Domain{
 		domainName: domain,
 		ctx:        ctx,
-		k:          k,
-		store:      k.DomainStore(ctx),
 	}
+}
+
+// WithStore allows to specify a cached config
+func (c *Domain) WithStore(store *crud.Store) *Domain {
+	c.store = store
+	return c
 }
 
 // WithConfiguration allows to specify a cached config
@@ -82,7 +83,7 @@ func (c *Domain) NotExpired() *Domain {
 	return c
 }
 
-// Superuser makes sure the domain superuser is set to the provided condition
+// Type makes sure the domain type is set to the provided condition
 func (c *Domain) Type(Type types.DomainType) *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.dType(Type)
@@ -106,7 +107,7 @@ func (c *Domain) MustNotExist() *Domain {
 	return c
 }
 
-// ValidAccountName checks if the name of the domain is valid
+// ValidName checks if the name of the domain is valid
 func (c *Domain) ValidName() *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.validName()
@@ -114,7 +115,7 @@ func (c *Domain) ValidName() *Domain {
 	return c
 }
 
-// Deletable checks if the domain can be deleted by the provided address
+// DeletableBy checks if the domain can be deleted by the provided address
 func (c *Domain) DeletableBy(addr sdk.AccAddress) *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.deletableBy(addr)
@@ -215,8 +216,11 @@ func (c *Domain) requireDomain() error {
 	if c.domain != nil {
 		return nil
 	}
+	if c.store == nil {
+		panic("store is missing")
+	}
 	domain := new(types.Domain)
-	if err := c.store.Read((&types.Domain{Name: c.domainName}).PrimaryKey(), domain); err != nil {
+	if err := (*c.store).Read((&types.Domain{Name: c.domainName}).PrimaryKey(), domain); err != nil {
 		return sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", c.domainName)
 	}
 	c.domain = domain
@@ -239,8 +243,9 @@ func (c *Domain) mustNotExist() error {
 
 // validName checks if the name of the domain is valid
 func (c *Domain) validName() error {
-	// require configuration
-	c.requireConfiguration()
+	if c.conf == nil {
+		panic("configuration is missing")
+	}
 	// get valid domain regexp
 	validator := regexp.MustCompile(c.conf.ValidDomainName)
 	// assert domain name validity
@@ -254,11 +259,9 @@ func (c *Domain) validName() error {
 // requireConfiguration updates the configuration
 // if it is not already set, and caches it after
 func (c *Domain) requireConfiguration() {
-	if c.conf != nil {
-		return
+	if c.conf == nil {
+		panic("configuration is missing")
 	}
-	conf := c.k.ConfigurationKeeper.GetConfiguration(c.ctx)
-	c.conf = &conf
 }
 
 // deletableBy is the underlying operation used by DeletableBy controller

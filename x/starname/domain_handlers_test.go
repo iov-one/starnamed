@@ -232,7 +232,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"fail domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// don't do anything
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
@@ -508,6 +508,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		},
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "exists",
 					Admin:      keeper.BobKey,
@@ -563,7 +564,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain not found": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "does not exist"})

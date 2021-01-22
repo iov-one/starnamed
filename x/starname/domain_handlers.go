@@ -12,7 +12,9 @@ import (
 )
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
-	ctrl := domain.NewController(ctx, k, msg.Domain)
+	ds := k.DomainStore(ctx)
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
+	ctrl := domain.NewController(ctx, msg.Domain).WithStore(&ds).WithConfiguration(conf)
 	// do precondition and authorization checks
 	if err := ctrl.
 		MustExist().
@@ -36,7 +38,9 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
-	ctrl := domain.NewController(ctx, k, msg.Name)
+	ds := k.DomainStore(ctx)
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
+	ctrl := domain.NewController(ctx, msg.Name).WithStore(&ds).WithConfiguration(conf)
 	err = ctrl.
 		MustNotExist().
 		ValidName().
@@ -67,7 +71,9 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
-	ctrl := domain.NewController(ctx, k, msg.Domain)
+	ds := k.DomainStore(ctx)
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
+	ctrl := domain.NewController(ctx, msg.Domain).WithStore(&ds).WithConfiguration(conf)
 	err := ctrl.
 		MustExist().
 		Renewable().
@@ -89,7 +95,8 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
-	c := domain.NewController(ctx, k, msg.Domain)
+	ds := k.DomainStore(ctx)
+	c := domain.NewController(ctx, msg.Domain).WithStore(&ds)
 	err := c.
 		MustExist().
 		Admin(msg.Owner).

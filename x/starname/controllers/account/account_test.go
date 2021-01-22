@@ -2,6 +2,9 @@ package account
 
 import (
 	"errors"
+	"testing"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/pkg/utils"
@@ -10,8 +13,6 @@ import (
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"testing"
-	"time"
 )
 
 func TestAccount_transferable(t *testing.T) {
@@ -47,7 +48,8 @@ func TestAccount_transferable(t *testing.T) {
 	})
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
-		acc := NewController(ctx, k, "closed", "test")
+		dc := domain.NewController(ctx, "closed").WithStore(&ds)
+		acc := NewController(ctx, "closed", "test").WithStore(&as).WithDomainController(dc)
 		// test success
 		err := acc.
 			TransferableBy(keeper.AliceKey).
@@ -62,7 +64,8 @@ func TestAccount_transferable(t *testing.T) {
 		}
 	})
 	t.Run("open domain", func(t *testing.T) {
-		acc := NewController(ctx, k, "open", "test")
+		dc := domain.NewController(ctx, "open").WithStore(&ds)
+		acc := NewController(ctx, "open", "test").WithStore(&as).WithDomainController(dc)
 		err := acc.TransferableBy(keeper.BobKey).Validate()
 		// test success
 		if err != nil {
@@ -96,18 +99,20 @@ func TestAccount_Renewable(t *testing.T) {
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Owner:      keeper.BobKey,
 	}).Create()
+	as := k.AccountStore(ctx)
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 
 	// 18(AccountValidUntil) + 10 (AccountRP) = 28 newValidUntil
 	// no need to test closed domain since its not renewable
 	t.Run("open domain", func(t *testing.T) {
 		// 7(time) + 2(AccountRCM) * 10(AccountRP) = 27 maxValidUntil
-		acc := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "open", "test")
+		acc := NewController(ctx.WithBlockTime(time.Unix(7, 0)), "open", "test").WithStore(&as).WithConfiguration(conf)
 		err := acc.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(AccountRCM) * 10(AccountRP) = 120 maxValidUntil
-		acc = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "open", "test")
+		acc = NewController(ctx.WithBlockTime(time.Unix(100, 0)), "open", "test").WithStore(&as).WithConfiguration(conf)
 		if err := acc.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
@@ -126,14 +131,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustExist test
 	t.Run("must exist success", func(t *testing.T) {
-		acc := NewController(ctx, k, "test", "test")
+		acc := NewController(ctx, "test", "test").WithStore(&as)
 		err := acc.MustExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must exist fail", func(t *testing.T) {
-		acc := NewController(ctx, k, "test", "does not exist")
+		acc := NewController(ctx, "test", "does not exist").WithStore(&as)
 		err := acc.MustExist().Validate()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -141,14 +146,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustNotExist test
 	t.Run("must not exist success", func(t *testing.T) {
-		acc := NewController(ctx, k, "test", "does not exist")
+		acc := NewController(ctx, "test", "does not exist").WithStore(&as)
 		err := acc.MustNotExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must not exist fail", func(t *testing.T) {
-		acc := NewController(ctx, k, "test", "test")
+		acc := NewController(ctx, "test", "test").WithStore(&as)
 		err := acc.MustNotExist().Validate()
 		if !errors.Is(err, types.ErrAccountExists) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountExists, err)
@@ -166,7 +171,7 @@ func TestAccount_requireAccount(t *testing.T) {
 			Name:   utils.StrPtr("test"),
 			Owner:  alice,
 		})
-		ctrl := NewController(ctx, k, "test", "test")
+		ctrl := NewController(ctx, "test", "test").WithStore(&as)
 		err := ctrl.requireAccount()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
@@ -174,7 +179,8 @@ func TestAccount_requireAccount(t *testing.T) {
 	})
 	t.Run("does not exist", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		ctrl := NewController(ctx, k, "test", "test")
+		as := k.AccountStore(ctx)
+		ctrl := NewController(ctx, "test", "test").WithStore(&as)
 		err := ctrl.requireAccount()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
