@@ -15,8 +15,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgTransferDomain{}, fmt.Sprintf("%s/TransferDomainAll", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferAccount{}, fmt.Sprintf("%s/TransferAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRenewAccount{}, fmt.Sprintf("%s/RenewAccount", ModuleName), nil)
-	cdc.RegisterConcrete(&MsgAddAccountCertificates{}, fmt.Sprintf("%s/AddAccountCertificates", ModuleName), nil)
-	cdc.RegisterConcrete(&MsgDeleteAccountCertificate{}, fmt.Sprintf("%s/DeleteAccountCertificates", ModuleName), nil)
+	cdc.RegisterConcrete(&MsgAddAccountCertificate{}, fmt.Sprintf("%s/AddAccountCertificate", ModuleName), nil)
+	cdc.RegisterConcrete(&MsgDeleteAccountCertificate{}, fmt.Sprintf("%s/DeleteAccountCertificate", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgDeleteAccount{}, fmt.Sprintf("%s/DeleteAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgDeleteDomain{}, fmt.Sprintf("%s/DeleteDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRegisterAccount{}, fmt.Sprintf("%s/RegisterAccount", ModuleName), nil)
@@ -32,7 +32,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRegisterDomain{},
 		&MsgTransferDomain{},
 		&MsgTransferAccount{},
-		&MsgAddAccountCertificates{},
+		&MsgAddAccountCertificate{},
 		&MsgDeleteAccountCertificate{},
 		&MsgDeleteAccount{},
 		&MsgDeleteDomain{},

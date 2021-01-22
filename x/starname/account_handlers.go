@@ -13,7 +13,7 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificates) (*sdk.Result, error) {
+func handlerMsgAddAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
 	if err := domainCtrl.

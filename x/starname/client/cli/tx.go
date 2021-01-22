@@ -605,7 +605,7 @@ func getCmdAddAccountCertificate() *cobra.Command {
 				}
 			}
 			// build msg
-			msg := &types.MsgAddAccountCertificates{
+			msg := &types.MsgAddAccountCertificate{
 				Domain:         domain,
 				Name:           name,
 				Owner:          clientCtx.GetFromAddress(),

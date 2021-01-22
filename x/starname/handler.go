@@ -27,8 +27,8 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handleMsgRegisterAccount(ctx, k, msg)
 		case *types.MsgRenewAccount:
 			return handlerMsgRenewAccount(ctx, k, msg)
-		case *types.MsgAddAccountCertificates:
-			return handlerMsgAddAccountCertificates(ctx, k, msg)
+		case *types.MsgAddAccountCertificate:
+			return handlerMsgAddAccountCertificate(ctx, k, msg)
 		case *types.MsgDeleteAccountCertificate:
 			return handlerMsgDeleteAccountCertificate(ctx, k, msg)
 		case *types.MsgDeleteAccount:

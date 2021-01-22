@@ -6,8 +6,8 @@ import "x/starname/types/types.proto";
 
 option go_package="github.com/iov-one/starnamed/x/starname/types";
 
-// MsgAddAccountCertificates is the message used when a user wants to add new certificates to his account
-message MsgAddAccountCertificates {
+// MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
+message MsgAddAccountCertificate {
     // Domain is the domain of the account
     string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
     // Name is the name of the account

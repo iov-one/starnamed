@@ -12,10 +12,10 @@ type MsgWithFeePayer interface {
 	FeePayer() sdk.AccAddress
 }
 
-var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
+var _ MsgWithFeePayer = (*MsgAddAccountCertificate)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
+func (m *MsgAddAccountCertificate) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -23,17 +23,17 @@ func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
 }
 
 // Route implements sdk.Msg
-func (m *MsgAddAccountCertificates) Route() string {
+func (m *MsgAddAccountCertificate) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m *MsgAddAccountCertificates) Type() string {
+func (m *MsgAddAccountCertificate) Type() string {
 	return "add_certificates_account"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m *MsgAddAccountCertificates) ValidateBasic() error {
+func (m *MsgAddAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
@@ -47,12 +47,12 @@ func (m *MsgAddAccountCertificates) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m *MsgAddAccountCertificates) GetSignBytes() []byte {
+func (m *MsgAddAccountCertificate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
+func (m *MsgAddAccountCertificate) GetSigners() []sdk.AccAddress {
 	if m.Payer.Empty() {
 		return []sdk.AccAddress{m.Owner}
 	}
