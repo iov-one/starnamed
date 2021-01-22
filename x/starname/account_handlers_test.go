@@ -97,7 +97,9 @@ func Test_Open_handlerMsgAddAccountCertificates(t *testing.T) {
 func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain does not exist": {
-			BeforeTest: nil,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
+			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "does not exist",
@@ -113,6 +115,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"domain expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				// add expired domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
@@ -135,12 +138,12 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
-				//
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
@@ -157,6 +160,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"msg owner is not account owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -185,6 +189,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"admin cannot add cert": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -628,6 +633,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain admin can delete": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
@@ -660,6 +666,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 		"domain expired": {
 			BeforeTestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
@@ -686,6 +693,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"account owner cannot delete": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
@@ -949,6 +957,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:  "test",
 					Admin: keeper.BobKey,
@@ -969,6 +978,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"success domain owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:  "test",
 					Admin: keeper.AliceKey,
@@ -998,6 +1008,7 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"success account owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:  "test",
 					Admin: keeper.AliceKey,
@@ -2232,6 +2243,7 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
@@ -2253,6 +2265,7 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 		},
 		"signer is not owner of account": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
@@ -2281,6 +2294,7 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 		},
 		"domain admin cannot replace metadata": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
