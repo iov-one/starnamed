@@ -5,6 +5,7 @@
 
 - [x/starname/types/tx.proto](#x/starname/types/tx.proto)
     - [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate)
+    - [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse)
     - [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount)
     - [MsgDeleteAccountCertificate](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate)
     - [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain)
@@ -16,6 +17,8 @@
     - [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources)
     - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
     - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
+  
+    - [Msg](#starnamed.x.starname.v1beta1.Msg)
   
 - [x/starname/types/types.proto](#x/starname/types/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
@@ -69,6 +72,16 @@ MsgAddAccountCertificate is the message used when a user wants to add new certif
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
 | payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | new_certificate | [bytes](#bytes) |  | NewCertificate is the new certificate to add |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse"></a>
+
+### MsgAddAccountCertificateResponse
+MsgAddAccountCertificateResponse returns store result data.
 
 
 
@@ -285,6 +298,16 @@ MsgTransferDomain is the request model used to transfer a domain
  
 
  
+
+
+<a name="starnamed.x.starname.v1beta1.Msg"></a>
+
+### Msg
+Msg defines the starname Msg service.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| AddAccountCertificate | [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate) | [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse) | AddAccountCertificate adds a certificate to an Account |
 
  
 

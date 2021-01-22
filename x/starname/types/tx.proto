@@ -6,6 +6,12 @@ import "x/starname/types/types.proto";
 
 option go_package="github.com/iov-one/starnamed/x/starname/types";
 
+// Msg defines the starname Msg service.
+service Msg {
+    // AddAccountCertificate adds a certificate to an Account
+    rpc AddAccountCertificate(MsgAddAccountCertificate) returns (MsgAddAccountCertificateResponse);
+}
+
 // MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
 message MsgAddAccountCertificate {
     // Domain is the domain of the account
@@ -24,6 +30,9 @@ message MsgAddAccountCertificate {
     ];
     // NewCertificate is the new certificate to add
     bytes new_certificate = 5 [(gogoproto.moretags) = "yaml:\"new_certificate\""];
+}
+// MsgAddAccountCertificateResponse returns store result data.
+message MsgAddAccountCertificateResponse{
 }
 
 // MsgDeleteAccountCertificate is the request model used to remove certificates from an account

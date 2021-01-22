@@ -16,7 +16,7 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func Test_Close_handlerMsgAddAccountCertificates(t *testing.T) {
+func Test_Close_handlerMsgAddAccountCertificate(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"does not respect account expiration": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -40,14 +40,14 @@ func Test_Close_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: nil,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrAccountExpired, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 		},
@@ -55,7 +55,7 @@ func Test_Close_handlerMsgAddAccountCertificates(t *testing.T) {
 	keeper.RunTests(t, cases)
 }
 
-func Test_Open_handlerMsgAddAccountCertificates(t *testing.T) {
+func Test_Open_handlerMsgAddAccountCertificate(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"account expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -79,14 +79,14 @@ func Test_Open_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrAccountExpired, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 		},
@@ -94,19 +94,19 @@ func Test_Open_handlerMsgAddAccountCertificates(t *testing.T) {
 	keeper.RunTests(t, cases)
 }
 
-func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
+func Test_Common_handlerMsgAddAccountCertificate(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain does not exist": {
 			BeforeTest: nil,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "does not exist",
 					Name:           "",
 					Owner:          keeper.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -121,14 +121,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "",
 					Owner:          keeper.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrDomainExpired, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -143,14 +143,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				//
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "does not exist",
 					Owner:          nil,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -171,14 +171,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -199,14 +199,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -234,14 +234,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("test"),
 				})
 				if !errors.Is(err, types.ErrCertificateExists) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrCertificateExists, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -269,23 +269,23 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("12345"),
 				})
 				if !errors.Is(err, types.ErrCertificateSizeExceeded) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrCertificateExists, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err = handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("1234"),
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrCertificateExists, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -313,23 +313,23 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("12345"),
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrCertificateExists, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err = handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("1234"),
 				})
 				if !errors.Is(err, types.ErrCertificateLimitReached) {
-					t.Fatalf("handlerMsgAddAccountCertificates() expected error: %s, got: %s", types.ErrCertificateExists, err)
+					t.Fatalf("handlerMsgAddAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -356,14 +356,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
+				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          keeper.AliceKey,
 					NewCertificate: []byte("test"),
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgAddAccountCertificates() got error: %s", err)
+					t.Fatalf("handlerMsgAddAccountCertificate() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -373,7 +373,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 					t.Fatal("account not found")
 				}
 				if !reflect.DeepEqual(account.Certificates, expected) {
-					t.Fatalf("handlerMsgAddAccountCertificates: got: %#v, expected: %#v", account.Certificates, expected)
+					t.Fatalf("handlerMsgAddAccountCertificate: got: %#v, expected: %#v", account.Certificates, expected)
 				}
 			},
 		},
