@@ -14,3 +14,20 @@ const (
 	// DefaultParamSpace defines the key for the default param space
 	DefaultParamSpace = ModuleName
 )
+
+// Event attribute keys
+const (
+	AttributeKeyAccountName             = "account_name"
+	AttributeKeyBroker                  = "broker"
+	AttributeKeyDeletedCertificate      = "deleted_certificate"
+	AttributeKeyDomainName              = "domain_name"
+	AttributeKeyDomainType              = "domain_type"
+	AttributeKeyNewCertificate          = "new_certificate"
+	AttributeKeyNewMetadata             = "new_metadata"
+	AttributeKeyNewResources            = "new_resources"
+	AttributeKeyOwner                   = "owner"
+	AttributeKeyTransferAccountNewOwner = "new_account_owner"
+	AttributeKeyTransferAccountReset    = "transfer_account_reset"
+	AttributeKeyTransferDomainFlag      = "transfer_domain_flag"
+	AttributeKeyTransferDomainNewOwner  = "new_domain_owner"
+)
