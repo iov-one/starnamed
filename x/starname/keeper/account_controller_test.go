@@ -85,32 +85,33 @@ func TestAccount_Renewable(t *testing.T) {
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
+	domains := k.DomainStore(ctx)
+	accounts := k.AccountStore(ctx)
 	executor.NewDomain(ctx, types.Domain{
 		Name:       "open",
 		Admin:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
-	}).Create()
+	}).WithDomains(&domains).WithAccounts(&accounts).Create()
 	executor.NewAccount(ctx, types.Account{
 		Domain:     "open",
 		Name:       utils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Owner:      BobKey,
-	}).Create()
-	as := k.AccountStore(ctx)
+	}).WithAccounts(&accounts).Create()
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 
 	// 18(AccountValidUntil) + 10 (AccountRP) = 28 newValidUntil
 	// no need to test closed domain since its not renewable
 	t.Run("open domain", func(t *testing.T) {
 		// 7(time) + 2(AccountRCM) * 10(AccountRP) = 27 maxValidUntil
-		acc := NewAccountController(ctx.WithBlockTime(time.Unix(7, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
+		acc := NewAccountController(ctx.WithBlockTime(time.Unix(7, 0)), "open", "test").WithAccounts(&accounts).WithConfiguration(conf)
 		err := acc.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(AccountRCM) * 10(AccountRP) = 120 maxValidUntil
-		acc = NewAccountController(ctx.WithBlockTime(time.Unix(100, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
+		acc = NewAccountController(ctx.WithBlockTime(time.Unix(100, 0)), "open", "test").WithAccounts(&accounts).WithConfiguration(conf)
 		if err := acc.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
@@ -119,9 +120,9 @@ func TestAccount_Renewable(t *testing.T) {
 
 func TestAccount_existence(t *testing.T) {
 	k, ctx, _ := NewTestKeeper(t, true)
-	as := k.AccountStore(ctx)
+	accounts := k.AccountStore(ctx)
 	// insert mock account
-	as.Create(&types.Account{
+	accounts.Create(&types.Account{
 		Domain:     "test",
 		Name:       utils.StrPtr("test"),
 		Owner:      AliceKey,
@@ -129,14 +130,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustExist test
 	t.Run("must exist success", func(t *testing.T) {
-		acc := NewAccountController(ctx, "test", "test").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "test").WithAccounts(&accounts)
 		err := acc.MustExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must exist fail", func(t *testing.T) {
-		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&accounts)
 		err := acc.MustExist().Validate()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -144,14 +145,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustNotExist test
 	t.Run("must not exist success", func(t *testing.T) {
-		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&accounts)
 		err := acc.MustNotExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must not exist fail", func(t *testing.T) {
-		acc := NewAccountController(ctx, "test", "test").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "test").WithAccounts(&accounts)
 		err := acc.MustNotExist().Validate()
 		if !errors.Is(err, types.ErrAccountExists) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountExists, err)
@@ -162,14 +163,14 @@ func TestAccount_existence(t *testing.T) {
 func TestAccount_requireAccount(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		k, ctx, _ := NewTestKeeper(t, true)
-		as := k.AccountStore(ctx)
+		accounts := k.AccountStore(ctx)
 		alice, _ := mock.Addresses()
-		as.Create(&types.Account{
+		accounts.Create(&types.Account{
 			Domain: "test",
 			Name:   utils.StrPtr("test"),
 			Owner:  alice,
 		})
-		ctrl := NewAccountController(ctx, "test", "test").WithAccounts(&as)
+		ctrl := NewAccountController(ctx, "test", "test").WithAccounts(&accounts)
 		err := ctrl.requireAccount()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
