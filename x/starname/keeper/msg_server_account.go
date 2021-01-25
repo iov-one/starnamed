@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/controllers/fees"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -39,7 +38,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 
 	// collect fees
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -90,7 +89,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 		return nil, err
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -124,7 +123,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 	}
 	// collect fees
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -177,7 +176,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 		a.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -207,7 +206,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 		return nil, err
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -253,7 +252,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 		return nil, err
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -289,7 +288,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 	}
 	// collect fees
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -326,7 +325,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 
 	// collect fees
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)

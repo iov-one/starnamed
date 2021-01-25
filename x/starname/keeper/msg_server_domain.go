@@ -3,7 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/starnamed/x/starname/controllers/fees"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -21,7 +20,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomai
 	}
 	// operation is allowed
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain())
+	feeCtrl := NewController(ctx, feeConf, ctrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -56,7 +55,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Broker:     msg.Broker,
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, d)
+	feeCtrl := NewController(ctx, feeConf, d)
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	if err := k.CollectFees(ctx, msg, fee); err != nil {
@@ -84,7 +83,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
 	accounts := k.AccountStore(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain()).WithAccounts(&accounts)
+	feeCtrl := NewController(ctx, feeConf, ctrl.Domain()).WithAccounts(&accounts)
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)
@@ -110,7 +109,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 		return nil, err
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, c.Domain())
+	feeCtrl := NewController(ctx, feeConf, c.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)

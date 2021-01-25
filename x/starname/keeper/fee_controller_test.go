@@ -1,13 +1,11 @@
-package fees
+package keeper
 
 import (
 	"testing"
 
-	"github.com/iov-one/starnamed/pkg/utils"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -168,7 +166,7 @@ func Test_FeeApplier(t *testing.T) {
 		},
 		/* TODO: FIXME
 		"default fee unknown message": {
-			Msg:         &keeper.DullMsg{},
+			Msg:         &DullMsg{},
 			ExpectedFee: sdk.NewDec(1),
 		},
 		*/
@@ -178,15 +176,15 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(1),
 		},
 	}
-	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
-	ds.Create(&types.Domain{Name: "renew", Admin: keeper.AliceKey})
-	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr(types.EmptyAccountName), Owner: keeper.AliceKey}) // TODO in the future this might be removed
-	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("1"), Owner: keeper.AliceKey})
-	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("2"), Owner: keeper.AliceKey})
+	ds.Create(&types.Domain{Name: "renew", Admin: AliceKey})
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr(types.EmptyAccountName), Owner: AliceKey}) // TODO in the future this might be removed
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("1"), Owner: AliceKey})
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("2"), Owner: AliceKey})
 
-	k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, &fee)
+	k.ConfigurationKeeper.(ConfigurationSetter).SetFees(ctx, &fee)
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			ctrl := NewController(ctx, &fee, c.Domain)
