@@ -12,11 +12,12 @@ import (
 // controller without using the constructor function
 type Controller interface {
 	GetFee(msg sdk.Msg) sdk.Coin
+	WithAccounts(store *crud.Store) Controller
 }
 
 // NewController returns a new fee controller
 func NewController(ctx sdk.Context, fees *configuration.Fees, domain types.Domain) Controller {
-	return feeApplier{
+	return &feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
 		domain:     domain,
@@ -28,6 +29,12 @@ type feeApplier struct {
 	ctx        sdk.Context
 	store      *crud.Store
 	domain     types.Domain
+}
+
+// WithAccounts allows to specify a cached crud store
+func (f *feeApplier) WithAccounts(store *crud.Store) Controller {
+	f.store = store
+	return f
 }
 
 func (f feeApplier) registerDomain() sdk.Dec {
@@ -72,7 +79,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		panic("store is missing")
 	}
 	var accountN int64
-	cursor, err := (*f.store).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
+	cursor, err := (*f.store).Query().Where().Index(types.AccountDomainIndex).Equals(f.domain.PrimaryKey()).Do()
 	if err != nil {
 		panic(err)
 	}
