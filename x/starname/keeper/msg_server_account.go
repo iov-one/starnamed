@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/controllers/account"
 	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/controllers/fees"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
@@ -27,7 +26,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -81,7 +80,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 	}
 	// perform account checks, save certificate index
 	accounts := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
 	certIndex := new(int)
 	if err := accountCtrl.
 		MustExist().
@@ -117,7 +116,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		DeletableBy(msg.Owner).
@@ -154,7 +153,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 	accounts := k.AccountStore(ctx)
 	d := domainCtrl.Domain()
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		ValidName().
 		MustNotExist().
@@ -201,7 +200,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	}
 	// validate account
 	accounts := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		Renewable().
@@ -244,7 +243,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -280,7 +279,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -316,7 +315,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 	}
 	// check if account exists
 	accounts := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
+	accountCtrl := NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().

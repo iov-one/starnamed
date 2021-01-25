@@ -1,4 +1,4 @@
-package account
+package keeper
 
 import (
 	"errors"
@@ -10,20 +10,19 @@ import (
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/controllers/domain"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestAccount_transferable(t *testing.T) {
-	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	// create mock domains and accounts
 	// create open domain
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
 	ds.Create(&types.Domain{
 		Name:       "open",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	})
@@ -31,12 +30,12 @@ func TestAccount_transferable(t *testing.T) {
 	as.Create(&types.Account{
 		Domain: "open",
 		Name:   utils.StrPtr("test"),
-		Owner:  keeper.BobKey,
+		Owner:  BobKey,
 	})
 	// create closed domain
 	ds.Create(&types.Domain{
 		Name:       "closed",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.ClosedDomain,
 	})
@@ -44,7 +43,7 @@ func TestAccount_transferable(t *testing.T) {
 	as.Create(&types.Account{
 		Domain: "closed",
 		Name:   utils.StrPtr("test"),
-		Owner:  keeper.BobKey,
+		Owner:  BobKey,
 	})
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
@@ -52,13 +51,13 @@ func TestAccount_transferable(t *testing.T) {
 		acc := NewController(ctx, "closed", "test").WithAccounts(&as).WithDomainController(dc)
 		// test success
 		err := acc.
-			TransferableBy(keeper.AliceKey).
+			TransferableBy(AliceKey).
 			Validate()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 		// test failure
-		err = acc.TransferableBy(keeper.BobKey).Validate()
+		err = acc.TransferableBy(BobKey).Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
@@ -66,13 +65,13 @@ func TestAccount_transferable(t *testing.T) {
 	t.Run("open domain", func(t *testing.T) {
 		dc := domain.NewController(ctx, "open").WithDomains(&ds)
 		acc := NewController(ctx, "open", "test").WithAccounts(&as).WithDomainController(dc)
-		err := acc.TransferableBy(keeper.BobKey).Validate()
+		err := acc.TransferableBy(BobKey).Validate()
 		// test success
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 		// test failure
-		err = acc.TransferableBy(keeper.AliceKey).Validate()
+		err = acc.TransferableBy(AliceKey).Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
@@ -80,16 +79,16 @@ func TestAccount_transferable(t *testing.T) {
 }
 
 func TestAccount_Renewable(t *testing.T) {
-	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	ctx = ctx.WithBlockTime(time.Unix(1, 0))
-	setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+	setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 	setConfig(ctx, configuration.Config{
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
 	executor.NewDomain(ctx, types.Domain{
 		Name:       "open",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	}).Create()
@@ -97,7 +96,7 @@ func TestAccount_Renewable(t *testing.T) {
 		Domain:     "open",
 		Name:       utils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),
-		Owner:      keeper.BobKey,
+		Owner:      BobKey,
 	}).Create()
 	as := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -120,13 +119,13 @@ func TestAccount_Renewable(t *testing.T) {
 }
 
 func TestAccount_existence(t *testing.T) {
-	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	as := k.AccountStore(ctx)
 	// insert mock account
 	as.Create(&types.Account{
 		Domain:     "test",
 		Name:       utils.StrPtr("test"),
-		Owner:      keeper.AliceKey,
+		Owner:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 	})
 	// run MustExist test
@@ -163,7 +162,7 @@ func TestAccount_existence(t *testing.T) {
 
 func TestAccount_requireAccount(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		as := k.AccountStore(ctx)
 		alice, _ := mock.Addresses()
 		as.Create(&types.Account{
@@ -178,7 +177,7 @@ func TestAccount_requireAccount(t *testing.T) {
 		}
 	})
 	t.Run("does not exist", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		as := k.AccountStore(ctx)
 		ctrl := NewController(ctx, "test", "test").WithAccounts(&as)
 		err := ctrl.requireAccount()
@@ -311,28 +310,28 @@ func TestAccount_validName(t *testing.T) {
 func TestAccountRegistrableBy(t *testing.T) {
 	closedDomain := (&domain.Domain{}).WithDomain(types.Domain{
 		Type:  types.ClosedDomain,
-		Admin: keeper.AliceKey,
+		Admin: AliceKey,
 	})
 	openDomain := (&domain.Domain{}).WithDomain(types.Domain{
 		Type: types.OpenDomain,
 	})
 	t.Run("success in closed domain", func(t *testing.T) {
 		acc := (&Account{}).WithDomainController(closedDomain)
-		err := acc.RegistrableBy(keeper.AliceKey).Validate()
+		err := acc.RegistrableBy(AliceKey).Validate()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})
 	t.Run("fail in closed domain", func(t *testing.T) {
 		acc := (&Account{}).WithDomainController(closedDomain)
-		err := acc.RegistrableBy(keeper.BobKey).Validate()
+		err := acc.RegistrableBy(BobKey).Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 	})
 	t.Run("success other domain type", func(t *testing.T) {
 		acc := (&Account{}).WithDomainController(openDomain)
-		err := acc.RegistrableBy(keeper.AliceKey).Validate()
+		err := acc.RegistrableBy(AliceKey).Validate()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
