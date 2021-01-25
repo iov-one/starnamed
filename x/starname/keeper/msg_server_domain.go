@@ -3,7 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -29,7 +28,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomai
 	}
 	// all checks passed delete domain
 	accounts := k.AccountStore(ctx)
-	executor.NewDomain(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).Delete()
+	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).Delete()
 	// success TODO maybe emit event?
 	return &sdk.Result{}, nil
 }
@@ -63,7 +62,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	}
 	// save domain
 	accounts := k.AccountStore(ctx)
-	ex := executor.NewDomain(ctx, d).WithDomains(&domains).WithAccounts(&accounts)
+	ex := NewDomainExecutor(ctx, d).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Create()
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
@@ -91,7 +90,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	executor.NewDomain(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
+	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -117,7 +116,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	accounts := k.AccountStore(ctx)
-	ex := executor.NewDomain(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
+	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil

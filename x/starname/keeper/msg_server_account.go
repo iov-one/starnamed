@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -47,7 +46,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 	}
 
 	// add certificate
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.AddCertificate(msg.NewCertificate)
 
 	// success
@@ -97,7 +96,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete cert
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.DeleteCertificate(*certIndex)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
@@ -131,7 +130,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete account
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Delete()
 	// success; todo can we emit event?
 	return &sdk.Result{}, nil
@@ -183,7 +182,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
-	ex := executor.NewAccount(ctx, a).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, a).WithAccounts(&accounts)
 	ex.Create()
 	return &sdk.Result{}, nil
 }
@@ -215,7 +214,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	}
 	// renew account
 	// account valid until is extended here
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts).WithConfiguration(conf)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts).WithConfiguration(conf)
 	ex.Renew()
 	// get grace period and expiration time
 	d := domainCtrl.Domain()
@@ -223,7 +222,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	domainGracePeriodUntil := utils.SecondsToTime(d.ValidUntil).Add(dgp)
 	accNewValidUntil := utils.SecondsToTime(ex.State().ValidUntil)
 	if domainGracePeriodUntil.Before(accNewValidUntil) {
-		dex := executor.NewDomain(ctx, domainCtrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf)
+		dex := NewDomainExecutor(ctx, domainCtrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf)
 		dex.Renew(accNewValidUntil.Unix())
 	}
 	// success; todo emit event??
@@ -260,7 +259,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// replace accounts resources
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.ReplaceResources(msg.NewResources)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
@@ -296,7 +295,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// save to store
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.UpdateMetadata(msg.NewMetadataURI)
 	// success TODO emit event
 	return &sdk.Result{}, nil
@@ -333,7 +332,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Transfer(msg.NewOwner, msg.ToReset)
 	// success, todo emit event?
 	return &sdk.Result{}, nil

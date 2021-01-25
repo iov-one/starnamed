@@ -1,4 +1,4 @@
-package executor
+package keeper
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// Domain defines the domain keeper executor
-type Domain struct {
+// DomainExecutor defines the domain keeper executor
+type DomainExecutor struct {
 	domain   *types.Domain
 	ctx      sdk.Context
 	domains  *crud.Store
@@ -19,34 +19,34 @@ type Domain struct {
 	conf     *configuration.Config
 }
 
-// NewDomain returns is domain's constructor
-func NewDomain(ctx sdk.Context, dom types.Domain) *Domain {
-	return &Domain{
+// NewDomainExecutor returns is domain's constructor
+func NewDomainExecutor(ctx sdk.Context, dom types.Domain) *DomainExecutor {
+	return &DomainExecutor{
 		ctx:    ctx,
 		domain: &dom,
 	}
 }
 
 // WithAccounts allows to specify a cached config
-func (d *Domain) WithAccounts(store *crud.Store) *Domain {
+func (d *DomainExecutor) WithAccounts(store *crud.Store) *DomainExecutor {
 	d.accounts = store
 	return d
 }
 
 // WithDomains allows to specify a cached config
-func (d *Domain) WithDomains(store *crud.Store) *Domain {
+func (d *DomainExecutor) WithDomains(store *crud.Store) *DomainExecutor {
 	d.domains = store
 	return d
 }
 
 // WithConfiguration allows to specify a cached config
-func (d *Domain) WithConfiguration(cfg configuration.Config) *Domain {
+func (d *DomainExecutor) WithConfiguration(cfg configuration.Config) *DomainExecutor {
 	d.conf = &cfg
 	return d
 }
 
 // Renew renews a domain based on the configuration
-func (d *Domain) Renew(accValidUntil ...int64) {
+func (d *DomainExecutor) Renew(accValidUntil ...int64) {
 	if d.domain == nil {
 		panic("cannot execute renew state change on non present domain")
 	}
@@ -77,7 +77,7 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 }
 
 // Delete deletes a domain from the kvstore
-func (d *Domain) Delete() {
+func (d *DomainExecutor) Delete() {
 	if d.domain == nil {
 		panic("cannot execute delete state change on non present domain")
 	}
@@ -100,7 +100,7 @@ func (d *Domain) Delete() {
 }
 
 // Transfer transfers a domain given a flag and an owner
-func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
+func (d *DomainExecutor) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	if d.domain == nil {
 		panic("cannot execute transfer state on non defined domain")
 	}
@@ -116,7 +116,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	(*d.domains).Update(d.domain)
 	// transfer empty account
 	account, _ := d.getEmptyNameAccount()
-	executor := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
+	executor := NewAccountExecutor(d.ctx, *account).WithAccounts(d.accounts)
 	executor.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
@@ -134,7 +134,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
+			ex := NewAccountExecutor(d.ctx, *account).WithAccounts(d.accounts)
 			// reset the empty account...
 			if *account.Name == types.EmptyAccountName {
 				ex.Transfer(newOwner, true)
@@ -156,7 +156,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
+			ex := NewAccountExecutor(d.ctx, *account).WithAccounts(d.accounts)
 			// transfer accounts without reset
 			ex.Transfer(newOwner, false)
 		}
@@ -164,7 +164,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 }
 
 // Create creates a new domain
-func (d *Domain) Create() {
+func (d *DomainExecutor) Create() {
 	if d.domain == nil {
 		panic("cannot create non specified domain")
 	}
@@ -189,7 +189,7 @@ func (d *Domain) Create() {
 }
 
 // Gets the empty name account and cursor
-func (d *Domain) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
+func (d *DomainExecutor) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
 	if d.accounts == nil {
 		panic("domains is missing")
 	}

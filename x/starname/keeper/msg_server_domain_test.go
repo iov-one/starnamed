@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -23,19 +22,19 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
 				}).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
@@ -79,19 +78,19 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
 				}).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
@@ -134,19 +133,19 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
 				}).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
@@ -183,19 +182,19 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
 				}).WithAccounts(&accounts).Create()
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
@@ -259,7 +258,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 0,
@@ -288,7 +287,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 3,
@@ -317,7 +316,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 4,
@@ -346,14 +345,14 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test1",
 					Admin:      BobKey,
 					ValidUntil: 1589826439,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test2",
 					Admin:      BobKey,
 					ValidUntil: 1589828251,
@@ -399,7 +398,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx) // set domain
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 0,
@@ -438,7 +437,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
 				// set domain
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 0,
@@ -446,13 +445,13 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				// add two accounts
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
 				}).WithAccounts(&accounts).Create()
 				// add two accounts
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
@@ -529,7 +528,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
 
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "exists",
 					Admin:      BobKey,
 					ValidUntil: 0,
@@ -607,7 +606,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
 				// add domain
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 1000,
 					Admin:      BobKey,
@@ -654,7 +653,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		/*
 			"domain type open": {
 				BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-					executor.NewDomain(ctx, types.Domain{
+					NewDomainExecutor(ctx, types.Domain{
 						Name:  "test",
 						Type:  types.OpenDomain,
 						Admin: AliceKey,
@@ -677,7 +676,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: AliceKey,
@@ -699,7 +698,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: BobKey,
@@ -721,7 +720,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -745,14 +744,14 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				domains := k.DomainStore(ctx)
 				accounts := k.AccountStore(ctx)
 				// create domain
-				executor.NewDomain(ctx, types.Domain{
+				NewDomainExecutor(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      AliceKey,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				// add account 1
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("1"),
 					Owner:      AliceKey,
@@ -765,7 +764,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Broker:       nil,
 				}).WithAccounts(&accounts).Create()
 				// add account 2
-				executor.NewAccount(ctx, types.Account{
+				NewAccountExecutor(ctx, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("2"),
 					Owner:      AliceKey,

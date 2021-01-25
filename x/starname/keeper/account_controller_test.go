@@ -9,7 +9,6 @@ import (
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -87,13 +86,13 @@ func TestAccount_Renewable(t *testing.T) {
 	})
 	domains := k.DomainStore(ctx)
 	accounts := k.AccountStore(ctx)
-	executor.NewDomain(ctx, types.Domain{
+	NewDomainExecutor(ctx, types.Domain{
 		Name:       "open",
 		Admin:      AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	}).WithDomains(&domains).WithAccounts(&accounts).Create()
-	executor.NewAccount(ctx, types.Account{
+	NewAccountExecutor(ctx, types.Account{
 		Domain:     "open",
 		Name:       utils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),

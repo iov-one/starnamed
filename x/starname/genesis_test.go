@@ -6,7 +6,6 @@ import (
 
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/keeper"
-	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -14,14 +13,14 @@ func TestExportGenesis(t *testing.T) {
 	t.Skip("Skip TestExportGenesis for now") // TODO: FIXME
 	expected := `{"domains":[{"name":"test","admin":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"type":"open"}],"accounts":[{"domain":"test","name":"","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""},{"domain":"test","name":"test","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""}]}`
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
-	executor.NewDomain(ctx, types.Domain{
+	keeper.NewDomainExecutor(ctx, types.Domain{
 		Name:       "test",
 		Admin:      keeper.AliceKey,
 		ValidUntil: 100,
 		Type:       types.OpenDomain,
 		Broker:     nil,
 	}).Create()
-	executor.NewAccount(ctx, types.Account{
+	keeper.NewAccountExecutor(ctx, types.Account{
 		Domain:      "test",
 		Name:        utils.StrPtr("test"),
 		Owner:       keeper.AliceKey,

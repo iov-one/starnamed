@@ -1,21 +1,20 @@
-package executor
+package keeper
 
 import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestDomain_Transfer(t *testing.T) {
 	// defines test prereqs
-	init := func() (k keeper.Keeper, ctx sdk.Context, ex *Domain) {
-		k, ctx, _ = keeper.NewTestKeeper(t, false)
+	init := func() (k Keeper, ctx sdk.Context, ex *DomainExecutor) {
+		k, ctx, _ = NewTestKeeper(t, false)
 		domain := types.Domain{
 			Name:       "test",
-			Admin:      keeper.BobKey,
+			Admin:      BobKey,
 			ValidUntil: 1,
 			Type:       types.OpenDomain,
 			Broker:     nil,
@@ -23,7 +22,7 @@ func TestDomain_Transfer(t *testing.T) {
 		acc1 := types.Account{
 			Domain:       "test",
 			Name:         utils.StrPtr("1"),
-			Owner:        keeper.BobKey,
+			Owner:        BobKey,
 			ValidUntil:   1,
 			Resources:    nil,
 			Certificates: nil,
@@ -33,7 +32,7 @@ func TestDomain_Transfer(t *testing.T) {
 		acc2 := types.Account{
 			Domain:       "test",
 			Name:         utils.StrPtr("2"),
-			Owner:        keeper.BobKey,
+			Owner:        BobKey,
 			ValidUntil:   1,
 			Resources:    nil,
 			Certificates: nil,
@@ -44,13 +43,13 @@ func TestDomain_Transfer(t *testing.T) {
 		acc3 := types.Account{
 			Domain: "test",
 			Name:   utils.StrPtr("not-owned"),
-			Owner:  keeper.CharlieKey,
+			Owner:  CharlieKey,
 		}
-		NewDomain(ctx, domain).Create()
-		NewAccount(ctx, acc1).Create()
-		NewAccount(ctx, acc2).Create()
-		NewAccount(ctx, acc3).Create()
-		ex = NewDomain(ctx, domain)
+		NewDomainExecutor(ctx, domain).Create()
+		NewAccountExecutor(ctx, acc1).Create()
+		NewAccountExecutor(ctx, acc2).Create()
+		NewAccountExecutor(ctx, acc3).Create()
+		ex = NewDomainExecutor(ctx, domain)
 		return
 	}
 	t.Run("success init", func(t *testing.T) {
@@ -74,7 +73,7 @@ func TestDomain_Transfer(t *testing.T) {
 	})
 	t.Run("transfer owned", func(t *testing.T) {
 		k, ctx, ex := init()
-		ex.Transfer(types.TransferOwned, keeper.AliceKey)
+		ex.Transfer(types.TransferOwned, AliceKey)
 		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
 		if err != nil {
 			t.Fatal(err)
@@ -85,17 +84,17 @@ func TestDomain_Transfer(t *testing.T) {
 			if err = cursor.Read(acc); err != nil {
 				t.Fatal(err)
 			}
-			if !acc.Owner.Equals(keeper.AliceKey) && *acc.Name != "not-owned" {
+			if !acc.Owner.Equals(AliceKey) && *acc.Name != "not-owned" {
 				t.Fatal("owner mismatch")
 			}
-			if *acc.Name == "not-owned" && !acc.Owner.Equals(keeper.CharlieKey) {
+			if *acc.Name == "not-owned" && !acc.Owner.Equals(CharlieKey) {
 				t.Fatal("a not owned account was transferred")
 			}
 		}
 	})
 	t.Run("transfer-flush", func(t *testing.T) {
 		k, ctx, ex := init()
-		ex.Transfer(types.TransferFlush, keeper.AliceKey)
+		ex.Transfer(types.TransferFlush, AliceKey)
 		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
 		if err != nil {
 			t.Fatal(err)
@@ -121,7 +120,7 @@ func TestDomain_Transfer(t *testing.T) {
 	})
 	t.Run("transfer-reset-none", func(t *testing.T) {
 		k, ctx, ex := init()
-		ex.Transfer(types.TransferResetNone, keeper.AliceKey)
+		ex.Transfer(types.TransferResetNone, AliceKey)
 		cursor, err := k.AccountStore(ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte("test")).Do()
 		if err != nil {
 			t.Fatal(err)
@@ -134,19 +133,19 @@ func TestDomain_Transfer(t *testing.T) {
 			}
 			switch *acc.Name {
 			case types.EmptyAccountName:
-				if !acc.Owner.Equals(keeper.AliceKey) {
+				if !acc.Owner.Equals(AliceKey) {
 					t.Fatal("owner mismatch")
 				}
 			case "1":
-				if !acc.Owner.Equals(keeper.BobKey) {
+				if !acc.Owner.Equals(BobKey) {
 					t.Fatal("owner mismatch")
 				}
 			case "2":
-				if !acc.Owner.Equals(keeper.BobKey) {
+				if !acc.Owner.Equals(BobKey) {
 					t.Fatal("owner mismatch")
 				}
 			case "not-owned":
-				if !acc.Owner.Equals(keeper.CharlieKey) {
+				if !acc.Owner.Equals(CharlieKey) {
 					t.Fatal("owner mismatch")
 				}
 			default:
@@ -159,7 +158,7 @@ func TestDomain_Transfer(t *testing.T) {
 func TestDomain_Renew(t *testing.T) {
 	t.Run("success renew from config", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
-		ex := NewDomain(testCtx, testDomain)
+		ex := NewDomainExecutor(testCtx, testDomain)
 		ex.Renew()
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
@@ -172,7 +171,7 @@ func TestDomain_Renew(t *testing.T) {
 	t.Run("success renew from account", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
 		var accValidUntil int64 = 10000
-		ex := NewDomain(testCtx, testDomain)
+		ex := NewDomainExecutor(testCtx, testDomain)
 		ex.Renew(accValidUntil)
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
@@ -187,7 +186,7 @@ func TestDomain_Renew(t *testing.T) {
 func TestDomain_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
-		NewDomain(testCtx, testDomain).Delete()
+		NewDomainExecutor(testCtx, testDomain).Delete()
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{}); err == nil {
 			t.Fatal("domain was not deleted")
 		}
