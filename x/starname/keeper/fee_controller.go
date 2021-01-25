@@ -7,16 +7,16 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// Controller defines the fee controller behaviour
+// FeeController defines the fee controller behaviour
 // exists only in order to avoid devs creating a fee
 // controller without using the constructor function
-type Controller interface {
+type FeeController interface {
 	GetFee(msg sdk.Msg) sdk.Coin
-	WithAccounts(store *crud.Store) Controller
+	WithAccounts(store *crud.Store) FeeController
 }
 
-// NewController returns a new fee controller
-func NewController(ctx sdk.Context, fees *configuration.Fees, domain types.Domain) Controller {
+// NewFeeController returns a new fee controller
+func NewFeeController(ctx sdk.Context, fees *configuration.Fees, domain types.Domain) FeeController {
 	return &feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
@@ -32,7 +32,7 @@ type feeApplier struct {
 }
 
 // WithAccounts allows to specify a cached crud store
-func (f *feeApplier) WithAccounts(store *crud.Store) Controller {
+func (f *feeApplier) WithAccounts(store *crud.Store) FeeController {
 	f.store = store
 	return f
 }
