@@ -48,7 +48,7 @@ func TestAccount_transferable(t *testing.T) {
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
 		dc := domain.NewController(ctx, "closed").WithDomains(&ds)
-		acc := NewController(ctx, "closed", "test").WithAccounts(&as).WithDomainController(dc)
+		acc := NewAccountController(ctx, "closed", "test").WithAccounts(&as).WithDomainController(dc)
 		// test success
 		err := acc.
 			TransferableBy(AliceKey).
@@ -64,7 +64,7 @@ func TestAccount_transferable(t *testing.T) {
 	})
 	t.Run("open domain", func(t *testing.T) {
 		dc := domain.NewController(ctx, "open").WithDomains(&ds)
-		acc := NewController(ctx, "open", "test").WithAccounts(&as).WithDomainController(dc)
+		acc := NewAccountController(ctx, "open", "test").WithAccounts(&as).WithDomainController(dc)
 		err := acc.TransferableBy(BobKey).Validate()
 		// test success
 		if err != nil {
@@ -105,13 +105,13 @@ func TestAccount_Renewable(t *testing.T) {
 	// no need to test closed domain since its not renewable
 	t.Run("open domain", func(t *testing.T) {
 		// 7(time) + 2(AccountRCM) * 10(AccountRP) = 27 maxValidUntil
-		acc := NewController(ctx.WithBlockTime(time.Unix(7, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
+		acc := NewAccountController(ctx.WithBlockTime(time.Unix(7, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
 		err := acc.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(AccountRCM) * 10(AccountRP) = 120 maxValidUntil
-		acc = NewController(ctx.WithBlockTime(time.Unix(100, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
+		acc = NewAccountController(ctx.WithBlockTime(time.Unix(100, 0)), "open", "test").WithAccounts(&as).WithConfiguration(conf)
 		if err := acc.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
@@ -130,14 +130,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustExist test
 	t.Run("must exist success", func(t *testing.T) {
-		acc := NewController(ctx, "test", "test").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "test").WithAccounts(&as)
 		err := acc.MustExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must exist fail", func(t *testing.T) {
-		acc := NewController(ctx, "test", "does not exist").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&as)
 		err := acc.MustExist().Validate()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -145,14 +145,14 @@ func TestAccount_existence(t *testing.T) {
 	})
 	// run MustNotExist test
 	t.Run("must not exist success", func(t *testing.T) {
-		acc := NewController(ctx, "test", "does not exist").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "does not exist").WithAccounts(&as)
 		err := acc.MustNotExist().Validate()
 		if err != nil {
 			t.Errorf("got error: %s", err)
 		}
 	})
 	t.Run("must not exist fail", func(t *testing.T) {
-		acc := NewController(ctx, "test", "test").WithAccounts(&as)
+		acc := NewAccountController(ctx, "test", "test").WithAccounts(&as)
 		err := acc.MustNotExist().Validate()
 		if !errors.Is(err, types.ErrAccountExists) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountExists, err)
@@ -170,7 +170,7 @@ func TestAccount_requireAccount(t *testing.T) {
 			Name:   utils.StrPtr("test"),
 			Owner:  alice,
 		})
-		ctrl := NewController(ctx, "test", "test").WithAccounts(&as)
+		ctrl := NewAccountController(ctx, "test", "test").WithAccounts(&as)
 		err := ctrl.requireAccount()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
@@ -179,7 +179,7 @@ func TestAccount_requireAccount(t *testing.T) {
 	t.Run("does not exist", func(t *testing.T) {
 		k, ctx, _ := NewTestKeeper(t, true)
 		as := k.AccountStore(ctx)
-		ctrl := NewController(ctx, "test", "test").WithAccounts(&as)
+		ctrl := NewAccountController(ctx, "test", "test").WithAccounts(&as)
 		err := ctrl.requireAccount()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -189,7 +189,7 @@ func TestAccount_requireAccount(t *testing.T) {
 
 func TestAccount_certNotExist(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		acc := &Account{
+		acc := &AccountController{
 			account: &types.Account{
 				Certificates: [][]byte{[]byte("test-cert")},
 			},
@@ -200,7 +200,7 @@ func TestAccount_certNotExist(t *testing.T) {
 		}
 	})
 	t.Run("cert exists", func(t *testing.T) {
-		acc := &Account{
+		acc := &AccountController{
 			account: &types.Account{
 				Certificates: [][]byte{[]byte("test-cert"), []byte("exists")},
 			},
@@ -224,7 +224,7 @@ func TestAccount_notExpired(t *testing.T) {
 		Type: types.OpenDomain,
 	})
 	t.Run("success", func(t *testing.T) {
-		acc := (&Account{
+		acc := (&AccountController{
 			account: &types.Account{
 				ValidUntil: 10,
 			},
@@ -236,7 +236,7 @@ func TestAccount_notExpired(t *testing.T) {
 		}
 	})
 	t.Run("expired", func(t *testing.T) {
-		acc := (&Account{
+		acc := (&AccountController{
 			account: &types.Account{
 				ValidUntil: 10,
 			},
@@ -248,7 +248,7 @@ func TestAccount_notExpired(t *testing.T) {
 		}
 	})
 	t.Run("success account expired but in closed domain", func(t *testing.T) {
-		acc := (&Account{
+		acc := (&AccountController{
 			account: &types.Account{
 				ValidUntil: 1,
 			},
@@ -264,7 +264,7 @@ func TestAccount_notExpired(t *testing.T) {
 func TestAccount_ownedBy(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		alice, _ := mock.Addresses()
-		acc := &Account{
+		acc := &AccountController{
 			account: &types.Account{Owner: alice},
 		}
 		err := acc.OwnedBy(alice).Validate()
@@ -274,7 +274,7 @@ func TestAccount_ownedBy(t *testing.T) {
 	})
 	t.Run("bad owner", func(t *testing.T) {
 		alice, bob := mock.Addresses()
-		acc := &Account{
+		acc := &AccountController{
 			account: &types.Account{Owner: alice},
 		}
 		err := acc.OwnedBy(bob).Validate()
@@ -286,7 +286,7 @@ func TestAccount_ownedBy(t *testing.T) {
 
 func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		acc := &Account{
+		acc := &AccountController{
 			account: &types.Account{Name: utils.StrPtr("valid")},
 			conf:    &configuration.Config{ValidAccountName: "^(.*?)?"},
 		}
@@ -296,7 +296,7 @@ func TestAccount_validName(t *testing.T) {
 		}
 	})
 	t.Run("success", func(t *testing.T) {
-		acc := &Account{
+		acc := &AccountController{
 			name: "not valid",
 			conf: &configuration.Config{ValidAccountName: "$^"},
 		}
@@ -316,21 +316,21 @@ func TestAccountRegistrableBy(t *testing.T) {
 		Type: types.OpenDomain,
 	})
 	t.Run("success in closed domain", func(t *testing.T) {
-		acc := (&Account{}).WithDomainController(closedDomain)
+		acc := (&AccountController{}).WithDomainController(closedDomain)
 		err := acc.RegistrableBy(AliceKey).Validate()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})
 	t.Run("fail in closed domain", func(t *testing.T) {
-		acc := (&Account{}).WithDomainController(closedDomain)
+		acc := (&AccountController{}).WithDomainController(closedDomain)
 		err := acc.RegistrableBy(BobKey).Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 	})
 	t.Run("success other domain type", func(t *testing.T) {
-		acc := (&Account{}).WithDomainController(openDomain)
+		acc := (&AccountController{}).WithDomainController(openDomain)
 		err := acc.RegistrableBy(AliceKey).Validate()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
