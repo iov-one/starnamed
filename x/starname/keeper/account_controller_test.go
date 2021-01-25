@@ -216,10 +216,10 @@ func TestAccount_certNotExist(t *testing.T) {
 }
 
 func TestAccount_notExpired(t *testing.T) {
-	closedDomain := (&Domain{}).WithDomain(types.Domain{
+	closedDomain := (&DomainController{}).WithDomain(types.Domain{
 		Type: types.ClosedDomain,
 	})
-	openDomain := (&Domain{}).WithDomain(types.Domain{
+	openDomain := (&DomainController{}).WithDomain(types.Domain{
 		Type: types.OpenDomain,
 	})
 	t.Run("success", func(t *testing.T) {
@@ -307,11 +307,11 @@ func TestAccount_validName(t *testing.T) {
 }
 
 func TestAccountRegistrableBy(t *testing.T) {
-	closedDomain := (&Domain{}).WithDomain(types.Domain{
+	closedDomain := (&DomainController{}).WithDomain(types.Domain{
 		Type:  types.ClosedDomain,
 		Admin: AliceKey,
 	})
-	openDomain := (&Domain{}).WithDomain(types.Domain{
+	openDomain := (&DomainController{}).WithDomain(types.Domain{
 		Type: types.OpenDomain,
 	})
 	t.Run("success in closed domain", func(t *testing.T) {

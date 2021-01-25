@@ -31,7 +31,7 @@ type AccountController struct {
 
 	ctx        sdk.Context
 	store      *crud.Store
-	domainCtrl *Domain
+	domainCtrl *DomainController
 }
 
 // Validate verifies the account against the order of provided controllers
@@ -200,7 +200,7 @@ func NewAccountController(ctx sdk.Context, domain, name string) *AccountControll
 }
 
 // WithDomainController allows to specify a cached domain controller
-func (a *AccountController) WithDomainController(dom *Domain) *AccountController {
+func (a *AccountController) WithDomainController(dom *DomainController) *AccountController {
 	a.domainCtrl = dom
 	return a
 }
