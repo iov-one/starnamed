@@ -21,23 +21,25 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {

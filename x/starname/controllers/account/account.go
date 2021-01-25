@@ -212,8 +212,8 @@ func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
 	return a
 }
 
-// WithStore allows to specify a cached crud store
-func (a *Account) WithStore(store *crud.Store) *Account {
+// WithAccounts allows to specify a cached crud store
+func (a *Account) WithAccounts(store *crud.Store) *Account {
 	a.store = store
 	return a
 }

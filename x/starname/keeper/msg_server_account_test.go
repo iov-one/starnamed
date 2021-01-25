@@ -37,7 +37,7 @@ func Test_Close_handlerMsgAddAccountCertificate(t *testing.T) {
 					Name:       utils.StrPtr("test"),
 					ValidUntil: 0,
 					Owner:      AliceKey,
-				}).WithStore(&accounts).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgAddAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{

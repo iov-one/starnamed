@@ -12,7 +12,7 @@ func TestAccount_AddCertificate(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	cert := []byte("a-cert")
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.AddCertificate(cert)
 	got := new(types.Account)
 	as.Read(testAccount.PrimaryKey(), got)
@@ -26,7 +26,7 @@ func TestAccount_Create(t *testing.T) {
 	acc := testAccount
 	acc.Domain = "some-random-domain"
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.Create()
 	got := new(types.Account)
 	as.Read(acc.PrimaryKey(), got)
@@ -38,7 +38,7 @@ func TestAccount_Create(t *testing.T) {
 func TestAccount_DeleteCertificate(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.DeleteCertificate(0)
 	got := new(types.Account)
 	as.Read(testAccount.PrimaryKey(), got)
@@ -50,7 +50,7 @@ func TestAccount_DeleteCertificate(t *testing.T) {
 func TestAccount_Renew(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.Renew()
 	newAcc := new(types.Account)
 	if err := as.Read(testAccount.PrimaryKey(), newAcc); err != nil {
@@ -68,7 +68,7 @@ func TestAccount_ReplaceResources(t *testing.T) {
 		Resource: "res",
 	}}
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.ReplaceResources(newRes)
 	got := new(types.Account)
 	as.Read(testAccount.PrimaryKey(), got)
@@ -83,7 +83,7 @@ func TestAccount_State(t *testing.T) {
 
 func TestAccount_Transfer(t *testing.T) {
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	t.Run("no-reset", func(t *testing.T) {
 		// dmjp testCtx, _ := testCtx.CacheContext()
 
@@ -122,7 +122,7 @@ func TestAccount_UpdateMetadata(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	newMeta := "a new meta"
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.UpdateMetadata(newMeta)
 	got := new(types.Account)
 	as.Read(testAccount.PrimaryKey(), got)
@@ -134,7 +134,7 @@ func TestAccount_UpdateMetadata(t *testing.T) {
 func TestAccount_Delete(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex := NewAccount(testCtx, testAccount).WithAccounts(&as)
 	ex.Delete()
 	got := new(types.Account)
 	if err := as.Read(testAccount.PrimaryKey(), got); err == nil {

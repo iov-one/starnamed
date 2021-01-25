@@ -36,8 +36,8 @@ func NewController(ctx sdk.Context, domain string) *Domain {
 	}
 }
 
-// WithStore allows to specify a cached config
-func (c *Domain) WithStore(store *crud.Store) *Domain {
+// WithDomains allows to specify a cached config
+func (c *Domain) WithDomains(store *crud.Store) *Domain {
 	c.store = store
 	return c
 }

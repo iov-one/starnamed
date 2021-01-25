@@ -24,8 +24,8 @@ type Account struct {
 	conf    *configuration.Config
 }
 
-// WithStore allows to specify a cached accounts store
-func (a *Account) WithStore(store *crud.Store) *Account {
+// WithAccounts allows to specify a cached accounts store
+func (a *Account) WithAccounts(store *crud.Store) *Account {
 	a.store = store
 	return a
 }
