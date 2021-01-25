@@ -8,16 +8,16 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// NewAccount is the constuctor for an account executor
-func NewAccount(ctx sdk.Context, account types.Account) *Account {
-	return &Account{
+// NewAccountExecutor is the constuctor for an account executor
+func NewAccountExecutor(ctx sdk.Context, account types.Account) *AccountExecutor {
+	return &AccountExecutor{
 		account: &account,
 		ctx:     ctx,
 	}
 }
 
-// Account defines an account executor
-type Account struct {
+// AccountExecutor defines an account executor
+type AccountExecutor struct {
 	store   *crud.Store
 	account *types.Account
 	ctx     sdk.Context
@@ -25,19 +25,19 @@ type Account struct {
 }
 
 // WithAccounts allows to specify a cached accounts store
-func (a *Account) WithAccounts(store *crud.Store) *Account {
+func (a *AccountExecutor) WithAccounts(store *crud.Store) *AccountExecutor {
 	a.store = store
 	return a
 }
 
 // WithConfiguration allows to specify a cached config
-func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
+func (a *AccountExecutor) WithConfiguration(cfg configuration.Config) *AccountExecutor {
 	a.conf = &cfg
 	return a
 }
 
 // Transfer transfers the account to the provided owner with information reset if reset is true
-func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
+func (a *AccountExecutor) Transfer(newOwner sdk.AccAddress, reset bool) {
 	if a.account == nil {
 		panic("cannot transfer non specified account")
 	}
@@ -58,7 +58,7 @@ func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
 }
 
 // UpdateMetadata updates account's metadata
-func (a *Account) UpdateMetadata(newMetadata string) {
+func (a *AccountExecutor) UpdateMetadata(newMetadata string) {
 	if a.account == nil {
 		panic("cannot update metadata on non specified account")
 	}
@@ -70,7 +70,7 @@ func (a *Account) UpdateMetadata(newMetadata string) {
 }
 
 // ReplaceResources replaces account's resources
-func (a *Account) ReplaceResources(newTargets []*types.Resource) {
+func (a *AccountExecutor) ReplaceResources(newTargets []*types.Resource) {
 	if a.account == nil {
 		panic("cannot replace targets on non specified account")
 	}
@@ -82,7 +82,7 @@ func (a *Account) ReplaceResources(newTargets []*types.Resource) {
 }
 
 // Renew renews an account
-func (a *Account) Renew() {
+func (a *AccountExecutor) Renew() {
 	if a.account == nil {
 		panic("cannot renew a non specified account")
 	}
@@ -98,7 +98,7 @@ func (a *Account) Renew() {
 }
 
 // Create creates an account
-func (a *Account) Create() {
+func (a *AccountExecutor) Create() {
 	if a.account == nil {
 		panic("cannot create a non specified account")
 	}
@@ -109,7 +109,7 @@ func (a *Account) Create() {
 }
 
 // Delete deletes the account
-func (a *Account) Delete() {
+func (a *AccountExecutor) Delete() {
 	if a.account == nil {
 		panic("cannot delete a non specified account")
 	}
@@ -120,7 +120,7 @@ func (a *Account) Delete() {
 }
 
 // DeleteCertificate deletes the certificate of the account at the provided index
-func (a *Account) DeleteCertificate(index int) {
+func (a *AccountExecutor) DeleteCertificate(index int) {
 	if a.account == nil {
 		panic("cannot delete certificate on a non specified account")
 	}
@@ -132,7 +132,7 @@ func (a *Account) DeleteCertificate(index int) {
 }
 
 // AddCertificate adds a certificate to the account
-func (a *Account) AddCertificate(cert []byte) {
+func (a *AccountExecutor) AddCertificate(cert []byte) {
 	if a.account == nil {
 		panic("cannot add certificate on a non specified account")
 	}
@@ -144,7 +144,7 @@ func (a *Account) AddCertificate(cert []byte) {
 }
 
 // State returns the current state of the account
-func (a *Account) State() types.Account {
+func (a *AccountExecutor) State() types.Account {
 	if a.account == nil {
 		panic("cannot get state of a non specified account")
 	}
