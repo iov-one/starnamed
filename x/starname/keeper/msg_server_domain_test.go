@@ -77,23 +77,25 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -130,23 +132,25 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -177,23 +181,25 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -251,13 +257,15 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1000000000000000,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 0,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 1,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -278,13 +286,15 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 5,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 3,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -305,13 +315,15 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 5,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      BobKey,
 					ValidUntil: 4,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -332,20 +344,22 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test1",
 					Admin:      BobKey,
 					ValidUntil: 1589826439,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test2",
 					Admin:      BobKey,
 					ValidUntil: 1589828251,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 1589826441,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -383,14 +397,15 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1000000000000000, // unexpired domain
 				})
-				// set domain
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx) // set domain
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      AliceKey,
 					ValidUntil: 0,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			TestBlockTime: 4,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -420,6 +435,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				// set domain
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
@@ -427,19 +444,19 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					ValidUntil: 0,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				// add two accounts
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				// add two accounts
 				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  BobKey,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
@@ -509,13 +526,16 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
+
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "exists",
 					Admin:      BobKey,
 					ValidUntil: 0,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
@@ -584,12 +604,14 @@ func Test_handlerDomainRenew(t *testing.T) {
 					DomainRenewalPeriod:   1 * time.Second,
 					DomainGracePeriod:     10 * time.Second,
 				})
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				// add domain
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 1000,
 					Admin:      BobKey,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "test"})
@@ -653,11 +675,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		*/
 		"domain type closed": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: AliceKey,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
@@ -673,11 +697,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"domain has expired": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: BobKey,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
@@ -693,12 +719,14 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"msg signer is not domain admin": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      AliceKey,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
@@ -714,13 +742,15 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				domains := k.DomainStore(ctx)
+				accounts := k.AccountStore(ctx)
 				// create domain
 				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      AliceKey,
-				}).Create()
+				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 				// add account 1
 				executor.NewAccount(ctx, types.Account{
 					Domain:     "test",
@@ -733,7 +763,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					}},
 					Certificates: [][]byte{[]byte("cert")},
 					Broker:       nil,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 				// add account 2
 				executor.NewAccount(ctx, types.Account{
 					Domain:     "test",
@@ -746,7 +776,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					}},
 					Certificates: [][]byte{[]byte("cert")},
 					Broker:       nil,
-				}).Create()
+				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{

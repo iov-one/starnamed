@@ -116,7 +116,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	(*d.domains).Update(d.domain)
 	// transfer empty account
 	account, _ := d.getEmptyNameAccount()
-	executor := NewAccount(d.ctx, *account)
+	executor := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
 	executor.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
@@ -134,7 +134,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, *account)
+			ex := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
 			// reset the empty account...
 			if *account.Name == types.EmptyAccountName {
 				ex.Transfer(newOwner, true)
@@ -156,7 +156,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, *account)
+			ex := NewAccount(d.ctx, *account).WithAccounts(d.accounts)
 			// transfer accounts without reset
 			ex.Transfer(newOwner, false)
 		}

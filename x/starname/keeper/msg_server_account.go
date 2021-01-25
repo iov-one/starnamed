@@ -71,8 +71,8 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
@@ -80,8 +80,8 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 		return nil, err
 	}
 	// perform account checks, save certificate index
-	as := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl)
+	accounts := k.AccountStore(ctx)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
 	certIndex := new(int)
 	if err := accountCtrl.
 		MustExist().
@@ -100,7 +100,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete cert
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.DeleteCertificate(*certIndex)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
@@ -109,15 +109,15 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 // handlerMsgDelete account deletes the account from the system
 func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().Validate(); err != nil {
 		return nil, err
 	}
 	// perform account checks
-	as := k.AccountStore(ctx)
+	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		DeletableBy(msg.Owner).
@@ -134,7 +134,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete account
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Delete()
 	// success; todo can we emit event?
 	return &sdk.Result{}, nil
@@ -143,18 +143,18 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 // handleMsgRegisterAccount registers the account
 func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
 		Validate(); err != nil {
 		return nil, err
 	}
-	as := k.AccountStore(ctx)
+	accounts := k.AccountStore(ctx)
 	d := domainCtrl.Domain()
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		ValidName().
 		MustNotExist().
@@ -186,22 +186,22 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
-	ex := executor.NewAccount(ctx, a)
+	ex := executor.NewAccount(ctx, a).WithAccounts(&accounts)
 	ex.Create()
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
+	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds).WithConfiguration(conf)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
 	if err := domainCtrl.MustExist().Type(types.OpenDomain).Validate(); err != nil {
 		return nil, err
 	}
 	// validate account
-	as := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithConfiguration(conf)
+	accounts := k.AccountStore(ctx)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		Renewable().
@@ -218,7 +218,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	}
 	// renew account
 	// account valid until is extended here
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts).WithConfiguration(conf)
 	ex.Renew()
 	// get grace period and expiration time
 	d := domainCtrl.Domain()
@@ -226,7 +226,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	domainGracePeriodUntil := utils.SecondsToTime(d.ValidUntil).Add(dgp)
 	accNewValidUntil := utils.SecondsToTime(ex.State().ValidUntil)
 	if domainGracePeriodUntil.Before(accNewValidUntil) {
-		dex := executor.NewDomain(ctx, domainCtrl.Domain())
+		dex := executor.NewDomain(ctx, domainCtrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf)
 		dex.Renew(accNewValidUntil.Unix())
 	}
 	// success; todo emit event??
@@ -236,15 +236,15 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 // handlerMsgReplaceAccountResources replaces account resources
 func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
 	// perform account checks
-	as := k.AccountStore(ctx)
+	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -263,7 +263,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// replace accounts resources
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.ReplaceResources(msg.NewResources)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
@@ -272,15 +272,15 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 // handlerMsgReplaceAccountMetadata takes care of setting account metadata
 func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
 	// perform account checks
-	as := k.AccountStore(ctx)
+	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl).WithConfiguration(conf)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl).WithConfiguration(conf)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -299,7 +299,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// save to store
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.UpdateMetadata(msg.NewMetadataURI)
 	// success TODO emit event
 	return &sdk.Result{}, nil
@@ -309,14 +309,14 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 // after clearing resources and certificates
 func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
-	ds := k.DomainStore(ctx)
-	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	domainCtrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
 	// check if account exists
-	as := k.AccountStore(ctx)
-	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&as).WithDomainController(domainCtrl)
+	accounts := k.AccountStore(ctx)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
 	if err := accountCtrl.
 		MustExist().
 		NotExpired().
@@ -336,7 +336,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	ex := executor.NewAccount(ctx, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Transfer(msg.NewOwner, msg.ToReset)
 	// success, todo emit event?
 	return &sdk.Result{}, nil

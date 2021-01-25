@@ -38,9 +38,9 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomai
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
-	ds := k.DomainStore(ctx)
+	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	ctrl := domain.NewController(ctx, msg.Name).WithDomains(&ds).WithConfiguration(conf)
+	ctrl := domain.NewController(ctx, msg.Name).WithDomains(&domains).WithConfiguration(conf)
 	err = ctrl.
 		MustNotExist().
 		ValidName().
@@ -64,7 +64,8 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// save domain
-	ex := executor.NewDomain(ctx, d)
+	accounts := k.AccountStore(ctx)
+	ex := executor.NewDomain(ctx, d).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Create()
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
@@ -72,9 +73,9 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
-	ds := k.DomainStore(ctx)
+	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	ctrl := domain.NewController(ctx, msg.Domain).WithDomains(&ds).WithConfiguration(conf)
+	ctrl := domain.NewController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
 	err := ctrl.
 		MustExist().
 		Renewable().
@@ -83,7 +84,8 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 		return nil, err
 	}
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain())
+	accounts := k.AccountStore(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain()).WithAccounts(&accounts)
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)
@@ -91,14 +93,14 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	executor.NewDomain(ctx, ctrl.Domain()).Renew()
+	executor.NewDomain(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
-	ds := k.DomainStore(ctx)
-	c := domain.NewController(ctx, msg.Domain).WithDomains(&ds)
+	domains := k.DomainStore(ctx)
+	c := domain.NewController(ctx, msg.Domain).WithDomains(&domains)
 	err := c.
 		MustExist().
 		Admin(msg.Owner).
@@ -116,7 +118,8 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
-	ex := executor.NewDomain(ctx, c.Domain())
+	accounts := k.AccountStore(ctx)
+	ex := executor.NewDomain(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
