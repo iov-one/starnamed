@@ -46,7 +46,7 @@ func TestAccount_transferable(t *testing.T) {
 	})
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
-		dc := NewController(ctx, "closed").WithDomains(&ds)
+		dc := NewDomainController(ctx, "closed").WithDomains(&ds)
 		acc := NewAccountController(ctx, "closed", "test").WithAccounts(&as).WithDomainController(dc)
 		// test success
 		err := acc.
@@ -62,7 +62,7 @@ func TestAccount_transferable(t *testing.T) {
 		}
 	})
 	t.Run("open domain", func(t *testing.T) {
-		dc := NewController(ctx, "open").WithDomains(&ds)
+		dc := NewDomainController(ctx, "open").WithDomains(&ds)
 		acc := NewAccountController(ctx, "open", "test").WithAccounts(&as).WithDomainController(dc)
 		err := acc.TransferableBy(BobKey).Validate()
 		// test success

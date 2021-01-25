@@ -14,7 +14,7 @@ import (
 func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
@@ -70,7 +70,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
@@ -108,7 +108,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().Validate(); err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
@@ -193,7 +193,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
 	if err := domainCtrl.MustExist().Type(types.OpenDomain).Validate(); err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
-	domainCtrl := NewController(ctx, msg.Domain).WithDomains(&domains)
+	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@ func TestDomain_requireDomain(t *testing.T) {
 			Admin: AliceKey,
 			Type:  types.OpenDomain,
 		})
-		ctrl := NewController(ctx, "test").WithDomains(&ds)
+		ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 		err := ctrl.requireDomain()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
@@ -29,7 +29,7 @@ func TestDomain_requireDomain(t *testing.T) {
 	t.Run("does not exist", func(t *testing.T) {
 		k, ctx, _ := NewTestKeeper(t, true)
 		ds := k.DomainStore(ctx)
-		ctrl := NewController(ctx, "test").WithDomains(&ds)
+		ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 		err := ctrl.requireDomain()
 		if !errors.Is(err, types.ErrDomainDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -47,7 +47,7 @@ func TestDomain_domainExpired(t *testing.T) {
 			Type:       types.OpenDomain,
 			ValidUntil: 0,
 		})
-		ctrl := NewController(ctx, "test").WithDomains(&ds)
+		ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 		err := ctrl.expired()
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
@@ -62,7 +62,7 @@ func TestDomain_domainExpired(t *testing.T) {
 			Admin:      AliceKey,
 			ValidUntil: now.Unix() + 10000,
 		})
-		ctrl := NewController(ctx, "test").WithDomains(&ds)
+		ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 		err := ctrl.expired()
 		if !errors.Is(err, types.ErrDomainNotExpired) {
 			t.Fatalf("expected error: %s, got: %s", types.ErrDomainNotExpired, err)
@@ -71,7 +71,7 @@ func TestDomain_domainExpired(t *testing.T) {
 	t.Run("domain does not exist", func(t *testing.T) {
 		k, ctx, _ := NewTestKeeper(t, true)
 		store := k.DomainStore(ctx)
-		ctrl := NewController(ctx, "test").WithDomains(&store)
+		ctrl := NewDomainController(ctx, "test").WithDomains(&store)
 		assert.Panics(t, func() { _ = ctrl.expired() }, "domain does not exists")
 	})
 }
@@ -96,7 +96,7 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
 				err := ctrl.gracePeriodFinished()
 				if err != nil {
 					t.Fatal("validation failed: grace period has not expired")
@@ -121,7 +121,7 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
 				err := ctrl.gracePeriodFinished()
 				if !errors.Is(err, types.ErrDomainGracePeriodNotFinished) {
 					t.Fatalf("expected error: %s, got: %s", types.ErrDomainGracePeriodNotFinished, err)
@@ -145,7 +145,7 @@ func TestDomain_ownedBy(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.isAdmin(AliceKey)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -163,7 +163,7 @@ func TestDomain_ownedBy(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.isAdmin(BobKey)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
@@ -188,7 +188,7 @@ func TestDomain_notExpired(t *testing.T) {
 			TestBlockTime: 1,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.notExpired()
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -207,7 +207,7 @@ func TestDomain_notExpired(t *testing.T) {
 			TestBlockTime: 2,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.notExpired()
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("want err: %s, got: %s", types.ErrDomainExpired, err)
@@ -231,7 +231,7 @@ func TestDomain_type(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.ClosedDomain)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -249,7 +249,7 @@ func TestDomain_type(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.OpenDomain)
 				if !errors.Is(err, types.ErrInvalidDomainType) {
 					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainType, err)
@@ -267,7 +267,7 @@ func TestDomain_type(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
-				ctrl := NewController(ctx, "test").WithDomains(&ds)
+				ctrl := NewDomainController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.ClosedDomain)
 				if !errors.Is(err, types.ErrInvalidDomainType) {
 					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainType, err)
@@ -295,7 +295,7 @@ func TestDomain_validName(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-				ctrl := NewController(ctx, "test").WithConfiguration(conf)
+				ctrl := NewDomainController(ctx, "test").WithConfiguration(conf)
 				err := ctrl.validName()
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -317,7 +317,7 @@ func TestDomain_validName(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
-				ctrl := NewController(ctx, "test").WithConfiguration(conf)
+				ctrl := NewDomainController(ctx, "test").WithConfiguration(conf)
 				err := ctrl.validName()
 				if !errors.Is(err, types.ErrInvalidDomainName) {
 					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainName, err)
@@ -359,7 +359,7 @@ func TestDomain_Renewable(t *testing.T) {
 	})
 	// 120(DomainValidUntil) + 10(DomainRP) = 130 newValidUntil
 	t.Run("beyond grace period", func(t *testing.T) {
-		d := NewController(ctx.WithBlockTime(time.Unix(241, 0)), "deadline-exceeded").WithDomains(&ds).WithConfiguration(conf)
+		d := NewDomainController(ctx.WithBlockTime(time.Unix(241, 0)), "deadline-exceeded").WithDomains(&ds).WithConfiguration(conf)
 		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrRenewalDeadlineExceeded) {
 			t.Fatalf("want: %s, got: %s", types.ErrRenewalDeadlineExceeded, err)
@@ -369,13 +369,13 @@ func TestDomain_Renewable(t *testing.T) {
 	// 18(DomainValidUntil) + 10 (DomainRP) = 28 newValidUntil
 	t.Run("open domain", func(t *testing.T) {
 		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
-		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), "open").WithDomains(&ds).WithConfiguration(conf)
+		d := NewDomainController(ctx.WithBlockTime(time.Unix(7, 0)), "open").WithDomains(&ds).WithConfiguration(conf)
 		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
-		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), "open").WithDomains(&ds).WithConfiguration(conf)
+		d = NewDomainController(ctx.WithBlockTime(time.Unix(100, 0)), "open").WithDomains(&ds).WithConfiguration(conf)
 		if err := d.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
@@ -383,13 +383,13 @@ func TestDomain_Renewable(t *testing.T) {
 	// 18(DomainValidUntil) + 10 (DomainRP) = 28 newValidUntil
 	t.Run("closed domain", func(t *testing.T) {
 		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
-		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), "closed").WithDomains(&ds).WithConfiguration(conf)
+		d := NewDomainController(ctx.WithBlockTime(time.Unix(7, 0)), "closed").WithDomains(&ds).WithConfiguration(conf)
 		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
-		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), "closed").WithDomains(&ds).WithConfiguration(conf)
+		d = NewDomainController(ctx.WithBlockTime(time.Unix(100, 0)), "closed").WithDomains(&ds).WithConfiguration(conf)
 		if err := d.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}

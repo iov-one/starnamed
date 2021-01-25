@@ -25,11 +25,11 @@ type DomainController struct {
 	store      *crud.Store
 }
 
-// NewController is the constructor for Domain
+// NewDomainController is the constructor for Domain
 // everything is processed sequentially, a wrong order of the sequence
 // is forbidden, example: asserting domain expiration on a non existing
 // domain causes a panic as it violates the condition scope of action.
-func NewController(ctx sdk.Context, domain string) *DomainController {
+func NewDomainController(ctx sdk.Context, domain string) *DomainController {
 	return &DomainController{
 		domainName: domain,
 		ctx:        ctx,
