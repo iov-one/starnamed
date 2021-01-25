@@ -17,7 +17,7 @@ func NewHandler(k *Keeper) sdk.Handler {
 
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
-
+		/* TODO: FIXME
 		switch msg := msg.(type) {
 		// domain handlers
 		case *types.MsgRegisterDomain:
@@ -44,6 +44,7 @@ func NewHandler(k *Keeper) sdk.Handler {
 		case *types.MsgReplaceAccountMetadata:
 			return handlerMsgReplaceAccountMetadata(ctx, *k, msg)
 		}
+		*/
 
 		var (
 			res proto.Message

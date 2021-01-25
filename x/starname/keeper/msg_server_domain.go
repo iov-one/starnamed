@@ -1,17 +1,15 @@
-package starname
+package keeper
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/controllers/fees"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/x/starname/controllers/domain"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
+func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	ds := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := domain.NewController(ctx, msg.Domain).WithStore(&ds).WithConfiguration(conf)
@@ -72,7 +70,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 }
 
 // handlerMsgRenewDomain renews a domain
-func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
+func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
 	ds := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := domain.NewController(ctx, msg.Domain).WithStore(&ds).WithConfiguration(conf)
@@ -97,7 +95,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 	return &sdk.Result{}, nil
 }
 
-func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
+func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
 	ds := k.DomainStore(ctx)
 	c := domain.NewController(ctx, msg.Domain).WithStore(&ds)
 	err := c.

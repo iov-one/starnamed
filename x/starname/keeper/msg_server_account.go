@@ -1,18 +1,19 @@
-package starname
+package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/controllers/account"
 	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/controllers/fees"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func handlerMsgAddAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificate) (*sdk.Result, error) {
+func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&domains)
@@ -37,6 +38,8 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *type
 		Validate(); err != nil {
 		return nil, err
 	}
+
+	// collect fees
 	feeConf := k.ConfigurationKeeper.GetFees(ctx)
 	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
@@ -45,14 +48,28 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *type
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// add certificate
 	ex := executor.NewAccount(ctx, accountCtrl.Account()).WithStore(&accounts)
 	ex.AddCertificate(msg.NewCertificate)
-	// success; TODO emit event
+
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewCertificate, fmt.Sprintf("%x", msg.NewCertificate)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &sdk.Result{}, nil
 }
 
-func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
+func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
@@ -90,7 +107,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 }
 
 // handlerMsgDelete account deletes the account from the system
-func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
+func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
@@ -124,7 +141,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 }
 
 // handleMsgRegisterAccount registers the account
-func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
+func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
@@ -174,7 +191,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	return &sdk.Result{}, nil
 }
 
-func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
+func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -217,7 +234,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 }
 
 // handlerMsgReplaceAccountResources replaces account resources
-func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
+func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
@@ -253,7 +270,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *ty
 }
 
 // handlerMsgReplaceAccountMetadata takes care of setting account metadata
-func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
+func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
@@ -290,7 +307,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 
 // handlerMsgTransferAccount transfers account to a new owner
 // after clearing resources and certificates
-func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
+func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
 	ds := k.DomainStore(ctx)
 	domainCtrl := domain.NewController(ctx, msg.Domain).WithStore(&ds)
