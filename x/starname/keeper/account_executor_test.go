@@ -1,10 +1,9 @@
-package executor
+package keeper
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -87,10 +86,10 @@ func TestAccount_Transfer(t *testing.T) {
 	t.Run("no-reset", func(t *testing.T) {
 		// dmjp testCtx, _ := testCtx.CacheContext()
 
-		ex.Transfer(keeper.CharlieKey, false)
+		ex.Transfer(CharlieKey, false)
 		got := new(types.Account)
 		as.Read(testAccount.PrimaryKey(), got)
-		if !got.Owner.Equals(keeper.CharlieKey) {
+		if !got.Owner.Equals(CharlieKey) {
 			t.Fatal("unexpected owner")
 		}
 		if !reflect.DeepEqual(got.Resources, testAccount.Resources) {
@@ -106,10 +105,10 @@ func TestAccount_Transfer(t *testing.T) {
 	t.Run("with-reset", func(t *testing.T) {
 		// dmjp testCtx, _ := testCtx.CacheContext()
 
-		ex.Transfer(keeper.BobKey, true)
+		ex.Transfer(BobKey, true)
 		got := new(types.Account)
 		as.Read(testAccount.PrimaryKey(), got)
-		if !got.Owner.Equals(keeper.BobKey) {
+		if !got.Owner.Equals(BobKey) {
 			t.Fatal("owner mismatch")
 		}
 		if got.MetadataURI != "" || got.Resources != nil || got.Certificates != nil {
