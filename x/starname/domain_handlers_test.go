@@ -23,19 +23,19 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
@@ -77,19 +77,19 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
@@ -130,19 +130,19 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
@@ -177,19 +177,19 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 10 * time.Second,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
@@ -251,7 +251,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1000000000000000,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
 					ValidUntil: 0,
@@ -278,7 +278,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 5,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
 					ValidUntil: 3,
@@ -305,7 +305,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 5,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
 					ValidUntil: 4,
@@ -332,14 +332,14 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1,
 				})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test1",
 					Admin:      keeper.BobKey,
 					ValidUntil: 1589826439,
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test2",
 					Admin:      keeper.BobKey,
 					ValidUntil: 1589828251,
@@ -384,7 +384,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 1000000000000000, // unexpired domain
 				})
 				// set domain
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -421,7 +421,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 1,
 				})
 				// set domain
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -429,13 +429,13 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:     nil,
 				}).Create()
 				// add two accounts
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				// add two accounts
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
@@ -509,7 +509,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "exists",
 					Admin:      keeper.BobKey,
 					ValidUntil: 0,
@@ -585,7 +585,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 					DomainGracePeriod:     10 * time.Second,
 				})
 				// add domain
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 1000,
 					Admin:      keeper.BobKey,
@@ -632,7 +632,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		/*
 			"domain type open": {
 				BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-					executor.NewDomain(ctx, k, types.Domain{
+					executor.NewDomain(ctx, types.Domain{
 						Name:  "test",
 						Type:  types.OpenDomain,
 						Admin: keeper.AliceKey,
@@ -653,7 +653,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		*/
 		"domain type closed": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: keeper.AliceKey,
@@ -673,7 +673,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"domain has expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.ClosedDomain,
 					Admin: keeper.BobKey,
@@ -693,7 +693,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"msg signer is not domain admin": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -715,14 +715,14 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// create domain
-				executor.NewDomain(ctx, k, types.Domain{
+				executor.NewDomain(ctx, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add account 1
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("1"),
 					Owner:      keeper.AliceKey,
@@ -735,7 +735,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Broker:       nil,
 				}).Create()
 				// add account 2
-				executor.NewAccount(ctx, k, types.Account{
+				executor.NewAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("2"),
 					Owner:      keeper.AliceKey,

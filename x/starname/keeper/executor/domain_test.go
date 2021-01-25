@@ -46,11 +46,11 @@ func TestDomain_Transfer(t *testing.T) {
 			Name:   utils.StrPtr("not-owned"),
 			Owner:  keeper.CharlieKey,
 		}
-		NewDomain(ctx, k, domain).Create()
-		NewAccount(ctx, k, acc1).Create()
-		NewAccount(ctx, k, acc2).Create()
-		NewAccount(ctx, k, acc3).Create()
-		ex = NewDomain(ctx, k, domain)
+		NewDomain(ctx, domain).Create()
+		NewAccount(ctx, acc1).Create()
+		NewAccount(ctx, acc2).Create()
+		NewAccount(ctx, acc3).Create()
+		ex = NewDomain(ctx, domain)
 		return
 	}
 	t.Run("success init", func(t *testing.T) {
@@ -159,7 +159,7 @@ func TestDomain_Transfer(t *testing.T) {
 func TestDomain_Renew(t *testing.T) {
 	t.Run("success renew from config", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
-		ex := NewDomain(testCtx, testKeeper, testDomain)
+		ex := NewDomain(testCtx, testDomain)
 		ex.Renew()
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
@@ -172,7 +172,7 @@ func TestDomain_Renew(t *testing.T) {
 	t.Run("success renew from account", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
 		var accValidUntil int64 = 10000
-		ex := NewDomain(testCtx, testKeeper, testDomain)
+		ex := NewDomain(testCtx, testDomain)
 		ex.Renew(accValidUntil)
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
@@ -187,7 +187,7 @@ func TestDomain_Renew(t *testing.T) {
 func TestDomain_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		testCtx, _ := testCtx.CacheContext()
-		NewDomain(testCtx, testKeeper, testDomain).Delete()
+		NewDomain(testCtx, testDomain).Delete()
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{}); err == nil {
 			t.Fatal("domain was not deleted")
 		}

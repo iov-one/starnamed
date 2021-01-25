@@ -23,7 +23,8 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 		return nil, err
 	}
 	// operation is allowed
-	feeCtrl := fees.NewController(ctx, k, ctrl.Domain())
+	feeConf := k.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -31,7 +32,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// all checks passed delete domain
-	executor.NewDomain(ctx, k, ctrl.Domain()).Delete()
+	executor.NewDomain(ctx, ctrl.Domain()).Delete()
 	// success TODO maybe emit event?
 	return &sdk.Result{}, nil
 }
@@ -56,14 +57,15 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Type:       msg.DomainType,
 		Broker:     msg.Broker,
 	}
-	feeCtrl := fees.NewController(ctx, k, d)
+	feeConf := k.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, d)
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	if err := k.CollectFees(ctx, msg, fee); err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// save domain
-	ex := executor.NewDomain(ctx, k, d)
+	ex := executor.NewDomain(ctx, d)
 	ex.Create()
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
@@ -81,7 +83,8 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 	if err != nil {
 		return nil, err
 	}
-	feeCtrl := fees.NewController(ctx, k, ctrl.Domain())
+	feeConf := k.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, ctrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)
@@ -89,7 +92,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	executor.NewDomain(ctx, k, ctrl.Domain()).Renew()
+	executor.NewDomain(ctx, ctrl.Domain()).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -106,14 +109,15 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	if err != nil {
 		return nil, err
 	}
-	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	feeConf := k.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, c.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
-	ex := executor.NewDomain(ctx, k, c.Domain())
+	ex := executor.NewDomain(ctx, c.Domain())
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil

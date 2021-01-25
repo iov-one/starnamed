@@ -87,13 +87,13 @@ func TestAccount_Renewable(t *testing.T) {
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
-	executor.NewDomain(ctx, k, types.Domain{
+	executor.NewDomain(ctx, types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	}).Create()
-	executor.NewAccount(ctx, k, types.Account{
+	executor.NewAccount(ctx, types.Account{
 		Domain:     "open",
 		Name:       utils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),

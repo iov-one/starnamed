@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -14,20 +14,35 @@ import (
 type Domain struct {
 	domain   *types.Domain
 	ctx      sdk.Context
-	domains  crud.Store
-	accounts crud.Store
-	k        keeper.Keeper
+	domains  *crud.Store
+	accounts *crud.Store
+	conf     *configuration.Config
 }
 
 // NewDomain returns is domain's constructor
-func NewDomain(ctx sdk.Context, k keeper.Keeper, dom types.Domain) *Domain {
+func NewDomain(ctx sdk.Context, dom types.Domain) *Domain {
 	return &Domain{
-		k:        k,
-		ctx:      ctx,
-		domains:  k.DomainStore(ctx),
-		accounts: k.AccountStore(ctx),
-		domain:   &dom,
+		ctx:    ctx,
+		domain: &dom,
 	}
+}
+
+// WithAccounts allows to specify a cached config
+func (d *Domain) WithAccounts(store *crud.Store) *Domain {
+	d.accounts = store
+	return d
+}
+
+// WithDomains allows to specify a cached config
+func (d *Domain) WithDomains(store *crud.Store) *Domain {
+	d.domains = store
+	return d
+}
+
+// WithConfiguration allows to specify a cached config
+func (d *Domain) WithConfiguration(cfg configuration.Config) *Domain {
+	d.conf = &cfg
+	return d
 }
 
 // Renew renews a domain based on the configuration
@@ -35,20 +50,26 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	if d.domain == nil {
 		panic("cannot execute renew state change on non present domain")
 	}
+	if d.domains == nil {
+		panic("domains is missing")
+	}
 	// if account valid until is specified then the renew is coming from accounts
 	if len(accValidUntil) != 0 {
 		d.domain.ValidUntil = accValidUntil[0]
-		d.domains.Update(d.domain)
+		(*d.domains).Update(d.domain)
 		return
 	}
 	// get configuration
-	renewDuration := d.k.ConfigurationKeeper.GetDomainRenewDuration(d.ctx)
+	if d.conf == nil {
+		panic("conf is missing")
+	}
+	renewDuration := d.conf.DomainRenewalPeriod
 	// update domain valid until
 	d.domain.ValidUntil = utils.TimeToSeconds(
 		utils.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
 	// set domain
-	d.domains.Update(d.domain)
+	(*d.domains).Update(d.domain)
 	// update empty account
 	account, cursor := d.getEmptyNameAccount()
 	account.ValidUntil = d.domain.ValidUntil
@@ -60,7 +81,10 @@ func (d *Domain) Delete() {
 	if d.domain == nil {
 		panic("cannot execute delete state change on non present domain")
 	}
-	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
+	if d.accounts == nil {
+		panic("accounts is missing")
+	}
+	cursor, err := (*d.accounts).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +93,10 @@ func (d *Domain) Delete() {
 			panic(err)
 		}
 	}
-	d.domains.Delete(d.domain.PrimaryKey())
+	if d.domains == nil {
+		panic("domains is missing")
+	}
+	(*d.domains).Delete(d.domain.PrimaryKey())
 }
 
 // Transfer transfers a domain given a flag and an owner
@@ -77,14 +104,19 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	if d.domain == nil {
 		panic("cannot execute transfer state on non defined domain")
 	}
-
+	if d.accounts == nil {
+		panic("accounts is missing")
+	}
+	if d.domains == nil {
+		panic("domains is missing")
+	}
 	// transfer domain
 	var oldOwner = d.domain.Admin // cache it for future uses
 	d.domain.Admin = newOwner
-	d.domains.Update(d.domain)
+	(*d.domains).Update(d.domain)
 	// transfer empty account
 	account, _ := d.getEmptyNameAccount()
-	executor := NewAccount(d.ctx, d.k, *account)
+	executor := NewAccount(d.ctx, *account)
 	executor.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
@@ -93,7 +125,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		return
 	// transfer flush, deletes all domain's accounts except the empty one since it was transferred in the first step
 	case types.TransferFlush:
-		cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
+		cursor, err := (*d.accounts).Query().Where().Index(types.AccountDomainIndex).Equals(d.domain.PrimaryKey()).Do()
 		if err != nil {
 			panic(err)
 		}
@@ -102,7 +134,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, d.k, *account)
+			ex := NewAccount(d.ctx, *account)
 			// reset the empty account...
 			if *account.Name == types.EmptyAccountName {
 				ex.Transfer(newOwner, true)
@@ -113,8 +145,8 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		}
 	// transfer owned transfers only accounts owned by the old owner
 	case types.TransferOwned:
-		cursor, err := d.accounts.Query().Where().
-			Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).And().
+		cursor, err := (*d.accounts).Query().Where().
+			Index(types.AccountDomainIndex).Equals(d.domain.PrimaryKey()).And().
 			Index(types.AccountAdminIndex).Equals(oldOwner.Bytes()).Do()
 		if err != nil {
 			panic(err)
@@ -124,7 +156,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			if err = cursor.Read(account); err != nil {
 				panic(err)
 			}
-			ex := NewAccount(d.ctx, d.k, *account)
+			ex := NewAccount(d.ctx, *account)
 			// transfer accounts without reset
 			ex.Transfer(newOwner, false)
 		}
@@ -136,7 +168,13 @@ func (d *Domain) Create() {
 	if d.domain == nil {
 		panic("cannot create non specified domain")
 	}
-	d.domains.Create(d.domain)
+	if d.accounts == nil {
+		panic("accounts is missing")
+	}
+	if d.domains == nil {
+		panic("domains is missing")
+	}
+	(*d.domains).Create(d.domain)
 	emptyAccount := &types.Account{
 		Domain:       d.domain.Name,
 		Name:         utils.StrPtr(types.EmptyAccountName),
@@ -147,12 +185,15 @@ func (d *Domain) Create() {
 		Broker:       nil,
 		MetadataURI:  "",
 	}
-	d.accounts.Create(emptyAccount)
+	(*d.accounts).Create(emptyAccount)
 }
 
 // Gets the empty name account and cursor
 func (d *Domain) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
-	cursor, err := d.accounts.Query().Where().Index(types.AccountDomainIndex).Equals([]byte(d.domain.Name)).Do()
+	if d.accounts == nil {
+		panic("domains is missing")
+	}
+	cursor, err := (*d.accounts).Query().Where().Index(types.AccountDomainIndex).Equals(d.domain.PrimaryKey()).Do()
 	if err != nil {
 		panic(err)
 	}

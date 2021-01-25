@@ -65,7 +65,7 @@ func newTest() error {
 		&types.MsgRegisterDomain{},
 		&types.MsgTransferDomain{},
 		&types.MsgTransferAccount{},
-		&types.MsgAddAccountCertificates{},
+		&types.MsgAddAccountCertificate{},
 		&types.MsgDeleteAccountCertificate{},
 		&types.MsgDeleteAccount{},
 		&types.MsgDeleteDomain{},

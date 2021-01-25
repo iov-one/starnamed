@@ -2,8 +2,8 @@ package fees
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -14,12 +14,11 @@ type Controller interface {
 	GetFee(msg sdk.Msg) sdk.Coin
 }
 
-func NewController(ctx sdk.Context, k keeper.Keeper, domain types.Domain) Controller {
-	fees := k.ConfigurationKeeper.GetFees(ctx)
+// NewController returns a new fee controller
+func NewController(ctx sdk.Context, fees *configuration.Fees, domain types.Domain) Controller {
 	return feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
-		k:          k,
 		domain:     domain,
 	}
 }
@@ -27,7 +26,7 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain types.Domain) Contro
 type feeApplier struct {
 	moduleFees configuration.Fees
 	ctx        sdk.Context
-	k          keeper.Keeper
+	store      *crud.Store
 	domain     types.Domain
 }
 
@@ -69,8 +68,11 @@ func (f feeApplier) renewDomain() sdk.Dec {
 	if f.domain.Type == types.OpenDomain {
 		return f.moduleFees.RenewDomainOpen
 	}
+	if f.store == nil {
+		panic("store is missing")
+	}
 	var accountN int64
-	cursor, err := f.k.AccountStore(f.ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
+	cursor, err := (*f.store).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
 	if err != nil {
 		panic(err)
 	}

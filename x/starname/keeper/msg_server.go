@@ -29,7 +29,7 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 	k := m.keeper
 
 	// perform domain checks
-	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	domainCtrl := domain.NewController(ctx, msg.Domain)
 	if err := domainCtrl.
 		MustExist().
 		NotExpired().
@@ -38,8 +38,7 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 	}
 
 	// perform account checks
-	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).
-		WithDomainController(domainCtrl)
+	accountCtrl := account.NewController(ctx, msg.Domain, msg.Name).WithDomainController(domainCtrl)
 
 	if err := accountCtrl.
 		MustExist().
@@ -51,7 +50,8 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 		Validate(); err != nil {
 		return nil, err
 	}
-	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	feeConf := m.keeper.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := fees.NewController(ctx, feeConf, domainCtrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -59,7 +59,7 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 	// add certificate
-	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex := executor.NewAccount(ctx, accountCtrl.Account())
 	ex.AddCertificate(msg.NewCertificate)
 	// success
 	ctx.EventManager().EmitEvent(

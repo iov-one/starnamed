@@ -119,7 +119,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(8),
 		},
 		"add certs": {
-			Msg:         &types.MsgAddAccountCertificates{},
+			Msg:         &types.MsgAddAccountCertificate{},
 			ExpectedFee: sdk.NewDec(7),
 		},
 		"replace resources": {
@@ -189,7 +189,7 @@ func Test_FeeApplier(t *testing.T) {
 	k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, &fee)
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
-			ctrl := NewController(ctx, k, c.Domain)
+			ctrl := NewController(ctx, &fee, c.Domain)
 			got := ctrl.GetFee(c.Msg)
 			if !got.Amount.Equal(c.ExpectedFee.RoundInt()) {
 				t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)

@@ -11,10 +11,11 @@ import (
 func TestAccount_AddCertificate(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	cert := []byte("a-cert")
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.AddCertificate(cert)
 	got := new(types.Account)
-	testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+	as.Read(testAccount.PrimaryKey(), got)
 	if !reflect.DeepEqual(got.Certificates, append(testAccount.Certificates, cert)) {
 		t.Fatal("unexpected result")
 	}
@@ -24,10 +25,11 @@ func TestAccount_Create(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
 	acc := testAccount
 	acc.Domain = "some-random-domain"
-	ex := NewAccount(testCtx, testKeeper, acc)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.Create()
 	got := new(types.Account)
-	testKeeper.AccountStore(testCtx).Read(acc.PrimaryKey(), got)
+	as.Read(acc.PrimaryKey(), got)
 	if !reflect.DeepEqual(*got, acc) {
 		t.Fatal("unexpected result")
 	}
@@ -35,10 +37,11 @@ func TestAccount_Create(t *testing.T) {
 
 func TestAccount_DeleteCertificate(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.DeleteCertificate(0)
 	got := new(types.Account)
-	testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+	as.Read(testAccount.PrimaryKey(), got)
 	if len(got.Certificates) != 0 {
 		t.Fatal("unexpected result")
 	}
@@ -46,9 +49,11 @@ func TestAccount_DeleteCertificate(t *testing.T) {
 
 func TestAccount_Renew(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
-	NewAccount(testCtx, testKeeper, testAccount).Renew()
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
+	ex.Renew()
 	newAcc := new(types.Account)
-	if err := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), newAcc); err != nil {
+	if err := as.Read(testAccount.PrimaryKey(), newAcc); err != nil {
 		t.Fatal("account was deleted")
 	}
 	if newAcc.ValidUntil != testAccount.ValidUntil+int64(testConfig.AccountRenewalPeriod.Seconds()) {
@@ -62,10 +67,11 @@ func TestAccount_ReplaceResources(t *testing.T) {
 		URI:      "uri",
 		Resource: "res",
 	}}
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.ReplaceResources(newRes)
 	got := new(types.Account)
-	testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+	as.Read(testAccount.PrimaryKey(), got)
 	if !reflect.DeepEqual(got.Resources, newRes) {
 		t.Fatal("unexpected result")
 	}
@@ -76,13 +82,14 @@ func TestAccount_State(t *testing.T) {
 }
 
 func TestAccount_Transfer(t *testing.T) {
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	t.Run("no-reset", func(t *testing.T) {
-		testCtx, _ := testCtx.CacheContext()
+		// dmjp testCtx, _ := testCtx.CacheContext()
 
 		ex.Transfer(keeper.CharlieKey, false)
 		got := new(types.Account)
-		testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+		as.Read(testAccount.PrimaryKey(), got)
 		if !got.Owner.Equals(keeper.CharlieKey) {
 			t.Fatal("unexpected owner")
 		}
@@ -97,11 +104,11 @@ func TestAccount_Transfer(t *testing.T) {
 		}
 	})
 	t.Run("with-reset", func(t *testing.T) {
-		testCtx, _ := testCtx.CacheContext()
+		// dmjp testCtx, _ := testCtx.CacheContext()
 
 		ex.Transfer(keeper.BobKey, true)
 		got := new(types.Account)
-		testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+		as.Read(testAccount.PrimaryKey(), got)
 		if !got.Owner.Equals(keeper.BobKey) {
 			t.Fatal("owner mismatch")
 		}
@@ -113,12 +120,12 @@ func TestAccount_Transfer(t *testing.T) {
 
 func TestAccount_UpdateMetadata(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
-
 	newMeta := "a new meta"
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.UpdateMetadata(newMeta)
 	got := new(types.Account)
-	testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got)
+	as.Read(testAccount.PrimaryKey(), got)
 	if !reflect.DeepEqual(got.MetadataURI, newMeta) {
 		t.Fatal("unexpected result")
 	}
@@ -126,10 +133,11 @@ func TestAccount_UpdateMetadata(t *testing.T) {
 
 func TestAccount_Delete(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
-	ex := NewAccount(testCtx, testKeeper, testAccount)
+	as := testKeeper.AccountStore(testCtx)
+	ex := NewAccount(testCtx, testAccount).WithStore(&as)
 	ex.Delete()
 	got := new(types.Account)
-	if err := testKeeper.AccountStore(testCtx).Read(testAccount.PrimaryKey(), got); err == nil {
+	if err := as.Read(testAccount.PrimaryKey(), got); err == nil {
 		t.Fatal("account was not deleted")
 	}
 }
