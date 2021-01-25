@@ -9,7 +9,6 @@ import (
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/keeper/executor"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -47,7 +46,7 @@ func TestAccount_transferable(t *testing.T) {
 	})
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
-		dc := domain.NewController(ctx, "closed").WithDomains(&ds)
+		dc := NewController(ctx, "closed").WithDomains(&ds)
 		acc := NewAccountController(ctx, "closed", "test").WithAccounts(&as).WithDomainController(dc)
 		// test success
 		err := acc.
@@ -63,7 +62,7 @@ func TestAccount_transferable(t *testing.T) {
 		}
 	})
 	t.Run("open domain", func(t *testing.T) {
-		dc := domain.NewController(ctx, "open").WithDomains(&ds)
+		dc := NewController(ctx, "open").WithDomains(&ds)
 		acc := NewAccountController(ctx, "open", "test").WithAccounts(&as).WithDomainController(dc)
 		err := acc.TransferableBy(BobKey).Validate()
 		// test success
@@ -217,10 +216,10 @@ func TestAccount_certNotExist(t *testing.T) {
 }
 
 func TestAccount_notExpired(t *testing.T) {
-	closedDomain := (&domain.Domain{}).WithDomain(types.Domain{
+	closedDomain := (&Domain{}).WithDomain(types.Domain{
 		Type: types.ClosedDomain,
 	})
-	openDomain := (&domain.Domain{}).WithDomain(types.Domain{
+	openDomain := (&Domain{}).WithDomain(types.Domain{
 		Type: types.OpenDomain,
 	})
 	t.Run("success", func(t *testing.T) {
@@ -308,11 +307,11 @@ func TestAccount_validName(t *testing.T) {
 }
 
 func TestAccountRegistrableBy(t *testing.T) {
-	closedDomain := (&domain.Domain{}).WithDomain(types.Domain{
+	closedDomain := (&Domain{}).WithDomain(types.Domain{
 		Type:  types.ClosedDomain,
 		Admin: AliceKey,
 	})
-	openDomain := (&domain.Domain{}).WithDomain(types.Domain{
+	openDomain := (&Domain{}).WithDomain(types.Domain{
 		Type: types.OpenDomain,
 	})
 	t.Run("success in closed domain", func(t *testing.T) {

@@ -10,7 +10,6 @@ import (
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/controllers/domain"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -32,7 +31,7 @@ type AccountController struct {
 
 	ctx        sdk.Context
 	store      *crud.Store
-	domainCtrl *domain.Domain
+	domainCtrl *Domain
 }
 
 // Validate verifies the account against the order of provided controllers
@@ -201,7 +200,7 @@ func NewAccountController(ctx sdk.Context, domain, name string) *AccountControll
 }
 
 // WithDomainController allows to specify a cached domain controller
-func (a *AccountController) WithDomainController(dom *domain.Domain) *AccountController {
+func (a *AccountController) WithDomainController(dom *Domain) *AccountController {
 	a.domainCtrl = dom
 	return a
 }

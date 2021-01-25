@@ -1,4 +1,4 @@
-package domain
+package keeper
 
 import (
 	"errors"
@@ -7,18 +7,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDomain_requireDomain(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		ds := k.DomainStore(ctx)
 		ds.Create(&types.Domain{
 			Name:  "test",
-			Admin: keeper.AliceKey,
+			Admin: AliceKey,
 			Type:  types.OpenDomain,
 		})
 		ctrl := NewController(ctx, "test").WithDomains(&ds)
@@ -28,7 +27,7 @@ func TestDomain_requireDomain(t *testing.T) {
 		}
 	})
 	t.Run("does not exist", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		ds := k.DomainStore(ctx)
 		ctrl := NewController(ctx, "test").WithDomains(&ds)
 		err := ctrl.requireDomain()
@@ -40,11 +39,11 @@ func TestDomain_requireDomain(t *testing.T) {
 
 func TestDomain_domainExpired(t *testing.T) {
 	t.Run("domain expired", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		ds := k.DomainStore(ctx)
 		ds.Create(&types.Domain{
 			Name:       "test",
-			Admin:      keeper.AliceKey,
+			Admin:      AliceKey,
 			Type:       types.OpenDomain,
 			ValidUntil: 0,
 		})
@@ -55,12 +54,12 @@ func TestDomain_domainExpired(t *testing.T) {
 		}
 	})
 	t.Run("domain not expired", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		ds := k.DomainStore(ctx)
 		now := time.Now()
 		ds.Create(&types.Domain{
 			Name:       "test",
-			Admin:      keeper.AliceKey,
+			Admin:      AliceKey,
 			ValidUntil: now.Unix() + 10000,
 		})
 		ctrl := NewController(ctx, "test").WithDomains(&ds)
@@ -70,7 +69,7 @@ func TestDomain_domainExpired(t *testing.T) {
 		}
 	})
 	t.Run("domain does not exist", func(t *testing.T) {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		k, ctx, _ := NewTestKeeper(t, true)
 		store := k.DomainStore(ctx)
 		ctrl := NewController(ctx, "test").WithDomains(&store)
 		assert.Panics(t, func() { _ = ctrl.expired() }, "domain does not exists")
@@ -78,23 +77,23 @@ func TestDomain_domainExpired(t *testing.T) {
 }
 
 func TestDomain_gracePeriodFinished(t *testing.T) {
-	cases := map[string]keeper.SubTest{
+	cases := map[string]SubTest{
 		"grace period finished": {
 			BeforeTestBlockTime: 1,
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1 * time.Second,
 				})
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 0,
 				})
 			},
 			TestBlockTime: 10,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
@@ -106,20 +105,20 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 		},
 		"grace period not finished": {
 			BeforeTestBlockTime: 1,
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 15 * time.Second,
 				})
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 1,
 				})
 			},
 			TestBlockTime: 3,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds).WithConfiguration(conf)
@@ -130,64 +129,64 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			},
 		},
 	}
-	keeper.RunTests(t, cases)
+	RunTests(t, cases)
 }
 
 func TestDomain_ownedBy(t *testing.T) {
-	cases := map[string]keeper.SubTest{
+	cases := map[string]SubTest{
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
-				err := ctrl.isAdmin(keeper.AliceKey)
+				err := ctrl.isAdmin(AliceKey)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
 				}
 			},
 		},
 		"unauthorized": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
-				err := ctrl.isAdmin(keeper.BobKey)
+				err := ctrl.isAdmin(BobKey)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 		},
 	}
-	keeper.RunTests(t, cases)
+	RunTests(t, cases)
 }
 
 func TestDomain_notExpired(t *testing.T) {
-	cases := map[string]keeper.SubTest{
+	cases := map[string]SubTest{
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 2,
 				})
 			},
 			TestBlockTime: 1,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
 				err := ctrl.notExpired()
@@ -197,16 +196,16 @@ func TestDomain_notExpired(t *testing.T) {
 			},
 		},
 		"expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 1,
 				})
 			},
 			TestBlockTime: 2,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
 				err := ctrl.notExpired()
@@ -216,21 +215,21 @@ func TestDomain_notExpired(t *testing.T) {
 			},
 		},
 	}
-	keeper.RunTests(t, cases)
+	RunTests(t, cases)
 }
 
 func TestDomain_type(t *testing.T) {
-	cases := map[string]keeper.SubTest{
+	cases := map[string]SubTest{
 		"saved": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:  "test",
-					Admin: keeper.AliceKey,
+					Admin: AliceKey,
 					Type:  types.ClosedDomain,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.ClosedDomain)
@@ -240,15 +239,15 @@ func TestDomain_type(t *testing.T) {
 			},
 		},
 		"fail want type close domain": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:  "test",
-					Admin: keeper.AliceKey,
+					Admin: AliceKey,
 					Type:  types.ClosedDomain,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.OpenDomain)
@@ -258,15 +257,15 @@ func TestDomain_type(t *testing.T) {
 			},
 		},
 		"fail want open domain": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:  "test",
-					Admin: keeper.AliceKey,
+					Admin: AliceKey,
 					Type:  types.OpenDomain,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				ds := k.DomainStore(ctx)
 				ctrl := NewController(ctx, "test").WithDomains(&ds)
 				err := ctrl.dType(types.ClosedDomain)
@@ -276,25 +275,25 @@ func TestDomain_type(t *testing.T) {
 			},
 		},
 	}
-	keeper.RunTests(t, cases)
+	RunTests(t, cases)
 }
 
 func TestDomain_validName(t *testing.T) {
-	cases := map[string]keeper.SubTest{
+	cases := map[string]SubTest{
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomainName: keeper.RegexMatchAll,
+					ValidDomainName: RegexMatchAll,
 				})
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 				ctrl := NewController(ctx, "test").WithConfiguration(conf)
 				err := ctrl.validName()
@@ -304,19 +303,19 @@ func TestDomain_validName(t *testing.T) {
 			},
 		},
 		"invalid name": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
+				setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomainName: keeper.RegexMatchNothing,
+					ValidDomainName: RegexMatchNothing,
 				})
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{
 					Name:       "test",
-					Admin:      keeper.AliceKey,
+					Admin:      AliceKey,
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 				ctrl := NewController(ctx, "test").WithConfiguration(conf)
 				err := ctrl.validName()
@@ -326,13 +325,13 @@ func TestDomain_validName(t *testing.T) {
 			},
 		},
 	}
-	keeper.RunTests(t, cases)
+	RunTests(t, cases)
 }
 
 func TestDomain_Renewable(t *testing.T) {
-	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	ctx = ctx.WithBlockTime(time.Unix(1, 0))
-	setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+	setConfig := GetConfigSetter(k.ConfigurationKeeper).SetConfig
 	setConfig(ctx, configuration.Config{
 		DomainGracePeriod:     100 * time.Second,
 		DomainRenewalCountMax: 1, // increased by one inside controller
@@ -342,19 +341,19 @@ func TestDomain_Renewable(t *testing.T) {
 	ds := k.DomainStore(ctx)
 	ds.Create(&types.Domain{
 		Name:       "open",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Type:       types.OpenDomain,
 	})
 	ds.Create(&types.Domain{
 		Name:       "closed",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Type:       types.ClosedDomain,
 	})
 	ds.Create(&types.Domain{
 		Name:       "deadline-exceeded",
-		Admin:      keeper.AliceKey,
+		Admin:      AliceKey,
 		ValidUntil: time.Unix(10, 0).Unix(),
 		Type:       types.ClosedDomain,
 	})
