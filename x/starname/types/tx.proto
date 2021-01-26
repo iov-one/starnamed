@@ -12,6 +12,8 @@ service Msg {
     rpc AddAccountCertificate(MsgAddAccountCertificate) returns (MsgAddAccountCertificateResponse);
     // DeleteAccount registers a Domain
     rpc DeleteAccount(MsgDeleteAccount) returns (MsgDeleteAccountResponse);
+    // DeleteAccountCertificate deletes a certificate from an account
+    rpc DeleteAccountCertificate(MsgDeleteAccountCertificate) returns (MsgDeleteAccountCertificateResponse);
     // DeleteDomain registers a Domain
     rpc DeleteDomain(MsgDeleteDomain) returns (MsgDeleteDomainResponse);
     // RegisterAccount registers an Account
@@ -65,6 +67,9 @@ message MsgDeleteAccountCertificate {
     ];
     // DeleteCertificate is the certificate to delete
     bytes delete_certificate = 5 [(gogoproto.moretags) = "yaml:\"delete_certificate\""];
+}
+// MsgDeleteAccountCertificateResponse returns an empty response.
+message MsgDeleteAccountCertificateResponse {
 }
 
 // MsgDeleteAccount is the request model used to delete an account

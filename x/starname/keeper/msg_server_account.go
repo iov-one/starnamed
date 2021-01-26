@@ -61,7 +61,7 @@ func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCe
 	return &types.MsgAddAccountCertificateResponse{}, nil
 }
 
-func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
+func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*types.MsgDeleteAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -92,11 +92,12 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 	// delete cert
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.DeleteCertificate(*certIndex)
+
 	// success; TODO emit event?
-	return &sdk.Result{}, nil
+	return &types.MsgDeleteAccountCertificateResponse{}, nil
 }
 
-// handlerMsgDelete account deletes the account from the system
+// deleteAccount account deletes the account from the system
 func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)

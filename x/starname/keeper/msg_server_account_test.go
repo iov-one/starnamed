@@ -403,7 +403,7 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
+func Test_Closed_deleteAccountCertificate(t *testing.T) {
 	cases := map[string]SubTest{
 		"does not respect account valid until": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -425,14 +425,14 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
 					Owner:             AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccountCertificates() got error: %s", err)
+					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -442,7 +442,7 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}
 				for _, cert := range account.Certificates {
 					if bytes.Equal(cert, []byte("test")) {
-						t.Fatalf("handlerMsgDeleteAccountCertificates() certificate not deleted")
+						t.Fatalf("deleteAccountCertificates() certificate not deleted")
 					}
 				}
 				// success
@@ -453,7 +453,7 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Open_handlerMsgDeleteAccountCertificate(t *testing.T) {
+func Test_Open_deleteAccountCertificate(t *testing.T) {
 	cases := map[string]SubTest{
 		"account expired": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -475,14 +475,14 @@ func Test_Open_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
 					Owner:             AliceKey,
 				})
 				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgDeleteAccountCertificates() got error: %s", err)
+					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
 			},
 		},
@@ -490,7 +490,7 @@ func Test_Open_handlerMsgDeleteAccountCertificate(t *testing.T) {
 
 	RunTests(t, cases)
 }
-func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
+func Test_Common_deleteAccountCertificate(t *testing.T) {
 	cases := map[string]SubTest{
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -510,14 +510,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "does not exist",
 					DeleteCertificate: nil,
 					Owner:             BobKey,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -540,14 +540,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
 					Owner:             BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -570,14 +570,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
 					Owner:             AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -600,14 +600,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("does not exist"),
 					Owner:             AliceKey,
 				})
 				if !errors.Is(err, types.ErrCertificateDoesNotExist) {
-					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrCertificateDoesNotExist, err)
+					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrCertificateDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -631,14 +631,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
 					Owner:             AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccountCertificates() got error: %s", err)
+					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -649,7 +649,7 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				}
 				for _, cert := range account.Certificates {
 					if bytes.Equal(cert, []byte("test")) {
-						t.Fatalf("handlerMsgDeleteAccountCertificates() certificate not deleted")
+						t.Fatalf("deleteAccountCertificates() certificate not deleted")
 					}
 				}
 				// success
