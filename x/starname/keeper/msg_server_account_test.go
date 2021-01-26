@@ -2547,23 +2547,23 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    AliceKey,
 					NewOwner: CharlieKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
-				_, err = handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err = transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    BobKey,
 					NewOwner: CharlieKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2606,7 +2606,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    AliceKey,
@@ -2614,7 +2614,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 					ToReset:  true,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2661,7 +2661,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    AliceKey,
@@ -2669,17 +2669,17 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					ToReset:  false,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 
-				_, err = handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err = transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    BobKey,
 					NewOwner: CharlieKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2722,7 +2722,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    AliceKey,
@@ -2730,7 +2730,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					ToReset:  true,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2760,7 +2760,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				// do nothing
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "does not exist",
 					Name:     "does not exist",
 					Owner:    nil,
@@ -2785,7 +2785,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "expired domain",
 					Name:     "",
 					Owner:    nil,
@@ -2810,7 +2810,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "this account does not exist",
 					Owner:    nil,
@@ -2844,7 +2844,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    nil,
@@ -2878,7 +2878,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    BobKey,
@@ -2912,7 +2912,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    BobKey,
@@ -2943,14 +2943,14 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
 					Owner:    AliceKey,
 					NewOwner: BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+					t.Fatalf("transferAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {

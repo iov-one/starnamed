@@ -296,9 +296,8 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 	return &sdk.Result{}, nil
 }
 
-// handlerMsgTransferAccount transfers account to a new owner
-// after clearing resources and certificates
-func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
+// transferAccount transfers account to a new owner and may clear resources and certificates
+func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -328,5 +327,5 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 	ex.Transfer(msg.NewOwner, msg.ToReset)
 
 	// success, todo emit event?
-	return &sdk.Result{}, nil
+	return &types.MsgTransferAccountResponse{}, nil
 }

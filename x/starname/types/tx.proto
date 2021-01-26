@@ -24,6 +24,8 @@ service Msg {
     rpc RenewAccount(MsgRenewAccount) returns (MsgRenewAccountResponse);
     // RenewDomain registers a Domain
     rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
+    // TransferAccount registers a Domain
+    rpc TransferAccount(MsgTransferAccount) returns (MsgTransferAccountResponse);
     // TransferDomain registers a Domain
     rpc TransferDomain(MsgTransferDomain) returns (MsgTransferDomainResponse);
 }
@@ -286,6 +288,9 @@ message MsgTransferAccount {
         (gogoproto.moretags) = "yaml:\"reset",
         (gogoproto.customname) = "ToReset"
     ];
+}
+// MsgTransferAccountResponse returns an empty response.
+message MsgTransferAccountResponse {
 }
 
 // MsgTransferDomain is the request model used to transfer a domain
