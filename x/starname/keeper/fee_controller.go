@@ -1,38 +1,57 @@
-package fees
+package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// Controller defines the fee controller behaviour
+// FeeController defines the fee controller behaviour
 // exists only in order to avoid devs creating a fee
 // controller without using the constructor function
-type Controller interface {
+type FeeController interface {
 	GetFee(msg sdk.Msg) sdk.Coin
+	WithAccounts(store *crud.Store) FeeController
+	WithDomain(domain *types.Domain) FeeController
 }
 
-func NewController(ctx sdk.Context, k keeper.Keeper, domain types.Domain) Controller {
-	fees := k.ConfigurationKeeper.GetFees(ctx)
-	return feeApplier{
+// NewFeeController returns a new fee controller
+func NewFeeController(ctx sdk.Context, fees *configuration.Fees) FeeController {
+	return &feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
-		k:          k,
-		domain:     domain,
 	}
 }
 
 type feeApplier struct {
 	moduleFees configuration.Fees
 	ctx        sdk.Context
-	k          keeper.Keeper
-	domain     types.Domain
+	store      *crud.Store
+	domain     *types.Domain
+}
+
+// WithAccounts sets the feeApplier cached crud store
+func (f *feeApplier) WithAccounts(store *crud.Store) FeeController {
+	f.store = store
+	return f
+}
+
+// WithDomain sets the feeApplier domain
+func (f *feeApplier) WithDomain(domain *types.Domain) FeeController {
+	f.domain = domain
+	return f
+}
+
+func (f feeApplier) requireDomain() {
+	if f.domain == nil {
+		panic("domain is missing")
+	}
 }
 
 func (f feeApplier) registerDomain() sdk.Dec {
 	var registerDomainFee sdk.Dec
+	f.requireDomain()
 	level := len(f.domain.Name)
 	switch level {
 	case 1:
@@ -56,6 +75,7 @@ func (f feeApplier) registerDomain() sdk.Dec {
 }
 
 func (f feeApplier) transferDomain() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.TransferDomainOpen
@@ -66,11 +86,15 @@ func (f feeApplier) transferDomain() sdk.Dec {
 }
 
 func (f feeApplier) renewDomain() sdk.Dec {
+	f.requireDomain()
 	if f.domain.Type == types.OpenDomain {
 		return f.moduleFees.RenewDomainOpen
 	}
+	if f.store == nil {
+		panic("store is missing")
+	}
 	var accountN int64
-	cursor, err := f.k.AccountStore(f.ctx).Query().Where().Index(types.AccountDomainIndex).Equals([]byte(f.domain.Name)).Do()
+	cursor, err := (*f.store).Query().Where().Index(types.AccountDomainIndex).Equals(f.domain.PrimaryKey()).Do()
 	if err != nil {
 		panic(err)
 	}
@@ -83,6 +107,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 }
 
 func (f feeApplier) registerAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterAccountOpen
@@ -93,6 +118,7 @@ func (f feeApplier) registerAccount() sdk.Dec {
 }
 
 func (f feeApplier) transferAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.ClosedDomain:
 		return f.moduleFees.TransferAccountClosed
@@ -103,6 +129,7 @@ func (f feeApplier) transferAccount() sdk.Dec {
 }
 
 func (f feeApplier) renewAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterAccountOpen
@@ -150,7 +177,7 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.replaceResources()
 	case *types.MsgDeleteAccountCertificate:
 		return f.delCert()
-	case *types.MsgAddAccountCertificates:
+	case *types.MsgAddAccountCertificate:
 		return f.addCert()
 	case *types.MsgReplaceAccountMetadata:
 		return f.setMetadata()

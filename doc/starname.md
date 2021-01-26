@@ -3,6 +3,34 @@
 
 ## Table of Contents
 
+- [x/starname/types/tx.proto](#x/starname/types/tx.proto)
+    - [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate)
+    - [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse)
+    - [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount)
+    - [MsgDeleteAccountCertificate](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate)
+    - [MsgDeleteAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificateResponse)
+    - [MsgDeleteAccountResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountResponse)
+    - [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain)
+    - [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse)
+    - [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount)
+    - [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse)
+    - [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain)
+    - [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse)
+    - [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount)
+    - [MsgRenewAccountResponse](#starnamed.x.starname.v1beta1.MsgRenewAccountResponse)
+    - [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain)
+    - [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse)
+    - [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata)
+    - [MsgReplaceAccountMetadataResponse](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadataResponse)
+    - [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources)
+    - [MsgReplaceAccountResourcesResponse](#starnamed.x.starname.v1beta1.MsgReplaceAccountResourcesResponse)
+    - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
+    - [MsgTransferAccountResponse](#starnamed.x.starname.v1beta1.MsgTransferAccountResponse)
+    - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
+    - [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse)
+  
+    - [Msg](#starnamed.x.starname.v1beta1.Msg)
+  
 - [x/starname/types/types.proto](#x/starname/types/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
     - [Domain](#starnamed.x.starname.v1beta1.Domain)
@@ -28,24 +56,392 @@
   
     - [Query](#starnamed.x.starname.v1beta1.Query)
   
-- [x/starname/types/msgs.proto](#x/starname/types/msgs.proto)
-    - [MsgAddAccountCertificates](#starnamed.x.starname.v1beta1.MsgAddAccountCertificates)
-    - [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount)
-    - [MsgDeleteAccountCertificate](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate)
-    - [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain)
-    - [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount)
-    - [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain)
-    - [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount)
-    - [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain)
-    - [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata)
-    - [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources)
-    - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
-    - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
-  
 - [x/starname/types/genesis.proto](#x/starname/types/genesis.proto)
     - [GenesisState](#starnamed.x.starname.v1beta1.GenesisState)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="x/starname/types/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## x/starname/types/tx.proto
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificate"></a>
+
+### MsgAddAccountCertificate
+MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_certificate | [bytes](#bytes) |  | NewCertificate is the new certificate to add |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse"></a>
+
+### MsgAddAccountCertificateResponse
+MsgAddAccountCertificateResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteAccount"></a>
+
+### MsgDeleteAccount
+MsgDeleteAccount is the request model used to delete an account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate"></a>
+
+### MsgDeleteAccountCertificate
+MsgDeleteAccountCertificate is the request model used to remove certificates from an account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| delete_certificate | [bytes](#bytes) |  | DeleteCertificate is the certificate to delete |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteAccountCertificateResponse"></a>
+
+### MsgDeleteAccountCertificateResponse
+MsgDeleteAccountCertificateResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteAccountResponse"></a>
+
+### MsgDeleteAccountResponse
+MsgDeleteAccountResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteDomain"></a>
+
+### MsgDeleteDomain
+MsgDeleteDomain is the request model to delete a domain
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteDomainResponse"></a>
+
+### MsgDeleteDomainResponse
+MsgDeleteDomainResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRegisterAccount"></a>
+
+### MsgRegisterAccount
+MsgRegisterAccount is the request model used to register new accounts
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
+| registerer | [bytes](#bytes) |  | Registerer is the user who registers this account |
+| resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources are the blockchain addresses of the account |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRegisterAccountResponse"></a>
+
+### MsgRegisterAccountResponse
+MsgRegisterAccountResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRegisterDomain"></a>
+
+### MsgRegisterDomain
+MsgRegisterDomain is the request used to register new domains
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  |  |
+| admin | [bytes](#bytes) |  |  |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
+| domain_type | [string](#string) |  | DomainType defines the type of the domain |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRegisterDomainResponse"></a>
+
+### MsgRegisterDomainResponse
+MsgRegisterDomainResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRenewAccount"></a>
+
+### MsgRenewAccount
+MsgRenewAccount is the request model used to renew accounts
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| signer | [bytes](#bytes) |  | Signer is the signer of the request |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRenewAccountResponse"></a>
+
+### MsgRenewAccountResponse
+MsgRenewAccountResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRenewDomain"></a>
+
+### MsgRenewDomain
+MsgRenewDomain is the request model used to renew a domain
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| signer | [bytes](#bytes) |  | Signer is the signer of the request |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRenewDomainResponse"></a>
+
+### MsgRenewDomainResponse
+MsgRegisterDomain returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata"></a>
+
+### MsgReplaceAccountMetadata
+MsgReplaceAccountMetadata is the function used to set accounts metadata
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_metadata_uri | [string](#string) |  | NewMetadataURI is the metadata URI of the account we want to update or insert |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountMetadataResponse"></a>
+
+### MsgReplaceAccountMetadataResponse
+MsgReplaceAccountMetadataResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountResources"></a>
+
+### MsgReplaceAccountResources
+MsgReplaceAccountResources is the request model used to renew resources associated with an account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | NewResources are the new resources |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountResourcesResponse"></a>
+
+### MsgReplaceAccountResourcesResponse
+MsgReplaceAccountResourcesResponse
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgTransferAccount"></a>
+
+### MsgTransferAccount
+MsgTransferAccount is the request model used to transfer accounts
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the domain of the account |
+| name | [string](#string) |  | Name is the name of the account |
+| owner | [bytes](#bytes) |  | Owner is the owner of the account |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_owner | [bytes](#bytes) |  | NewOwner is the new owner of the account |
+| reset | [bool](#bool) |  | ToReset if true, removes all old data from account |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgTransferAccountResponse"></a>
+
+### MsgTransferAccountResponse
+MsgTransferAccountResponse returns an empty response.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgTransferDomain"></a>
+
+### MsgTransferDomain
+MsgTransferDomain is the request model used to transfer a domain
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| domain | [string](#string) |  | Domain is the name of the domain |
+| owner | [bytes](#bytes) |  | Owner is the owner of the domain |
+| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_admin | [bytes](#bytes) |  | NewAdmin is the new owner of the domain |
+| transfer_flag | [int64](#int64) |  | TransferFlag controls the operations that occurs on a domain&#39;s accounts |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgTransferDomainResponse"></a>
+
+### MsgTransferDomainResponse
+MsgTransferDomainResponse returns an empty response.
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+
+<a name="starnamed.x.starname.v1beta1.Msg"></a>
+
+### Msg
+Msg defines the starname Msg service.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| AddAccountCertificate | [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate) | [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse) | AddAccountCertificate adds a certificate to an Account |
+| DeleteAccount | [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount) | [MsgDeleteAccountResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountResponse) | DeleteAccount registers a Domain |
+| DeleteAccountCertificate | [MsgDeleteAccountCertificate](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate) | [MsgDeleteAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificateResponse) | DeleteAccountCertificate deletes a certificate from an account |
+| DeleteDomain | [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain) | [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse) | DeleteDomain registers a Domain |
+| RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterAccount registers an Account |
+| RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |
+| RenewAccount | [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount) | [MsgRenewAccountResponse](#starnamed.x.starname.v1beta1.MsgRenewAccountResponse) | RenewAccount registers a Domain |
+| RenewDomain | [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain) | [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse) | RenewDomain registers a Domain |
+| ReplaceAccountMetadata | [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata) | [MsgReplaceAccountMetadataResponse](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadataResponse) | ReplaceAccountMetadata registers a Domain |
+| ReplaceAccountResources | [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources) | [MsgReplaceAccountResourcesResponse](#starnamed.x.starname.v1beta1.MsgReplaceAccountResourcesResponse) | ReplaceAccountResources registers a Domain |
+| TransferAccount | [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount) | [MsgTransferAccountResponse](#starnamed.x.starname.v1beta1.MsgTransferAccountResponse) | TransferAccount registers a Domain |
+| TransferDomain | [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain) | [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse) | TransferDomain registers a Domain |
+
+ 
 
 
 
@@ -405,247 +801,6 @@ Query defines the gRPC querier service.
 | ResourceAccounts | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. |
 | BrokerAccounts | [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest) | [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse) | BrokerAccounts gets accounts associated with a given broker. |
 | BrokerDomains | [QueryBrokerDomainsRequest](#starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest) | [QueryBrokerDomainsResponse](#starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse) | BrokerDomains gets domains associated with a given broker. |
-
- 
-
-
-
-<a name="x/starname/types/msgs.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## x/starname/types/msgs.proto
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificates"></a>
-
-### MsgAddAccountCertificates
-MsgAddAccountCertificates is the message used when a user wants to add new certificates to his account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_certificate | [bytes](#bytes) |  | NewCertificate is the new certificate to add |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgDeleteAccount"></a>
-
-### MsgDeleteAccount
-MsgDeleteAccount is the request model used to delete an account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate"></a>
-
-### MsgDeleteAccountCertificate
-MsgDeleteAccountCertificate is the request model used to remove certificates from an account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| delete_certificate | [bytes](#bytes) |  | DeleteCertificate is the certificate to delete |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgDeleteDomain"></a>
-
-### MsgDeleteDomain
-MsgDeleteDomain is the request model to delete a domain
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgRegisterAccount"></a>
-
-### MsgRegisterAccount
-MsgRegisterAccount is the request model used to register new accounts
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
-| registerer | [bytes](#bytes) |  | Registerer is the user who registers this account |
-| resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources are the blockchain addresses of the account |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgRegisterDomain"></a>
-
-### MsgRegisterDomain
-MsgRegisterDomain is the request used to register new domains
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| admin | [bytes](#bytes) |  |  |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
-| domain_type | [string](#string) |  | DomainType defines the type of the domain |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgRenewAccount"></a>
-
-### MsgRenewAccount
-MsgRenewAccount is the request model used to renew accounts
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| signer | [bytes](#bytes) |  | Signer is the signer of the request |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgRenewDomain"></a>
-
-### MsgRenewDomain
-MsgRenewDomain is the request model used to renew a domain
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| signer | [bytes](#bytes) |  | Signer is the signer of the request |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata"></a>
-
-### MsgReplaceAccountMetadata
-MsgReplaceAccountMetadata is the function used to set accounts metadata
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_metadata_uri | [string](#string) |  | NewMetadataURI is the metadata URI of the account we want to update or insert |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgReplaceAccountResources"></a>
-
-### MsgReplaceAccountResources
-MsgReplaceAccountResources is the request model used to renew resources associated with an account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | NewResources are the new resources |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgTransferAccount"></a>
-
-### MsgTransferAccount
-MsgTransferAccount is the request model used to transfer accounts
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the domain of the account |
-| name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_owner | [bytes](#bytes) |  | NewOwner is the new owner of the account |
-| reset | [bool](#bool) |  | ToReset if true, removes all old data from account |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.MsgTransferDomain"></a>
-
-### MsgTransferDomain
-MsgTransferDomain is the request model used to transfer a domain
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  | Domain is the name of the domain |
-| owner | [bytes](#bytes) |  | Owner is the owner of the domain |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_admin | [bytes](#bytes) |  | NewAdmin is the new owner of the domain |
-| transfer_flag | [int64](#int64) |  | TransferFlag controls the operations that occurs on a domain&#39;s accounts |
-
-
-
-
-
- 
-
- 
-
- 
 
  
 

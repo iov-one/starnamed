@@ -1,12 +1,12 @@
 syntax = "proto3";
-package cosmwasm.wasm.v1beta1;
+package starnamed.x.wasm.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "x/wasm/internal/types/types.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
-option go_package = "github.com/iov-one/starnamed/x/wasmd/internal/types";
+option go_package = "github.com/iov-one/starnamed/x/wasm/internal/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = false;
 

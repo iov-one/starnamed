@@ -15,10 +15,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-var aliceAddr, bobAddr sdk.AccAddress
-
 func TestMain(t *testing.M) {
-	aliceAddr, bobAddr = genTestAddress()
 	os.Exit(t.Run())
 }
 

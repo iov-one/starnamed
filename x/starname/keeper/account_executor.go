@@ -1,32 +1,43 @@
-package executor
+package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/starname/keeper"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func NewAccount(ctx sdk.Context, k keeper.Keeper, account types.Account) *Account {
-	return &Account{
-		store:   k.AccountStore(ctx),
+// NewAccountExecutor is the constuctor for an account executor
+func NewAccountExecutor(ctx sdk.Context, account types.Account) *AccountExecutor {
+	return &AccountExecutor{
 		account: &account,
 		ctx:     ctx,
-		k:       k,
 	}
 }
 
-// Account defines an account executor
-type Account struct {
-	store   crud.Store
+// AccountExecutor defines an account executor
+type AccountExecutor struct {
+	store   *crud.Store
 	account *types.Account
 	ctx     sdk.Context
-	k       keeper.Keeper
+	conf    *configuration.Config
+}
+
+// WithAccounts allows to specify a cached accounts store
+func (a *AccountExecutor) WithAccounts(store *crud.Store) *AccountExecutor {
+	a.store = store
+	return a
+}
+
+// WithConfiguration allows to specify a cached config
+func (a *AccountExecutor) WithConfiguration(cfg configuration.Config) *AccountExecutor {
+	a.conf = &cfg
+	return a
 }
 
 // Transfer transfers the account to the provided owner with information reset if reset is true
-func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
+func (a *AccountExecutor) Transfer(newOwner sdk.AccAddress, reset bool) {
 	if a.account == nil {
 		panic("cannot transfer non specified account")
 	}
@@ -40,76 +51,100 @@ func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
 		a.account.MetadataURI = ""
 	}
 	// apply changes
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // UpdateMetadata updates account's metadata
-func (a *Account) UpdateMetadata(newMetadata string) {
+func (a *AccountExecutor) UpdateMetadata(newMetadata string) {
 	if a.account == nil {
 		panic("cannot update metadata on non specified account")
 	}
 	a.account.MetadataURI = newMetadata
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // ReplaceResources replaces account's resources
-func (a *Account) ReplaceResources(newTargets []*types.Resource) {
+func (a *AccountExecutor) ReplaceResources(newTargets []*types.Resource) {
 	if a.account == nil {
 		panic("cannot replace targets on non specified account")
 	}
 	a.account.Resources = newTargets
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // Renew renews an account
-func (a *Account) Renew() {
+func (a *AccountExecutor) Renew() {
 	if a.account == nil {
 		panic("cannot renew a non specified account")
 	}
-	renew := a.k.ConfigurationKeeper.GetConfiguration(a.ctx).AccountRenewalPeriod
+	renew := a.conf.AccountRenewalPeriod
 	a.account.ValidUntil = utils.TimeToSeconds(
 		utils.SecondsToTime(a.account.ValidUntil).Add(renew),
 	)
 	// update account in kv store
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // Create creates an account
-func (a *Account) Create() {
+func (a *AccountExecutor) Create() {
 	if a.account == nil {
 		panic("cannot create a non specified account")
 	}
-	a.store.Create(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Create(a.account)
 }
 
 // Delete deletes the account
-func (a *Account) Delete() {
+func (a *AccountExecutor) Delete() {
 	if a.account == nil {
 		panic("cannot delete a non specified account")
 	}
-	a.store.Delete(a.account.PrimaryKey())
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Delete(a.account.PrimaryKey())
 }
 
 // DeleteCertificate deletes the certificate of the account at the provided index
-func (a *Account) DeleteCertificate(index int) {
+func (a *AccountExecutor) DeleteCertificate(index int) {
 	if a.account == nil {
 		panic("cannot delete certificate on a non specified account")
 	}
 	a.account.Certificates = append(a.account.Certificates[:index], a.account.Certificates[index+1:]...)
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // AddCertificate adds a certificate to the account
-func (a *Account) AddCertificate(cert []byte) {
+func (a *AccountExecutor) AddCertificate(cert []byte) {
 	if a.account == nil {
 		panic("cannot add certificate on a non specified account")
 	}
 	a.account.Certificates = append(a.account.Certificates, cert)
-	a.store.Update(a.account)
+	if a.store == nil {
+		panic("store is missing")
+	}
+	(*a.store).Update(a.account)
 }
 
 // State returns the current state of the account
-func (a *Account) State() types.Account {
+func (a *AccountExecutor) State() types.Account {
 	if a.account == nil {
 		panic("cannot get state of a non specified account")
 	}

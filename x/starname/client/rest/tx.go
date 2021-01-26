@@ -45,8 +45,8 @@ func registerDomainHandler(cliCtx client.Context) http.HandlerFunc {
 
 // addAccountCertificates is the request model for addAccountCertificatesHandler
 type addAccountCertificates struct {
-	BaseReq rest.BaseReq                     `json:"base_req"`
-	Message *types.MsgAddAccountCertificates `json:"message"`
+	BaseReq rest.BaseReq                    `json:"base_req"`
+	Message *types.MsgAddAccountCertificate `json:"message"`
 }
 
 // addAccountCertificatesHandler builds the transaction to sign to add account certificates

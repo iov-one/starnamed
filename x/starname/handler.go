@@ -6,42 +6,54 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gogo/protobuf/proto"
+	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// NewHandler builds the tx requests handler for the domain module
-func NewHandler(k Keeper) sdk.Handler {
+// NewHandler builds the tx requests handler for the starname module
+func NewHandler(k *Keeper) sdk.Handler {
+	msgServer := keeper.NewMsgServerImpl(k)
+
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
+
+		var (
+			res proto.Message
+			err error
+		)
 		switch msg := msg.(type) {
-		// domain handlers
-		case *types.MsgRegisterDomain:
-			return handleMsgRegisterDomain(ctx, k, msg)
-		case *types.MsgRenewDomain:
-			return handlerMsgRenewDomain(ctx, k, msg)
+		// domain msgs
 		case *types.MsgDeleteDomain:
-			return handlerMsgDeleteDomain(ctx, k, msg)
+			res, err = msgServer.DeleteDomain(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterDomain:
+			res, err = msgServer.RegisterDomain(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRenewDomain:
+			res, err = msgServer.RenewDomain(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgTransferDomain:
-			return handlerMsgTransferDomain(ctx, k, msg)
-		// account handlers
-		case *types.MsgRegisterAccount:
-			return handleMsgRegisterAccount(ctx, k, msg)
-		case *types.MsgRenewAccount:
-			return handlerMsgRenewAccount(ctx, k, msg)
-		case *types.MsgAddAccountCertificates:
-			return handlerMsgAddAccountCertificates(ctx, k, msg)
-		case *types.MsgDeleteAccountCertificate:
-			return handlerMsgDeleteAccountCertificate(ctx, k, msg)
+			res, err = msgServer.TransferDomain(sdk.WrapSDKContext(ctx), msg)
+		// account msgs
+		case *types.MsgAddAccountCertificate:
+			res, err = msgServer.AddAccountCertificate(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgDeleteAccount:
-			return handlerMsgDeleteAccount(ctx, k, msg)
-		case *types.MsgReplaceAccountResources:
-			return handlerMsgReplaceAccountResources(ctx, k, msg)
-		case *types.MsgTransferAccount:
-			return handlerMsgTransferAccount(ctx, k, msg)
+			res, err = msgServer.DeleteAccount(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgDeleteAccountCertificate:
+			res, err = msgServer.DeleteAccountCertificate(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterAccount:
+			res, err = msgServer.RegisterAccount(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRenewAccount:
+			res, err = msgServer.RenewAccount(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgReplaceAccountMetadata:
-			return handlerMsgReplaceAccountMetadata(ctx, k, msg)
+			res, err = msgServer.ReplaceAccountMetadata(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgReplaceAccountResources:
+			res, err = msgServer.ReplaceAccountResources(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgTransferAccount:
+			res, err = msgServer.TransferAccount(sdk.WrapSDKContext(ctx), msg)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}
+
+		return sdk.WrapServiceResult(ctx, res, err)
 	}
 
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
