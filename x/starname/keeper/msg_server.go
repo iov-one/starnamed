@@ -22,6 +22,10 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 	return addAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }
 
+func (m msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
+	return registerAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+}
+
 func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
 	return registerDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }

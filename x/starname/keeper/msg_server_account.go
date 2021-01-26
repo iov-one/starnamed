@@ -128,8 +128,8 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 	return &sdk.Result{}, nil
 }
 
-// handleMsgRegisterAccount registers the account
-func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
+// registerAccount registers an account
+func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -176,7 +176,9 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 
 	ex := NewAccountExecutor(ctx, a).WithAccounts(&accounts)
 	ex.Create()
-	return &sdk.Result{}, nil
+
+	// success; todo can we emit event?
+	return &types.MsgRegisterAccountResponse{}, nil
 }
 
 func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {

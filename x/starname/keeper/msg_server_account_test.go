@@ -1116,7 +1116,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
 					Owner:      BobKey,
@@ -1125,7 +1125,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
-				_, err = handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err = registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test2",
 					Owner:      BobKey,
@@ -1157,7 +1157,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
 					Owner:      BobKey,
@@ -1198,7 +1198,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
 					Registerer: BobKey,
@@ -1207,7 +1207,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
-				_, err = handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err = registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test2",
 					Registerer: BobKey,
@@ -1223,7 +1223,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 	RunTests(t, testCases)
 }
 
-func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
+func Test_OpenDomain_registerAccount(t *testing.T) {
 	testCases := map[string]SubTest{
 		"account valid until is now plus config account renew": {
 			BeforeTestBlockTime: 1,
@@ -1246,7 +1246,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
 					Owner:      BobKey,
@@ -1271,7 +1271,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 	RunTests(t, testCases)
 }
 
-func Test_Common_handleMsgRegisterAccount(t *testing.T) {
+func Test_Common_registerAccount(t *testing.T) {
 	testCases := map[string]SubTest{
 		"fail resource": {
 			TestBlockTime: 1,
@@ -1296,7 +1296,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
@@ -1309,7 +1309,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrInvalidResource) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
 			},
 			AfterTest: nil,
@@ -1336,7 +1336,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
@@ -1349,7 +1349,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrInvalidResource) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
 			},
 			AfterTest: nil,
@@ -1378,7 +1378,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  AliceKey,
@@ -1391,7 +1391,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrInvalidAccountName) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrInvalidAccountName, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidAccountName, err)
 				}
 			},
 			AfterTest: nil,
@@ -1410,7 +1410,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  AliceKey,
@@ -1423,7 +1423,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -1453,7 +1453,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey, // invalid owner
@@ -1466,7 +1466,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -1495,7 +1495,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
@@ -1508,7 +1508,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrDomainExpired, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -1547,7 +1547,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "exists",
 					Owner:  BobKey,
@@ -1560,7 +1560,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if !errors.Is(err, types.ErrAccountExists) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrAccountExists, err)
+					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrAccountExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -1589,7 +1589,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
 					Owner:      BobKey,
@@ -1603,7 +1603,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Broker: nil,
 				})
 				if err != nil {
-					t.Fatalf("handleMsgRegisterAccount() got error: %s", err)
+					t.Fatalf("registerAccount() got error: %s", err)
 				}
 			},
 			AfterTest: nil, // TODO fill with matching data

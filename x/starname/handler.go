@@ -27,8 +27,6 @@ func NewHandler(k *Keeper) sdk.Handler {
 		case *types.MsgTransferDomain:
 			return handlerMsgTransferDomain(ctx, *k, msg)
 		// account handlers
-		case *types.MsgRegisterAccount:
-			return handleMsgRegisterAccount(ctx, *k, msg)
 		case *types.MsgRenewAccount:
 			return handlerMsgRenewAccount(ctx, *k, msg)
 		case *types.MsgDeleteAccountCertificate:
@@ -51,6 +49,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case *types.MsgAddAccountCertificate:
 			res, err = msgServer.AddAccountCertificate(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterAccount:
+			res, err = msgServer.RegisterAccount(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgRegisterDomain:
 			res, err = msgServer.RegisterDomain(sdk.WrapSDKContext(ctx), msg)
 		default:
