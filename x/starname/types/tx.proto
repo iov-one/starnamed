@@ -8,6 +8,8 @@ option go_package="github.com/iov-one/starnamed/x/starname/types";
 
 // Msg defines the starname Msg service.
 service Msg {
+    // RegisterDomain registers a Domain
+    rpc RegisterDomain(MsgRegisterDomain) returns (MsgRegisterDomainResponse);
     // AddAccountCertificate adds a certificate to an Account
     rpc AddAccountCertificate(MsgAddAccountCertificate) returns (MsgAddAccountCertificateResponse);
 }
@@ -31,7 +33,7 @@ message MsgAddAccountCertificate {
     // NewCertificate is the new certificate to add
     bytes new_certificate = 5 [(gogoproto.moretags) = "yaml:\"new_certificate\""];
 }
-// MsgAddAccountCertificateResponse returns store result data.
+// MsgAddAccountCertificateResponse returns an empty response.
 message MsgAddAccountCertificateResponse{
 }
 
@@ -141,6 +143,9 @@ message MsgRegisterDomain {
         (gogoproto.casttype) = "DomainType",
         (gogoproto.moretags) = "yaml:\"domain_type"
     ];
+}
+// MsgRegisterDomainResponse returns an empty response.
+message MsgRegisterDomainResponse{
 }
 
 // MsgRenewAccount is the request model used to renew accounts

@@ -11,6 +11,7 @@
     - [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain)
     - [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount)
     - [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain)
+    - [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse)
     - [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount)
     - [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain)
     - [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata)
@@ -81,7 +82,7 @@ MsgAddAccountCertificate is the message used when a user wants to add new certif
 <a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse"></a>
 
 ### MsgAddAccountCertificateResponse
-MsgAddAccountCertificateResponse returns store result data.
+MsgAddAccountCertificateResponse returns an empty response.
 
 
 
@@ -176,6 +177,16 @@ MsgRegisterDomain is the request used to register new domains
 | payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
 | domain_type | [string](#string) |  | DomainType defines the type of the domain |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgRegisterDomainResponse"></a>
+
+### MsgRegisterDomainResponse
+MsgRegisterDomainResponse returns an empty response.
 
 
 
@@ -307,6 +318,7 @@ Msg defines the starname Msg service.
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
+| RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |
 | AddAccountCertificate | [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate) | [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse) | AddAccountCertificate adds a certificate to an Account |
 
  

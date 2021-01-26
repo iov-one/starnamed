@@ -494,31 +494,31 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:       "domain-closed",
 					DomainType: types.ClosedDomain,
 					Admin:      BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handleMsgRegisterDomain() with close domain, got error: %s", err)
+					t.Fatalf("registerDomain() with close domain, got error: %s", err)
 				}
-				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err = registerDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:       "domain-open",
 					Admin:      AliceKey,
 					DomainType: types.OpenDomain,
 					Broker:     nil,
 				})
 				if err != nil {
-					t.Fatalf("handleMsgRegisterDomain() with open domain, got error: %s", err)
+					t.Fatalf("registerDomain() with open domain, got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// TODO do reflect.DeepEqual checks on expected results vs results returned
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "domain-closed"}).PrimaryKey(), new(types.Domain)); err != nil {
-					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-closed'")
+					t.Fatalf("registerDomain() could not find 'domain-closed'")
 				}
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "domain-open"}).PrimaryKey(), new(types.Domain)); err != nil {
-					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-open'")
+					t.Fatalf("registerDomain() could not find 'domain-open'")
 				}
 			},
 		},
@@ -537,13 +537,13 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:       "exists",
 					Admin:      AliceKey,
 					DomainType: types.ClosedDomain,
 				})
 				if !errors.Is(err, types.ErrDomainAlreadyExists) {
-					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
+					t.Fatalf("registerDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -559,14 +559,14 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:       "invalid-name",
 					Admin:      nil,
 					DomainType: types.OpenDomain,
 					Broker:     nil,
 				})
 				if !errors.Is(err, types.ErrInvalidDomainName) {
-					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
+					t.Fatalf("registerDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
 				}
 			},
 			// TODO ADD AFTER TEST

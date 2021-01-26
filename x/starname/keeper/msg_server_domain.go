@@ -31,13 +31,13 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomai
 	return &sdk.Result{}, nil
 }
 
-// handleMsgRegisterDomain handles the domain registration process
-func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
+// registerDomain handles the domain registration process
+func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := NewDomainController(ctx, msg.Name).WithDomains(&domains).WithConfiguration(conf)
-	err = ctrl.
+	err := ctrl.
 		MustNotExist().
 		ValidName().
 		Validate()
@@ -65,7 +65,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	ex.Create()
 
 	// success TODO think here, can we emit any useful event
-	return &sdk.Result{}, nil
+	return &types.MsgRegisterDomainResponse{}, nil
 }
 
 // handlerMsgRenewDomain renews a domain

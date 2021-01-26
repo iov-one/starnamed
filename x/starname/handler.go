@@ -20,8 +20,6 @@ func NewHandler(k *Keeper) sdk.Handler {
 		/* TODO: FIXME
 		switch msg := msg.(type) {
 		// domain handlers
-		case *types.MsgRegisterDomain:
-			return handleMsgRegisterDomain(ctx, *k, msg)
 		case *types.MsgRenewDomain:
 			return handlerMsgRenewDomain(ctx, *k, msg)
 		case *types.MsgDeleteDomain:
@@ -53,6 +51,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case *types.MsgAddAccountCertificate:
 			res, err = msgServer.AddAccountCertificate(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterDomain:
+			res, err = msgServer.RegisterDomain(sdk.WrapSDKContext(ctx), msg)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}

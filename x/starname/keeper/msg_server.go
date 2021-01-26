@@ -21,3 +21,7 @@ func NewMsgServerImpl(k *Keeper) types.MsgServer {
 func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
 	return addAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }
+
+func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
+	return registerDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+}
