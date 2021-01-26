@@ -183,7 +183,7 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 
-func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
+func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*types.MsgRenewAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -220,8 +220,9 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 		dex := NewDomainExecutor(ctx, domainCtrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf)
 		dex.Renew(accNewValidUntil.Unix())
 	}
+
 	// success; todo emit event??
-	return &sdk.Result{}, nil
+	return &types.MsgRenewAccountResponse{}, nil
 }
 
 // handlerMsgReplaceAccountResources replaces account resources

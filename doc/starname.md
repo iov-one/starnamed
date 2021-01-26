@@ -17,6 +17,7 @@
     - [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain)
     - [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse)
     - [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount)
+    - [MsgRenewAccountResponse](#starnamed.x.starname.v1beta1.MsgRenewAccountResponse)
     - [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain)
     - [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse)
     - [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata)
@@ -257,6 +258,16 @@ MsgRenewAccount is the request model used to renew accounts
 
 
 
+<a name="starnamed.x.starname.v1beta1.MsgRenewAccountResponse"></a>
+
+### MsgRenewAccountResponse
+MsgRenewAccountResponse returns an empty response.
+
+
+
+
+
+
 <a name="starnamed.x.starname.v1beta1.MsgRenewDomain"></a>
 
 ### MsgRenewDomain
@@ -390,6 +401,7 @@ Msg defines the starname Msg service.
 | DeleteDomain | [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain) | [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse) | DeleteDomain registers a Domain |
 | RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterAccount registers an Account |
 | RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |
+| RenewAccount | [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount) | [MsgRenewAccountResponse](#starnamed.x.starname.v1beta1.MsgRenewAccountResponse) | RenewAccount registers a Domain |
 | RenewDomain | [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain) | [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse) | RenewDomain registers a Domain |
 | TransferDomain | [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain) | [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse) | TransferDomain registers a Domain |
 

@@ -20,6 +20,8 @@ service Msg {
     rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
     // RegisterDomain registers a Domain
     rpc RegisterDomain(MsgRegisterDomain) returns (MsgRegisterDomainResponse);
+    // RenewAccount registers a Domain
+    rpc RenewAccount(MsgRenewAccount) returns (MsgRenewAccountResponse);
     // RenewDomain registers a Domain
     rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
     // TransferDomain registers a Domain
@@ -188,6 +190,9 @@ message MsgRenewAccount {
         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
+}
+// MsgRenewAccountResponse returns an empty response.
+message MsgRenewAccountResponse {
 }
 
 // MsgRenewDomain is the request model used to renew a domain

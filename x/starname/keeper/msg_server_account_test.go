@@ -1613,7 +1613,7 @@ func Test_Common_registerAccount(t *testing.T) {
 	RunTests(t, testCases)
 }
 
-func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
+func Test_Closed_renewAccount(t *testing.T) {
 	cases := map[string]SubTest{
 		"account cannot be renewed since its max": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1639,12 +1639,12 @@ func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
 				})
 				if !errors.Is(err, types.ErrInvalidDomainType) {
-					t.Fatalf("handlerMsgRenewAccount() want err: %s, got: %s", types.ErrInvalidDomainType, err)
+					t.Fatalf("renewAccount() want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 		},
@@ -1652,7 +1652,7 @@ func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
 
 	RunTests(t, cases)
 }
-func Test_Open_handlerMsgRenewAccount(t *testing.T) {
+func Test_Open_renewAccount(t *testing.T) {
 	cases := map[string]SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1663,12 +1663,12 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "does not exist",
 					Name:   "",
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgRenewAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -1690,12 +1690,12 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "does not exist",
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgRenewAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -1726,12 +1726,12 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
+					t.Fatalf("renewAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1741,7 +1741,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				}
 				want := ctx.BlockTime().Add(k.ConfigurationKeeper.GetConfiguration(ctx).AccountRenewalPeriod)
 				if account.ValidUntil != utils.TimeToSeconds(want) {
-					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want.Unix(), account.ValidUntil)
+					t.Fatalf("renewAccount() want: %d, got: %d", want.Unix(), account.ValidUntil)
 				}
 			},
 		},
@@ -1774,12 +1774,12 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
+					t.Fatalf("renewAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1792,7 +1792,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 					t.Fatal("account not found")
 				}
 				if domain.ValidUntil != account.ValidUntil {
-					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", domain.ValidUntil, account.ValidUntil)
+					t.Fatalf("renewAccount() want: %d, got: %d", domain.ValidUntil, account.ValidUntil)
 				}
 			},
 		},
