@@ -191,7 +191,7 @@ func (d *DomainExecutor) Create() {
 // Gets the empty name account and cursor
 func (d *DomainExecutor) getEmptyNameAccount() (*types.Account, *crud.Cursor) {
 	if d.accounts == nil {
-		panic("domains is missing")
+		panic("accounts is missing")
 	}
 	cursor, err := (*d.accounts).Query().Where().Index(types.AccountDomainIndex).Equals(d.domain.PrimaryKey()).Do()
 	if err != nil {

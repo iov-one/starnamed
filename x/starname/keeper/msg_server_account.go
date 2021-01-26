@@ -170,7 +170,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	if err := k.CollectProductFee(ctx, msg, &d); err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
 
@@ -199,7 +199,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	if err := k.CollectProductFee(ctx, msg, domainCtrl.domain); err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
 
@@ -314,7 +314,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	if err := k.CollectProductFee(ctx, msg, domainCtrl.domain, k.AccountStore); err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
 

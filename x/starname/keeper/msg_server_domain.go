@@ -55,7 +55,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	if err := k.CollectProductFee(ctx, msg, &d); err != nil {
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 
@@ -83,12 +83,17 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	domain := new(types.Domain)
+	if err := domains.Read([]byte(msg.Domain), domain); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
+	}
+	if err := k.CollectProductFee(ctx, msg, domain, k.AccountStore); err != nil {
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 
 	// update domain
-	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithConfiguration(conf).Renew()
+	accounts := k.AccountStore(ctx)
+	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -108,7 +113,11 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg); err != nil {
+	domain := new(types.Domain)
+	if err := domains.Read([]byte(msg.Domain), domain); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
+	}
+	if err := k.CollectProductFee(ctx, msg, domain); err != nil {
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 
