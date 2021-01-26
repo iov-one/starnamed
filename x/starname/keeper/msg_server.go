@@ -50,6 +50,10 @@ func (m msgServer) RenewDomain(goCtx context.Context, msg *types.MsgRenewDomain)
 	return renewDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }
 
+func (m msgServer) ReplaceAccountMetadata(goCtx context.Context, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {
+	return replaceAccountMetadata(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+}
+
 func (m msgServer) TransferAccount(goCtx context.Context, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {
 	return transferAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }

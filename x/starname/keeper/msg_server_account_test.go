@@ -2223,7 +2223,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Closed_handlerMsgReplaceAccountMetadata(t *testing.T) {
+func Test_Closed_replaceAccountMetadata(t *testing.T) {
 	cases := map[string]SubTest{
 		"account expiration not respected": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2249,13 +2249,13 @@ func Test_Closed_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 		},
@@ -2264,7 +2264,7 @@ func Test_Closed_handlerMsgReplaceAccountMetadata(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Open_handlerMsgReplaceAccountMetadata(t *testing.T) {
+func Test_Open_replaceAccountMetadata(t *testing.T) {
 	cases := map[string]SubTest{
 		"account expired": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2290,13 +2290,13 @@ func Test_Open_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -2305,19 +2305,19 @@ func Test_Open_handlerMsgReplaceAccountMetadata(t *testing.T) {
 
 	RunTests(t, cases)
 }
-func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
+func Test_Common_replaceAccountMetadata(t *testing.T) {
 	cases := map[string]SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "does not exist",
 					Name:   "",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -2333,14 +2333,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "",
 					NewMetadataURI: "",
 					Owner:          nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainExpired, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -2358,13 +2358,13 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "does not exist",
 					Owner:  nil,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -2389,13 +2389,13 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
 					Owner:  CharlieKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -2420,13 +2420,13 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -2454,23 +2454,23 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
 					Owner:          AliceKey,
 				})
 				if !errors.Is(err, types.ErrMetadataSizeExceeded) {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() got error: %s", err)
+					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
-				_, err = handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err = replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "12",
 					Owner:          AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() got error: %s", err)
+					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
 			},
 		},
@@ -2497,14 +2497,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
 					Owner:          AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountMetadata() got error: %s", err)
+					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {

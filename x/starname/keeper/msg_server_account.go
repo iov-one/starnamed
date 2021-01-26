@@ -261,8 +261,8 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 	return &sdk.Result{}, nil
 }
 
-// handlerMsgReplaceAccountMetadata takes care of setting account metadata
-func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
+// replaceAccountMetadata sets account metadata
+func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -293,7 +293,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 	ex.UpdateMetadata(msg.NewMetadataURI)
 
 	// success TODO emit event
-	return &sdk.Result{}, nil
+	return &types.MsgReplaceAccountMetadataResponse{}, nil
 }
 
 // transferAccount transfers account to a new owner and may clear resources and certificates

@@ -24,6 +24,8 @@ service Msg {
     rpc RenewAccount(MsgRenewAccount) returns (MsgRenewAccountResponse);
     // RenewDomain registers a Domain
     rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
+    // ReplaceAccountMetadata registers a Domain
+    rpc ReplaceAccountMetadata(MsgReplaceAccountMetadata) returns (MsgReplaceAccountMetadataResponse);
     // TransferAccount registers a Domain
     rpc TransferAccount(MsgTransferAccount) returns (MsgTransferAccountResponse);
     // TransferDomain registers a Domain
@@ -260,6 +262,9 @@ message MsgReplaceAccountMetadata {
        (gogoproto.moretags) = "yaml:\"new_metadata_uri\"",
        (gogoproto.customname) = "NewMetadataURI"
     ];
+}
+// MsgReplaceAccountMetadataResponse returns an empty response.
+message MsgReplaceAccountMetadataResponse {
 }
 
 // MsgTransferAccount is the request model used to transfer accounts

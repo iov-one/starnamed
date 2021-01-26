@@ -22,8 +22,6 @@ func NewHandler(k *Keeper) sdk.Handler {
 		// account handlers
 		case *types.MsgReplaceAccountResources:
 			return handlerMsgReplaceAccountResources(ctx, *k, msg)
-		case *types.MsgReplaceAccountMetadata:
-			return handlerMsgReplaceAccountMetadata(ctx, *k, msg)
 		}
 		*/
 
@@ -52,6 +50,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 			res, err = msgServer.RegisterAccount(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgRenewAccount:
 			res, err = msgServer.RenewAccount(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgReplaceAccountMetadata:
+			res, err = msgServer.ReplaceAccountMetadata(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgTransferAccount:
 			res, err = msgServer.TransferAccount(sdk.WrapSDKContext(ctx), msg)
 		default:
