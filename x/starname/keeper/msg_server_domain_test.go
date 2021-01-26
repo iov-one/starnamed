@@ -586,9 +586,9 @@ func Test_handlerDomainRenew(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "does not exist"})
+				_, err := renewDomain(ctx, k, &types.MsgRenewDomain{Domain: "does not exist"})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgRenewDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("renewDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -613,9 +613,9 @@ func Test_handlerDomainRenew(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "test"})
+				_, err := renewDomain(ctx, k, &types.MsgRenewDomain{Domain: "test"})
 				if err != nil {
-					t.Fatalf("handlerMsgRenewDomain() got error: %s", err)
+					t.Fatalf("renewDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -623,7 +623,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				domain := new(types.Domain)
 				_ = k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), domain)
 				if domain.ValidUntil != 1001 {
-					t.Fatalf("handlerMsgRenewDomain() expected 1001, got: %d", domain.ValidUntil)
+					t.Fatalf("renewDomain() expected 1001, got: %d", domain.ValidUntil)
 				}
 			},
 		},

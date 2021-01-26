@@ -12,10 +12,12 @@ service Msg {
     rpc AddAccountCertificate(MsgAddAccountCertificate) returns (MsgAddAccountCertificateResponse);
     // DeleteDomain registers a Domain
     rpc DeleteDomain(MsgDeleteDomain) returns (MsgDeleteDomainResponse);
-    // RegisterDomain registers an Account
+    // RegisterAccount registers an Account
     rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
     // RegisterDomain registers a Domain
     rpc RegisterDomain(MsgRegisterDomain) returns (MsgRegisterDomainResponse);
+    // RenewDomain registers a Domain
+    rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
 }
 
 // MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
@@ -190,6 +192,9 @@ message MsgRenewDomain {
         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
+}
+// MsgRegisterDomain returns an empty response.
+message MsgRenewDomainResponse {
 }
 
 // MsgReplaceAccountResources is the request model used to renew resources associated with an account

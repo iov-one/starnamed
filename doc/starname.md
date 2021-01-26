@@ -16,6 +16,7 @@
     - [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse)
     - [MsgRenewAccount](#starnamed.x.starname.v1beta1.MsgRenewAccount)
     - [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain)
+    - [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse)
     - [MsgReplaceAccountMetadata](#starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata)
     - [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources)
     - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
@@ -250,6 +251,16 @@ MsgRenewDomain is the request model used to renew a domain
 
 
 
+<a name="starnamed.x.starname.v1beta1.MsgRenewDomainResponse"></a>
+
+### MsgRenewDomainResponse
+MsgRegisterDomain returns an empty response.
+
+
+
+
+
+
 <a name="starnamed.x.starname.v1beta1.MsgReplaceAccountMetadata"></a>
 
 ### MsgReplaceAccountMetadata
@@ -342,8 +353,9 @@ Msg defines the starname Msg service.
 | ----------- | ------------ | ------------- | ------------|
 | AddAccountCertificate | [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate) | [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse) | AddAccountCertificate adds a certificate to an Account |
 | DeleteDomain | [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain) | [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse) | DeleteDomain registers a Domain |
-| RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterDomain registers an Account |
+| RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterAccount registers an Account |
 | RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |
+| RenewDomain | [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain) | [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse) | RenewDomain registers a Domain |
 
  
 

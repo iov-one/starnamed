@@ -20,8 +20,6 @@ func NewHandler(k *Keeper) sdk.Handler {
 		/* TODO: FIXME
 		switch msg := msg.(type) {
 		// domain handlers
-		case *types.MsgRenewDomain:
-			return handlerMsgRenewDomain(ctx, *k, msg)
 		case *types.MsgTransferDomain:
 			return handlerMsgTransferDomain(ctx, *k, msg)
 		// account handlers
@@ -50,6 +48,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 			res, err = msgServer.DeleteDomain(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgRegisterDomain:
 			res, err = msgServer.RegisterDomain(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRenewDomain:
+			res, err = msgServer.RenewDomain(sdk.WrapSDKContext(ctx), msg)
 		// account msgs
 		case *types.MsgAddAccountCertificate:
 			res, err = msgServer.AddAccountCertificate(sdk.WrapSDKContext(ctx), msg)

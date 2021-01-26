@@ -69,8 +69,8 @@ func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (*t
 	return &types.MsgRegisterDomainResponse{}, nil
 }
 
-// handlerMsgRenewDomain renews a domain
-func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
+// renewDomain renews a domain
+func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -95,8 +95,9 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 	// update domain
 	accounts := k.AccountStore(ctx)
 	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
+
 	// success TODO emit event
-	return &sdk.Result{}, nil
+	return &types.MsgRenewDomainResponse{}, nil
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
