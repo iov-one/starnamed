@@ -26,6 +26,8 @@ service Msg {
     rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
     // ReplaceAccountMetadata registers a Domain
     rpc ReplaceAccountMetadata(MsgReplaceAccountMetadata) returns (MsgReplaceAccountMetadataResponse);
+    // ReplaceAccountResources registers a Domain
+    rpc ReplaceAccountResources(MsgReplaceAccountResources) returns (MsgReplaceAccountResourcesResponse);
     // TransferAccount registers a Domain
     rpc TransferAccount(MsgTransferAccount) returns (MsgTransferAccountResponse);
     // TransferDomain registers a Domain
@@ -238,6 +240,9 @@ message MsgReplaceAccountResources {
     repeated Resource new_resources = 5 [
         (gogoproto.moretags) = "yaml:\"new_resources"
     ];
+}
+// MsgReplaceAccountResourcesResponse
+message MsgReplaceAccountResourcesResponse {
 }
 
 // MsgReplaceAccountMetadata is the function used to set accounts metadata

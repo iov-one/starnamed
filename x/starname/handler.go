@@ -17,13 +17,6 @@ func NewHandler(k *Keeper) sdk.Handler {
 
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
-		/* TODO: FIXME
-		switch msg := msg.(type) {
-		// account handlers
-		case *types.MsgReplaceAccountResources:
-			return handlerMsgReplaceAccountResources(ctx, *k, msg)
-		}
-		*/
 
 		var (
 			res proto.Message
@@ -52,6 +45,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 			res, err = msgServer.RenewAccount(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgReplaceAccountMetadata:
 			res, err = msgServer.ReplaceAccountMetadata(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgReplaceAccountResources:
+			res, err = msgServer.ReplaceAccountResources(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgTransferAccount:
 			res, err = msgServer.TransferAccount(sdk.WrapSDKContext(ctx), msg)
 		default:

@@ -1801,7 +1801,7 @@ func Test_Open_renewAccount(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
+func Test_Closed_replaceAccountResources(t *testing.T) {
 	cases := map[string]SubTest{
 		"fail does not respect account valid until": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1830,7 +1830,7 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1842,7 +1842,7 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountResources() got error: %s", err)
+					t.Fatalf("replaceAccountResources() got error: %s", err)
 				}
 			},
 		},
@@ -1851,7 +1851,7 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
+func Test_Open_replaceAccountResources(t *testing.T) {
 	cases := map[string]SubTest{
 		"account expired": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1880,7 +1880,7 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1892,7 +1892,7 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrAccountExpired, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -1901,7 +1901,7 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 
 	RunTests(t, cases)
 }
-func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
+func Test_Common_replaceAccountResources(t *testing.T) {
 	cases := map[string]SubTest{
 		"invalid blockchain resource": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -1928,7 +1928,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1940,7 +1940,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if !errors.Is(err, types.ErrInvalidResource) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
 			},
 		},
@@ -1970,7 +1970,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1990,9 +1990,9 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if !errors.Is(err, types.ErrResourceLimitExceeded) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
-				_, err = handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err = replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2008,9 +2008,9 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
-				_, err = handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err = replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2022,7 +2022,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
 			},
 		},
@@ -2036,7 +2036,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "does not exist",
 					Name:   "",
 					NewResources: []*types.Resource{
@@ -2048,7 +2048,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: nil,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -2070,7 +2070,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					NewResources: []*types.Resource{
 						{
@@ -2081,7 +2081,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrDomainExpired, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
 			},
 			AfterTest: nil,
@@ -2104,7 +2104,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "does not exist",
 					NewResources: []*types.Resource{
@@ -2116,7 +2116,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: nil,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -2146,7 +2146,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2158,7 +2158,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -2189,7 +2189,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2201,7 +2201,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					Owner: AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgReplaceAccountResources() got error: %s", err)
+					t.Fatalf("replaceAccountResources() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -2214,7 +2214,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 					t.Fatal("account not found")
 				}
 				if !reflect.DeepEqual(expected, account.Resources) {
-					t.Fatalf("handlerMsgReplaceAccountResources() expected: %+v, got %+v", expected, account.Resources)
+					t.Fatalf("replaceAccountResources() expected: %+v, got %+v", expected, account.Resources)
 				}
 			},
 		},

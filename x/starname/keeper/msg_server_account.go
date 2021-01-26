@@ -225,8 +225,8 @@ func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*types
 	return &types.MsgRenewAccountResponse{}, nil
 }
 
-// handlerMsgReplaceAccountResources replaces account resources
-func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
+// replaceAccountResources replaces account resources
+func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*types.MsgReplaceAccountResourcesResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -258,7 +258,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 	ex.ReplaceResources(msg.NewResources)
 
 	// success; TODO emit any useful event?
-	return &sdk.Result{}, nil
+	return &types.MsgReplaceAccountResourcesResponse{}, nil
 }
 
 // replaceAccountMetadata sets account metadata
