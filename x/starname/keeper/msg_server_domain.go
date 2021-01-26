@@ -6,7 +6,8 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
+// deleteDomain deletes a domain from the store
+func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*types.MsgDeleteDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -28,7 +29,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomai
 	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).Delete()
 
 	// success TODO maybe emit event?
-	return &sdk.Result{}, nil
+	return &types.MsgDeleteDomainResponse{}, nil
 }
 
 // registerDomain handles the domain registration process

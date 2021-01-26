@@ -10,6 +10,8 @@ option go_package="github.com/iov-one/starnamed/x/starname/types";
 service Msg {
     // AddAccountCertificate adds a certificate to an Account
     rpc AddAccountCertificate(MsgAddAccountCertificate) returns (MsgAddAccountCertificateResponse);
+    // DeleteDomain registers a Domain
+    rpc DeleteDomain(MsgDeleteDomain) returns (MsgDeleteDomainResponse);
     // RegisterDomain registers an Account
     rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
     // RegisterDomain registers a Domain
@@ -91,6 +93,9 @@ message MsgDeleteDomain {
         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
         (gogoproto.moretags) = "yaml:\"payer\""
    ];
+}
+// MsgDeleteDomainResponse returns an empty response.
+message MsgDeleteDomainResponse {
 }
 
 // MsgRegisterAccount is the request model used to register new accounts

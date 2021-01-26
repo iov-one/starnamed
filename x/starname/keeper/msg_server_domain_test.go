@@ -42,30 +42,30 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+					t.Fatalf("deleteDomain() domain should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+					t.Fatalf("deleteDomain() account 1 should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+					t.Fatalf("deleteDomain() account 2 should not exist")
 				}
 			},
 		},
@@ -98,23 +98,23 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  CharlieKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+					t.Fatalf("deleteDomain() domain should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+					t.Fatalf("deleteDomain() account 1 should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+					t.Fatalf("deleteDomain() account 2 should not exist")
 				}
 			},
 		},
@@ -153,23 +153,23 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  CharlieKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+					t.Fatalf("deleteDomain() domain should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+					t.Fatalf("deleteDomain() account 1 should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+					t.Fatalf("deleteDomain() account 2 should not exist")
 				}
 			},
 		},
@@ -202,14 +202,14 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  CharlieKey,
 				})
 				if !errors.Is(err, types.ErrDomainGracePeriodNotFinished) {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
@@ -219,13 +219,13 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should exist")
+					t.Fatalf("deleteDomain() domain should exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should exist")
+					t.Fatalf("deleteDomain() account 1 should exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should exist")
+					t.Fatalf("deleteDomain() account 2 should exist")
 				}
 			},
 		},
@@ -240,12 +240,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "this does not exist",
 					Owner:  BobKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 		},
@@ -268,12 +268,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -297,12 +297,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -326,12 +326,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: nil,
@@ -363,26 +363,26 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			TestBlockTime: 1589826441,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// another user can delete expired domain
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test1",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
-				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test2",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
-				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test2",
 					Owner:  BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -408,23 +408,23 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 4,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+					t.Fatalf("deleteDomain() domain should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+					t.Fatalf("deleteDomain() account 1 should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+					t.Fatalf("deleteDomain() account 2 should not exist")
 				}
 			},
 		},
@@ -458,23 +458,23 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+					t.Fatalf("deleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				if err := k.DomainStore(ctx).Read((&types.Domain{Name: "test"}).PrimaryKey(), new(types.Domain)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+					t.Fatalf("deleteDomain() domain should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+					t.Fatalf("deleteDomain() account 1 should not exist")
 				}
 				if err := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account)); err == nil {
-					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+					t.Fatalf("deleteDomain() account 2 should not exist")
 				}
 			},
 		},
