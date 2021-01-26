@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/mock"
+	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/stretchr/testify/require"
@@ -19,6 +20,8 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
+
+// TODO: FIXME clean-up all test drivers
 
 type DullMsg struct {
 	signer sdk.AccAddress
@@ -77,7 +80,7 @@ type Mocks struct {
 	Supply *mock.SupplyKeeperMock
 }
 
-// NewTestKeeper generates aliceAddr keeper and aliceAddr context from it
+// NewTestKeeper a new test keeper, context, and mocks
 func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	cdc := NewTestCodec()
 	// generate store
@@ -104,6 +107,50 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
 }
 
+var _, testAddrs = utils.GeneratePrivKeyAddressPairs(3)
+var aliceAddr sdk.AccAddress = testAddrs[0]
+var bobAddr sdk.AccAddress = testAddrs[1]
+var charlieAddr sdk.AccAddress = testAddrs[2]
+
+var testAccount types.Account
+var testDomain types.Domain
+
+// NewTestExecutorKeeper a new test keeper, context, and mocks, and populates the store with testAccount and testDomain
+func NewTestExecutorKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
+	testDomain = types.Domain{
+		Name:       "a-super-domain",
+		Admin:      bobAddr,
+		ValidUntil: 100,
+		Type:       types.ClosedDomain,
+	}
+	testAccount = types.Account{
+		Domain:     testDomain.Name,
+		Name:       utils.StrPtr("a-super-account"),
+		Owner:      aliceAddr,
+		ValidUntil: 10000,
+		Resources: []*types.Resource{
+			{
+				URI:      "a-super-uri",
+				Resource: "a-super-res",
+			},
+		},
+		Certificates: [][]byte{[]byte("a-random-cert")},
+		Broker:       nil,
+		MetadataURI:  "metadata",
+	}
+	testKeeper, testCtx, mocks := NewTestKeeper(t, isCheckTx)
+	testKeeper.DomainStore(testCtx).Create(&testDomain)
+	testKeeper.AccountStore(testCtx).Create(&testAccount)
+	testKeeper.AccountStore(testCtx).Create(&types.Account{
+		Domain:      testDomain.Name,
+		Name:        utils.StrPtr(types.EmptyAccountName),
+		Owner:       testDomain.Admin,
+		ValidUntil:  testDomain.ValidUntil,
+		MetadataURI: "",
+	})
+	return testKeeper, testCtx, mocks
+}
+
 // CompareAccounts compares two accounts
 func CompareAccounts(got, want *types.Account) error {
 	if got.Domain != want.Domain {
@@ -122,6 +169,9 @@ func CompareAccounts(got, want *types.Account) error {
 		return fmt.Errorf("got ValidUntil '%d', want '%d'", got.ValidUntil, want.ValidUntil)
 	}
 	if got.Resources != nil {
+		if len(got.Resources) != len(want.Resources) {
+			return fmt.Errorf("got %d resources, want %d", len(got.Resources), len(want.Resources))
+		}
 		for i, goti := range got.Resources {
 			wanti := want.Resources[i]
 			if goti.URI != wanti.URI {
@@ -133,6 +183,9 @@ func CompareAccounts(got, want *types.Account) error {
 		}
 	}
 	if got.Certificates != nil {
+		if len(got.Certificates) != len(want.Certificates) {
+			return fmt.Errorf("got %d certificates, want %d", len(got.Certificates), len(want.Certificates))
+		}
 		for i, goti := range got.Certificates {
 			wanti := want.Certificates[i]
 

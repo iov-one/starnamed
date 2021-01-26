@@ -3,12 +3,14 @@ package keeper
 import (
 	"reflect"
 	"testing"
+	"time"
 
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestAccount_AddCertificate(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	cert := []byte("a-cert")
 	as := testKeeper.AccountStore(testCtx)
 	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
@@ -21,21 +23,21 @@ func TestAccount_AddCertificate(t *testing.T) {
 }
 
 func TestAccount_Create(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	acc := testAccount
 	acc.Domain = "some-random-domain"
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
+	ex := NewAccountExecutor(testCtx, acc).WithAccounts(&as)
 	ex.Create()
 	got := new(types.Account)
 	as.Read(acc.PrimaryKey(), got)
-	if !reflect.DeepEqual(*got, acc) {
-		t.Fatal("unexpected result")
+	if err := CompareAccounts(got, &acc); err != nil {
+		t.Fatal(err)
 	}
 }
 
 func TestAccount_DeleteCertificate(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	as := testKeeper.AccountStore(testCtx)
 	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
 	ex.DeleteCertificate(0)
@@ -47,21 +49,27 @@ func TestAccount_DeleteCertificate(t *testing.T) {
 }
 
 func TestAccount_Renew(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
+	renewalPeriod := 20 * time.Second
+	setConfig := GetConfigSetter(testKeeper.ConfigurationKeeper).SetConfig
+	setConfig(testCtx, configuration.Config{
+		AccountRenewalPeriod: renewalPeriod,
+	})
 	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
+	conf := testKeeper.ConfigurationKeeper.GetConfiguration(testCtx)
+	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as).WithConfiguration(conf)
 	ex.Renew()
 	newAcc := new(types.Account)
 	if err := as.Read(testAccount.PrimaryKey(), newAcc); err != nil {
 		t.Fatal("account was deleted")
 	}
-	if newAcc.ValidUntil != testAccount.ValidUntil+int64(testConfig.AccountRenewalPeriod.Seconds()) {
+	if newAcc.ValidUntil != testAccount.ValidUntil+int64(renewalPeriod.Seconds()) {
 		t.Fatal("time mismatch")
 	}
 }
 
 func TestAccount_ReplaceResources(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	newRes := []*types.Resource{{
 		URI:      "uri",
 		Resource: "res",
@@ -77,19 +85,18 @@ func TestAccount_ReplaceResources(t *testing.T) {
 }
 
 func TestAccount_State(t *testing.T) {
-
+	// TODO
 }
 
 func TestAccount_Transfer(t *testing.T) {
-	as := testKeeper.AccountStore(testCtx)
-	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
 	t.Run("no-reset", func(t *testing.T) {
-		// dmjp testCtx, _ := testCtx.CacheContext()
-
-		ex.Transfer(CharlieKey, false)
+		testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
+		as := testKeeper.AccountStore(testCtx)
+		ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
+		ex.Transfer(charlieAddr, false)
 		got := new(types.Account)
 		as.Read(testAccount.PrimaryKey(), got)
-		if !got.Owner.Equals(CharlieKey) {
+		if !got.Owner.Equals(charlieAddr) {
 			t.Fatal("unexpected owner")
 		}
 		if !reflect.DeepEqual(got.Resources, testAccount.Resources) {
@@ -103,12 +110,13 @@ func TestAccount_Transfer(t *testing.T) {
 		}
 	})
 	t.Run("with-reset", func(t *testing.T) {
-		// dmjp testCtx, _ := testCtx.CacheContext()
-
-		ex.Transfer(BobKey, true)
+		testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
+		as := testKeeper.AccountStore(testCtx)
+		ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
+		ex.Transfer(bobAddr, true)
 		got := new(types.Account)
 		as.Read(testAccount.PrimaryKey(), got)
-		if !got.Owner.Equals(BobKey) {
+		if !got.Owner.Equals(bobAddr) {
 			t.Fatal("owner mismatch")
 		}
 		if got.MetadataURI != "" || got.Resources != nil || got.Certificates != nil {
@@ -118,7 +126,7 @@ func TestAccount_Transfer(t *testing.T) {
 }
 
 func TestAccount_UpdateMetadata(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	newMeta := "a new meta"
 	as := testKeeper.AccountStore(testCtx)
 	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
@@ -131,7 +139,7 @@ func TestAccount_UpdateMetadata(t *testing.T) {
 }
 
 func TestAccount_Delete(t *testing.T) {
-	testCtx, _ := testCtx.CacheContext()
+	testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 	as := testKeeper.AccountStore(testCtx)
 	ex := NewAccountExecutor(testCtx, testAccount).WithAccounts(&as)
 	ex.Delete()

@@ -2,16 +2,18 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 func TestDomain_Transfer(t *testing.T) {
 	// defines test prereqs
 	init := func() (k Keeper, ctx sdk.Context, ex *DomainExecutor) {
-		k, ctx, _ = NewTestKeeper(t, false)
+		k, ctx, _ = NewTestExecutorKeeper(t, false)
 		domain := types.Domain{
 			Name:       "test",
 			Admin:      BobKey,
@@ -45,11 +47,13 @@ func TestDomain_Transfer(t *testing.T) {
 			Name:   utils.StrPtr("not-owned"),
 			Owner:  CharlieKey,
 		}
-		NewDomainExecutor(ctx, domain).Create()
-		NewAccountExecutor(ctx, acc1).Create()
-		NewAccountExecutor(ctx, acc2).Create()
-		NewAccountExecutor(ctx, acc3).Create()
-		ex = NewDomainExecutor(ctx, domain)
+		domains := k.DomainStore(ctx)
+		accounts := k.AccountStore(ctx)
+		NewDomainExecutor(ctx, domain).WithDomains(&domains).WithAccounts(&accounts).Create()
+		NewAccountExecutor(ctx, acc1).WithAccounts(&accounts).Create()
+		NewAccountExecutor(ctx, acc2).WithAccounts(&accounts).Create()
+		NewAccountExecutor(ctx, acc3).WithAccounts(&accounts).Create()
+		ex = NewDomainExecutor(ctx, domain).WithDomains(&domains).WithAccounts(&accounts)
 		return
 	}
 	t.Run("success init", func(t *testing.T) {
@@ -157,21 +161,31 @@ func TestDomain_Transfer(t *testing.T) {
 
 func TestDomain_Renew(t *testing.T) {
 	t.Run("success renew from config", func(t *testing.T) {
-		testCtx, _ := testCtx.CacheContext()
-		ex := NewDomainExecutor(testCtx, testDomain)
+		testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
+		renewalPeriod := time.Duration(20)
+		setConfig := GetConfigSetter(testKeeper.ConfigurationKeeper).SetConfig
+		setConfig(testCtx, configuration.Config{
+			DomainRenewalPeriod: renewalPeriod * time.Second,
+		})
+		domains := testKeeper.DomainStore(testCtx)
+		accounts := testKeeper.AccountStore(testCtx)
+		conf := testKeeper.ConfigurationKeeper.GetConfiguration(testCtx)
+		ex := NewDomainExecutor(testCtx, testDomain).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf)
 		ex.Renew()
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
 			t.Fatal("domain does not exist anymore")
 		}
-		if newDom.ValidUntil != testDomain.ValidUntil+int64(testConfig.DomainRenewalPeriod.Seconds()) {
+		if newDom.ValidUntil != testDomain.ValidUntil+int64(renewalPeriod) {
 			t.Fatal("mismatched times")
 		}
 	})
-	t.Run("success renew from account", func(t *testing.T) {
-		testCtx, _ := testCtx.CacheContext()
+	t.Run("success renew from account, not config", func(t *testing.T) {
+		testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
 		var accValidUntil int64 = 10000
-		ex := NewDomainExecutor(testCtx, testDomain)
+		domains := testKeeper.DomainStore(testCtx)
+		accounts := testKeeper.AccountStore(testCtx)
+		ex := NewDomainExecutor(testCtx, testDomain).WithDomains(&domains).WithAccounts(&accounts)
 		ex.Renew(accValidUntil)
 		newDom := new(types.Domain)
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom); err != nil {
@@ -185,8 +199,10 @@ func TestDomain_Renew(t *testing.T) {
 
 func TestDomain_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		testCtx, _ := testCtx.CacheContext()
-		NewDomainExecutor(testCtx, testDomain).Delete()
+		testKeeper, testCtx, _ := NewTestExecutorKeeper(t, false)
+		domains := testKeeper.DomainStore(testCtx)
+		accounts := testKeeper.AccountStore(testCtx)
+		NewDomainExecutor(testCtx, testDomain).WithDomains(&domains).WithAccounts(&accounts).Delete()
 		if err := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{}); err == nil {
 			t.Fatal("domain was not deleted")
 		}

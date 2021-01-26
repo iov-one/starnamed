@@ -45,7 +45,7 @@ func (d *DomainExecutor) WithConfiguration(cfg configuration.Config) *DomainExec
 	return d
 }
 
-// Renew renews a domain based on the configuration
+// Renew renews a domain based on the configuration or accValidUntil
 func (d *DomainExecutor) Renew(accValidUntil ...int64) {
 	if d.domain == nil {
 		panic("cannot execute renew state change on non present domain")
