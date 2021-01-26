@@ -18,6 +18,8 @@ service Msg {
     rpc RegisterDomain(MsgRegisterDomain) returns (MsgRegisterDomainResponse);
     // RenewDomain registers a Domain
     rpc RenewDomain(MsgRenewDomain) returns (MsgRenewDomainResponse);
+    // TransferDomain registers a Domain
+    rpc TransferDomain(MsgTransferDomain) returns (MsgTransferDomainResponse);
 }
 
 // MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
@@ -295,4 +297,7 @@ message MsgTransferDomain {
         (gogoproto.casttype) = "TransferFlag",
         (gogoproto.moretags) = "yaml:\"transfer_flag"
     ];
+}
+// MsgTransferDomainResponse returns an empty response.
+message MsgTransferDomainResponse {
 }

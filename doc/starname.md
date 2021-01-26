@@ -21,6 +21,7 @@
     - [MsgReplaceAccountResources](#starnamed.x.starname.v1beta1.MsgReplaceAccountResources)
     - [MsgTransferAccount](#starnamed.x.starname.v1beta1.MsgTransferAccount)
     - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
+    - [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse)
   
     - [Msg](#starnamed.x.starname.v1beta1.Msg)
   
@@ -337,6 +338,16 @@ MsgTransferDomain is the request model used to transfer a domain
 
 
 
+
+<a name="starnamed.x.starname.v1beta1.MsgTransferDomainResponse"></a>
+
+### MsgTransferDomainResponse
+MsgTransferDomainResponse returns an empty response.
+
+
+
+
+
  
 
  
@@ -356,6 +367,7 @@ Msg defines the starname Msg service.
 | RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterAccount registers an Account |
 | RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |
 | RenewDomain | [MsgRenewDomain](#starnamed.x.starname.v1beta1.MsgRenewDomain) | [MsgRenewDomainResponse](#starnamed.x.starname.v1beta1.MsgRenewDomainResponse) | RenewDomain registers a Domain |
+| TransferDomain | [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain) | [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse) | TransferDomain registers a Domain |
 
  
 

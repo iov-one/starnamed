@@ -100,7 +100,7 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*types.M
 	return &types.MsgRenewDomainResponse{}, nil
 }
 
-func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
+func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	c := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -127,6 +127,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 	accounts := k.AccountStore(ctx)
 	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
+
 	// success; TODO emit event?
-	return &sdk.Result{}, nil
+	return &types.MsgTransferDomainResponse{}, nil
 }

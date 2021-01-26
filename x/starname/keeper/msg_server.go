@@ -37,3 +37,7 @@ func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterD
 func (m msgServer) RenewDomain(goCtx context.Context, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
 	return renewDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }
+
+func (m msgServer) TransferDomain(goCtx context.Context, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {
+	return transferDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+}
