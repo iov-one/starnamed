@@ -7,34 +7,33 @@ import (
 )
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
+	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
-	// do precondition and authorization checks
 	if err := ctrl.
 		MustExist().
 		DeletableBy(msg.Owner).
 		Validate(); err != nil {
 		return nil, err
 	}
-	// operation is allowed
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, ctrl.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
+
 	// all checks passed delete domain
 	accounts := k.AccountStore(ctx)
 	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).Delete()
+
 	// success TODO maybe emit event?
 	return &sdk.Result{}, nil
 }
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
+	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := NewDomainController(ctx, msg.Name).WithDomains(&domains).WithConfiguration(conf)
@@ -45,6 +44,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	if err != nil {
 		return nil, err
 	}
+
 	// create new domain
 	d := types.Domain{
 		Name:       msg.Name,
@@ -53,23 +53,24 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Type:       msg.DomainType,
 		Broker:     msg.Broker,
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, d)
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	if err := k.CollectFees(ctx, msg, fee); err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
+
 	// save domain
 	accounts := k.AccountStore(ctx)
 	ex := NewDomainExecutor(ctx, d).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Create()
+
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
 }
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
+	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	ctrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains).WithConfiguration(conf)
@@ -80,22 +81,20 @@ func handlerMsgRenewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain)
 	if err != nil {
 		return nil, err
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	accounts := k.AccountStore(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, ctrl.Domain()).WithAccounts(&accounts)
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err = k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
+
 	// update domain
-	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
+	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithConfiguration(conf).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
+	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	c := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
 	err := c.
@@ -107,14 +106,13 @@ func handlerMsgTransferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferD
 	if err != nil {
 		return nil, err
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, c.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err = k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
+
+	// transfer
 	accounts := k.AccountStore(ctx)
 	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)

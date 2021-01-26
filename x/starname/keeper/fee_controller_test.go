@@ -187,7 +187,7 @@ func Test_FeeApplier(t *testing.T) {
 	k.ConfigurationKeeper.(ConfigurationSetter).SetFees(ctx, &fee)
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
-			ctrl := NewFeeController(ctx, &fee, c.Domain).WithAccounts(&as)
+			ctrl := NewFeeController(ctx, &fee).WithDomain(&c.Domain).WithAccounts(&as)
 			got := ctrl.GetFee(c.Msg)
 			if !got.Amount.Equal(c.ExpectedFee.RoundInt()) {
 				t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)

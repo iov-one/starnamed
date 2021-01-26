@@ -36,12 +36,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 	}
 
 	// collect fees
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
-	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
+	if err := k.CollectProductFee(ctx, msg); err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
 
@@ -62,6 +57,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
+
 	return &sdk.Result{}, nil
 }
 
@@ -87,14 +83,12 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 		Validate(); err != nil {
 		return nil, err
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// delete cert
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.DeleteCertificate(*certIndex)
@@ -110,6 +104,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 	if err := domainCtrl.MustExist().Validate(); err != nil {
 		return nil, err
 	}
+
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -120,15 +115,12 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 		Validate(); err != nil {
 		return nil, err
 	}
+
 	// collect fees
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
-	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// delete account
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Delete()
@@ -147,6 +139,8 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 		Validate(); err != nil {
 		return nil, err
 	}
+
+	// perform account checks
 	accounts := k.AccountStore(ctx)
 	d := domainCtrl.Domain()
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -174,14 +168,12 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterA
 	case types.OpenDomain:
 		a.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	ex := NewAccountExecutor(ctx, a).WithAccounts(&accounts)
 	ex.Create()
 	return &sdk.Result{}, nil
@@ -195,6 +187,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 	if err := domainCtrl.MustExist().Type(types.OpenDomain).Validate(); err != nil {
 		return nil, err
 	}
+
 	// validate account
 	accounts := k.AccountStore(ctx)
 	accountCtrl := NewAccountController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithConfiguration(conf)
@@ -204,14 +197,12 @@ func handlerMsgRenewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccoun
 		Validate(); err != nil {
 		return nil, err
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// renew account
 	// account valid until is extended here
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts).WithConfiguration(conf)
@@ -237,6 +228,7 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
+
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -250,17 +242,16 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k Keeper, msg *types.Msg
 		Validate(); err != nil {
 		return nil, err
 	}
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
+
 	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// replace accounts resources
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.ReplaceResources(msg.NewResources)
+
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }
@@ -273,6 +264,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
+
 	// perform account checks
 	accounts := k.AccountStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -285,18 +277,16 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgR
 		Validate(); err != nil {
 		return nil, err
 	}
+
 	// collect fees
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
-	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// save to store
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.UpdateMetadata(msg.NewMetadataURI)
+
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -310,6 +300,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
 		return nil, err
 	}
+
 	// check if account exists
 	accounts := k.AccountStore(ctx)
 	accountCtrl := NewAccountController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
@@ -323,17 +314,14 @@ func handlerMsgTransferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransfer
 	}
 
 	// collect fees
-	feeConf := k.ConfigurationKeeper.GetFees(ctx)
-	feeCtrl := NewFeeController(ctx, feeConf, domainCtrl.Domain())
-	fee := feeCtrl.GetFee(msg)
-	// collect fees
-	err := k.CollectFees(ctx, msg, fee)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
+	if err := k.CollectProductFee(ctx, msg); err != nil {
+		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
+
 	// transfer account
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Transfer(msg.NewOwner, msg.ToReset)
+
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }

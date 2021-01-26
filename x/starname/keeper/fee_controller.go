@@ -13,14 +13,14 @@ import (
 type FeeController interface {
 	GetFee(msg sdk.Msg) sdk.Coin
 	WithAccounts(store *crud.Store) FeeController
+	WithDomain(domain *types.Domain) FeeController
 }
 
 // NewFeeController returns a new fee controller
-func NewFeeController(ctx sdk.Context, fees *configuration.Fees, domain types.Domain) FeeController {
+func NewFeeController(ctx sdk.Context, fees *configuration.Fees) FeeController {
 	return &feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
-		domain:     domain,
 	}
 }
 
@@ -28,17 +28,30 @@ type feeApplier struct {
 	moduleFees configuration.Fees
 	ctx        sdk.Context
 	store      *crud.Store
-	domain     types.Domain
+	domain     *types.Domain
 }
 
-// WithAccounts allows to specify a cached crud store
+// WithAccounts sets the feeApplier cached crud store
 func (f *feeApplier) WithAccounts(store *crud.Store) FeeController {
 	f.store = store
 	return f
 }
 
+// WithDomain sets the feeApplier domain
+func (f *feeApplier) WithDomain(domain *types.Domain) FeeController {
+	f.domain = domain
+	return f
+}
+
+func (f feeApplier) requireDomain() {
+	if f.domain == nil {
+		panic("domain is missing")
+	}
+}
+
 func (f feeApplier) registerDomain() sdk.Dec {
 	var registerDomainFee sdk.Dec
+	f.requireDomain()
 	level := len(f.domain.Name)
 	switch level {
 	case 1:
@@ -62,6 +75,7 @@ func (f feeApplier) registerDomain() sdk.Dec {
 }
 
 func (f feeApplier) transferDomain() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.TransferDomainOpen
@@ -72,6 +86,7 @@ func (f feeApplier) transferDomain() sdk.Dec {
 }
 
 func (f feeApplier) renewDomain() sdk.Dec {
+	f.requireDomain()
 	if f.domain.Type == types.OpenDomain {
 		return f.moduleFees.RenewDomainOpen
 	}
@@ -92,6 +107,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 }
 
 func (f feeApplier) registerAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterAccountOpen
@@ -102,6 +118,7 @@ func (f feeApplier) registerAccount() sdk.Dec {
 }
 
 func (f feeApplier) transferAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.ClosedDomain:
 		return f.moduleFees.TransferAccountClosed
@@ -112,6 +129,7 @@ func (f feeApplier) transferAccount() sdk.Dec {
 }
 
 func (f feeApplier) renewAccount() sdk.Dec {
+	f.requireDomain()
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterAccountOpen

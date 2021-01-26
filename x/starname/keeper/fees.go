@@ -6,9 +6,13 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-// CollectFees collects the fees of a msg and sends them
-// to the distribution module to validators and stakers
-func (k Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer, fee sdk.Coin) error {
-	// transfer fee to distribution
+// CollectProductFee takes the product fee from the payer and sends it to the distribution module for validators and delegators
+func (k Keeper) CollectProductFee(ctx sdk.Context, msg types.MsgWithFeePayer, domain ...*types.Domain) error {
+	feeConf := k.ConfigurationKeeper.GetFees(ctx)
+	feeCtrl := NewFeeController(ctx, feeConf)
+	if len(domain) > 0 {
+		feeCtrl.WithDomain(domain[0])
+	}
+	fee := feeCtrl.GetFee(msg)
 	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.FeePayer(), authtypes.FeeCollectorName, sdk.NewCoins(fee))
 }
