@@ -19,14 +19,11 @@ func NewHandler(k *Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		/* TODO: FIXME
 		switch msg := msg.(type) {
-		// domain handlers
 		// account handlers
 		case *types.MsgRenewAccount:
 			return handlerMsgRenewAccount(ctx, *k, msg)
 		case *types.MsgDeleteAccountCertificate:
 			return handlerMsgDeleteAccountCertificate(ctx, *k, msg)
-		case *types.MsgDeleteAccount:
-			return handlerMsgDeleteAccount(ctx, *k, msg)
 		case *types.MsgReplaceAccountResources:
 			return handlerMsgReplaceAccountResources(ctx, *k, msg)
 		case *types.MsgTransferAccount:
@@ -53,6 +50,8 @@ func NewHandler(k *Keeper) sdk.Handler {
 		// account msgs
 		case *types.MsgAddAccountCertificate:
 			res, err = msgServer.AddAccountCertificate(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgDeleteAccount:
+			res, err = msgServer.DeleteAccount(sdk.WrapSDKContext(ctx), msg)
 		case *types.MsgRegisterAccount:
 			res, err = msgServer.RegisterAccount(sdk.WrapSDKContext(ctx), msg)
 		default:

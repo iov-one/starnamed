@@ -8,6 +8,7 @@
     - [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse)
     - [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount)
     - [MsgDeleteAccountCertificate](#starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate)
+    - [MsgDeleteAccountResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountResponse)
     - [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain)
     - [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse)
     - [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount)
@@ -124,6 +125,16 @@ MsgDeleteAccountCertificate is the request model used to remove certificates fro
 | owner | [bytes](#bytes) |  | Owner is the owner of the account |
 | payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
 | delete_certificate | [bytes](#bytes) |  | DeleteCertificate is the certificate to delete |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.MsgDeleteAccountResponse"></a>
+
+### MsgDeleteAccountResponse
+MsgDeleteAccountResponse returns an empty response.
 
 
 
@@ -363,6 +374,7 @@ Msg defines the starname Msg service.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | AddAccountCertificate | [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate) | [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse) | AddAccountCertificate adds a certificate to an Account |
+| DeleteAccount | [MsgDeleteAccount](#starnamed.x.starname.v1beta1.MsgDeleteAccount) | [MsgDeleteAccountResponse](#starnamed.x.starname.v1beta1.MsgDeleteAccountResponse) | DeleteAccount registers a Domain |
 | DeleteDomain | [MsgDeleteDomain](#starnamed.x.starname.v1beta1.MsgDeleteDomain) | [MsgDeleteDomainResponse](#starnamed.x.starname.v1beta1.MsgDeleteDomainResponse) | DeleteDomain registers a Domain |
 | RegisterAccount | [MsgRegisterAccount](#starnamed.x.starname.v1beta1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#starnamed.x.starname.v1beta1.MsgRegisterAccountResponse) | RegisterAccount registers an Account |
 | RegisterDomain | [MsgRegisterDomain](#starnamed.x.starname.v1beta1.MsgRegisterDomain) | [MsgRegisterDomainResponse](#starnamed.x.starname.v1beta1.MsgRegisterDomainResponse) | RegisterDomain registers a Domain |

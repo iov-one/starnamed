@@ -660,7 +660,7 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
+func Test_Closed_deleteAccount(t *testing.T) {
 	cases := map[string]SubTest{
 		"domain admin can delete": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
@@ -680,19 +680,19 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -716,13 +716,13 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 2,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 		},
@@ -744,7 +744,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
@@ -758,7 +758,7 @@ func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
+func Test_Open_deleteAccount(t *testing.T) {
 	cases := map[string]SubTest{
 		"domain admin cannot can delete before grace period": {
 			BeforeTestBlockTime: 1,
@@ -785,13 +785,13 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 		},
@@ -820,19 +820,19 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -862,7 +862,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			TestBlockTime: 5,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
@@ -871,7 +871,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 					t.Fatalf("unexpected error: %v", err)
 				}
 				// anyone test
-				_, err = handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err = deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  CharlieKey,
@@ -880,7 +880,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 					t.Fatalf("unexpected error: %v", err)
 				}
 				// account owner test
-				_, err = handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err = deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
@@ -892,7 +892,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -922,7 +922,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
@@ -934,7 +934,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -964,7 +964,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  CharlieKey,
@@ -976,7 +976,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -984,20 +984,20 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 	RunTests(t, cases)
 }
 
-func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
+func Test_Common_deleteAccount(t *testing.T) {
 	cases := map[string]SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "does not exist",
 					Name:   "does not exist",
 					Owner:  AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("deleteAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -1013,13 +1013,13 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  nil,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
-					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
+					t.Fatalf("deleteAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
 			},
 			AfterTest: nil,
@@ -1040,19 +1040,19 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  AliceKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},
@@ -1072,19 +1072,19 @@ func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+					t.Fatalf("deleteAccount() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				account := new(types.Account)
 				if err := k.AccountStore(ctx).Read((&types.Account{Name: utils.StrPtr("test"), Domain: "test"}).PrimaryKey(), account); err == nil {
-					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+					t.Fatalf("deleteAccount() account was not deleted")
 				}
 			},
 		},

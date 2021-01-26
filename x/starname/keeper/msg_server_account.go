@@ -97,7 +97,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.Ms
 }
 
 // handlerMsgDelete account deletes the account from the system
-func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
+func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -124,8 +124,9 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcco
 	// delete account
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Delete()
+
 	// success; todo can we emit event?
-	return &sdk.Result{}, nil
+	return &types.MsgDeleteAccountResponse{}, nil
 }
 
 // registerAccount registers an account
