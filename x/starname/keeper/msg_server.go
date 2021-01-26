@@ -19,8 +19,5 @@ func NewMsgServerImpl(k *Keeper) types.MsgServer {
 }
 
 func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
-	if _, err := handlerMsgAddAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg); err != nil {
-		return nil, err
-	}
-	return &types.MsgAddAccountCertificateResponse{}, nil
+	return addAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
 }

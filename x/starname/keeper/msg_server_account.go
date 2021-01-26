@@ -9,7 +9,7 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*sdk.Result, error) {
+func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -58,7 +58,7 @@ func handlerMsgAddAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAd
 		),
 	)
 
-	return &sdk.Result{}, nil
+	return &types.MsgAddAccountCertificateResponse{}, nil
 }
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
