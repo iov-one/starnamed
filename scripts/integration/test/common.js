@@ -1,6 +1,7 @@
 import { spawnSync } from "child_process";
 import fetch from "node-fetch";
 import fs from "fs";
+import path from "path";
 import tmp from "tmp";
 
 "use strict";
@@ -14,12 +15,15 @@ export const denomStake = process.env.DENOM_STAKE;
 export const echo = process.env.CLI_ECHO == "true";
 export const gasPrices = `${process.env.GAS_PRICES}${denomFee}`;
 export const signer = process.env.SIGNER;
+export const urlGRpc = process.env.URL_GRPC;
 export const urlRest = process.env.URL_REST;
 export const urlRpc = process.env.URL_RPC;
 export const w1 = "wasm10z9fpz8mfr8csea4kkth7ssuwe5ncg2pxmzz6m"; // w1
 export const w2 = "wasm1jvkz7wr97666l32v6jma6jrcqu0lavderapsrl"; // w2
 export const w3 = "wasm1jmrj0g6z6uszp9m5wspmwlanan43shv0xmmdyh"; // w3
 export const msig1 = "wasm1enqynlqt9wm6yskcn3ek5cld0ywjphwt0hktf5"; // msig1
+
+const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", "-f", `"{{ .Dir }}"`, "-m", "github.com/cosmos/cosmos-sdk" ] ).stdout ).trim().slice( 1, -1 );
 
 
 export const cli = ( args ) => {
@@ -189,3 +193,38 @@ export const makeTx = ( ...msgs ) => {
 
    return unsigned;
 }
+
+
+/**
+ * Returns a gRPC response object given the array of args to pass to grpcurl.
+ * @param {String} endpoint the gRPC endpoint to hit
+ * @param {Array} args the (optional) command line arguments for grpcurl
+ * @returns {object} the gRPC response
+ **/
+export const grpcurl = ( endpoint, args ) => {
+   const cwd = process.cwd()
+   const executable = "./scripts/integration/node_modules/grpcurl-tools/tools/grpcurl-tools/grpcurl";
+   const grpcurlargs = [
+      "-plaintext",
+      "-import-path",
+      `${dirSdk}/third_party/proto`,
+      "-import-path",
+      `${dirSdk}/proto`,
+      "-import-path",
+      ".", // chdir() below
+      "-proto",
+      "./x/wasm/internal/types/query.proto",
+   ];
+   if ( args ) grpcurlargs.push( ...args );
+   grpcurlargs.push( urlGRpc );
+   grpcurlargs.push( endpoint );
+   process.chdir( path.join( "..", ".." ) )
+   const app = spawnSync( executable, grpcurlargs );
+   process.chdir( cwd )
+
+   if ( echo ) console.info( `\n\x1b[94m${executable} ${grpcurlargs.join( " " )} | jq\x1b[89m\n` );
+
+   if ( app.status ) throw app.error ? app.error : new Error( app.stderr.length ? app.stderr : app.stdout ) ;
+
+   return JSON.parse( app.stdout );
+};
