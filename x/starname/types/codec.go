@@ -13,7 +13,7 @@ import (
 // RegisterLegacyAminoCodec registers the account types and interface.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRegisterDomain{}, fmt.Sprintf("%s/RegisterDomain", ModuleName), nil)
-	cdc.RegisterConcrete(&MsgTransferDomain{}, fmt.Sprintf("%s/TransferDomainAll", ModuleName), nil)
+	cdc.RegisterConcrete(&MsgTransferDomain{}, fmt.Sprintf("%s/TransferDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferAccount{}, fmt.Sprintf("%s/TransferAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRenewAccount{}, fmt.Sprintf("%s/RenewAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgAddAccountCertificate{}, fmt.Sprintf("%s/AddAccountCertificate", ModuleName), nil)
