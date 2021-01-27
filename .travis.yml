@@ -55,7 +55,7 @@ script:
       release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-      echo TODO docker
+      echo TODO docker;
     fi;
       #if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
       #  ./contrib/gitian-build.sh linux ;
