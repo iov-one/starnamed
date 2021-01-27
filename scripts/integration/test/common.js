@@ -214,6 +214,8 @@ export const grpcurl = ( endpoint, args ) => {
       ".", // chdir() below
       "-proto",
       "./x/wasm/internal/types/query.proto",
+      "-proto",
+      "./x/starname/types/query.proto",
    ];
    if ( args ) grpcurlargs.push( ...args );
    grpcurlargs.push( urlGRpc );
