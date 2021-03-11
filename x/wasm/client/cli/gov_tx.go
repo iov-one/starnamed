@@ -11,7 +11,6 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func ProposalStoreCodeCmd() *cobra.Command {
@@ -139,7 +138,7 @@ func ProposalInstantiateContractCmd() *cobra.Command {
 				CodeID:      src.CodeID,
 				Label:       src.Label,
 				InitMsg:     src.InitMsg,
-				InitFunds:   src.InitFunds,
+				Funds:       src.Funds,
 			}
 
 			msg, err := govtypes.NewMsgSubmitProposal(&content, deposit, clientCtx.GetFromAddress())
@@ -214,7 +213,7 @@ func ProposalMigrateContractCmd() *cobra.Command {
 				Contract:    src.Contract,
 				CodeID:      src.CodeID,
 				MigrateMsg:  src.MigrateMsg,
-				RunAs:       viper.GetString(flagRunAs),
+				RunAs:       runAs,
 			}
 
 			msg, err := govtypes.NewMsgSubmitProposal(&content, deposit, clientCtx.GetFromAddress())

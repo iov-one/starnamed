@@ -2,7 +2,26 @@
 
 ## [Unreleased](https://github.com/CosmWasm/wasmd/tree/HEAD)
 
-[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.14.0...HEAD)
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.15.0...HEAD)
+
+- Upgrade to CosmWasm v0.14.0 [\#432](https://github.com/CosmWasm/wasmd/pull/432)
+- Expose Sudo contract entry point on Keeper [\#433](https://github.com/CosmWasm/wasmd/pull/433)
+- Support custom MessageHandler [\#327](https://github.com/CosmWasm/wasmd/issues/327)
+- 🎉 Implement IBC contract support [\#394](https://github.com/CosmWasm/wasmd/pull/394)
+
+## [v0.15.0](https://github.com/CosmWasm/wasmd/tree/v0.15.0) (2021-01-27)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.14.1...v0.15.0)
+
+**Features:**
+- Upgrade to cosmos-sdk v0.41.0 [\#390](https://github.com/CosmWasm/wasmd/pull/390)
+
+## [v0.14.1](https://github.com/CosmWasm/wasmd/tree/v0.14.1) (2021-01-20)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.14.0...v0.14.1)
+
+**Features:**
+- Upgrade to cosmos-sdk v0.40.1 final + Tendermint 0.34.3 [\#380](https://github.com/CosmWasm/wasmd/pull/380)
 
 ## [v0.14.0](https://github.com/CosmWasm/wasmd/tree/v0.14.0) (2021-01-11)
 

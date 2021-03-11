@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/iov-one/starnamed/x/wasm/internal/keeper/wasmtesting"
+	wasmvm "github.com/CosmWasm/wasmvm"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"io/ioutil"
 	"testing"
 	"time"
@@ -18,7 +22,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-const SupportedFeatures = "staking"
+const SupportedFeatures = "staking,stargate"
 
 func TestNewKeeper(t *testing.T) {
 	_, keepers := CreateTestInput(t, false, SupportedFeatures, nil, nil)
@@ -274,15 +278,17 @@ func TestInstantiate(t *testing.T) {
 	gasBefore := ctx.GasMeter().GasConsumed()
 
 	// create with no balance is also legal
-	contractAddr, err := keeper.Instantiate(ctx, codeID, creator, nil, initMsgBz, "demo contract 1", nil)
+	gotContractAddr, _, err := keeper.Instantiate(ctx, codeID, creator, nil, initMsgBz, "demo contract 1", nil)
 	require.NoError(t, err)
-	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", contractAddr.String())
+	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", gotContractAddr.String())
 
 	gasAfter := ctx.GasMeter().GasConsumed()
-	require.Equal(t, uint64(0x118c2), gasAfter-gasBefore)
+	if types.EnableGasVerification {
+		require.Equal(t, uint64(0x11ca8), gasAfter-gasBefore)
+	}
 
 	// ensure it is stored properly
-	info := keeper.GetContractInfo(ctx, contractAddr)
+	info := keeper.GetContractInfo(ctx, gotContractAddr)
 	require.NotNil(t, info)
 	assert.Equal(t, creator.String(), info.Creator)
 	assert.Equal(t, codeID, info.CodeID)
@@ -294,7 +300,7 @@ func TestInstantiate(t *testing.T) {
 		Updated:   types.NewAbsoluteTxPosition(ctx),
 		Msg:       json.RawMessage(initMsgBz),
 	}}
-	assert.Equal(t, exp, keeper.GetContractHistory(ctx, contractAddr))
+	assert.Equal(t, exp, keeper.GetContractHistory(ctx, gotContractAddr))
 }
 
 func TestInstantiateWithDeposit(t *testing.T) {
@@ -343,7 +349,7 @@ func TestInstantiateWithDeposit(t *testing.T) {
 			require.NoError(t, err)
 
 			// when
-			addr, err := keeper.Instantiate(ctx, contractID, spec.srcActor, nil, initMsgBz, "my label", deposit)
+			addr, _, err := keeper.Instantiate(ctx, contractID, spec.srcActor, nil, initMsgBz, "my label", deposit)
 			// then
 			if spec.expError {
 				require.Error(t, err)
@@ -410,7 +416,7 @@ func TestInstantiateWithPermissions(t *testing.T) {
 			contractID, err := keeper.Create(ctx, myAddr, wasmCode, "https://github.com/iov-one/starnamed/blob/master/x/wasm/testdata/escrow.wasm", "", &spec.srcPermission)
 			require.NoError(t, err)
 
-			_, err = keeper.Instantiate(ctx, contractID, spec.srcActor, nil, initMsgBz, "demo contract 1", nil)
+			_, _, err = keeper.Instantiate(ctx, contractID, spec.srcActor, nil, initMsgBz, "demo contract 1", nil)
 			assert.True(t, spec.expError.Is(err), "got %+v", err)
 		})
 	}
@@ -428,24 +434,26 @@ func TestInstantiateWithNonExistingCodeID(t *testing.T) {
 	require.NoError(t, err)
 
 	const nonExistingCodeID = 9999
-	addr, err := keeper.Instantiate(ctx, nonExistingCodeID, creator, nil, initMsgBz, "demo contract 2", nil)
+	addr, _, err := keeper.Instantiate(ctx, nonExistingCodeID, creator, nil, initMsgBz, "demo contract 2", nil)
 	require.True(t, types.ErrNotFound.Is(err), err)
 	require.Nil(t, addr)
 }
 
-func TestInstantiateWithCallbackToContract(t *testing.T) {
+func TestInstantiateWithContractDataResponse(t *testing.T) {
 	ctx, keepers := CreateTestInput(t, false, SupportedFeatures, nil, nil)
-	var (
-		executeCalled bool
-		err           error
-	)
-	wasmerMock := selfCallingInstMockWasmer(&executeCalled)
 
-	keepers.WasmKeeper.wasmer = wasmerMock
-	example := StoreHackatomExampleContract(t, ctx, keepers)
-	_, err = keepers.WasmKeeper.Instantiate(ctx, example.CodeID, example.CreatorAddr, nil, nil, "test", nil)
+	wasmerMock := &wasmtesting.MockWasmer{
+		InstantiateFn: func(codeID wasmvm.Checksum, env wasmvmtypes.Env, info wasmvmtypes.MessageInfo, initMsg []byte, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64) (*wasmvmtypes.Response, uint64, error) {
+			return &wasmvmtypes.Response{Data: []byte("my-response-data")}, 0, nil
+		},
+		AnalyzeCodeFn: wasmtesting.WithoutIBCAnalyzeFn,
+		CreateFn:      wasmtesting.NoOpCreateFn,
+	}
+
+	example := StoreRandomContract(t, ctx, keepers, wasmerMock)
+	_, data, err := keepers.WasmKeeper.Instantiate(ctx, example.CodeID, example.CreatorAddr, nil, nil, "test", nil)
 	require.NoError(t, err)
-	assert.True(t, executeCalled)
+	assert.Equal(t, []byte("my-response-data"), data)
 }
 
 func TestExecute(t *testing.T) {
@@ -471,7 +479,7 @@ func TestExecute(t *testing.T) {
 	initMsgBz, err := json.Marshal(initMsg)
 	require.NoError(t, err)
 
-	addr, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 3", deposit)
+	addr, _, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 3", deposit)
 	require.NoError(t, err)
 	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", addr.String())
 
@@ -508,8 +516,9 @@ func TestExecute(t *testing.T) {
 
 	// make sure gas is properly deducted from ctx
 	gasAfter := ctx.GasMeter().GasConsumed()
-	require.Equal(t, uint64(0x11d8c), gasAfter-gasBefore)
-
+	if types.EnableGasVerification {
+		require.Equal(t, uint64(0x12963), gasAfter-gasBefore)
+	}
 	// ensure bob now exists and got both payments released
 	bobAcct = accKeeper.GetAccount(ctx, bob)
 	require.NotNil(t, bobAcct)
@@ -536,10 +545,11 @@ func TestExecuteWithDeposit(t *testing.T) {
 	)
 
 	specs := map[string]struct {
-		srcActor    sdk.AccAddress
-		beneficiary sdk.AccAddress
-		expError    bool
-		fundAddr    bool
+		srcActor      sdk.AccAddress
+		beneficiary   sdk.AccAddress
+		newBankParams *banktypes.Params
+		expError      bool
+		fundAddr      bool
 	}{
 		"actor with funds": {
 			srcActor:    bob,
@@ -557,6 +567,23 @@ func TestExecuteWithDeposit(t *testing.T) {
 			beneficiary: fred,
 			expError:    true,
 		},
+		"coin transfer with all transfers disabled": {
+			srcActor:      bob,
+			fundAddr:      true,
+			beneficiary:   fred,
+			newBankParams: &banktypes.Params{DefaultSendEnabled: false},
+			expError:      true,
+		},
+		"coin transfer with transfer denom disabled": {
+			srcActor:    bob,
+			fundAddr:    true,
+			beneficiary: fred,
+			newBankParams: &banktypes.Params{
+				DefaultSendEnabled: true,
+				SendEnabled:        []*banktypes.SendEnabled{{Denom: "denom", Enabled: false}},
+			},
+			expError: true,
+		},
 		"blocked address as beneficiary": {
 			srcActor:    bob,
 			fundAddr:    true,
@@ -568,7 +595,9 @@ func TestExecuteWithDeposit(t *testing.T) {
 		t.Run(msg, func(t *testing.T) {
 			ctx, keepers := CreateTestInput(t, false, SupportedFeatures, nil, nil)
 			accKeeper, bankKeeper, keeper := keepers.AccountKeeper, keepers.BankKeeper, keepers.WasmKeeper
-
+			if spec.newBankParams != nil {
+				bankKeeper.SetParams(ctx, *spec.newBankParams)
+			}
 			if spec.fundAddr {
 				fundAccounts(t, ctx, accKeeper, bankKeeper, spec.srcActor, sdk.NewCoins(sdk.NewInt64Coin("denom", 200)))
 			}
@@ -579,7 +608,7 @@ func TestExecuteWithDeposit(t *testing.T) {
 			initMsgBz, err := json.Marshal(initMsg)
 			require.NoError(t, err)
 
-			contractAddr, err := keeper.Instantiate(ctx, codeID, spec.srcActor, nil, initMsgBz, "my label", nil)
+			contractAddr, _, err := keeper.Instantiate(ctx, codeID, spec.srcActor, nil, initMsgBz, "my label", nil)
 			require.NoError(t, err)
 
 			// when
@@ -633,7 +662,7 @@ func TestExecuteWithPanic(t *testing.T) {
 	initMsgBz, err := json.Marshal(initMsg)
 	require.NoError(t, err)
 
-	addr, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 4", deposit)
+	addr, _, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 4", deposit)
 	require.NoError(t, err)
 
 	// let's make sure we get a reasonable error, no panic/crash
@@ -667,7 +696,7 @@ func TestExecuteWithCpuLoop(t *testing.T) {
 	initMsgBz, err := json.Marshal(initMsg)
 	require.NoError(t, err)
 
-	addr, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 5", deposit)
+	addr, _, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 5", deposit)
 	require.NoError(t, err)
 
 	// make sure we set a limit before calling
@@ -712,7 +741,7 @@ func TestExecuteWithStorageLoop(t *testing.T) {
 	initMsgBz, err := json.Marshal(initMsg)
 	require.NoError(t, err)
 
-	addr, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 6", deposit)
+	addr, _, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 6", deposit)
 	require.NoError(t, err)
 
 	// make sure we set a limit before calling
@@ -742,23 +771,17 @@ func TestMigrate(t *testing.T) {
 	creator := createFakeFundedAccount(t, ctx, accKeeper, bankKeeper, deposit.Add(deposit...))
 	fred := createFakeFundedAccount(t, ctx, accKeeper, bankKeeper, topUp)
 
-	wasmCode, err := ioutil.ReadFile("./testdata/hackatom.wasm")
-	require.NoError(t, err)
-
-	originalCodeID, err := keeper.Create(ctx, creator, wasmCode, "", "", nil)
-	require.NoError(t, err)
-	newCodeID, err := keeper.Create(ctx, creator, wasmCode, "", "", nil)
-	require.NoError(t, err)
+	originalCodeID := StoreHackatomExampleContract(t, ctx, keepers).CodeID
+	newCodeID := StoreHackatomExampleContract(t, ctx, keepers).CodeID
+	ibcCodeID := StoreIBCReflectContract(t, ctx, keepers).CodeID
 	require.NotEqual(t, originalCodeID, newCodeID)
 
-	_, _, anyAddr := keyPubAddr()
-	_, _, newVerifierAddr := keyPubAddr()
-	initMsg := HackatomExampleInitMsg{
+	anyAddr := RandomAccountAddress(t)
+	newVerifierAddr := RandomAccountAddress(t)
+	initMsgBz := HackatomExampleInitMsg{
 		Verifier:    fred,
 		Beneficiary: anyAddr,
-	}
-	initMsgBz, err := json.Marshal(initMsg)
-	require.NoError(t, err)
+	}.GetBytes(t)
 
 	migMsg := struct {
 		Verifier sdk.AccAddress `json:"verifier"`
@@ -770,100 +793,146 @@ func TestMigrate(t *testing.T) {
 		admin                sdk.AccAddress
 		overrideContractAddr sdk.AccAddress
 		caller               sdk.AccAddress
-		codeID               uint64
+		fromCodeID           uint64
+		toCodeID             uint64
 		migrateMsg           []byte
 		expErr               *sdkerrors.Error
 		expVerifier          sdk.AccAddress
+		expIBCPort           bool
+		initMsg              []byte
 	}{
 		"all good with same code id": {
 			admin:       creator,
 			caller:      creator,
-			codeID:      originalCodeID,
+			initMsg:     initMsgBz,
+			fromCodeID:  originalCodeID,
+			toCodeID:    originalCodeID,
 			migrateMsg:  migMsgBz,
 			expVerifier: newVerifierAddr,
 		},
 		"all good with different code id": {
 			admin:       creator,
 			caller:      creator,
-			codeID:      newCodeID,
+			initMsg:     initMsgBz,
+			fromCodeID:  originalCodeID,
+			toCodeID:    newCodeID,
 			migrateMsg:  migMsgBz,
 			expVerifier: newVerifierAddr,
 		},
 		"all good with admin set": {
 			admin:       fred,
 			caller:      fred,
-			codeID:      newCodeID,
+			initMsg:     initMsgBz,
+			fromCodeID:  originalCodeID,
+			toCodeID:    newCodeID,
 			migrateMsg:  migMsgBz,
 			expVerifier: newVerifierAddr,
 		},
+		"adds IBC port for IBC enabled contracts": {
+			admin:       fred,
+			caller:      fred,
+			initMsg:     initMsgBz,
+			fromCodeID:  originalCodeID,
+			toCodeID:    ibcCodeID,
+			migrateMsg:  []byte(`{}`),
+			expIBCPort:  true,
+			expVerifier: fred, // not updated
+		},
 		"prevent migration when admin was not set on instantiate": {
-			caller: creator,
-			codeID: originalCodeID,
-			expErr: sdkerrors.ErrUnauthorized,
+			caller:     creator,
+			initMsg:    initMsgBz,
+			fromCodeID: originalCodeID,
+			toCodeID:   originalCodeID,
+			expErr:     sdkerrors.ErrUnauthorized,
 		},
 		"prevent migration when not sent by admin": {
-			caller: creator,
-			admin:  fred,
-			codeID: originalCodeID,
-			expErr: sdkerrors.ErrUnauthorized,
+			caller:     creator,
+			admin:      fred,
+			initMsg:    initMsgBz,
+			fromCodeID: originalCodeID,
+			toCodeID:   originalCodeID,
+			expErr:     sdkerrors.ErrUnauthorized,
 		},
 		"fail with non existing code id": {
-			admin:  creator,
-			caller: creator,
-			codeID: 99999,
-			expErr: sdkerrors.ErrInvalidRequest,
+			admin:      creator,
+			caller:     creator,
+			initMsg:    initMsgBz,
+			fromCodeID: originalCodeID,
+			toCodeID:   99999,
+			expErr:     sdkerrors.ErrInvalidRequest,
 		},
 		"fail with non existing contract addr": {
 			admin:                creator,
 			caller:               creator,
+			initMsg:              initMsgBz,
 			overrideContractAddr: anyAddr,
-			codeID:               originalCodeID,
+			fromCodeID:           originalCodeID,
+			toCodeID:             originalCodeID,
 			expErr:               sdkerrors.ErrInvalidRequest,
 		},
 		"fail in contract with invalid migrate msg": {
 			admin:      creator,
 			caller:     creator,
-			codeID:     originalCodeID,
+			initMsg:    initMsgBz,
+			fromCodeID: originalCodeID,
+			toCodeID:   originalCodeID,
 			migrateMsg: bytes.Repeat([]byte{0x1}, 7),
 			expErr:     types.ErrMigrationFailed,
 		},
 		"fail in contract without migrate msg": {
-			admin:  creator,
-			caller: creator,
-			codeID: originalCodeID,
-			expErr: types.ErrMigrationFailed,
+			admin:      creator,
+			caller:     creator,
+			initMsg:    initMsgBz,
+			fromCodeID: originalCodeID,
+			toCodeID:   originalCodeID,
+			expErr:     types.ErrMigrationFailed,
+		},
+		"fail when no IBC callbacks": {
+			admin:      fred,
+			caller:     fred,
+			initMsg:    IBCReflectInitMsg{ReflectCodeID: StoreReflectContract(t, ctx, keepers)}.GetBytes(t),
+			fromCodeID: ibcCodeID,
+			toCodeID:   newCodeID,
+			migrateMsg: migMsgBz,
+			expErr:     types.ErrMigrationFailed,
 		},
 	}
 
 	for msg, spec := range specs {
 		t.Run(msg, func(t *testing.T) {
+			// given a contract instance
 			ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-			contractAddr, err := keeper.Instantiate(ctx, originalCodeID, creator, spec.admin, initMsgBz, "demo contract", nil)
+			contractAddr, _, err := keeper.Instantiate(ctx, spec.fromCodeID, creator, spec.admin, spec.initMsg, "demo contract", nil)
 			require.NoError(t, err)
 			if spec.overrideContractAddr != nil {
 				contractAddr = spec.overrideContractAddr
 			}
-			_, err = keeper.Migrate(ctx, contractAddr, spec.caller, spec.codeID, spec.migrateMsg)
+			// when
+			_, err = keeper.Migrate(ctx, contractAddr, spec.caller, spec.toCodeID, spec.migrateMsg)
+
+			// then
 			require.True(t, spec.expErr.Is(err), "expected %v but got %+v", spec.expErr, err)
 			if spec.expErr != nil {
 				return
 			}
 			cInfo := keeper.GetContractInfo(ctx, contractAddr)
-			assert.Equal(t, spec.codeID, cInfo.CodeID)
+			assert.Equal(t, spec.toCodeID, cInfo.CodeID)
+			assert.Equal(t, spec.expIBCPort, cInfo.IBCPortID != "", cInfo.IBCPortID)
 
 			expHistory := []types.ContractCodeHistoryEntry{{
 				Operation: types.ContractCodeHistoryOperationTypeInit,
-				CodeID:    originalCodeID,
+				CodeID:    spec.fromCodeID,
 				Updated:   types.NewAbsoluteTxPosition(ctx),
 				Msg:       initMsgBz,
 			}, {
 				Operation: types.ContractCodeHistoryOperationTypeMigrate,
-				CodeID:    spec.codeID,
+				CodeID:    spec.toCodeID,
 				Updated:   types.NewAbsoluteTxPosition(ctx),
 				Msg:       spec.migrateMsg,
 			}}
 			assert.Equal(t, expHistory, keeper.GetContractHistory(ctx, contractAddr))
 
+			// and verify contract state
 			raw := keeper.QueryRaw(ctx, contractAddr, []byte("config"))
 			var stored map[string][]byte
 			require.NoError(t, json.Unmarshal(raw, &stored))
@@ -926,7 +995,7 @@ func TestMigrateWithDispatchedMessage(t *testing.T) {
 	initMsgBz := initMsg.GetBytes(t)
 
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-	contractAddr, err := keeper.Instantiate(ctx, originalContractID, creator, fred, initMsgBz, "demo contract", deposit)
+	contractAddr, _, err := keeper.Instantiate(ctx, originalContractID, creator, fred, initMsgBz, "demo contract", deposit)
 	require.NoError(t, err)
 
 	migMsgBz := BurnerExampleInitMsg{Payout: myPayoutAddr}.GetBytes(t)
@@ -976,6 +1045,77 @@ func TestMigrateWithDispatchedMessage(t *testing.T) {
 	// and all deposit tokens sent to myPayoutAddr
 	balance := bankKeeper.GetAllBalances(ctx, myPayoutAddr)
 	assert.Equal(t, deposit, balance)
+}
+
+type sudoMsg struct {
+	// This is a tongue-in-check demo command. This is not the intended purpose of Sudo.
+	// Here we show that some priviledged Go module can make a call that should never be exposed
+	// to end users (via Tx/Execute).
+	//
+	// The contract developer can choose to expose anything to sudo. This functionality is not a true
+	// backdoor (it can never be called by end users), but allows the developers of the native blockchain
+	// code to make special calls. This can also be used as an authentication mechanism, if you want to expose
+	// some callback that only can be triggered by some system module and not faked by external users.
+	StealFunds stealFundsMsg `json:"steal_funds"`
+}
+
+type stealFundsMsg struct {
+	Recipient string            `json:"recipient"`
+	Amount    wasmvmtypes.Coins `json:"amount"`
+}
+
+func TestSudo(t *testing.T) {
+	ctx, keepers := CreateTestInput(t, false, SupportedFeatures, nil, nil)
+	accKeeper, keeper, bankKeeper := keepers.AccountKeeper, keepers.WasmKeeper, keepers.BankKeeper
+
+	deposit := sdk.NewCoins(sdk.NewInt64Coin("denom", 100000))
+	creator := createFakeFundedAccount(t, ctx, accKeeper, bankKeeper, deposit.Add(deposit...))
+
+	wasmCode, err := ioutil.ReadFile("./testdata/hackatom.wasm")
+	require.NoError(t, err)
+	contractID, err := keeper.Create(ctx, creator, wasmCode, "", "", nil)
+	require.NoError(t, err)
+
+	_, _, bob := keyPubAddr()
+	_, _, fred := keyPubAddr()
+	initMsg := HackatomExampleInitMsg{
+		Verifier:    fred,
+		Beneficiary: bob,
+	}
+	initMsgBz, err := json.Marshal(initMsg)
+	require.NoError(t, err)
+
+	addr, _, err := keeper.Instantiate(ctx, contractID, creator, nil, initMsgBz, "demo contract 3", deposit)
+	require.NoError(t, err)
+	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", addr.String())
+
+	// the community is broke
+	_, _, community := keyPubAddr()
+	comAcct := accKeeper.GetAccount(ctx, community)
+	require.Nil(t, comAcct)
+
+	// now the community wants to get paid via sudo
+	msg := sudoMsg{
+		// This is a tongue-in-check demo command. This is not the intended purpose of Sudo.
+		// Here we show that some priviledged Go module can make a call that should never be exposed
+		// to end users (via Tx/Execute).
+		StealFunds: stealFundsMsg{
+			Recipient: community.String(),
+			Amount:    wasmvmtypes.Coins{wasmvmtypes.NewCoin(76543, "denom")},
+		},
+	}
+	sudoMsg, err := json.Marshal(msg)
+	require.NoError(t, err)
+
+	res, err := keeper.Sudo(ctx, addr, sudoMsg)
+	require.NoError(t, err)
+	require.NotNil(t, res)
+
+	// ensure community now exists and got paid
+	comAcct = accKeeper.GetAccount(ctx, community)
+	require.NotNil(t, comAcct)
+	balance := bankKeeper.GetBalance(ctx, comAcct.GetAddress(), "denom")
+	assert.Equal(t, sdk.NewInt64Coin("denom", 76543), balance)
 }
 
 func prettyEvents(t *testing.T, events sdk.Events) string {
@@ -1058,7 +1198,7 @@ func TestUpdateContractAdmin(t *testing.T) {
 	}
 	for msg, spec := range specs {
 		t.Run(msg, func(t *testing.T) {
-			addr, err := keeper.Instantiate(ctx, originalContractID, creator, spec.instAdmin, initMsgBz, "demo contract", nil)
+			addr, _, err := keeper.Instantiate(ctx, originalContractID, creator, spec.instAdmin, initMsgBz, "demo contract", nil)
 			require.NoError(t, err)
 			if spec.overrideContractAddr != nil {
 				addr = spec.overrideContractAddr
@@ -1124,7 +1264,7 @@ func TestClearContractAdmin(t *testing.T) {
 	}
 	for msg, spec := range specs {
 		t.Run(msg, func(t *testing.T) {
-			addr, err := keeper.Instantiate(ctx, originalContractID, creator, spec.instAdmin, initMsgBz, "demo contract", nil)
+			addr, _, err := keeper.Instantiate(ctx, originalContractID, creator, spec.instAdmin, initMsgBz, "demo contract", nil)
 			require.NoError(t, err)
 			if spec.overrideContractAddr != nil {
 				addr = spec.overrideContractAddr

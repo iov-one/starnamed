@@ -6,16 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/iov-one/starnamed/x/wasm"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -198,12 +197,13 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	if err != nil {
 		panic(err)
 	}
-
+	var emptyWasmOpts []wasm.Option
 	return app.NewWasmApp(logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		app.GetEnabledProposals(),
 		appOpts,
+		emptyWasmOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -227,14 +227,15 @@ func createWasmAppAndExport(
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
+	var emptyWasmOpts []wasm.Option
 	if height != -1 {
-		wasmApp = app.NewWasmApp(logger, db, traceStore, false, map[int64]bool{}, homePath, uint(1), app.GetEnabledProposals(), appOpts)
+		wasmApp = app.NewWasmApp(logger, db, traceStore, false, map[int64]bool{}, homePath, uint(1), app.GetEnabledProposals(), appOpts, emptyWasmOpts)
 
 		if err := wasmApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		wasmApp = app.NewWasmApp(logger, db, traceStore, true, map[int64]bool{}, homePath, uint(1), app.GetEnabledProposals(), appOpts)
+		wasmApp = app.NewWasmApp(logger, db, traceStore, true, map[int64]bool{}, homePath, uint(1), app.GetEnabledProposals(), appOpts, emptyWasmOpts)
 	}
 
 	return wasmApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
