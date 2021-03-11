@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm/internal/keeper"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
