@@ -102,7 +102,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		accountN++
 	}
 	fee := f.moduleFees.RegisterAccountClosed
-	fee = fee.MulInt64(accountN)
+	fee = f.registerDomain().Add(fee.MulInt64(accountN))
 	return fee
 }
 
