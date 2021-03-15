@@ -56,7 +56,7 @@ func (m msgServer) InstantiateContract(goCtx context.Context, msg *types.MsgInst
 		}
 	}
 
-	contractAddr, err := m.keeper.Instantiate(ctx, msg.CodeID, senderAddr, adminAddr, msg.InitMsg, msg.Label, msg.InitFunds)
+	contractAddr, data, err := m.keeper.Instantiate(ctx, msg.CodeID, senderAddr, adminAddr, msg.InitMsg, msg.Label, msg.Funds)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +71,7 @@ func (m msgServer) InstantiateContract(goCtx context.Context, msg *types.MsgInst
 
 	return &types.MsgInstantiateContractResponse{
 		Address: contractAddr.String(),
+		Data:    data,
 	}, nil
 }
 
@@ -85,7 +86,7 @@ func (m msgServer) ExecuteContract(goCtx context.Context, msg *types.MsgExecuteC
 		return nil, sdkerrors.Wrap(err, "contract")
 	}
 
-	res, err := m.keeper.Execute(ctx, contractAddr, senderAddr, msg.Msg, msg.SentFunds)
+	res, err := m.keeper.Execute(ctx, contractAddr, senderAddr, msg.Msg, msg.Funds)
 	if err != nil {
 		return nil, err
 	}

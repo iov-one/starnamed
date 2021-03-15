@@ -18,6 +18,8 @@ const (
 	ProposalTypeMigrateContract     ProposalType = "MigrateContract"
 	ProposalTypeUpdateAdmin         ProposalType = "UpdateAdmin"
 	ProposalTypeClearAdmin          ProposalType = "ClearAdmin"
+	ProposalTypePinCodes            ProposalType = "PinCodes"
+	ProposalTypeUnpinCodes          ProposalType = "UnpinCodes"
 )
 
 // DisableAllProposals contains no wasm gov types.
@@ -30,6 +32,8 @@ var EnableAllProposals = []ProposalType{
 	ProposalTypeMigrateContract,
 	ProposalTypeUpdateAdmin,
 	ProposalTypeClearAdmin,
+	ProposalTypePinCodes,
+	ProposalTypeUnpinCodes,
 }
 
 // ConvertToProposals maps each key to a ProposalType and returns a typed list.
@@ -56,11 +60,15 @@ func init() { // register new content types with the sdk
 	govtypes.RegisterProposalType(string(ProposalTypeMigrateContract))
 	govtypes.RegisterProposalType(string(ProposalTypeUpdateAdmin))
 	govtypes.RegisterProposalType(string(ProposalTypeClearAdmin))
+	govtypes.RegisterProposalType(string(ProposalTypePinCodes))
+	govtypes.RegisterProposalType(string(ProposalTypeUnpinCodes))
 	govtypes.RegisterProposalTypeCodec(StoreCodeProposal{}, "wasm/StoreCodeProposal")
 	govtypes.RegisterProposalTypeCodec(InstantiateContractProposal{}, "wasm/InstantiateContractProposal")
 	govtypes.RegisterProposalTypeCodec(MigrateContractProposal{}, "wasm/MigrateContractProposal")
 	govtypes.RegisterProposalTypeCodec(UpdateAdminProposal{}, "wasm/UpdateAdminProposal")
 	govtypes.RegisterProposalTypeCodec(ClearAdminProposal{}, "wasm/ClearAdminProposal")
+	govtypes.RegisterProposalTypeCodec(PinCodesProposal{}, "wasm/PinCodesProposal")
+	govtypes.RegisterProposalTypeCodec(UnpinCodesProposal{}, "wasm/UnpinCodesProposal")
 }
 
 // ProposalRoute returns the routing key of a parameter change proposal.
@@ -167,7 +175,7 @@ func (p InstantiateContractProposal) ValidateBasic() error {
 		return err
 	}
 
-	if !p.InitFunds.IsValid() {
+	if !p.Funds.IsValid() {
 		return sdkerrors.ErrInvalidCoins
 	}
 
@@ -190,8 +198,8 @@ func (p InstantiateContractProposal) String() string {
   Code id:     %d
   Label:       %s
   InitMsg:     %q
-  InitFunds:   %s
-`, p.Title, p.Description, p.RunAs, p.Admin, p.CodeID, p.Label, p.InitMsg, p.InitFunds)
+  Funds:       %s
+`, p.Title, p.Description, p.RunAs, p.Admin, p.CodeID, p.Label, p.InitMsg, p.Funds)
 }
 
 // MarshalYAML pretty prints the init message
@@ -204,7 +212,7 @@ func (p InstantiateContractProposal) MarshalYAML() (interface{}, error) {
 		CodeID      uint64    `yaml:"code_id"`
 		Label       string    `yaml:"label"`
 		InitMsg     string    `yaml:"init_msg"`
-		InitFunds   sdk.Coins `yaml:"init_funds"`
+		Funds       sdk.Coins `yaml:"funds"`
 	}{
 		Title:       p.Title,
 		Description: p.Description,
@@ -213,7 +221,7 @@ func (p InstantiateContractProposal) MarshalYAML() (interface{}, error) {
 		CodeID:      p.CodeID,
 		Label:       p.Label,
 		InitMsg:     string(p.InitMsg),
-		InitFunds:   p.InitFunds,
+		Funds:       p.Funds,
 	}, nil
 }
 
@@ -343,6 +351,70 @@ func (p ClearAdminProposal) String() string {
   Description: %s
   Contract:    %s
 `, p.Title, p.Description, p.Contract)
+}
+
+// ProposalRoute returns the routing key of a parameter change proposal.
+func (p PinCodesProposal) ProposalRoute() string { return RouterKey }
+
+// GetTitle returns the title of the proposal
+func (p *PinCodesProposal) GetTitle() string { return p.Title }
+
+// GetDescription returns the human readable description of the proposal
+func (p PinCodesProposal) GetDescription() string { return p.Description }
+
+// ProposalType returns the type
+func (p PinCodesProposal) ProposalType() string { return string(ProposalTypePinCodes) }
+
+// ValidateBasic validates the proposal
+func (p PinCodesProposal) ValidateBasic() error {
+	if err := validateProposalCommons(p.Title, p.Description); err != nil {
+		return err
+	}
+	if len(p.CodeIDs) == 0 {
+		return sdkerrors.Wrap(ErrEmpty, "code ids")
+	}
+	return nil
+}
+
+// String implements the Stringer interface.
+func (p PinCodesProposal) String() string {
+	return fmt.Sprintf(`Pin Wasm Codes Proposal:
+  Title:       %s
+  Description: %s
+  Codes:       %v
+`, p.Title, p.Description, p.CodeIDs)
+}
+
+// ProposalRoute returns the routing key of a parameter change proposal.
+func (p UnpinCodesProposal) ProposalRoute() string { return RouterKey }
+
+// GetTitle returns the title of the proposal
+func (p *UnpinCodesProposal) GetTitle() string { return p.Title }
+
+// GetDescription returns the human readable description of the proposal
+func (p UnpinCodesProposal) GetDescription() string { return p.Description }
+
+// ProposalType returns the type
+func (p UnpinCodesProposal) ProposalType() string { return string(ProposalTypeUnpinCodes) }
+
+// ValidateBasic validates the proposal
+func (p UnpinCodesProposal) ValidateBasic() error {
+	if err := validateProposalCommons(p.Title, p.Description); err != nil {
+		return err
+	}
+	if len(p.CodeIDs) == 0 {
+		return sdkerrors.Wrap(ErrEmpty, "code ids")
+	}
+	return nil
+}
+
+// String implements the Stringer interface.
+func (p UnpinCodesProposal) String() string {
+	return fmt.Sprintf(`Unpin Wasm Codes Proposal:
+  Title:       %s
+  Description: %s
+  Codes:       %v
+`, p.Title, p.Description, p.CodeIDs)
 }
 
 func validateProposalCommons(title, description string) error {

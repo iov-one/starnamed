@@ -121,7 +121,7 @@ func TestInitializeStaking(t *testing.T) {
 	initBz, err := json.Marshal(&initMsg)
 	require.NoError(t, err)
 
-	stakingAddr, err := keeper.Instantiate(ctx, stakingID, creator, nil, initBz, "staking derivates - DRV", nil)
+	stakingAddr, _, err := keeper.Instantiate(ctx, stakingID, creator, nil, initBz, "staking derivates - DRV", nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, stakingAddr)
 
@@ -141,7 +141,7 @@ func TestInitializeStaking(t *testing.T) {
 	badBz, err := json.Marshal(&badInitMsg)
 	require.NoError(t, err)
 
-	_, err = keeper.Instantiate(ctx, stakingID, creator, nil, badBz, "missing validator", nil)
+	_, _, err = keeper.Instantiate(ctx, stakingID, creator, nil, badBz, "missing validator", nil)
 	require.Error(t, err)
 
 	// no changes to bonding shares
@@ -202,7 +202,7 @@ func initializeStaking(t *testing.T) initInfo {
 	initBz, err := json.Marshal(&initMsg)
 	require.NoError(t, err)
 
-	stakingAddr, err := keeper.Instantiate(ctx, stakingID, creator, nil, initBz, "staking derivates - DRV", nil)
+	stakingAddr, _, err := keeper.Instantiate(ctx, stakingID, creator, nil, initBz, "staking derivates - DRV", nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, stakingAddr)
 
@@ -447,16 +447,16 @@ func TestQueryStakingInfo(t *testing.T) {
 	require.Equal(t, uint64(2), maskID)
 
 	// creator instantiates a contract and gives it tokens
-	maskAddr, err := keeper.Instantiate(ctx, maskID, creator, nil, []byte("{}"), "mask contract 2", nil)
+	maskAddr, _, err := keeper.Instantiate(ctx, maskID, creator, nil, []byte("{}"), "mask contract 2", nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, maskAddr)
 
 	// STEP 3: now, let's reflect some queries.
 	// let's get the bonded denom
-	reflectBondedQuery := MaskQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
+	reflectBondedQuery := ReflectQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
 		BondedDenom: &struct{}{},
 	}}}}
-	reflectBondedBin := buildMaskQuery(t, &reflectBondedQuery)
+	reflectBondedBin := buildReflectQuery(t, &reflectBondedQuery)
 	res, err := keeper.QuerySmart(ctx, maskAddr, reflectBondedBin)
 	require.NoError(t, err)
 	// first we pull out the data from chain response, before parsing the original response
@@ -467,10 +467,10 @@ func TestQueryStakingInfo(t *testing.T) {
 	assert.Equal(t, "stake", bondedRes.Denom)
 
 	// now, let's reflect a smart query into the x/wasm handlers and see if we get the same result
-	reflectValidatorsQuery := MaskQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
+	reflectValidatorsQuery := ReflectQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
 		Validators: &wasmvmtypes.ValidatorsQuery{},
 	}}}}
-	reflectValidatorsBin := buildMaskQuery(t, &reflectValidatorsQuery)
+	reflectValidatorsBin := buildReflectQuery(t, &reflectValidatorsQuery)
 	res, err = keeper.QuerySmart(ctx, maskAddr, reflectValidatorsBin)
 	require.NoError(t, err)
 	// first we pull out the data from chain response, before parsing the original response
@@ -486,12 +486,12 @@ func TestQueryStakingInfo(t *testing.T) {
 	require.Contains(t, valInfo.MaxChangeRate, "0.010")
 
 	// test to get all my delegations
-	reflectAllDelegationsQuery := MaskQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
+	reflectAllDelegationsQuery := ReflectQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
 		AllDelegations: &wasmvmtypes.AllDelegationsQuery{
 			Delegator: contractAddr.String(),
 		},
 	}}}}
-	reflectAllDelegationsBin := buildMaskQuery(t, &reflectAllDelegationsQuery)
+	reflectAllDelegationsBin := buildReflectQuery(t, &reflectAllDelegationsQuery)
 	res, err = keeper.QuerySmart(ctx, maskAddr, reflectAllDelegationsBin)
 	require.NoError(t, err)
 	// first we pull out the data from chain response, before parsing the original response
@@ -509,13 +509,13 @@ func TestQueryStakingInfo(t *testing.T) {
 	require.Equal(t, funds[0].Amount.String(), delInfo.Amount.Amount)
 
 	// test to get one delegations
-	reflectDelegationQuery := MaskQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
+	reflectDelegationQuery := ReflectQueryMsg{Chain: &ChainQuery{Request: &wasmvmtypes.QueryRequest{Staking: &wasmvmtypes.StakingQuery{
 		Delegation: &wasmvmtypes.DelegationQuery{
 			Validator: valAddr.String(),
 			Delegator: contractAddr.String(),
 		},
 	}}}}
-	reflectDelegationBin := buildMaskQuery(t, &reflectDelegationQuery)
+	reflectDelegationBin := buildReflectQuery(t, &reflectDelegationQuery)
 	res, err = keeper.QuerySmart(ctx, maskAddr, reflectDelegationBin)
 	require.NoError(t, err)
 	// first we pull out the data from chain response, before parsing the original response

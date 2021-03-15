@@ -36,7 +36,9 @@
     - [ClearAdminProposal](#starnamed.x.wasm.v1beta1.ClearAdminProposal)
     - [InstantiateContractProposal](#starnamed.x.wasm.v1beta1.InstantiateContractProposal)
     - [MigrateContractProposal](#starnamed.x.wasm.v1beta1.MigrateContractProposal)
+    - [PinCodesProposal](#starnamed.x.wasm.v1beta1.PinCodesProposal)
     - [StoreCodeProposal](#starnamed.x.wasm.v1beta1.StoreCodeProposal)
+    - [UnpinCodesProposal](#starnamed.x.wasm.v1beta1.UnpinCodesProposal)
     - [UpdateAdminProposal](#starnamed.x.wasm.v1beta1.UpdateAdminProposal)
   
 - [x/wasm/internal/types/query.proto](#x/wasm/internal/types/query.proto)
@@ -60,6 +62,10 @@
     - [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse)
   
     - [Query](#starnamed.x.wasm.v1beta1.Query)
+  
+- [x/wasm/internal/types/ibc.proto](#x/wasm/internal/types/ibc.proto)
+    - [MsgIBCCloseChannel](#starnamed.x.wasm.v1beta1.MsgIBCCloseChannel)
+    - [MsgIBCSend](#starnamed.x.wasm.v1beta1.MsgIBCSend)
   
 - [x/wasm/internal/types/genesis.proto](#x/wasm/internal/types/genesis.proto)
     - [Code](#starnamed.x.wasm.v1beta1.Code)
@@ -116,7 +122,7 @@ MsgExecuteContract submits the given message data to a smart contract
 | sender | [string](#string) |  | Sender is the that actor that signed the messages |
 | contract | [string](#string) |  | Contract is the address of the smart contract |
 | msg | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract |
-| sent_funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | SentFunds coins that are transferred to the contract on execution |
+| funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Funds coins that are transferred to the contract on execution |
 
 
 
@@ -151,7 +157,7 @@ MsgInstantiateContract create a new smart contract instance for the given code i
 | code_id | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | label | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
 | init_msg | [bytes](#bytes) |  | InitMsg json encoded message to be passed to the contract on instantiation |
-| init_funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | InitFunds coins that are transferred to the contract on instantiation |
+| funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Funds coins that are transferred to the contract on instantiation |
 
 
 
@@ -167,6 +173,7 @@ MsgInstantiateContractResponse return instantiation result data
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | address | [string](#string) |  | Address is the bech32 address of the new contract instance. |
+| data | [bytes](#bytes) |  | Data contains base64-encoded bytes to returned from the contract |
 
 
 
@@ -353,7 +360,7 @@ CodeInfo is data for the uploaded contract WASM code
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| code_hash | [bytes](#bytes) |  | CodeHash is the unique CodeID |
+| code_hash | [bytes](#bytes) |  | CodeHash is the unique identifier created by wasmvm |
 | creator | [string](#string) |  | Creator address who initially stored the code |
 | source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
 | builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
@@ -395,6 +402,7 @@ ContractInfo stores a WASM contract instance
 | admin | [string](#string) |  | Admin is an optional address that can execute migrations |
 | label | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
 | created | [AbsoluteTxPosition](#starnamed.x.wasm.v1beta1.AbsoluteTxPosition) |  | Created Tx position when the contract was instantiated. This data should kept internal and not be exposed via query results. Just use for sorting |
+| ibc_port_id | [string](#string) |  |  |
 
 
 
@@ -510,7 +518,7 @@ InstantiateContractProposal gov proposal content type to instantiate a contract.
 | code_id | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | label | [string](#string) |  | Label is optional metadata to be stored with a constract instance. |
 | init_msg | [bytes](#bytes) |  | InitMsg json encoded message to be passed to the contract on instantiation |
-| init_funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | InitFunds coins that are transferred to the contract on instantiation |
+| funds | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Funds coins that are transferred to the contract on instantiation |
 
 
 
@@ -537,6 +545,23 @@ MigrateContractProposal gov proposal content type to migrate a contract.
 
 
 
+<a name="starnamed.x.wasm.v1beta1.PinCodesProposal"></a>
+
+### PinCodesProposal
+PinCodesProposal gov proposal content type to pin a set of code ids in the wasmvm cache.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| title | [string](#string) |  | Title is a short summary |
+| description | [string](#string) |  | Description is a human readable text |
+| code_ids | [uint64](#uint64) | repeated | CodeIDs references the new WASM codes |
+
+
+
+
+
+
 <a name="starnamed.x.wasm.v1beta1.StoreCodeProposal"></a>
 
 ### StoreCodeProposal
@@ -552,6 +577,23 @@ StoreCodeProposal gov proposal content type to submit WASM code to the system
 | source | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract&#39;s source code, optional |
 | builder | [string](#string) |  | Builder is a valid docker image name with tag, optional |
 | instantiate_permission | [AccessConfig](#starnamed.x.wasm.v1beta1.AccessConfig) |  | InstantiatePermission to apply on contract creation, optional |
+
+
+
+
+
+
+<a name="starnamed.x.wasm.v1beta1.UnpinCodesProposal"></a>
+
+### UnpinCodesProposal
+UnpinCodesProposal gov proposal content type to unpin a set of code ids in the wasmvm cache.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| title | [string](#string) |  | Title is a short summary |
+| description | [string](#string) |  | Description is a human readable text |
+| code_ids | [uint64](#uint64) | repeated | CodeIDs references the WASM codes |
 
 
 
@@ -904,6 +946,55 @@ Query provides defines the gRPC querier service
 
 
 
+<a name="x/wasm/internal/types/ibc.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## x/wasm/internal/types/ibc.proto
+
+
+
+<a name="starnamed.x.wasm.v1beta1.MsgIBCCloseChannel"></a>
+
+### MsgIBCCloseChannel
+MsgIBCCloseChannel port and channel need to be owned by the contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| channel | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.wasm.v1beta1.MsgIBCSend"></a>
+
+### MsgIBCSend
+MsgIBCSend
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| channel | [string](#string) |  | the channel by which the packet will be sent |
+| timeout_height | [uint64](#uint64) |  | Timeout height relative to the current block height. The timeout is disabled when set to 0. |
+| timeout_timestamp | [uint64](#uint64) |  | Timeout timestamp (in nanoseconds) relative to the current block timestamp. The timeout is disabled when set to 0. |
+| data | [bytes](#bytes) |  | data is the payload to transfer |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
 <a name="x/wasm/internal/types/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -922,6 +1013,7 @@ Code struct encompasses CodeInfo and CodeBytes
 | code_id | [uint64](#uint64) |  |  |
 | code_info | [CodeInfo](#starnamed.x.wasm.v1beta1.CodeInfo) |  |  |
 | code_bytes | [bytes](#bytes) |  |  |
+| pinned | [bool](#bool) |  | Pinned to wasmvm cache |
 
 
 

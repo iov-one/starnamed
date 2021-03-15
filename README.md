@@ -25,6 +25,7 @@ compatibility list:
 
 | wasmd | cosmwasm-vm | cosmwasm-std |
 | ----- | ----------- | ------------ |
+| 0.15  | 0.13        | 0.11-0.13    |
 | 0.14  | 0.13        | 0.11-0.13    |
 | 0.13  | 0.12        | 0.11-0.13    |
 | 0.12  | 0.12        | 0.11-0.13    |
@@ -208,5 +209,6 @@ Or even testing the app and bringing up critical issues. The following have help
 * Rick Dudley [AFDudley](https://github.com/AFDudley)
 * KamiD [KamiD](https://github.com/KamiD)
 * Valery Litvin [litvintech](https://github.com/litvintech)
+* Leonardo Bragagnolo [bragaz](https://github.com/bragaz)
 
 Sorry if I forgot you from this list, just contact me or add yourself in a PR :)

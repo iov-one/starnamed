@@ -33,9 +33,10 @@ type testData struct {
 
 // returns a cleanup function, which must be defered on
 func setupTest(t *testing.T) testData {
-	ctx, keepers := CreateTestInput(t, false, "staking", nil, nil)
+	ctx, keepers := CreateTestInput(t, false, "staking,stargate", nil, nil)
+	cdc := keeper.MakeTestCodec(t)
 	data := testData{
-		module:        NewAppModule(keepers.WasmKeeper, keepers.StakingKeeper),
+		module:        NewAppModule(cdc, keepers.WasmKeeper, keepers.StakingKeeper),
 		ctx:           ctx,
 		acctKeeper:    keepers.AccountKeeper,
 		keeper:        *keepers.WasmKeeper,
@@ -168,10 +169,10 @@ func TestHandleInstantiate(t *testing.T) {
 
 	// create with no balance is also legal
 	initCmd := MsgInstantiateContract{
-		Sender:    creator.String(),
-		CodeID:    firstCodeID,
-		InitMsg:   initMsgBz,
-		InitFunds: nil,
+		Sender:  creator.String(),
+		CodeID:  firstCodeID,
+		InitMsg: initMsgBz,
+		Funds:   nil,
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
@@ -225,10 +226,10 @@ func TestHandleExecute(t *testing.T) {
 	require.NoError(t, err)
 
 	initCmd := MsgInstantiateContract{
-		Sender:    creator.String(),
-		CodeID:    firstCodeID,
-		InitMsg:   initMsgBz,
-		InitFunds: deposit,
+		Sender:  creator.String(),
+		CodeID:  firstCodeID,
+		InitMsg: initMsgBz,
+		Funds:   deposit,
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
@@ -260,10 +261,10 @@ func TestHandleExecute(t *testing.T) {
 	assert.Equal(t, deposit, data.bankKeeper.GetAllBalances(data.ctx, contractAcct.GetAddress()))
 
 	execCmd := MsgExecuteContract{
-		Sender:    fred.String(),
-		Contract:  contractBech32Addr,
-		Msg:       []byte(`{"release":{}}`),
-		SentFunds: topUp,
+		Sender:   fred.String(),
+		Contract: contractBech32Addr,
+		Msg:      []byte(`{"release":{}}`),
+		Funds:    topUp,
 	}
 	res, err = h(data.ctx, &execCmd)
 	require.NoError(t, err)
@@ -342,10 +343,10 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	require.NoError(t, err)
 
 	initCmd := MsgInstantiateContract{
-		Sender:    creator.String(),
-		CodeID:    firstCodeID,
-		InitMsg:   initMsgBz,
-		InitFunds: deposit,
+		Sender:  creator.String(),
+		CodeID:  firstCodeID,
+		InitMsg: initMsgBz,
+		Funds:   deposit,
 	}
 	res, err = h(data.ctx, &initCmd)
 	require.NoError(t, err)
@@ -359,10 +360,10 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	require.NoError(t, err)
 
 	execCmd := MsgExecuteContract{
-		Sender:    fred.String(),
-		Contract:  contractBech32Addr,
-		Msg:       handleMsgBz,
-		SentFunds: topUp,
+		Sender:   fred.String(),
+		Contract: contractBech32Addr,
+		Msg:      handleMsgBz,
+		Funds:    topUp,
 	}
 	res, err = h(data.ctx, &execCmd)
 	require.NoError(t, err)
