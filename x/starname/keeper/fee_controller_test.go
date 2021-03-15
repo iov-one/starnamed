@@ -162,7 +162,7 @@ func Test_FeeApplier(t *testing.T) {
 		"renew domain closed": {
 			Msg:         &types.MsgRenewDomain{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "renew"},
-			ExpectedFee: sdk.NewDec(6), // it's three accounts-> "", "1", "2"; so 4/2*3=6
+			ExpectedFee: sdk.NewDec(20), // 5-char domain + its three accounts-> "", "1", "2"; so 28/2 + 4/2*3=20
 		},
 		/* TODO: FIXME
 		"default fee unknown message": {
@@ -172,17 +172,19 @@ func Test_FeeApplier(t *testing.T) {
 		*/
 		"use default fee": {
 			Msg:         &types.MsgRenewDomain{},
-			Domain:      types.Domain{Type: types.ClosedDomain, Name: "not exists"}, // since it does not exist, the fee is 0
-			ExpectedFee: sdk.NewDec(1),
+			Domain:      types.Domain{Type: types.ClosedDomain, Name: "default-fee"},
+			ExpectedFee: sdk.NewDec(17), // 6+char domain + one account ""; so 30/2 + 4/2 * 1 = 17
 		},
 	}
 	k, ctx, _ := NewTestKeeper(t, true)
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
 	ds.Create(&types.Domain{Name: "renew", Admin: AliceKey})
-	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr(types.EmptyAccountName), Owner: AliceKey}) // TODO in the future this might be removed
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr(types.EmptyAccountName), Owner: AliceKey})
 	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("1"), Owner: AliceKey})
 	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("2"), Owner: AliceKey})
+	ds.Create(&types.Domain{Name: "default-fee", Admin: AliceKey})
+	as.Create(&types.Account{Domain: "default-fee", Name: utils.StrPtr(types.EmptyAccountName), Owner: AliceKey})
 
 	k.ConfigurationKeeper.(ConfigurationSetter).SetFees(ctx, &fee)
 	for name, c := range cases {

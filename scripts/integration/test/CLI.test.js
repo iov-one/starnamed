@@ -401,18 +401,25 @@ describe( "Tests the CLI.", () => {
 
 
    it( `Should register and renew a domain.`, async () => {
-      // register
+      // register domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
 
+      // register account
+      const notEmpty = cli( [ "tx", "starname", "register-account", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--name", "not-empty" ] );
+
+      expect( notEmpty.txhash ).toBeDefined();
+      if ( !notEmpty.logs ) throw new Error( notEmpty.raw_log );
+
       const domainInfo = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
 
       expect( domainInfo.domain.name ).toEqual( domain );
 
       // renew
+      const balance0 = cli( [ "query", "bank", "balances", signer ] );
       const renewed = cli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
 
       expect( renewed.txhash ).toBeDefined();
@@ -420,10 +427,14 @@ describe( "Tests the CLI.", () => {
 
       const newDomainInfo = cli( [ "query", "starname", "domain-info", "--domain", domain ] );
       const starname = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const balance = cli( [ "query", "bank", "balances", signer ] );
+      const fees = cli( [ "query", "configuration", "get-fees" ] ).fees;
+      const gasCost = parseFloat( gasPrices ) * renewed.gas_wanted;
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( +newDomainInfo.domain.valid_until ).toBeGreaterThan( +domainInfo.domain.valid_until );
       expect( +newDomainInfo.domain.valid_until ).toEqual( +starname.account.valid_until );
+      expect( +getBalance( balance ) ).toEqual( +getBalance( balance0 ) - ( +fees.register_domain_default + 2 * +fees.register_account_closed ) / fees.fee_coin_price - gasCost ); // 2 * due to "" and "non-empty" accounts
    } );
 
 
