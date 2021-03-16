@@ -38,6 +38,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDeleteAccount{},
 		&MsgDeleteDomain{},
 		&MsgRegisterAccount{},
+		&MsgRenewAccount{},
 		&MsgRenewDomain{},
 		&MsgReplaceAccountResources{},
 		&MsgReplaceAccountMetadata{},
