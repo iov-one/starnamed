@@ -438,7 +438,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.only( `Should register and renew an account.`, async () => {
+   it( `Should register and renew an account.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
