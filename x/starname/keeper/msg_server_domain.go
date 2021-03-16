@@ -7,7 +7,7 @@ import (
 )
 
 // deleteDomain deletes a domain from the store
-func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*types.MsgDeleteDomainResponse, error) {
+func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomainInternal) (*types.MsgDeleteDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)

@@ -42,17 +42,17 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -98,10 +98,10 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -153,10 +153,10 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1000,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -202,17 +202,17 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainGracePeriodNotFinished) {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainGracePeriodNotFinished) {
 					t.Fatalf("unexpected error: %s", err)
 				}
@@ -240,10 +240,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "this does not exist",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -268,10 +268,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 1,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -297,10 +297,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -326,10 +326,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -363,24 +363,24 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			TestBlockTime: 1589826441,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// another user can delete expired domain
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test1",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
-				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test2",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
-				_, err = deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err = deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test2",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -408,10 +408,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			TestBlockTime: 4,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}
@@ -458,10 +458,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteDomain(ctx, k, &types.MsgDeleteDomain{
+				_, err := deleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteDomain() got error: %s", err)
 				}

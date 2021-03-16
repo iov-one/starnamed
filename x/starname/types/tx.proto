@@ -106,13 +106,11 @@ message MsgDeleteDomain {
     // Domain is the domain of the account
     string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
     // Owner is the owner of the account
-    bytes owner = 2 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 2 [
         (gogoproto.moretags) = "yaml:\"owner\""
    ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
    ];
 }

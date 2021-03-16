@@ -283,8 +283,8 @@ func getCmdDeleteDomain() *cobra.Command {
 			// build msg
 			msg := &types.MsgDeleteDomain{
 				Domain: domain,
-				Owner:  clientCtx.GetFromAddress(),
-				Payer:  feePayer,
+				Owner:  clientCtx.GetFromAddress().String(),
+				Payer:  feePayer.String(),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

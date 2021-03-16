@@ -165,8 +165,8 @@ MsgDeleteDomain is the request model to delete a domain
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| owner | [string](#string) |  | Owner is the owner of the account |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
 
 
 

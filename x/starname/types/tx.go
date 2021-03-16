@@ -154,10 +154,46 @@ func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Payer, m.Owner}
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
+// MsgDeleteDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer
+type MsgDeleteDomainInternal struct {
+	MsgDeleteDomain
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgDeleteDomainInternal struct corresponding to the method receiver
+func (m MsgDeleteDomain) ToInternal() *MsgDeleteDomainInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgDeleteDomainInternal{
+		MsgDeleteDomain: m,
+		Owner:           owner,
+		Payer:           payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
+func (m *MsgDeleteDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -179,7 +215,7 @@ func (m *MsgDeleteDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	// success
@@ -193,10 +229,21 @@ func (m *MsgDeleteDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
 var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
