@@ -438,14 +438,14 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.skip( `Should register and renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
+   it( `Should register and renew an account.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ];
       const unsigned = makeTx(
-         cli( [ "tx", "starname", "domain-register", ...common ] ),
-         cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
+         cli( [ "tx", "starname", "domain-register", "--generate-only", "--type", "open", ...common ] ),
+         cli( [ "tx", "starname", "account-register", "--generate-only", "--name", name, ...common ] ),
       );
       const broadcasted = signAndBroadcastTx( unsigned );
 
@@ -460,7 +460,7 @@ describe( "Tests the CLI.", () => {
       // renew
       const renewed = cli( [ "tx", "starname", "renew-account", "--yes", "--broadcast-mode", "block", "--name", name, ...common ] );
 
-      expect( renewed.gas_used ).toBeDefined();
+      expect( renewed.txhash ).toBeDefined();
       if ( !renewed.logs ) throw new Error( renewed.raw_log );
 
       const newResolved = cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
