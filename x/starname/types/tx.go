@@ -246,10 +246,56 @@ func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Payer, m.Registerer}
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
+// MsgRegisterDomainInternal embeds MsgRegisterDomain and adds sdk.Address properties for Admin, Broker, and Payer
+type MsgRegisterDomainInternal struct {
+	MsgRegisterDomain
+	Admin  sdk.AccAddress
+	Broker sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRegisterDomainInternal struct corresponding to the method receiver
+func (m MsgRegisterDomain) ToInternal() *MsgRegisterDomainInternal {
+	var err error
+	var admin sdk.AccAddress = nil
+	var broker sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Admin != "" {
+		admin, err = sdk.AccAddressFromBech32(m.Admin)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Broker != "" {
+		broker, err = sdk.AccAddressFromBech32(m.Broker)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRegisterDomainInternal{
+		MsgRegisterDomain: m,
+		Admin:             admin,
+		Broker:            broker,
+		Payer:             payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
+func (m *MsgRegisterDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -268,7 +314,7 @@ func (m *MsgRegisterDomain) Type() string {
 
 // ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
-	if m.Admin == nil {
+	if m.Admin == "" {
 		return errors.Wrap(ErrInvalidRequest, "admin is missing")
 	}
 	if err := ValidateDomainType(m.DomainType); err != nil {
@@ -285,10 +331,21 @@ func (m *MsgRegisterDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Admin}
+	admin, err := sdk.AccAddressFromBech32(m.Admin)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Admin}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{admin}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, admin}
 }
 
 var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)

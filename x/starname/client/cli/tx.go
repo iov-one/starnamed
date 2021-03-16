@@ -759,10 +759,10 @@ func getCmdRegisterDomain() *cobra.Command {
 			}
 			msg := &types.MsgRegisterDomain{
 				Name:       domain,
-				Admin:      clientCtx.GetFromAddress(),
+				Admin:      clientCtx.GetFromAddress().String(),
 				DomainType: types.DomainType(dType),
-				Broker:     broker,
-				Payer:      feePayer,
+				Broker:     broker.String(),
+				Payer:      feePayer.String(),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

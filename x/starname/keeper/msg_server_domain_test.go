@@ -494,20 +494,20 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, types.MsgRegisterDomain{
 					Name:       "domain-closed",
 					DomainType: types.ClosedDomain,
-					Admin:      BobKey,
-				})
+					Admin:      BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("registerDomain() with close domain, got error: %s", err)
 				}
-				_, err = registerDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err = registerDomain(ctx, k, types.MsgRegisterDomain{
 					Name:       "domain-open",
-					Admin:      AliceKey,
+					Admin:      AliceKey.String(),
 					DomainType: types.OpenDomain,
-					Broker:     nil,
-				})
+					Broker:     "",
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("registerDomain() with open domain, got error: %s", err)
 				}
@@ -537,11 +537,11 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, types.MsgRegisterDomain{
 					Name:       "exists",
-					Admin:      AliceKey,
+					Admin:      AliceKey.String(),
 					DomainType: types.ClosedDomain,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainAlreadyExists) {
 					t.Fatalf("registerDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
 				}
@@ -559,12 +559,12 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerDomain(ctx, k, &types.MsgRegisterDomain{
+				_, err := registerDomain(ctx, k, types.MsgRegisterDomain{
 					Name:       "invalid-name",
-					Admin:      nil,
+					Admin:      "",
 					DomainType: types.OpenDomain,
-					Broker:     nil,
-				})
+					Broker:     "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidDomainName) {
 					t.Fatalf("registerDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
 				}

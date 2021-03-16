@@ -33,7 +33,7 @@ func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*types
 }
 
 // registerDomain handles the domain registration process
-func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
+func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomainInternal) (*types.MsgRegisterDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)

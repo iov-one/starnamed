@@ -223,9 +223,9 @@ MsgRegisterDomain is the request used to register new domains
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  |  |
-| admin | [bytes](#bytes) |  |  |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
+| admin | [string](#string) |  |  |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
+| broker | [string](#string) |  | Broker is the account that facilitated the transaction |
 | domain_type | [string](#string) |  | DomainType defines the type of the domain |
 
 

@@ -39,7 +39,7 @@ func (m msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegister
 }
 
 func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
-	return registerDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return registerDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) RenewAccount(goCtx context.Context, msg *types.MsgRenewAccount) (*types.MsgRenewAccountResponse, error) {

@@ -156,18 +156,15 @@ message MsgRegisterAccountResponse {
 // MsgRegisterDomain is the request used to register new domains
 message MsgRegisterDomain {
     string name = 1 [(gogoproto.moretags) = "yaml:\"name\""];
-    bytes admin = 2 [
-        (gogoproto.moretags) = "yaml:\"admin\"",
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    string admin = 2 [
+        (gogoproto.moretags) = "yaml:\"admin\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // Broker is the account that facilitated the transaction
-    bytes broker = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string broker = 4 [
         (gogoproto.moretags) = "yaml:\"broker\""
     ];
     // DomainType defines the type of the domain
