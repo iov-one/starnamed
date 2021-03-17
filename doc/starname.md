@@ -193,10 +193,10 @@ MsgRegisterAccount is the request model used to register new accounts
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| broker | [bytes](#bytes) |  | Broker is the account that facilitated the transaction |
-| registerer | [bytes](#bytes) |  | Registerer is the user who registers this account |
+| owner | [string](#string) |  | Owner is the owner of the account |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
+| broker | [string](#string) |  | Broker is the account that facilitated the transaction |
+| registerer | [string](#string) |  | Registerer is the user who registers this account |
 | resources | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources are the blockchain addresses of the account |
 
 

@@ -131,7 +131,7 @@ func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountInterna
 }
 
 // registerAccount registers an account
-func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
+func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInternal) (*types.MsgRegisterAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

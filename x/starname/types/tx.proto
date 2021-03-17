@@ -119,23 +119,19 @@ message MsgRegisterAccount {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // Broker is the account that facilitated the transaction
-    bytes broker = 5 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string broker = 5 [
         (gogoproto.moretags) = "yaml:\"broker\""
     ];
     // Registerer is the user who registers this account
-    bytes registerer = 6 [
-         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string registerer = 6 [
          (gogoproto.moretags) = "yaml:\"registerer\""
     ];
     // Resources are the blockchain addresses of the account

@@ -662,9 +662,8 @@ func getCmdRegisterAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -673,9 +672,8 @@ func getCmdRegisterAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var broker sdk.AccAddress
 			if brokerStr != "" {
-				broker, err = sdk.AccAddressFromBech32(brokerStr)
+				_, err = sdk.AccAddressFromBech32(brokerStr)
 				if err != nil {
 					return err
 				}
@@ -684,10 +682,10 @@ func getCmdRegisterAccount() *cobra.Command {
 			msg := &types.MsgRegisterAccount{
 				Domain:     domain,
 				Name:       name,
-				Owner:      ownerAddr,
-				Registerer: clientCtx.GetFromAddress(),
-				Payer:      feePayer,
-				Broker:     broker,
+				Owner:      ownerAddr.String(),
+				Registerer: clientCtx.GetFromAddress().String(),
+				Payer:      feePayerStr,
+				Broker:     brokerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

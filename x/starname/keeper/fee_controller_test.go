@@ -113,7 +113,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(15),
 		},
 		"delete certs": {
-			Msg:         &types.MsgDeleteAccountCertificate{},
+			Msg:         &types.MsgDeleteAccountCertificateInternal{},
 			ExpectedFee: sdk.NewDec(11),
 		},
 		"add certs": {
@@ -135,12 +135,12 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(6),
 		},
 		"register account open": {
-			Msg:         &types.MsgRegisterAccount{},
+			Msg:         &types.MsgRegisterAccountInternal{},
 			Domain:      types.Domain{Type: types.OpenDomain},
 			ExpectedFee: sdk.NewDec(3),
 		},
 		"register account closed": {
-			Msg:         &types.MsgRegisterAccount{},
+			Msg:         &types.MsgRegisterAccountInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain},
 			ExpectedFee: sdk.NewDec(2),
 		},

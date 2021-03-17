@@ -167,7 +167,7 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.registerDomain()
 	case *types.MsgRenewDomainInternal:
 		return f.renewDomain()
-	case *types.MsgRegisterAccount:
+	case *types.MsgRegisterAccountInternal:
 		return f.registerAccount()
 	case *types.MsgTransferAccount:
 		return f.transferAccount()

@@ -387,10 +387,66 @@ func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
+// MsgRegisterAccountInternal embeds MsgRegisterAccount and adds sdk.Address properties for Admin, Broker, and Payer
+type MsgRegisterAccountInternal struct {
+	MsgRegisterAccount
+	Owner      sdk.AccAddress
+	Broker     sdk.AccAddress
+	Payer      sdk.AccAddress
+	Registerer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRegisterAccountInternal struct corresponding to the method receiver
+func (m MsgRegisterAccount) ToInternal() *MsgRegisterAccountInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var broker sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var registerer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Broker != "" {
+		broker, err = sdk.AccAddressFromBech32(m.Broker)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Registerer != "" {
+		registerer, err = sdk.AccAddressFromBech32(m.Registerer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRegisterAccountInternal{
+		MsgRegisterAccount: m,
+		Owner:              owner,
+		Broker:             broker,
+		Payer:              payer,
+		Registerer:         registerer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
+func (m *MsgRegisterAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -412,10 +468,10 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner.Empty() {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.Registerer.Empty() {
+	if m.Registerer == "" {
 		return errors.Wrap(ErrInvalidRegisterer, "empty")
 	}
 	return nil
@@ -428,10 +484,21 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Registerer}
+	registerer, err := sdk.AccAddressFromBech32(m.Registerer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Registerer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{registerer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, registerer}
 }
 
 // MsgRegisterDomainInternal embeds MsgRegisterDomain and adds sdk.Address properties for Admin, Broker, and Payer

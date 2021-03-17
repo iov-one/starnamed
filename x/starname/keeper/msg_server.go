@@ -35,7 +35,7 @@ func (m msgServer) DeleteDomain(goCtx context.Context, msg *types.MsgDeleteDomai
 }
 
 func (m msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
-	return registerAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return registerAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
