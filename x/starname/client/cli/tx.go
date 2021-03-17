@@ -420,9 +420,8 @@ func getCmdRenewAccount() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -431,8 +430,8 @@ func getCmdRenewAccount() *cobra.Command {
 			msg := &types.MsgRenewAccount{
 				Domain: domain,
 				Name:   name,
-				Signer: clientCtx.GetFromAddress(),
-				Payer:  feePayer,
+				Signer: clientCtx.GetFromAddress().String(),
+				Payer:  feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

@@ -145,12 +145,12 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(2),
 		},
 		"renew account closed": {
-			Msg:         &types.MsgRenewAccount{},
+			Msg:         &types.MsgRenewAccountInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain},
 			ExpectedFee: sdk.NewDec(2),
 		},
 		"renew account open": {
-			Msg:         &types.MsgRenewAccount{},
+			Msg:         &types.MsgRenewAccountInternal{},
 			Domain:      types.Domain{Type: types.OpenDomain},
 			ExpectedFee: sdk.NewDec(3),
 		},

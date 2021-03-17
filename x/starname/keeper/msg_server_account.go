@@ -183,7 +183,7 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInt
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 
-func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*types.MsgRenewAccountResponse, error) {
+func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccountInternal) (*types.MsgRenewAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)

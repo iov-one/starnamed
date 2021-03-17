@@ -1639,10 +1639,10 @@ func Test_Closed_renewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidDomainType) {
 					t.Fatalf("renewAccount() want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
@@ -1663,10 +1663,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "does not exist",
 					Name:   "",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -1690,10 +1690,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "does not exist",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -1726,10 +1726,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("renewAccount() got error: %s", err)
 				}
@@ -1774,10 +1774,10 @@ func Test_Open_renewAccount(t *testing.T) {
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("renewAccount() got error: %s", err)
 				}

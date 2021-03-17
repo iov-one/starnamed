@@ -603,10 +603,46 @@ func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{payer, admin}
 }
 
-var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
+// MsgRenewAccountInternal embeds MsgRenewAccount and adds sdk.Address properties for Signer and Payer
+type MsgRenewAccountInternal struct {
+	MsgRenewAccount
+	Signer sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRenewAccountInternal struct corresponding to the method receiver
+func (m MsgRenewAccount) ToInternal() *MsgRenewAccountInternal {
+	var err error
+	var signer sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Signer != "" {
+		signer, err = sdk.AccAddressFromBech32(m.Signer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRenewAccountInternal{
+		MsgRenewAccount: m,
+		Signer:          signer,
+		Payer:           payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRenewAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
+func (m *MsgRenewAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -638,13 +674,24 @@ func (m *MsgRenewAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Signer}
+	signer, err := sdk.AccAddressFromBech32(m.Signer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Signer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{signer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, signer}
 }
 
-// MsgRenewDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer
+// MsgRenewDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Signer and Payer
 type MsgRenewDomainInternal struct {
 	MsgRenewDomain
 	Signer sdk.AccAddress

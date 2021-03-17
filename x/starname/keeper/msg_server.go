@@ -43,7 +43,7 @@ func (m msgServer) RegisterDomain(goCtx context.Context, msg *types.MsgRegisterD
 }
 
 func (m msgServer) RenewAccount(goCtx context.Context, msg *types.MsgRenewAccount) (*types.MsgRenewAccountResponse, error) {
-	return renewAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return renewAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) RenewDomain(goCtx context.Context, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
