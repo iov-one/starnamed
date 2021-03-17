@@ -779,10 +779,46 @@ func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{payer, signer}
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
+// MsgReplaceAccountResourcesInternal embeds MsgReplaceAccountResources and adds sdk.Address properties for Owner and Payer
+type MsgReplaceAccountResourcesInternal struct {
+	MsgReplaceAccountResources
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgReplaceAccountResourcesInternal struct corresponding to the method receiver
+func (m MsgReplaceAccountResources) ToInternal() *MsgReplaceAccountResourcesInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgReplaceAccountResourcesInternal{
+		MsgReplaceAccountResources: m,
+		Owner:                      owner,
+		Payer:                      payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgReplaceAccountResourcesInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgReplaceAccountResources) FeePayer() sdk.AccAddress {
+func (m *MsgReplaceAccountResourcesInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -804,7 +840,7 @@ func (m *MsgReplaceAccountResources) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	return nil
@@ -817,10 +853,21 @@ func (m *MsgReplaceAccountResources) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountResources) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
 // MsgReplaceAccountMetadataInternal embeds MsgReplaceAccountMetadata and adds sdk.Address properties for Owner and Payer

@@ -55,7 +55,7 @@ func (m msgServer) ReplaceAccountMetadata(goCtx context.Context, msg *types.MsgR
 }
 
 func (m msgServer) ReplaceAccountResources(goCtx context.Context, msg *types.MsgReplaceAccountResources) (*types.MsgReplaceAccountResourcesResponse, error) {
-	return replaceAccountResources(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return replaceAccountResources(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) TransferAccount(goCtx context.Context, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {

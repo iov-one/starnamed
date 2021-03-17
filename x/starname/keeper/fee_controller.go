@@ -173,7 +173,7 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.transferAccount()
 	case *types.MsgRenewAccountInternal:
 		return f.renewAccount()
-	case *types.MsgReplaceAccountResources:
+	case *types.MsgReplaceAccountResourcesInternal:
 		return f.replaceResources()
 	case *types.MsgDeleteAccountCertificateInternal:
 		return f.delCert()

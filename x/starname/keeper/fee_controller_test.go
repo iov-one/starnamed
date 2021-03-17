@@ -121,7 +121,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(9),
 		},
 		"replace resources": {
-			Msg:         &types.MsgReplaceAccountResources{},
+			Msg:         &types.MsgReplaceAccountResourcesInternal{},
 			ExpectedFee: sdk.NewDec(8),
 		},
 		"transfer account closed": {

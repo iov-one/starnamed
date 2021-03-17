@@ -226,7 +226,7 @@ func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccountInternal)
 }
 
 // replaceAccountResources replaces account resources
-func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*types.MsgReplaceAccountResourcesResponse, error) {
+func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResourcesInternal) (*types.MsgReplaceAccountResourcesResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

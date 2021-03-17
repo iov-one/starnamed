@@ -221,9 +221,8 @@ func getmCmdSetAccountResources() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -233,8 +232,8 @@ func getmCmdSetAccountResources() *cobra.Command {
 				Domain:       domain,
 				Name:         name,
 				NewResources: resources,
-				Owner:        clientCtx.GetFromAddress(),
-				Payer:        feePayer,
+				Owner:        clientCtx.GetFromAddress().String(),
+				Payer:        feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
