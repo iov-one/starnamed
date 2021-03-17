@@ -506,9 +506,8 @@ func getCmdDeleteAccountCertificate() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -517,9 +516,9 @@ func getCmdDeleteAccountCertificate() *cobra.Command {
 			msg := &types.MsgDeleteAccountCertificate{
 				Domain:            domain,
 				Name:              name,
-				Owner:             clientCtx.GetFromAddress(),
+				Owner:             clientCtx.GetFromAddress().String(),
 				DeleteCertificate: c,
-				Payer:             feePayer,
+				Payer:             feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

@@ -106,10 +106,46 @@ func (m *MsgAddAccountCertificate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
+// MsgDeleteAccountCertificateInternal embeds MsgDeleteAccountCertificate and adds sdk.Address properties for Owner and Payer
+type MsgDeleteAccountCertificateInternal struct {
+	MsgDeleteAccountCertificate
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgAddAccountCertificateInternal struct corresponding to the method receiver
+func (m MsgDeleteAccountCertificate) ToInternal() *MsgDeleteAccountCertificateInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgDeleteAccountCertificateInternal{
+		MsgDeleteAccountCertificate: m,
+		Owner:                       owner,
+		Payer:                       payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteAccountCertificateInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
+func (m *MsgDeleteAccountCertificateInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -131,7 +167,7 @@ func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.DeleteCertificate == nil {
@@ -147,10 +183,21 @@ func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
 // MsgDeleteAccountInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer

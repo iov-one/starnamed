@@ -127,8 +127,8 @@ MsgDeleteAccountCertificate is the request model used to remove certificates fro
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
+| owner | [string](#string) |  | Owner is the owner of the account |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
 | delete_certificate | [bytes](#bytes) |  | DeleteCertificate is the certificate to delete |
 
 

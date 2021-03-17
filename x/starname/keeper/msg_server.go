@@ -27,7 +27,7 @@ func (m msgServer) DeleteAccount(goCtx context.Context, msg *types.MsgDeleteAcco
 }
 
 func (m msgServer) DeleteAccountCertificate(goCtx context.Context, msg *types.MsgDeleteAccountCertificate) (*types.MsgDeleteAccountCertificateResponse, error) {
-	return deleteAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return deleteAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) DeleteDomain(goCtx context.Context, msg *types.MsgDeleteDomain) (*types.MsgDeleteDomainResponse, error) {

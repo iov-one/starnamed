@@ -61,7 +61,7 @@ func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCe
 	return &types.MsgAddAccountCertificateResponse{}, nil
 }
 
-func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*types.MsgDeleteAccountCertificateResponse, error) {
+func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificateInternal) (*types.MsgDeleteAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
