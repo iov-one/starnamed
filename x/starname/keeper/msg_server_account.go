@@ -98,7 +98,7 @@ func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcc
 }
 
 // deleteAccount account deletes the account from the system
-func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {
+func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountInternal) (*types.MsgDeleteAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

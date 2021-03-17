@@ -23,7 +23,7 @@ func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAd
 }
 
 func (m msgServer) DeleteAccount(goCtx context.Context, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {
-	return deleteAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return deleteAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) DeleteAccountCertificate(goCtx context.Context, msg *types.MsgDeleteAccountCertificate) (*types.MsgDeleteAccountCertificateResponse, error) {
