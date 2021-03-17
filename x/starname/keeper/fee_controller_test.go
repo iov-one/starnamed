@@ -22,25 +22,25 @@ func Test_FeeApplier(t *testing.T) {
 	fee := configuration.Fees{
 		FeeCoinDenom:                 "tiov",
 		FeeCoinPrice:                 decFromStr("2"),
-		FeeDefault:                   decFromStr("2"),
-		RegisterAccountClosed:        decFromStr("4"),
-		RegisterAccountOpen:          sdk.NewDec(6),
-		TransferAccountClosed:        sdk.NewDec(8),
-		TransferAccountOpen:          sdk.NewDec(10),
-		ReplaceAccountResources:      sdk.NewDec(12),
-		AddAccountCertificate:        sdk.NewDec(14),
-		DelAccountCertificate:        sdk.NewDec(16),
-		SetAccountMetadata:           sdk.NewDec(18),
-		RegisterDomain1:              sdk.NewDec(20),
-		RegisterDomain2:              sdk.NewDec(22),
-		RegisterDomain3:              sdk.NewDec(24),
-		RegisterDomain4:              sdk.NewDec(26),
-		RegisterDomain5:              sdk.NewDec(28),
-		RegisterDomainDefault:        sdk.NewDec(30),
-		RegisterOpenDomainMultiplier: sdk.NewDec(2),
-		TransferDomainClosed:         sdk.NewDec(34),
-		TransferDomainOpen:           sdk.NewDec(36),
-		RenewDomainOpen:              sdk.NewDec(28),
+		FeeDefault:                   decFromStr("3"),
+		RegisterAccountClosed:        decFromStr("5"),
+		RegisterAccountOpen:          sdk.NewDec(7),
+		TransferAccountClosed:        sdk.NewDec(11),
+		TransferAccountOpen:          sdk.NewDec(13),
+		ReplaceAccountResources:      sdk.NewDec(17),
+		AddAccountCertificate:        sdk.NewDec(19),
+		DelAccountCertificate:        sdk.NewDec(23),
+		SetAccountMetadata:           sdk.NewDec(31),
+		RegisterDomain1:              sdk.NewDec(37),
+		RegisterDomain2:              sdk.NewDec(41),
+		RegisterDomain3:              sdk.NewDec(43),
+		RegisterDomain4:              sdk.NewDec(47),
+		RegisterDomain5:              sdk.NewDec(53),
+		RegisterDomainDefault:        sdk.NewDec(59),
+		RegisterOpenDomainMultiplier: sdk.NewDec(61),
+		TransferDomainClosed:         sdk.NewDec(67),
+		TransferDomainOpen:           sdk.NewDec(71),
+		RenewDomainOpen:              sdk.NewDec(73),
 	}
 	cases := map[string]struct {
 		Msg         sdk.Msg
@@ -52,35 +52,35 @@ func Test_FeeApplier(t *testing.T) {
 			Domain: types.Domain{
 				Name: "test1",
 			},
-			ExpectedFee: sdk.NewDec(14),
+			ExpectedFee: sdk.NewDec(26),
 		},
 		"register closed domain 4": {
 			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "test",
 			},
-			ExpectedFee: sdk.NewDec(13),
+			ExpectedFee: sdk.NewDec(23),
 		},
 		"register closed domain 3": {
 			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "tes",
 			},
-			ExpectedFee: sdk.NewDec(12),
+			ExpectedFee: sdk.NewDec(21),
 		},
 		"register closed domain 2": {
 			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "te",
 			},
-			ExpectedFee: sdk.NewDec(11),
+			ExpectedFee: sdk.NewDec(20),
 		},
 		"register closed domain 1": {
 			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "t",
 			},
-			ExpectedFee: sdk.NewDec(10),
+			ExpectedFee: sdk.NewDec(18),
 		},
 		"register open domain 5": {
 			Msg: &types.MsgRegisterDomainInternal{},
@@ -88,7 +88,7 @@ func Test_FeeApplier(t *testing.T) {
 				Name: "test1",
 				Type: types.OpenDomain,
 			},
-			ExpectedFee: sdk.NewDec(28),
+			ExpectedFee: sdk.NewDec(1616),
 		},
 		"register open domain default": {
 			Msg: &types.MsgRegisterDomainInternal{},
@@ -96,43 +96,43 @@ func Test_FeeApplier(t *testing.T) {
 				Name: "test12",
 				Type: types.ClosedDomain,
 			},
-			ExpectedFee: sdk.NewDec(15),
+			ExpectedFee: sdk.NewDec(29),
 		},
 		"transfer domain open": {
 			Msg:         &types.MsgTransferDomain{},
 			Domain:      types.Domain{Type: types.OpenDomain},
-			ExpectedFee: sdk.NewDec(18),
+			ExpectedFee: sdk.NewDec(35),
 		},
 		"transfer domain closed": {
 			Msg:         &types.MsgTransferDomain{},
 			Domain:      types.Domain{Type: types.ClosedDomain},
-			ExpectedFee: sdk.NewDec(17),
+			ExpectedFee: sdk.NewDec(33),
 		},
 		"set metadata": {
 			Msg:         &types.MsgReplaceAccountMetadata{},
-			ExpectedFee: sdk.NewDec(9),
+			ExpectedFee: sdk.NewDec(15),
 		},
 		"delete certs": {
 			Msg:         &types.MsgDeleteAccountCertificate{},
-			ExpectedFee: sdk.NewDec(8),
+			ExpectedFee: sdk.NewDec(11),
 		},
 		"add certs": {
 			Msg:         &types.MsgAddAccountCertificate{},
-			ExpectedFee: sdk.NewDec(7),
+			ExpectedFee: sdk.NewDec(9),
 		},
 		"replace resources": {
 			Msg:         &types.MsgReplaceAccountResources{},
-			ExpectedFee: sdk.NewDec(6),
+			ExpectedFee: sdk.NewDec(8),
 		},
 		"transfer account closed": {
 			Msg:         &types.MsgTransferAccount{},
 			Domain:      types.Domain{Type: types.ClosedDomain},
-			ExpectedFee: sdk.NewDec(4),
+			ExpectedFee: sdk.NewDec(5),
 		},
 		"transfer account open": {
 			Msg:         &types.MsgTransferAccount{},
 			Domain:      types.Domain{Type: types.OpenDomain},
-			ExpectedFee: sdk.NewDec(5),
+			ExpectedFee: sdk.NewDec(6),
 		},
 		"register account open": {
 			Msg:         &types.MsgRegisterAccount{},
@@ -157,12 +157,12 @@ func Test_FeeApplier(t *testing.T) {
 		"renew domain open": {
 			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.OpenDomain},
-			ExpectedFee: sdk.NewDec(14),
+			ExpectedFee: sdk.NewDec(36),
 		},
 		"renew domain closed": {
 			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "renew"},
-			ExpectedFee: sdk.NewDec(20), // 5-char domain + its three accounts-> "", "1", "2"; so 28/2 + 4/2*3=20
+			ExpectedFee: sdk.NewDec(34), // 5-char domain + its three accounts-> "", "1", "2"; so 53/2 + 5/2*3=34
 		},
 		/* TODO: FIXME
 		"default fee unknown message": {
@@ -173,7 +173,7 @@ func Test_FeeApplier(t *testing.T) {
 		"use default fee": {
 			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "default-fee"},
-			ExpectedFee: sdk.NewDec(17), // 6+char domain + one account ""; so 30/2 + 4/2 * 1 = 17
+			ExpectedFee: sdk.NewDec(32), // 6+char domain + one account ""; so 59/2 + 5/2 * 1 = 32
 		},
 	}
 	k, ctx, _ := NewTestKeeper(t, true)
