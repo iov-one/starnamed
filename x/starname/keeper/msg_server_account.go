@@ -9,7 +9,7 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
+func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificateInternal) (*types.MsgAddAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -61,7 +61,7 @@ func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCe
 	return &types.MsgAddAccountCertificateResponse{}, nil
 }
 
-func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificate) (*types.MsgDeleteAccountCertificateResponse, error) {
+func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountCertificateInternal) (*types.MsgDeleteAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -98,7 +98,7 @@ func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcc
 }
 
 // deleteAccount account deletes the account from the system
-func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {
+func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountInternal) (*types.MsgDeleteAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -131,7 +131,7 @@ func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccount) (*typ
 }
 
 // registerAccount registers an account
-func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
+func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInternal) (*types.MsgRegisterAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -183,7 +183,7 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccount) (
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 
-func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*types.MsgRenewAccountResponse, error) {
+func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccountInternal) (*types.MsgRenewAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -226,7 +226,7 @@ func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccount) (*types
 }
 
 // replaceAccountResources replaces account resources
-func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResources) (*types.MsgReplaceAccountResourcesResponse, error) {
+func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountResourcesInternal) (*types.MsgReplaceAccountResourcesResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -262,7 +262,7 @@ func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcc
 }
 
 // replaceAccountMetadata sets account metadata
-func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {
+func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadataInternal) (*types.MsgReplaceAccountMetadataResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
@@ -297,7 +297,7 @@ func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcco
 }
 
 // transferAccount transfers account to a new owner and may clear resources and certificates
-func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {
+func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccountInternal) (*types.MsgTransferAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

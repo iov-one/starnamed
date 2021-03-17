@@ -39,12 +39,12 @@ func Test_Close_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -80,12 +80,12 @@ func Test_Open_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -102,12 +102,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "does not exist",
 					Name:           "",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -127,12 +127,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -151,12 +151,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "does not exist",
-					Owner:          nil,
+					Owner:          "",
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -182,12 +182,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -213,12 +213,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -250,12 +250,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("test"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateExists) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -287,21 +287,21 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("12345"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateSizeExceeded) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err = addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("1234"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -333,21 +333,21 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("12345"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err = addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("1234"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateLimitReached) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -378,12 +378,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("test"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() got error: %s", err)
 				}
@@ -425,12 +425,12 @@ func Test_Closed_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
-					Owner:             AliceKey,
-				})
+					Owner:             AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
@@ -475,12 +475,12 @@ func Test_Open_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
-					Owner:             AliceKey,
-				})
+					Owner:             AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
@@ -510,12 +510,12 @@ func Test_Common_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "does not exist",
 					DeleteCertificate: nil,
-					Owner:             BobKey,
-				})
+					Owner:             BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -540,12 +540,12 @@ func Test_Common_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
-					Owner:             BobKey,
-				})
+					Owner:             BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -570,12 +570,12 @@ func Test_Common_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
-					Owner:             AliceKey,
-				})
+					Owner:             AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -600,12 +600,12 @@ func Test_Common_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("does not exist"),
-					Owner:             AliceKey,
-				})
+					Owner:             AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateDoesNotExist) {
 					t.Fatalf("deleteAccountCertificate() expected error: %s, got: %s", types.ErrCertificateDoesNotExist, err)
 				}
@@ -631,12 +631,12 @@ func Test_Common_deleteAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
+				_, err := deleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
-					Owner:             AliceKey,
-				})
+					Owner:             AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccountCertificates() got error: %s", err)
 				}
@@ -680,11 +680,11 @@ func Test_Closed_deleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -716,11 +716,11 @@ func Test_Closed_deleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 2,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -744,11 +744,11 @@ func Test_Closed_deleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %s", err)
 				}
@@ -785,11 +785,11 @@ func Test_Open_deleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 3,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -820,11 +820,11 @@ func Test_Open_deleteAccount(t *testing.T) {
 			},
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -862,29 +862,29 @@ func Test_Open_deleteAccount(t *testing.T) {
 			TestBlockTime: 5,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %v", err)
 				}
 				// anyone test
-				_, err = deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err = deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %v", err)
 				}
 				// account owner test
-				_, err = deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err = deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -922,11 +922,11 @@ func Test_Open_deleteAccount(t *testing.T) {
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -964,11 +964,11 @@ func Test_Open_deleteAccount(t *testing.T) {
 			TestBlockTime: 100,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// admin test
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -991,11 +991,11 @@ func Test_Common_deleteAccount(t *testing.T) {
 
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "does not exist",
 					Name:   "does not exist",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("deleteAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -1013,11 +1013,11 @@ func Test_Common_deleteAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  nil,
-				})
+					Owner:  "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("deleteAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -1040,11 +1040,11 @@ func Test_Common_deleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -1072,11 +1072,11 @@ func Test_Common_deleteAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := deleteAccount(ctx, k, &types.MsgDeleteAccount{
+				_, err := deleteAccount(ctx, k, types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("deleteAccount() got error: %s", err)
 				}
@@ -1116,21 +1116,21 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      BobKey,
-					Registerer: BobKey,
-				})
+					Owner:      BobKey.String(),
+					Registerer: BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
-				_, err = registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err = registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test2",
-					Owner:      BobKey,
-					Registerer: AliceKey,
-				})
+					Owner:      BobKey.String(),
+					Registerer: AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
@@ -1157,12 +1157,12 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      BobKey,
-					Registerer: BobKey,
-				})
+					Owner:      BobKey.String(),
+					Registerer: BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
@@ -1198,21 +1198,21 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
-					Registerer: BobKey,
-					Owner:      BobKey,
-				})
+					Registerer: BobKey.String(),
+					Owner:      BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
-				_, err = registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err = registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test2",
-					Registerer: BobKey,
-					Owner:      AliceKey,
-				})
+					Registerer: BobKey.String(),
+					Owner:      AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
@@ -1246,12 +1246,12 @@ func Test_OpenDomain_registerAccount(t *testing.T) {
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      BobKey,
-					Registerer: BobKey,
-				})
+					Owner:      BobKey.String(),
+					Registerer: BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
@@ -1296,18 +1296,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
+					Owner:  BobKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "won't work",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidResource) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
@@ -1336,18 +1336,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
+					Owner:  BobKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "invalid blockchain id",
 							Resource: "valid blockchain address",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidResource) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
@@ -1378,18 +1378,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "this won't match",
-					Owner:  AliceKey,
+					Owner:  AliceKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidAccountName) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrInvalidAccountName, err)
 				}
@@ -1410,18 +1410,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "this does not exist",
 					Name:   "works",
-					Owner:  AliceKey,
+					Owner:  AliceKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -1453,18 +1453,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey, // invalid owner
+					Owner:  AliceKey.String(), // invalid owner
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -1495,18 +1495,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
+					Owner:  BobKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -1547,18 +1547,18 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "exists",
-					Owner:  BobKey,
+					Owner:  BobKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExists) {
 					t.Fatalf("registerAccount() expected error: %s, got: %s", types.ErrAccountExists, err)
 				}
@@ -1589,19 +1589,19 @@ func Test_Common_registerAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := registerAccount(ctx, k, &types.MsgRegisterAccount{
+				_, err := registerAccount(ctx, k, types.MsgRegisterAccount{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      BobKey,
-					Registerer: BobKey,
+					Owner:      BobKey.String(),
+					Registerer: BobKey.String(),
 					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
 						},
 					},
-					Broker: nil,
-				})
+					Broker: "",
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("registerAccount() got error: %s", err)
 				}
@@ -1639,10 +1639,10 @@ func Test_Closed_renewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidDomainType) {
 					t.Fatalf("renewAccount() want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
@@ -1663,10 +1663,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "does not exist",
 					Name:   "",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -1690,10 +1690,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "does not exist",
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("renewAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -1726,10 +1726,10 @@ func Test_Open_renewAccount(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("renewAccount() got error: %s", err)
 				}
@@ -1774,10 +1774,10 @@ func Test_Open_renewAccount(t *testing.T) {
 			},
 			TestBlockTime: 10,
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewAccount(ctx, k, &types.MsgRenewAccount{
+				_, err := renewAccount(ctx, k, types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("renewAccount() got error: %s", err)
 				}
@@ -1830,7 +1830,7 @@ func Test_Closed_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1839,8 +1839,8 @@ func Test_Closed_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountResources() got error: %s", err)
 				}
@@ -1880,7 +1880,7 @@ func Test_Open_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1889,8 +1889,8 @@ func Test_Open_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -1928,7 +1928,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1937,8 +1937,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "invalid",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrInvalidResource) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
@@ -1970,7 +1970,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -1987,12 +1987,12 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid2",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrResourceLimitExceeded) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
-				_, err = replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err = replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2005,12 +2005,12 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "invalid2",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
-				_, err = replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err = replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2019,8 +2019,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "invalid",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrInvalidResource, err)
 				}
@@ -2036,7 +2036,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "does not exist",
 					Name:   "",
 					NewResources: []*types.Resource{
@@ -2045,8 +2045,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: nil,
-				})
+					Owner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -2070,7 +2070,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					NewResources: []*types.Resource{
 						{
@@ -2078,8 +2078,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: nil,
-				})
+					Owner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -2104,7 +2104,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "does not exist",
 					NewResources: []*types.Resource{
@@ -2113,8 +2113,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: nil,
-				})
+					Owner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -2146,7 +2146,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2155,8 +2155,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: BobKey,
-				})
+					Owner: BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("replaceAccountResources() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2189,7 +2189,7 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
+				_, err := replaceAccountResources(ctx, k, types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
 					NewResources: []*types.Resource{
@@ -2198,8 +2198,8 @@ func Test_Common_replaceAccountResources(t *testing.T) {
 							Resource: "valid",
 						},
 					},
-					Owner: AliceKey,
-				})
+					Owner: AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountResources() got error: %s", err)
 				}
@@ -2249,11 +2249,11 @@ func Test_Closed_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -2290,11 +2290,11 @@ func Test_Open_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -2311,11 +2311,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "does not exist",
 					Name:   "",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -2333,12 +2333,12 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "",
 					NewMetadataURI: "",
-					Owner:          nil,
-				})
+					Owner:          "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -2358,11 +2358,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "does not exist",
-					Owner:  nil,
-				})
+					Owner:  "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -2389,11 +2389,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2420,11 +2420,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2454,21 +2454,21 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrMetadataSizeExceeded) {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
-				_, err = replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err = replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "12",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
@@ -2497,12 +2497,12 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
@@ -2547,21 +2547,21 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    AliceKey,
-					NewOwner: CharlieKey,
-				})
+					Owner:    AliceKey.String(),
+					NewOwner: CharlieKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
-				_, err = transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err = transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    BobKey,
-					NewOwner: CharlieKey,
-				})
+					Owner:    BobKey.String(),
+					NewOwner: CharlieKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
@@ -2606,13 +2606,13 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    AliceKey,
-					NewOwner: CharlieKey,
+					Owner:    AliceKey.String(),
+					NewOwner: CharlieKey.String(),
 					ToReset:  true,
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
@@ -2661,23 +2661,23 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    AliceKey,
-					NewOwner: CharlieKey,
+					Owner:    AliceKey.String(),
+					NewOwner: CharlieKey.String(),
 					ToReset:  false,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
 
-				_, err = transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err = transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    BobKey,
-					NewOwner: CharlieKey,
-				})
+					Owner:    BobKey.String(),
+					NewOwner: CharlieKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
@@ -2722,13 +2722,13 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    AliceKey,
-					NewOwner: CharlieKey,
+					Owner:    AliceKey.String(),
+					NewOwner: CharlieKey.String(),
 					ToReset:  true,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}
@@ -2760,12 +2760,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				// do nothing
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "does not exist",
 					Name:     "does not exist",
-					Owner:    nil,
-					NewOwner: nil,
-				})
+					Owner:    "",
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -2785,12 +2785,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "expired domain",
 					Name:     "",
-					Owner:    nil,
-					NewOwner: nil,
-				})
+					Owner:    "",
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -2810,12 +2810,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "this account does not exist",
-					Owner:    nil,
-					NewOwner: nil,
-				})
+					Owner:    "",
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -2844,12 +2844,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    nil,
-					NewOwner: nil,
-				})
+					Owner:    "",
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -2878,12 +2878,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    BobKey,
-					NewOwner: nil,
-				})
+					Owner:    BobKey.String(),
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2912,12 +2912,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    BobKey,
-					NewOwner: nil,
-				})
+					Owner:    BobKey.String(),
+					NewOwner: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerAccountTransfer() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2943,12 +2943,12 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferAccount(ctx, k, &types.MsgTransferAccount{
+				_, err := transferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    AliceKey,
-					NewOwner: BobKey,
-				})
+					Owner:    AliceKey.String(),
+					NewOwner: BobKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("transferAccount() got error: %s", err)
 				}

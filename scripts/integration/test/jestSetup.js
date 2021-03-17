@@ -47,7 +47,7 @@ module.exports = async ( globalConfig ) => {
       if ( need[key] ) cliKeysAdd( key, [ "--recover" ], keysWithMnemonic[key] )
    } );
 
-   if ( need.msig1) cliKeysAdd( "msig1", [ "--multisig=w1,w2,w3,p1", "--multisig-threshold=3" ]);
+   if ( need.msig1 ) cliKeysAdd( "msig1", [ "--multisig=w1,w2,w3,p1", "--multisig-threshold=3" ]);
 
    log( JSON.stringify( cli( [ "keys", "list", "--keyring-backend", "test" ] ), null, "   " ) );
 };

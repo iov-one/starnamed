@@ -6,7 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -36,9 +35,9 @@ type MsgAddAccountCertificate struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewCertificate is the new certificate to add
 	NewCertificate []byte `protobuf:"bytes,5,opt,name=new_certificate,json=newCertificate,proto3" json:"new_certificate,omitempty" yaml:"new_certificate"`
 }
@@ -90,18 +89,18 @@ func (m *MsgAddAccountCertificate) GetName() string {
 	return ""
 }
 
-func (m *MsgAddAccountCertificate) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgAddAccountCertificate) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgAddAccountCertificate) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgAddAccountCertificate) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgAddAccountCertificate) GetNewCertificate() []byte {
@@ -155,9 +154,9 @@ type MsgDeleteAccountCertificate struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte `protobuf:"bytes,5,opt,name=delete_certificate,json=deleteCertificate,proto3" json:"delete_certificate,omitempty" yaml:"delete_certificate"`
 }
@@ -209,18 +208,18 @@ func (m *MsgDeleteAccountCertificate) GetName() string {
 	return ""
 }
 
-func (m *MsgDeleteAccountCertificate) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteAccountCertificate) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgDeleteAccountCertificate) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteAccountCertificate) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgDeleteAccountCertificate) GetDeleteCertificate() []byte {
@@ -274,9 +273,9 @@ type MsgDeleteAccount struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
 func (m *MsgDeleteAccount) Reset()         { *m = MsgDeleteAccount{} }
@@ -326,18 +325,18 @@ func (m *MsgDeleteAccount) GetName() string {
 	return ""
 }
 
-func (m *MsgDeleteAccount) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteAccount) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgDeleteAccount) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteAccount) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 // MsgDeleteAccountResponse returns an empty response.
@@ -382,9 +381,9 @@ type MsgDeleteDomain struct {
 	// Domain is the domain of the account
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
 func (m *MsgDeleteDomain) Reset()         { *m = MsgDeleteDomain{} }
@@ -427,18 +426,18 @@ func (m *MsgDeleteDomain) GetDomain() string {
 	return ""
 }
 
-func (m *MsgDeleteDomain) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteDomain) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgDeleteDomain) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgDeleteDomain) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 // MsgDeleteDomainResponse returns an empty response.
@@ -485,13 +484,13 @@ type MsgRegisterAccount struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// Broker is the account that facilitated the transaction
-	Broker github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,5,opt,name=broker,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"broker,omitempty" yaml:"broker"`
+	Broker string `protobuf:"bytes,5,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
 	// Registerer is the user who registers this account
-	Registerer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,6,opt,name=registerer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"registerer,omitempty" yaml:"registerer"`
+	Registerer string `protobuf:"bytes,6,opt,name=registerer,proto3" json:"registerer,omitempty" yaml:"registerer"`
 	// Resources are the blockchain addresses of the account
 	Resources []*Resource `protobuf:"bytes,7,rep,name=resources,proto3" json:"resources,omitempty" yaml:"resources"`
 }
@@ -543,32 +542,32 @@ func (m *MsgRegisterAccount) GetName() string {
 	return ""
 }
 
-func (m *MsgRegisterAccount) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterAccount) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRegisterAccount) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterAccount) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRegisterAccount) GetBroker() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterAccount) GetBroker() string {
 	if m != nil {
 		return m.Broker
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRegisterAccount) GetRegisterer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterAccount) GetRegisterer() string {
 	if m != nil {
 		return m.Registerer
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgRegisterAccount) GetResources() []*Resource {
@@ -617,12 +616,12 @@ var xxx_messageInfo_MsgRegisterAccountResponse proto.InternalMessageInfo
 
 // MsgRegisterDomain is the request used to register new domains
 type MsgRegisterDomain struct {
-	Name  string                                        `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
-	Admin github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=admin,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"admin,omitempty" yaml:"admin"`
+	Name  string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
+	Admin string `protobuf:"bytes,2,opt,name=admin,proto3" json:"admin,omitempty" yaml:"admin"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// Broker is the account that facilitated the transaction
-	Broker github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=broker,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"broker,omitempty" yaml:"broker"`
+	Broker string `protobuf:"bytes,4,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
 	// DomainType defines the type of the domain
 	DomainType DomainType `protobuf:"bytes,5,opt,name=domain_type,json=domainType,proto3,casttype=DomainType" json:"domain_type,omitempty" yaml:"domain_type`
 }
@@ -667,25 +666,25 @@ func (m *MsgRegisterDomain) GetName() string {
 	return ""
 }
 
-func (m *MsgRegisterDomain) GetAdmin() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterDomain) GetAdmin() string {
 	if m != nil {
 		return m.Admin
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRegisterDomain) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterDomain) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRegisterDomain) GetBroker() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRegisterDomain) GetBroker() string {
 	if m != nil {
 		return m.Broker
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgRegisterDomain) GetDomainType() DomainType {
@@ -739,9 +738,9 @@ type MsgRenewAccount struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Signer is the signer of the request
-	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty" yaml:"signer"`
+	Signer string `protobuf:"bytes,3,opt,name=signer,proto3" json:"signer,omitempty" yaml:"signer"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
 func (m *MsgRenewAccount) Reset()         { *m = MsgRenewAccount{} }
@@ -791,18 +790,18 @@ func (m *MsgRenewAccount) GetName() string {
 	return ""
 }
 
-func (m *MsgRenewAccount) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRenewAccount) GetSigner() string {
 	if m != nil {
 		return m.Signer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRenewAccount) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRenewAccount) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 // MsgRenewAccountResponse returns an empty response.
@@ -847,9 +846,9 @@ type MsgRenewDomain struct {
 	// Domain is the domain of the account
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Signer is the signer of the request
-	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty" yaml:"signer"`
+	Signer string `protobuf:"bytes,2,opt,name=signer,proto3" json:"signer,omitempty" yaml:"signer"`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
 func (m *MsgRenewDomain) Reset()         { *m = MsgRenewDomain{} }
@@ -892,18 +891,18 @@ func (m *MsgRenewDomain) GetDomain() string {
 	return ""
 }
 
-func (m *MsgRenewDomain) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRenewDomain) GetSigner() string {
 	if m != nil {
 		return m.Signer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgRenewDomain) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgRenewDomain) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 // MsgRegisterDomain returns an empty response.
@@ -950,9 +949,9 @@ type MsgReplaceAccountResources struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewResources are the new resources
 	NewResources []*Resource `protobuf:"bytes,5,rep,name=new_resources,json=newResources,proto3" json:"new_resources,omitempty" yaml:"new_resources`
 }
@@ -1004,18 +1003,18 @@ func (m *MsgReplaceAccountResources) GetName() string {
 	return ""
 }
 
-func (m *MsgReplaceAccountResources) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgReplaceAccountResources) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgReplaceAccountResources) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgReplaceAccountResources) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgReplaceAccountResources) GetNewResources() []*Resource {
@@ -1069,9 +1068,9 @@ type MsgReplaceAccountMetadata struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewMetadataURI is the metadata URI of the account
 	// we want to update or insert
 	NewMetadataURI string `protobuf:"bytes,5,opt,name=new_metadata_uri,json=newMetadataUri,proto3" json:"new_metadata_uri,omitempty" yaml:"new_metadata_uri"`
@@ -1124,18 +1123,18 @@ func (m *MsgReplaceAccountMetadata) GetName() string {
 	return ""
 }
 
-func (m *MsgReplaceAccountMetadata) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgReplaceAccountMetadata) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgReplaceAccountMetadata) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgReplaceAccountMetadata) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgReplaceAccountMetadata) GetNewMetadataURI() string {
@@ -1189,11 +1188,11 @@ type MsgTransferAccount struct {
 	// Name is the name of the account
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner`
+	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewOwner is the new owner of the account
-	NewOwner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,5,opt,name=new_owner,json=newOwner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"new_owner,omitempty" yaml:"new_owner`
+	NewOwner string `protobuf:"bytes,5,opt,name=new_owner,json=newOwner,proto3" json:"new_owner,omitempty" yaml:"new_owner`
 	// ToReset if true, removes all old data from account
 	ToReset bool `protobuf:"varint,6,opt,name=reset,proto3" json:"reset,omitempty" yaml:"reset`
 }
@@ -1245,25 +1244,25 @@ func (m *MsgTransferAccount) GetName() string {
 	return ""
 }
 
-func (m *MsgTransferAccount) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferAccount) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgTransferAccount) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferAccount) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgTransferAccount) GetNewOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferAccount) GetNewOwner() string {
 	if m != nil {
 		return m.NewOwner
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgTransferAccount) GetToReset() bool {
@@ -1315,11 +1314,11 @@ type MsgTransferDomain struct {
 	// Domain is the name of the domain
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Owner is the owner of the domain
-	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner`
+	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
 	// Payer is the address of the entity that pays the product and transaction fees
-	Payer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=payer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"payer,omitempty" yaml:"payer"`
+	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewAdmin is the  new owner of the domain
-	NewAdmin github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=new_admin,json=newAdmin,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"new_admin,omitempty" yaml:"new_admin`
+	NewAdmin string `protobuf:"bytes,4,opt,name=new_admin,json=newAdmin,proto3" json:"new_admin,omitempty" yaml:"new_admin`
 	// TransferFlag controls the operations that occurs on a domain's accounts
 	TransferFlag TransferFlag `protobuf:"varint,5,opt,name=transfer_flag,json=transferFlag,proto3,casttype=TransferFlag" json:"transfer_flag,omitempty" yaml:"transfer_flag`
 }
@@ -1364,25 +1363,25 @@ func (m *MsgTransferDomain) GetDomain() string {
 	return ""
 }
 
-func (m *MsgTransferDomain) GetOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferDomain) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgTransferDomain) GetPayer() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferDomain) GetPayer() string {
 	if m != nil {
 		return m.Payer
 	}
-	return nil
+	return ""
 }
 
-func (m *MsgTransferDomain) GetNewAdmin() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgTransferDomain) GetNewAdmin() string {
 	if m != nil {
 		return m.NewAdmin
 	}
-	return nil
+	return ""
 }
 
 func (m *MsgTransferDomain) GetTransferFlag() TransferFlag {
@@ -1459,82 +1458,78 @@ func init() {
 func init() { proto.RegisterFile("x/starname/types/tx.proto", fileDescriptor_74890d7b96d556a3) }
 
 var fileDescriptor_74890d7b96d556a3 = []byte{
-	// 1191 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x59, 0xcb, 0x6f, 0xe3, 0x44,
-	0x18, 0xaf, 0x93, 0xb6, 0xbb, 0xfd, 0x9a, 0xbe, 0xcc, 0xd2, 0xba, 0xde, 0x12, 0x17, 0x97, 0x47,
-	0x91, 0x48, 0xb2, 0xbb, 0xc0, 0xb2, 0x70, 0x80, 0x4d, 0xb6, 0x5a, 0x84, 0xb4, 0x01, 0xc9, 0x2a,
-	0xbb, 0x52, 0x2f, 0x95, 0x6b, 0x4f, 0x8d, 0xb5, 0x89, 0x1d, 0x6c, 0x77, 0xd3, 0x22, 0x71, 0xe2,
-	0x8a, 0x04, 0x42, 0x80, 0x38, 0x72, 0x46, 0xe2, 0xca, 0xdf, 0xc0, 0x71, 0x8f, 0x9c, 0x2c, 0x48,
-	0xcf, 0x20, 0x64, 0x89, 0x4b, 0x4f, 0xc8, 0x33, 0xf6, 0xf8, 0x91, 0xa4, 0x8d, 0xad, 0x44, 0x62,
-	0xa5, 0x5e, 0x76, 0xd3, 0x99, 0xef, 0xfb, 0xcd, 0xf8, 0xf7, 0x9b, 0xef, 0x31, 0x36, 0xac, 0x1f,
-	0xd7, 0x6c, 0x47, 0xb6, 0x0c, 0xb9, 0x8d, 0x6a, 0xce, 0x49, 0x07, 0xd9, 0x35, 0xe7, 0xb8, 0xda,
-	0xb1, 0x4c, 0xc7, 0x64, 0x37, 0xc2, 0x09, 0xb5, 0x7a, 0x5c, 0x0d, 0x7f, 0x57, 0x9f, 0xdc, 0x3c,
-	0x40, 0x8e, 0x7c, 0x93, 0xbf, 0xa6, 0x99, 0x9a, 0x89, 0x0d, 0x6b, 0xfe, 0x2f, 0xe2, 0xc3, 0x6f,
-	0xf4, 0xc3, 0xf9, 0xff, 0x92, 0x59, 0xf1, 0xcf, 0x02, 0x70, 0x4d, 0x5b, 0xab, 0xab, 0x6a, 0x5d,
-	0x51, 0xcc, 0x23, 0xc3, 0xb9, 0x87, 0x2c, 0x47, 0x3f, 0xd4, 0x15, 0xd9, 0x41, 0xec, 0x6b, 0x30,
-	0xab, 0x9a, 0x6d, 0x59, 0x37, 0x38, 0x66, 0x93, 0xd9, 0x9e, 0x6b, 0xac, 0x78, 0xae, 0xb0, 0x70,
-	0x22, 0xb7, 0x5b, 0xef, 0x8a, 0x64, 0x5c, 0x94, 0x02, 0x03, 0x76, 0x0b, 0xa6, 0xfd, 0x15, 0xb8,
-	0x02, 0x36, 0x5c, 0xf2, 0x5c, 0x61, 0x9e, 0x18, 0xfa, 0xa3, 0xa2, 0x84, 0x27, 0xd9, 0x47, 0x30,
-	0x63, 0x76, 0x0d, 0x64, 0x71, 0xc5, 0x4d, 0x66, 0xbb, 0xd4, 0xa8, 0x7b, 0xae, 0x50, 0x22, 0x56,
-	0x78, 0x58, 0x3c, 0x73, 0x85, 0x8a, 0xa6, 0x3b, 0x9f, 0x1e, 0x1d, 0x54, 0x15, 0xb3, 0x5d, 0x53,
-	0x4c, 0xbb, 0x6d, 0xda, 0xc1, 0x7f, 0x15, 0x5b, 0x7d, 0x1c, 0xec, 0xbc, 0xae, 0x28, 0x75, 0x55,
-	0xb5, 0x90, 0x6d, 0x4b, 0x04, 0xcf, 0x07, 0xee, 0xc8, 0x27, 0xc8, 0xe2, 0xa6, 0xd3, 0xc0, 0x78,
-	0x38, 0x0f, 0x30, 0x76, 0x64, 0xef, 0xc1, 0x92, 0x81, 0xba, 0xfb, 0x4a, 0x44, 0x0a, 0x37, 0x83,
-	0x97, 0xe0, 0x3d, 0x57, 0x58, 0x0d, 0x9e, 0x30, 0x69, 0x20, 0x4a, 0x8b, 0x06, 0xea, 0xc6, 0x68,
-	0x14, 0x45, 0xd8, 0x1c, 0x46, 0xb1, 0x84, 0xec, 0x8e, 0x69, 0xd8, 0x48, 0xfc, 0xab, 0x00, 0xd7,
-	0x9b, 0xb6, 0xb6, 0x83, 0x5a, 0xc8, 0x41, 0x97, 0x52, 0x0c, 0x90, 0xe2, 0x01, 0xb0, 0x2a, 0x66,
-	0x67, 0x80, 0x1a, 0x2f, 0x78, 0xae, 0xb0, 0x1e, 0xb0, 0xd1, 0x67, 0x23, 0x4a, 0x2b, 0x64, 0x30,
-	0xae, 0xc9, 0xcb, 0xb0, 0x75, 0x0e, 0xdd, 0x54, 0x96, 0xef, 0x0a, 0xb0, 0x9c, 0xb6, 0xbb, 0xd4,
-	0x42, 0xe4, 0x71, 0xd2, 0x48, 0xb0, 0x42, 0x29, 0xfb, 0x9b, 0x81, 0x25, 0x3a, 0xb9, 0x43, 0x68,
-	0xc8, 0xc0, 0x18, 0x25, 0xa3, 0x30, 0x29, 0x32, 0x8a, 0x63, 0x26, 0x63, 0x1d, 0xd6, 0x52, 0xcf,
-	0x4b, 0xb9, 0xf8, 0x75, 0x1a, 0xd8, 0xa6, 0xad, 0x49, 0x48, 0xd3, 0x6d, 0x07, 0x59, 0x97, 0x07,
-	0x28, 0x0c, 0xe6, 0x3d, 0x98, 0x3d, 0xb0, 0xcc, 0xc7, 0xc8, 0x0a, 0x02, 0xb8, 0x11, 0x31, 0x40,
-	0xc6, 0x73, 0x40, 0x07, 0x88, 0xec, 0x21, 0x80, 0x15, 0x10, 0x8e, 0x2c, 0x6e, 0x16, 0xe3, 0xdf,
-	0xf7, 0x5c, 0x61, 0x85, 0xe0, 0x47, 0x73, 0x39, 0xd6, 0x88, 0x21, 0xb3, 0x7b, 0x30, 0x67, 0x21,
-	0xdb, 0x3c, 0xb2, 0x14, 0x64, 0x73, 0x57, 0x36, 0x8b, 0xdb, 0xf3, 0xb7, 0x5e, 0xa9, 0x9e, 0x57,
-	0xa0, 0xab, 0x52, 0x60, 0xde, 0xb8, 0xe6, 0xb9, 0xc2, 0x72, 0xb8, 0x9d, 0x00, 0x42, 0x94, 0x22,
-	0x38, 0x71, 0x03, 0xf8, 0xfe, 0x73, 0x43, 0x8f, 0xd5, 0x57, 0x45, 0x58, 0x89, 0x4d, 0xef, 0x24,
-	0x8f, 0x0a, 0x73, 0xc1, 0x51, 0x91, 0xd5, 0xb6, 0x6e, 0xf4, 0x87, 0x17, 0x1e, 0xce, 0xa3, 0x28,
-	0x76, 0x9c, 0x58, 0x78, 0xc5, 0x8e, 0xca, 0xf4, 0xd8, 0x8f, 0xca, 0x0e, 0xcc, 0x93, 0x38, 0xdb,
-	0xf7, 0x4d, 0xf0, 0x59, 0x9c, 0x6b, 0x6c, 0x45, 0x67, 0x25, 0x36, 0x79, 0xe6, 0x0a, 0x40, 0x88,
-	0xde, 0x3d, 0xe9, 0x20, 0x09, 0x54, 0xfa, 0x5b, 0xbc, 0x0e, 0xeb, 0x7d, 0x6a, 0x50, 0xad, 0x7e,
-	0x28, 0xe0, 0x74, 0x28, 0x21, 0x03, 0x75, 0x27, 0x15, 0xff, 0x7b, 0x30, 0x6b, 0xeb, 0x5a, 0x94,
-	0x00, 0x62, 0x14, 0x91, 0xf1, 0x3c, 0x14, 0x11, 0xcf, 0xc9, 0xd5, 0x10, 0x92, 0x36, 0xe3, 0xbc,
-	0x50, 0xce, 0xfe, 0x61, 0x60, 0x31, 0x9c, 0xcb, 0x5e, 0x41, 0x22, 0x36, 0x0a, 0x93, 0x63, 0x63,
-	0xdc, 0x45, 0x84, 0x83, 0xd5, 0xe4, 0x13, 0x53, 0x32, 0xbe, 0x2c, 0x06, 0xb9, 0xa0, 0xd3, 0x92,
-	0x95, 0x58, 0xb5, 0x25, 0x99, 0x62, 0xec, 0x67, 0xe9, 0x61, 0xb2, 0x96, 0xdc, 0x8d, 0xac, 0xf0,
-	0xf0, 0xff, 0xaf, 0x94, 0xa8, 0xb0, 0xe0, 0x77, 0xe0, 0x51, 0x2a, 0x9e, 0xc9, 0x94, 0x8a, 0xd7,
-	0x3c, 0x57, 0x78, 0x2e, 0x6a, 0xe4, 0x29, 0x8c, 0x54, 0x32, 0x50, 0x97, 0xd2, 0x2c, 0xbe, 0x04,
-	0xe2, 0x70, 0x11, 0xa8, 0x56, 0xff, 0x16, 0x82, 0x54, 0x10, 0x37, 0x6b, 0x22, 0x47, 0x56, 0x65,
-	0x47, 0xbe, 0x94, 0xea, 0x11, 0x2c, 0xfb, 0x1c, 0xb7, 0x03, 0x42, 0xf6, 0x8f, 0x2c, 0x3d, 0xc8,
-	0xb9, 0x95, 0x9e, 0x2b, 0x2c, 0x7e, 0x84, 0xba, 0x21, 0x57, 0x9f, 0x48, 0x1f, 0x7a, 0xae, 0xb0,
-	0x16, 0xe9, 0x12, 0xf7, 0x21, 0x37, 0x2c, 0x6a, 0x6a, 0xe9, 0xe2, 0x16, 0xbc, 0x38, 0x94, 0x76,
-	0x2a, 0xce, 0xcf, 0x45, 0xdc, 0x8c, 0xed, 0x5a, 0xb2, 0x61, 0x1f, 0x4e, 0xae, 0x19, 0x7b, 0xe6,
-	0x54, 0x91, 0x61, 0xce, 0x67, 0x98, 0x6c, 0x9a, 0xb4, 0x63, 0x3b, 0x9e, 0x2b, 0x2c, 0x45, 0xe4,
-	0xe7, 0xdc, 0xf8, 0x55, 0x03, 0x75, 0x3f, 0xc6, 0x7b, 0xbf, 0x01, 0x33, 0x16, 0xb2, 0x91, 0x83,
-	0xbb, 0xb1, 0xab, 0x0d, 0xbe, 0xe7, 0x0a, 0x57, 0x76, 0x4d, 0xc9, 0x1f, 0x8a, 0xe8, 0xc1, 0x16,
-	0x12, 0x31, 0x0c, 0x1a, 0xa0, 0x94, 0x56, 0x54, 0xca, 0x9f, 0x48, 0x03, 0x14, 0x4e, 0x67, 0xaf,
-	0x11, 0x0f, 0x93, 0xb7, 0x8c, 0xf1, 0x8b, 0x54, 0x9c, 0x8c, 0x48, 0xa4, 0x77, 0x9b, 0x1e, 0x24,
-	0x12, 0x9e, 0xca, 0x27, 0x52, 0x1d, 0x77, 0x70, 0x0f, 0x60, 0xc1, 0x09, 0x08, 0xdd, 0x3f, 0x6c,
-	0xc9, 0x1a, 0x3e, 0x0b, 0xc5, 0xc6, 0xab, 0x51, 0x82, 0x4c, 0x4c, 0x9f, 0xb9, 0x42, 0x29, 0x14,
-	0xe0, 0x7e, 0x4b, 0xd6, 0xa4, 0x92, 0x13, 0xfb, 0x2b, 0x68, 0x8a, 0x92, 0x0a, 0x85, 0xfa, 0xdd,
-	0xfa, 0xa5, 0x04, 0xc5, 0xa6, 0xad, 0xb1, 0x5f, 0x33, 0xf0, 0xfc, 0xe0, 0x57, 0x4f, 0xb7, 0xcf,
-	0x4f, 0xdf, 0xc3, 0xde, 0xa7, 0xf0, 0xef, 0xe5, 0xf3, 0x0b, 0x77, 0xc6, 0x76, 0x61, 0x21, 0x79,
-	0xd9, 0xaf, 0x5e, 0x08, 0x98, 0xb0, 0xe7, 0x6f, 0x67, 0xb3, 0xa7, 0x0b, 0xff, 0xc8, 0x00, 0x37,
-	0xf4, 0xed, 0xcf, 0x3b, 0xd9, 0x40, 0xe3, 0x84, 0xd4, 0x73, 0xbb, 0xd2, 0xad, 0x39, 0x50, 0x4a,
-	0xdc, 0xe6, 0x2b, 0x23, 0x42, 0x12, 0x73, 0xfe, 0xad, 0x4c, 0xe6, 0x74, 0xd5, 0x2f, 0x60, 0x29,
-	0x7d, 0x6f, 0xbe, 0x71, 0x21, 0x52, 0xca, 0x83, 0xbf, 0x93, 0xd5, 0x83, 0x2e, 0xff, 0x39, 0x2c,
-	0xa6, 0xee, 0x57, 0xb5, 0x91, 0xb1, 0x82, 0x07, 0x7f, 0x3b, 0xa3, 0x43, 0x9c, 0xf0, 0xc4, 0x7d,
-	0xa1, 0x32, 0x02, 0x50, 0x64, 0x3e, 0x02, 0xe1, 0x83, 0xba, 0x6e, 0xf6, 0x33, 0x98, 0x8f, 0x77,
-	0xdc, 0xaf, 0x8f, 0x86, 0x12, 0x3c, 0xeb, 0x9b, 0x59, 0xac, 0xe9, 0x92, 0xdf, 0x32, 0xb0, 0x3a,
-	0xa4, 0x59, 0x1a, 0x85, 0xbc, 0x41, 0x8e, 0xfc, 0xfb, 0x39, 0x1d, 0xe9, 0xa6, 0xbe, 0x67, 0x60,
-	0x6d, 0x58, 0xb7, 0x7d, 0x27, 0x23, 0x38, 0xf5, 0xe4, 0xef, 0xe6, 0xf5, 0x8c, 0x07, 0x44, 0xba,
-	0x77, 0xb9, 0x38, 0x20, 0x52, 0x1e, 0x23, 0x04, 0xc4, 0x90, 0x9a, 0xeb, 0x07, 0x44, 0xaa, 0xde,
-	0xd6, 0x46, 0xc6, 0x1a, 0x39, 0x20, 0x06, 0xd7, 0x8b, 0xc6, 0x07, 0xbf, 0xf5, 0xca, 0xcc, 0xd3,
-	0x5e, 0x99, 0xf9, 0xa3, 0x57, 0x66, 0xbe, 0x39, 0x2d, 0x4f, 0x3d, 0x3d, 0x2d, 0x4f, 0xfd, 0x7e,
-	0x5a, 0x9e, 0xda, 0x8b, 0x57, 0x3b, 0xdd, 0x7c, 0x52, 0x31, 0x0d, 0x44, 0x3f, 0x77, 0xa8, 0xb5,
-	0xf4, 0xa7, 0x8f, 0x83, 0x59, 0xfc, 0xd5, 0xe3, 0x8d, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0xf4,
-	0x6d, 0x8a, 0x37, 0x64, 0x19, 0x00, 0x00,
+	// 1132 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x58, 0x5f, 0x6f, 0xdb, 0x54,
+	0x14, 0xaf, 0x93, 0xb6, 0x5b, 0x4f, 0xd3, 0xa6, 0xf5, 0xb6, 0xd6, 0xf5, 0x4a, 0x5c, 0x6e, 0xe9,
+	0xe8, 0x24, 0x92, 0x74, 0x83, 0x8d, 0xc1, 0x03, 0xd0, 0xac, 0x02, 0x21, 0x2d, 0x20, 0x5d, 0x15,
+	0x21, 0xed, 0xa5, 0x72, 0xe3, 0x5b, 0x63, 0x91, 0xd8, 0xc1, 0x76, 0x97, 0x16, 0x89, 0x4f, 0xc0,
+	0x5f, 0x81, 0x10, 0xbc, 0xf2, 0x01, 0x78, 0x41, 0x7c, 0x08, 0x1e, 0xf7, 0xc8, 0x93, 0x85, 0xd2,
+	0x6f, 0xe0, 0x37, 0xf6, 0x02, 0xf2, 0xbd, 0xce, 0xf5, 0x9f, 0x24, 0x8d, 0x5d, 0x6d, 0xd2, 0xf6,
+	0x52, 0xa5, 0xf7, 0xfc, 0xce, 0xb9, 0xbf, 0xf3, 0xf3, 0x3d, 0xf7, 0x1c, 0x1b, 0xd6, 0x4e, 0xea,
+	0x8e, 0xab, 0xda, 0xa6, 0xda, 0x21, 0x75, 0xf7, 0xb4, 0x4b, 0x9c, 0xba, 0x7b, 0x52, 0xeb, 0xda,
+	0x96, 0x6b, 0x89, 0xeb, 0x03, 0x83, 0x56, 0x3b, 0xa9, 0x0d, 0x7e, 0xd7, 0x1e, 0xdd, 0x3a, 0x24,
+	0xae, 0x7a, 0x4b, 0xbe, 0xaa, 0x5b, 0xba, 0x45, 0x81, 0xf5, 0xe0, 0x17, 0xf3, 0x91, 0xd7, 0x87,
+	0xc3, 0x05, 0x7f, 0x99, 0x15, 0xfd, 0x27, 0x80, 0xd4, 0x74, 0xf4, 0x5d, 0x4d, 0xdb, 0x6d, 0xb5,
+	0xac, 0x63, 0xd3, 0xbd, 0x4f, 0x6c, 0xd7, 0x38, 0x32, 0x5a, 0xaa, 0x4b, 0xc4, 0x9b, 0x30, 0xab,
+	0x59, 0x1d, 0xd5, 0x30, 0x25, 0x61, 0x43, 0xd8, 0x9e, 0x6b, 0x2c, 0xfb, 0x9e, 0xb2, 0x70, 0xaa,
+	0x76, 0xda, 0x6f, 0x23, 0xb6, 0x8e, 0x70, 0x08, 0x10, 0x37, 0x61, 0x3a, 0xd8, 0x41, 0x2a, 0x50,
+	0x60, 0xd9, 0xf7, 0x94, 0x79, 0x06, 0x0c, 0x56, 0x11, 0xa6, 0x46, 0xf1, 0x06, 0xcc, 0x58, 0x3d,
+	0x93, 0xd8, 0x52, 0x91, 0xa2, 0x96, 0x7c, 0x4f, 0x29, 0x31, 0x14, 0x5d, 0x46, 0x98, 0x99, 0x03,
+	0x5c, 0x57, 0x3d, 0x25, 0xb6, 0x34, 0x9d, 0xc6, 0xd1, 0x65, 0x84, 0x99, 0x59, 0xbc, 0x0f, 0x65,
+	0x93, 0xf4, 0x0e, 0x5a, 0x11, 0x65, 0x69, 0x66, 0x43, 0xd8, 0x2e, 0x35, 0x64, 0xdf, 0x53, 0x56,
+	0xc2, 0xfd, 0x93, 0x00, 0x84, 0x17, 0x4d, 0xd2, 0x8b, 0x25, 0x89, 0x10, 0x6c, 0x8c, 0x13, 0x00,
+	0x13, 0xa7, 0x6b, 0x99, 0x0e, 0x41, 0x5f, 0x17, 0xe0, 0x7a, 0xd3, 0xd1, 0xf7, 0x48, 0x9b, 0xb8,
+	0xe4, 0x05, 0x14, 0xea, 0x01, 0x88, 0x1a, 0xe5, 0x3e, 0x42, 0xab, 0x97, 0x7c, 0x4f, 0x59, 0x0b,
+	0xb9, 0x0e, 0x61, 0x10, 0x5e, 0x66, 0x8b, 0x71, 0xc5, 0xb6, 0x60, 0xf3, 0x1c, 0x31, 0xb8, 0x68,
+	0x7f, 0x08, 0xb0, 0x94, 0xc6, 0x3d, 0xef, 0x4a, 0x21, 0x99, 0x96, 0x43, 0x82, 0x33, 0x4f, 0xe8,
+	0x1b, 0x01, 0xca, 0xdc, 0xb8, 0xc7, 0x48, 0xe6, 0xc8, 0x87, 0x53, 0x2d, 0x64, 0xa4, 0x5a, 0x3c,
+	0x9f, 0xea, 0x1a, 0xac, 0xa6, 0xd8, 0x70, 0xa6, 0x7e, 0x01, 0xc4, 0xa6, 0xa3, 0x63, 0xa2, 0x1b,
+	0x8e, 0x4b, 0xec, 0x17, 0x44, 0xfc, 0x80, 0xdf, 0xa1, 0x6d, 0x7d, 0x4e, 0x6c, 0x7a, 0x34, 0x13,
+	0xfc, 0xd8, 0x3a, 0xc2, 0x21, 0x40, 0xbc, 0x03, 0x60, 0x87, 0xd9, 0x11, 0x5b, 0x9a, 0xa5, 0xf0,
+	0x6b, 0xbe, 0xa7, 0x2c, 0x33, 0x78, 0x64, 0x43, 0x38, 0x06, 0x14, 0x1f, 0xc2, 0x9c, 0x4d, 0x1c,
+	0xeb, 0xd8, 0x6e, 0x11, 0x47, 0xba, 0xb4, 0x51, 0xdc, 0x9e, 0xbf, 0x7d, 0xa3, 0x76, 0xde, 0xa5,
+	0x5a, 0xc3, 0x21, 0xbc, 0x71, 0xd5, 0xf7, 0x94, 0xa5, 0x41, 0xf4, 0x30, 0x04, 0xc2, 0x51, 0x38,
+	0xb4, 0x0e, 0xf2, 0xb0, 0xe6, 0xfc, 0x91, 0xfc, 0x2b, 0xc0, 0x72, 0xcc, 0xbc, 0x97, 0x94, 0x59,
+	0x98, 0x20, 0xb3, 0xaa, 0x75, 0x0c, 0x73, 0xf8, 0xe0, 0xd0, 0x65, 0x84, 0x99, 0x39, 0xeb, 0xc1,
+	0x89, 0xc9, 0x3c, 0x3d, 0x49, 0xe6, 0x3d, 0x98, 0x67, 0x07, 0xe2, 0x20, 0x68, 0x1a, 0xe1, 0x63,
+	0xd9, 0x8c, 0x74, 0x8e, 0x19, 0x9f, 0x78, 0x0a, 0xb0, 0xac, 0xf6, 0x4f, 0xbb, 0x04, 0x83, 0xc6,
+	0x7f, 0xa3, 0xeb, 0xb0, 0x36, 0x94, 0x3a, 0x17, 0xe6, 0x4f, 0x56, 0x55, 0x98, 0x98, 0xa4, 0xf7,
+	0xac, 0x0e, 0xea, 0x4d, 0x98, 0x75, 0x0c, 0x3d, 0x3a, 0xa9, 0xb1, 0x78, 0x6c, 0x1d, 0xe1, 0x10,
+	0x90, 0xf9, 0xa2, 0x60, 0xd5, 0x17, 0x67, 0xcd, 0x33, 0xfa, 0x4e, 0x80, 0xc5, 0x81, 0x2d, 0xff,
+	0x35, 0x11, 0x71, 0x2d, 0x64, 0xe6, 0x3a, 0xe1, 0xa6, 0x90, 0x60, 0x25, 0xc9, 0x87, 0x53, 0xfd,
+	0xad, 0x10, 0x1e, 0xda, 0x6e, 0x5b, 0x6d, 0xc5, 0x2e, 0x3c, 0x76, 0xa4, 0x9f, 0xfa, 0x73, 0xd8,
+	0x4a, 0x5e, 0x18, 0x31, 0x14, 0x5d, 0xce, 0x7b, 0x5f, 0x68, 0xb0, 0x10, 0xb4, 0xf7, 0xa8, 0xa2,
+	0x67, 0x72, 0x55, 0xf4, 0xaa, 0xef, 0x29, 0x57, 0xa2, 0x29, 0x81, 0x87, 0xc1, 0x25, 0x93, 0xf4,
+	0xb8, 0x08, 0xe8, 0x15, 0x40, 0xe3, 0x25, 0xe2, 0x4a, 0xfe, 0x54, 0x08, 0x0f, 0x79, 0x1c, 0xd6,
+	0x24, 0xae, 0xaa, 0xa9, 0xae, 0xfa, 0xbc, 0x0b, 0xf9, 0x29, 0x2c, 0x05, 0x0a, 0x74, 0x42, 0xba,
+	0x07, 0xc7, 0xb6, 0x11, 0xd6, 0x7a, 0xb5, 0xef, 0x29, 0x8b, 0x1f, 0x91, 0xde, 0x20, 0x93, 0x4f,
+	0xf0, 0x87, 0xbe, 0xa7, 0xac, 0x46, 0xaa, 0xc5, 0x7d, 0xd8, 0x70, 0xc5, 0xa1, 0xb6, 0x81, 0x36,
+	0xe1, 0xe5, 0xb1, 0xa2, 0x70, 0xe9, 0x7e, 0x61, 0xdd, 0x6a, 0xdf, 0x56, 0x4d, 0xe7, 0xe8, 0xd9,
+	0x75, 0xab, 0xa7, 0xac, 0xd9, 0x0e, 0xcc, 0x05, 0xf9, 0xb3, 0x90, 0x4c, 0xac, 0x2b, 0xbe, 0xa7,
+	0x94, 0x23, 0x69, 0x58, 0xd8, 0xcb, 0x26, 0xe9, 0x7d, 0x4c, 0x23, 0xef, 0xc0, 0x8c, 0x4d, 0x1c,
+	0xe2, 0xd2, 0x76, 0x75, 0xb9, 0x21, 0xf7, 0x3d, 0xe5, 0xd2, 0xbe, 0x85, 0x83, 0xa5, 0x88, 0x0b,
+	0x45, 0x60, 0x06, 0x0c, 0x5b, 0x4a, 0x4a, 0x18, 0xae, 0xdb, 0xb7, 0x05, 0xda, 0x52, 0x06, 0xe6,
+	0xfc, 0x57, 0xcd, 0x56, 0x72, 0x22, 0x99, 0xa8, 0x48, 0x31, 0x93, 0x22, 0xac, 0x57, 0x4d, 0x8f,
+	0x52, 0x84, 0x9a, 0xa8, 0x22, 0xbb, 0xb4, 0x63, 0x3d, 0x80, 0x05, 0x37, 0x64, 0x7f, 0x70, 0xd4,
+	0x56, 0x75, 0xaa, 0x63, 0xb1, 0xf1, 0x6a, 0x54, 0x98, 0x09, 0xf3, 0x13, 0x4f, 0x29, 0x0d, 0xb2,
+	0x7d, 0xbf, 0xad, 0xea, 0xb8, 0xe4, 0xc6, 0xfe, 0x0b, 0xdb, 0x4c, 0x52, 0x8e, 0x81, 0x58, 0xb7,
+	0x7f, 0x2f, 0x41, 0xb1, 0xe9, 0xe8, 0xe2, 0xf7, 0x02, 0x5c, 0x1b, 0xfd, 0xb6, 0x73, 0xf7, 0xfc,
+	0x6b, 0x63, 0xdc, 0x4b, 0x82, 0xfc, 0xce, 0xc5, 0xfc, 0x06, 0xcc, 0xc4, 0x1e, 0x2c, 0x24, 0x67,
+	0xe4, 0xda, 0xc4, 0x80, 0x09, 0xbc, 0x7c, 0x37, 0x1f, 0x9e, 0x6f, 0xfc, 0xab, 0x00, 0xd2, 0xd8,
+	0x57, 0x9a, 0xb7, 0xf2, 0x05, 0x8d, 0x0b, 0xb2, 0x7b, 0x61, 0x57, 0x4e, 0xcd, 0x85, 0x52, 0x62,
+	0xcc, 0xae, 0x66, 0x0c, 0xc9, 0xe0, 0xf2, 0x9d, 0x5c, 0x70, 0xbe, 0xeb, 0x57, 0x50, 0x4e, 0x8f,
+	0xcc, 0x3b, 0x13, 0x23, 0xa5, 0x3c, 0xe4, 0x7b, 0x79, 0x3d, 0xf8, 0xf6, 0x5f, 0xc2, 0x62, 0x6a,
+	0x3c, 0xac, 0x67, 0x8e, 0x15, 0x26, 0xfe, 0x66, 0x4e, 0x87, 0xb8, 0xe0, 0x89, 0x09, 0xac, 0x9a,
+	0x21, 0x50, 0x04, 0xcf, 0x20, 0xf8, 0xa8, 0x49, 0x49, 0xfc, 0x02, 0xe6, 0xe3, 0x53, 0xd2, 0x6b,
+	0xd9, 0xa2, 0x84, 0xb9, 0xbe, 0x91, 0x07, 0xcd, 0xb7, 0xfc, 0x51, 0x80, 0x95, 0x31, 0x4d, 0x3a,
+	0x8b, 0x78, 0xa3, 0x1c, 0xe5, 0x77, 0x2f, 0xe8, 0xc8, 0x49, 0xfd, 0x2c, 0xc0, 0xea, 0xb8, 0x19,
+	0xec, 0x5e, 0xce, 0xe0, 0xdc, 0x53, 0x7e, 0xef, 0xa2, 0x9e, 0xf1, 0x82, 0x48, 0x77, 0xe5, 0xc9,
+	0x05, 0x91, 0xf2, 0xc8, 0x50, 0x10, 0x63, 0x1a, 0x5c, 0x50, 0x10, 0xa9, 0xe6, 0x56, 0xcf, 0x1c,
+	0x2b, 0x73, 0x41, 0x8c, 0xee, 0x17, 0x8d, 0x0f, 0xfe, 0xea, 0x57, 0x84, 0xc7, 0xfd, 0x8a, 0xf0,
+	0x4f, 0xbf, 0x22, 0xfc, 0x70, 0x56, 0x99, 0x7a, 0x7c, 0x56, 0x99, 0xfa, 0xfb, 0xac, 0x32, 0xf5,
+	0xb0, 0xaa, 0x1b, 0xee, 0x67, 0xc7, 0x87, 0xb5, 0x96, 0xd5, 0xa9, 0x1b, 0xd6, 0xa3, 0xaa, 0x65,
+	0x12, 0xfe, 0x85, 0x4d, 0xab, 0xa7, 0xbf, 0xb6, 0x1d, 0xce, 0xd2, 0x0f, 0x6d, 0xaf, 0xff, 0x1f,
+	0x00, 0x00, 0xff, 0xff, 0xa6, 0x6d, 0xdc, 0x52, 0xd7, 0x13, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -3563,7 +3558,7 @@ func (m *MsgAddAccountCertificate) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -3573,31 +3568,29 @@ func (m *MsgAddAccountCertificate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -3607,25 +3600,23 @@ func (m *MsgAddAccountCertificate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -3835,7 +3826,7 @@ func (m *MsgDeleteAccountCertificate) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -3845,31 +3836,29 @@ func (m *MsgDeleteAccountCertificate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -3879,25 +3868,23 @@ func (m *MsgDeleteAccountCertificate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -4107,7 +4094,7 @@ func (m *MsgDeleteAccount) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4117,31 +4104,29 @@ func (m *MsgDeleteAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4151,25 +4136,23 @@ func (m *MsgDeleteAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -4313,7 +4296,7 @@ func (m *MsgDeleteDomain) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4323,31 +4306,29 @@ func (m *MsgDeleteDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4357,25 +4338,23 @@ func (m *MsgDeleteDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -4551,7 +4530,7 @@ func (m *MsgRegisterAccount) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4561,31 +4540,29 @@ func (m *MsgRegisterAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4595,31 +4572,29 @@ func (m *MsgRegisterAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Broker", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4629,31 +4604,29 @@ func (m *MsgRegisterAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Broker = append(m.Broker[:0], dAtA[iNdEx:postIndex]...)
-			if m.Broker == nil {
-				m.Broker = []byte{}
-			}
+			m.Broker = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Registerer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4663,25 +4636,23 @@ func (m *MsgRegisterAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Registerer = append(m.Registerer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Registerer == nil {
-				m.Registerer = []byte{}
-			}
+			m.Registerer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
@@ -4859,7 +4830,7 @@ func (m *MsgRegisterDomain) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Admin", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4869,31 +4840,29 @@ func (m *MsgRegisterDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Admin = append(m.Admin[:0], dAtA[iNdEx:postIndex]...)
-			if m.Admin == nil {
-				m.Admin = []byte{}
-			}
+			m.Admin = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4903,31 +4872,29 @@ func (m *MsgRegisterDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Broker", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -4937,25 +4904,23 @@ func (m *MsgRegisterDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Broker = append(m.Broker[:0], dAtA[iNdEx:postIndex]...)
-			if m.Broker == nil {
-				m.Broker = []byte{}
-			}
+			m.Broker = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -5163,7 +5128,7 @@ func (m *MsgRenewAccount) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5173,31 +5138,29 @@ func (m *MsgRenewAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signer == nil {
-				m.Signer = []byte{}
-			}
+			m.Signer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5207,25 +5170,23 @@ func (m *MsgRenewAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -5369,7 +5330,7 @@ func (m *MsgRenewDomain) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5379,31 +5340,29 @@ func (m *MsgRenewDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signer == nil {
-				m.Signer = []byte{}
-			}
+			m.Signer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5413,25 +5372,23 @@ func (m *MsgRenewDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -5607,7 +5564,7 @@ func (m *MsgReplaceAccountResources) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5617,31 +5574,29 @@ func (m *MsgReplaceAccountResources) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5651,25 +5606,23 @@ func (m *MsgReplaceAccountResources) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -5879,7 +5832,7 @@ func (m *MsgReplaceAccountMetadata) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5889,31 +5842,29 @@ func (m *MsgReplaceAccountMetadata) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5923,25 +5874,23 @@ func (m *MsgReplaceAccountMetadata) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -6149,7 +6098,7 @@ func (m *MsgTransferAccount) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6159,31 +6108,29 @@ func (m *MsgTransferAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6193,31 +6140,29 @@ func (m *MsgTransferAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field NewOwner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6227,25 +6172,23 @@ func (m *MsgTransferAccount) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NewOwner = append(m.NewOwner[:0], dAtA[iNdEx:postIndex]...)
-			if m.NewOwner == nil {
-				m.NewOwner = []byte{}
-			}
+			m.NewOwner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 6:
 			if wireType != 0 {
@@ -6409,7 +6352,7 @@ func (m *MsgTransferDomain) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6419,31 +6362,29 @@ func (m *MsgTransferDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
-			if m.Owner == nil {
-				m.Owner = []byte{}
-			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Payer", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6453,31 +6394,29 @@ func (m *MsgTransferDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Payer = append(m.Payer[:0], dAtA[iNdEx:postIndex]...)
-			if m.Payer == nil {
-				m.Payer = []byte{}
-			}
+			m.Payer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field NewAdmin", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6487,25 +6426,23 @@ func (m *MsgTransferDomain) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NewAdmin = append(m.NewAdmin[:0], dAtA[iNdEx:postIndex]...)
-			if m.NewAdmin == nil {
-				m.NewAdmin = []byte{}
-			}
+			m.NewAdmin = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 0 {

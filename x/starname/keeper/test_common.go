@@ -60,17 +60,18 @@ func NewTestCodec() *codec.ProtoCodec {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
 	interfaceRegistry.RegisterInterface("cosmos.base.v1beta1.Msg",
 		(*sdk.Msg)(nil),
-		&types.MsgRegisterDomain{},
-		&types.MsgTransferDomain{},
-		&types.MsgTransferAccount{},
 		&types.MsgAddAccountCertificate{},
-		&types.MsgDeleteAccountCertificate{},
 		&types.MsgDeleteAccount{},
+		&types.MsgDeleteAccountCertificate{},
 		&types.MsgDeleteDomain{},
 		&types.MsgRegisterAccount{},
+		&types.MsgRegisterDomain{},
+		&types.MsgRenewAccount{},
 		&types.MsgRenewDomain{},
-		&types.MsgReplaceAccountResources{},
 		&types.MsgReplaceAccountMetadata{},
+		&types.MsgReplaceAccountResources{},
+		&types.MsgTransferAccount{},
+		&types.MsgTransferDomain{},
 	)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	return cdc

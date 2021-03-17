@@ -7,7 +7,7 @@ import (
 )
 
 // deleteDomain deletes a domain from the store
-func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*types.MsgDeleteDomainResponse, error) {
+func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomainInternal) (*types.MsgDeleteDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -33,7 +33,7 @@ func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomain) (*types
 }
 
 // registerDomain handles the domain registration process
-func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (*types.MsgRegisterDomainResponse, error) {
+func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomainInternal) (*types.MsgRegisterDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -70,7 +70,7 @@ func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (*t
 }
 
 // renewDomain renews a domain
-func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
+func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (*types.MsgRenewDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
@@ -100,7 +100,7 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*types.M
 	return &types.MsgRenewDomainResponse{}, nil
 }
 
-func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {
+func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomainInternal) (*types.MsgTransferDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	c := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

@@ -12,10 +12,46 @@ type MsgWithFeePayer interface {
 	FeePayer() sdk.AccAddress
 }
 
-var _ MsgWithFeePayer = (*MsgAddAccountCertificate)(nil)
+// MsgAddAccountCertificateInternal embeds MsgTransferDomain and adds sdk.Address properties for Owner and Payer
+type MsgAddAccountCertificateInternal struct {
+	MsgAddAccountCertificate
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgAddAccountCertificateInternal struct corresponding to the method receiver
+func (m MsgAddAccountCertificate) ToInternal() *MsgAddAccountCertificateInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgAddAccountCertificateInternal{
+		MsgAddAccountCertificate: m,
+		Owner:                    owner,
+		Payer:                    payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgAddAccountCertificateInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgAddAccountCertificate) FeePayer() sdk.AccAddress {
+func (m *MsgAddAccountCertificateInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -37,7 +73,7 @@ func (m *MsgAddAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.NewCertificate == nil {
@@ -53,16 +89,63 @@ func (m *MsgAddAccountCertificate) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgAddAccountCertificate) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
+// MsgDeleteAccountCertificateInternal embeds MsgDeleteAccountCertificate and adds sdk.Address properties for Owner and Payer
+type MsgDeleteAccountCertificateInternal struct {
+	MsgDeleteAccountCertificate
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgAddAccountCertificateInternal struct corresponding to the method receiver
+func (m MsgDeleteAccountCertificate) ToInternal() *MsgDeleteAccountCertificateInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgDeleteAccountCertificateInternal{
+		MsgDeleteAccountCertificate: m,
+		Owner:                       owner,
+		Payer:                       payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteAccountCertificateInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
+func (m *MsgDeleteAccountCertificateInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -84,7 +167,7 @@ func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.DeleteCertificate == nil {
@@ -100,16 +183,63 @@ func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
+// MsgDeleteAccountInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer
+type MsgDeleteAccountInternal struct {
+	MsgDeleteAccount
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgDeleteAccountInternal struct corresponding to the method receiver
+func (m MsgDeleteAccount) ToInternal() *MsgDeleteAccountInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgDeleteAccountInternal{
+		MsgDeleteAccount: m,
+		Owner:            owner,
+		Payer:            payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
+func (m *MsgDeleteAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -128,7 +258,7 @@ func (m *MsgDeleteAccount) Type() string {
 
 // ValidateBasic implements sdk.Msg
 func (m *MsgDeleteAccount) ValidateBasic() error {
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.Domain == "" {
@@ -148,16 +278,63 @@ func (m *MsgDeleteAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
+// MsgDeleteDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer
+type MsgDeleteDomainInternal struct {
+	MsgDeleteDomain
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgDeleteDomainInternal struct corresponding to the method receiver
+func (m MsgDeleteDomain) ToInternal() *MsgDeleteDomainInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgDeleteDomainInternal{
+		MsgDeleteDomain: m,
+		Owner:           owner,
+		Payer:           payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
+func (m *MsgDeleteDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -179,7 +356,7 @@ func (m *MsgDeleteDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	// success
@@ -193,16 +370,83 @@ func (m *MsgDeleteDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
+// MsgRegisterAccountInternal embeds MsgRegisterAccount and adds sdk.Address properties for Admin, Broker, and Payer
+type MsgRegisterAccountInternal struct {
+	MsgRegisterAccount
+	Owner      sdk.AccAddress
+	Broker     sdk.AccAddress
+	Payer      sdk.AccAddress
+	Registerer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRegisterAccountInternal struct corresponding to the method receiver
+func (m MsgRegisterAccount) ToInternal() *MsgRegisterAccountInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var broker sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var registerer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Broker != "" {
+		broker, err = sdk.AccAddressFromBech32(m.Broker)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Registerer != "" {
+		registerer, err = sdk.AccAddressFromBech32(m.Registerer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRegisterAccountInternal{
+		MsgRegisterAccount: m,
+		Owner:              owner,
+		Broker:             broker,
+		Payer:              payer,
+		Registerer:         registerer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
+func (m *MsgRegisterAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -224,10 +468,10 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner.Empty() {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.Registerer.Empty() {
+	if m.Registerer == "" {
 		return errors.Wrap(ErrInvalidRegisterer, "empty")
 	}
 	return nil
@@ -240,16 +484,73 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Registerer}
+	registerer, err := sdk.AccAddressFromBech32(m.Registerer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Registerer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{registerer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, registerer}
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
+// MsgRegisterDomainInternal embeds MsgRegisterDomain and adds sdk.Address properties for Admin, Broker, and Payer
+type MsgRegisterDomainInternal struct {
+	MsgRegisterDomain
+	Admin  sdk.AccAddress
+	Broker sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRegisterDomainInternal struct corresponding to the method receiver
+func (m MsgRegisterDomain) ToInternal() *MsgRegisterDomainInternal {
+	var err error
+	var admin sdk.AccAddress = nil
+	var broker sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Admin != "" {
+		admin, err = sdk.AccAddressFromBech32(m.Admin)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Broker != "" {
+		broker, err = sdk.AccAddressFromBech32(m.Broker)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRegisterDomainInternal{
+		MsgRegisterDomain: m,
+		Admin:             admin,
+		Broker:            broker,
+		Payer:             payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
+func (m *MsgRegisterDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -268,7 +569,7 @@ func (m *MsgRegisterDomain) Type() string {
 
 // ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
-	if m.Admin == nil {
+	if m.Admin == "" {
 		return errors.Wrap(ErrInvalidRequest, "admin is missing")
 	}
 	if err := ValidateDomainType(m.DomainType); err != nil {
@@ -285,16 +586,63 @@ func (m *MsgRegisterDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Admin}
+	admin, err := sdk.AccAddressFromBech32(m.Admin)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Admin}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{admin}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, admin}
 }
 
-var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
+// MsgRenewAccountInternal embeds MsgRenewAccount and adds sdk.Address properties for Signer and Payer
+type MsgRenewAccountInternal struct {
+	MsgRenewAccount
+	Signer sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRenewAccountInternal struct corresponding to the method receiver
+func (m MsgRenewAccount) ToInternal() *MsgRenewAccountInternal {
+	var err error
+	var signer sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Signer != "" {
+		signer, err = sdk.AccAddressFromBech32(m.Signer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRenewAccountInternal{
+		MsgRenewAccount: m,
+		Signer:          signer,
+		Payer:           payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRenewAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
+func (m *MsgRenewAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -326,16 +674,63 @@ func (m *MsgRenewAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Signer}
+	signer, err := sdk.AccAddressFromBech32(m.Signer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Signer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{signer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, signer}
 }
 
-var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
+// MsgRenewDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Signer and Payer
+type MsgRenewDomainInternal struct {
+	MsgRenewDomain
+	Signer sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRenewDomainInternal struct corresponding to the method receiver
+func (m MsgRenewDomain) ToInternal() *MsgRenewDomainInternal {
+	var err error
+	var signer sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Signer != "" {
+		signer, err = sdk.AccAddressFromBech32(m.Signer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRenewDomainInternal{
+		MsgRenewDomain: m,
+		Signer:         signer,
+		Payer:          payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRenewDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
+func (m *MsgRenewDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -367,16 +762,63 @@ func (m *MsgRenewDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Signer}
+	signer, err := sdk.AccAddressFromBech32(m.Signer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Signer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{signer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, signer}
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
+// MsgReplaceAccountResourcesInternal embeds MsgReplaceAccountResources and adds sdk.Address properties for Owner and Payer
+type MsgReplaceAccountResourcesInternal struct {
+	MsgReplaceAccountResources
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgReplaceAccountResourcesInternal struct corresponding to the method receiver
+func (m MsgReplaceAccountResources) ToInternal() *MsgReplaceAccountResourcesInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgReplaceAccountResourcesInternal{
+		MsgReplaceAccountResources: m,
+		Owner:                      owner,
+		Payer:                      payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgReplaceAccountResourcesInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgReplaceAccountResources) FeePayer() sdk.AccAddress {
+func (m *MsgReplaceAccountResourcesInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -398,7 +840,7 @@ func (m *MsgReplaceAccountResources) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	return nil
@@ -411,16 +853,63 @@ func (m *MsgReplaceAccountResources) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountResources) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
+// MsgReplaceAccountMetadataInternal embeds MsgReplaceAccountMetadata and adds sdk.Address properties for Owner and Payer
+type MsgReplaceAccountMetadataInternal struct {
+	MsgReplaceAccountMetadata
+	Owner sdk.AccAddress
+	Payer sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgReplaceAccountMetadataInternal struct corresponding to the method receiver
+func (m MsgReplaceAccountMetadata) ToInternal() *MsgReplaceAccountMetadataInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgReplaceAccountMetadataInternal{
+		MsgReplaceAccountMetadata: m,
+		Owner:                     owner,
+		Payer:                     payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgReplaceAccountMetadataInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
+func (m *MsgReplaceAccountMetadataInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -442,7 +931,7 @@ func (m *MsgReplaceAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner.Empty() {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	return nil
@@ -455,16 +944,73 @@ func (m *MsgReplaceAccountMetadata) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
+// MsgTransferAccountInternal embeds MsgTransferAccount and adds sdk.Address properties for Owner, Payer, and NewOwner
+type MsgTransferAccountInternal struct {
+	MsgTransferAccount
+	Owner    sdk.AccAddress
+	Payer    sdk.AccAddress
+	NewOwner sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgTransferAccountInternal struct corresponding to the method receiver
+func (m MsgTransferAccount) ToInternal() *MsgTransferAccountInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var newOwner sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.NewOwner != "" {
+		newOwner, err = sdk.AccAddressFromBech32(m.NewOwner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgTransferAccountInternal{
+		MsgTransferAccount: m,
+		Owner:              owner,
+		Payer:              payer,
+		NewOwner:           newOwner,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgTransferAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
+func (m *MsgTransferAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -489,10 +1035,10 @@ func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Name == "" {
 		return errors.Wrap(ErrOpEmptyAcc, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.NewOwner == nil {
+	if m.NewOwner == "" {
 		return errors.Wrap(ErrInvalidOwner, "new owner is empty")
 	}
 	// success
@@ -506,10 +1052,21 @@ func (m *MsgTransferAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
 // TransferFlag defines the type of domain transfer
@@ -526,10 +1083,56 @@ const (
 	TransferAll
 )
 
-var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
+// MsgTransferDomainInternal embeds MsgTransferDomain and adds sdk.Address properties for Owner, Payer, and NewAdmin
+type MsgTransferDomainInternal struct {
+	MsgTransferDomain
+	Owner    sdk.AccAddress
+	Payer    sdk.AccAddress
+	NewAdmin sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgTransferDomainInternal struct corresponding to the method receiver
+func (m MsgTransferDomain) ToInternal() *MsgTransferDomainInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var newAdmin sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.NewAdmin != "" {
+		newAdmin, err = sdk.AccAddressFromBech32(m.NewAdmin)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgTransferDomainInternal{
+		MsgTransferDomain: m,
+		Owner:             owner,
+		Payer:             payer,
+		NewAdmin:          newAdmin,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgTransferDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
+func (m *MsgTransferDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -551,10 +1154,10 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.NewAdmin == nil {
+	if m.NewAdmin == "" {
 		return errors.Wrap(ErrInvalidRequest, "new admin is empty")
 	}
 	switch m.TransferFlag {
@@ -574,8 +1177,19 @@ func (m *MsgTransferDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }

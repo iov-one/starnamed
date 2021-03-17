@@ -30,18 +30,18 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgRegisterDomain{},
-		&MsgTransferDomain{},
-		&MsgTransferAccount{},
 		&MsgAddAccountCertificate{},
-		&MsgDeleteAccountCertificate{},
 		&MsgDeleteAccount{},
+		&MsgDeleteAccountCertificate{},
 		&MsgDeleteDomain{},
 		&MsgRegisterAccount{},
+		&MsgRegisterDomain{},
 		&MsgRenewAccount{},
 		&MsgRenewDomain{},
-		&MsgReplaceAccountResources{},
 		&MsgReplaceAccountMetadata{},
+		&MsgReplaceAccountResources{},
+		&MsgTransferAccount{},
+		&MsgTransferDomain{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

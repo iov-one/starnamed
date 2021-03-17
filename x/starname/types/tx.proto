@@ -41,13 +41,11 @@ message MsgAddAccountCertificate {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // NewCertificate is the new certificate to add
@@ -64,13 +62,11 @@ message MsgDeleteAccountCertificate {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // DeleteCertificate is the certificate to delete
@@ -87,13 +83,11 @@ message MsgDeleteAccount {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
 }
@@ -106,13 +100,11 @@ message MsgDeleteDomain {
     // Domain is the domain of the account
     string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
     // Owner is the owner of the account
-    bytes owner = 2 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 2 [
         (gogoproto.moretags) = "yaml:\"owner\""
    ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
    ];
 }
@@ -127,23 +119,19 @@ message MsgRegisterAccount {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // Broker is the account that facilitated the transaction
-    bytes broker = 5 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string broker = 5 [
         (gogoproto.moretags) = "yaml:\"broker\""
     ];
     // Registerer is the user who registers this account
-    bytes registerer = 6 [
-         (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string registerer = 6 [
          (gogoproto.moretags) = "yaml:\"registerer\""
     ];
     // Resources are the blockchain addresses of the account
@@ -156,18 +144,15 @@ message MsgRegisterAccountResponse {
 // MsgRegisterDomain is the request used to register new domains
 message MsgRegisterDomain {
     string name = 1 [(gogoproto.moretags) = "yaml:\"name\""];
-    bytes admin = 2 [
-        (gogoproto.moretags) = "yaml:\"admin\"",
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    string admin = 2 [
+        (gogoproto.moretags) = "yaml:\"admin\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // Broker is the account that facilitated the transaction
-    bytes broker = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string broker = 4 [
         (gogoproto.moretags) = "yaml:\"broker\""
     ];
     // DomainType defines the type of the domain
@@ -187,13 +172,11 @@ message MsgRenewAccount {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Signer is the signer of the request
-    bytes signer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string signer = 3 [
         (gogoproto.moretags) = "yaml:\"signer\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
 }
@@ -206,13 +189,11 @@ message MsgRenewDomain {
     // Domain is the domain of the account
     string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
     // Signer is the signer of the request
-    bytes signer = 2 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string signer = 2 [
         (gogoproto.moretags) = "yaml:\"signer\""
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
 }
@@ -227,13 +208,11 @@ message MsgReplaceAccountResources {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner"
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // NewResources are the new resources
@@ -252,13 +231,11 @@ message MsgReplaceAccountMetadata {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner"
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // NewMetadataURI is the metadata URI of the account
@@ -279,18 +256,15 @@ message MsgTransferAccount {
     // Name is the name of the account
     string name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     // Owner is the owner of the account
-    bytes owner = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 3 [
         (gogoproto.moretags) = "yaml:\"owner"
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 4 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // NewOwner is the new owner of the account
-    bytes new_owner = 5 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string new_owner = 5 [
         (gogoproto.moretags) = "yaml:\"new_owner"
     ];
     // ToReset if true, removes all old data from account
@@ -308,18 +282,15 @@ message MsgTransferDomain {
     // Domain is the name of the domain
     string domain = 1 [(gogoproto.moretags) = "yaml:\"domain\""];
     // Owner is the owner of the domain
-    bytes owner = 2 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string owner = 2 [
         (gogoproto.moretags) = "yaml:\"owner"
     ];
     // Payer is the address of the entity that pays the product and transaction fees
-    bytes payer = 3 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string payer = 3 [
         (gogoproto.moretags) = "yaml:\"payer\""
     ];
     // NewAdmin is the  new owner of the domain
-    bytes new_admin = 4 [
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    string new_admin = 4 [
         (gogoproto.moretags) = "yaml:\"new_admin"
     ];
     // TransferFlag controls the operations that occurs on a domain's accounts

@@ -161,25 +161,25 @@ func (f feeApplier) defaultFee() sdk.Dec {
 
 func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 	switch msg.(type) {
-	case *types.MsgTransferDomain:
+	case *types.MsgTransferDomainInternal:
 		return f.transferDomain()
-	case *types.MsgRegisterDomain:
+	case *types.MsgRegisterDomainInternal:
 		return f.registerDomain()
-	case *types.MsgRenewDomain:
+	case *types.MsgRenewDomainInternal:
 		return f.renewDomain()
-	case *types.MsgRegisterAccount:
+	case *types.MsgRegisterAccountInternal:
 		return f.registerAccount()
-	case *types.MsgTransferAccount:
+	case *types.MsgTransferAccountInternal:
 		return f.transferAccount()
-	case *types.MsgRenewAccount:
+	case *types.MsgRenewAccountInternal:
 		return f.renewAccount()
-	case *types.MsgReplaceAccountResources:
+	case *types.MsgReplaceAccountResourcesInternal:
 		return f.replaceResources()
-	case *types.MsgDeleteAccountCertificate:
+	case *types.MsgDeleteAccountCertificateInternal:
 		return f.delCert()
-	case *types.MsgAddAccountCertificate:
+	case *types.MsgAddAccountCertificateInternal:
 		return f.addCert()
-	case *types.MsgReplaceAccountMetadata:
+	case *types.MsgReplaceAccountMetadataInternal:
 		return f.setMetadata()
 	default:
 		return f.defaultFee()
