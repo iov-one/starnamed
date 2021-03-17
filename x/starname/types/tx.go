@@ -677,10 +677,56 @@ const (
 	TransferAll
 )
 
-var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
+// MsgTransferDomainInternal embeds MsgTransferDomain and adds sdk.Address properties for Owner, Payer, and NewAdmin
+type MsgTransferDomainInternal struct {
+	MsgTransferDomain
+	Owner    sdk.AccAddress
+	Payer    sdk.AccAddress
+	NewAdmin sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgDeleteTransferInternal struct corresponding to the method receiver
+func (m MsgTransferDomain) ToInternal() *MsgTransferDomainInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var newAdmin sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.NewAdmin != "" {
+		newAdmin, err = sdk.AccAddressFromBech32(m.NewAdmin)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgTransferDomainInternal{
+		MsgTransferDomain: m,
+		Owner:             owner,
+		Payer:             payer,
+		NewAdmin:          newAdmin,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgTransferDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
+func (m *MsgTransferDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -702,10 +748,10 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.NewAdmin == nil {
+	if m.NewAdmin == "" {
 		return errors.Wrap(ErrInvalidRequest, "new admin is empty")
 	}
 	switch m.TransferFlag {
@@ -725,8 +771,19 @@ func (m *MsgTransferDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }

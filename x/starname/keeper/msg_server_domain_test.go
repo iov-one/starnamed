@@ -639,11 +639,11 @@ func Test_transferDomain(t *testing.T) {
 
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferDomain(ctx, k, &types.MsgTransferDomain{
+				_, err := transferDomain(ctx, k, types.MsgTransferDomain{
 					Domain:   "does not exist",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
+					Owner:    "",
+					NewAdmin: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("transferDomain() expected error: %s, got error: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -683,11 +683,11 @@ func Test_transferDomain(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferDomain(ctx, k, &types.MsgTransferDomain{
+				_, err := transferDomain(ctx, k, types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
+					Owner:    "",
+					NewAdmin: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("transferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
 				}
@@ -705,11 +705,11 @@ func Test_transferDomain(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferDomain(ctx, k, &types.MsgTransferDomain{
+				_, err := transferDomain(ctx, k, types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    BobKey,
-					NewAdmin: nil,
-				})
+					Owner:    BobKey.String(),
+					NewAdmin: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("transferDomain() expected error: %s, got error: %s", types.ErrDomainExpired, err)
 				}
@@ -728,11 +728,11 @@ func Test_transferDomain(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferDomain(ctx, k, &types.MsgTransferDomain{
+				_, err := transferDomain(ctx, k, types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    BobKey,
-					NewAdmin: nil,
-				})
+					Owner:    BobKey.String(),
+					NewAdmin: "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("transferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
 				}
@@ -778,12 +778,12 @@ func Test_transferDomain(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := transferDomain(ctx, k, &types.MsgTransferDomain{
+				_, err := transferDomain(ctx, k, types.MsgTransferDomain{
 					Domain:       "test",
-					Owner:        AliceKey,
-					NewAdmin:     BobKey,
+					Owner:        AliceKey.String(),
+					NewAdmin:     BobKey.String(),
 					TransferFlag: types.TransferOwned,
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("transferDomain() got error: %s", err)
 				}

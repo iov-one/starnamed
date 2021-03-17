@@ -100,7 +100,7 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (
 	return &types.MsgRenewDomainResponse{}, nil
 }
 
-func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {
+func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomainInternal) (*types.MsgTransferDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	c := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

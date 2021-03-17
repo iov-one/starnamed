@@ -161,7 +161,7 @@ func (f feeApplier) defaultFee() sdk.Dec {
 
 func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 	switch msg.(type) {
-	case *types.MsgTransferDomain:
+	case *types.MsgTransferDomainInternal:
 		return f.transferDomain()
 	case *types.MsgRegisterDomainInternal:
 		return f.registerDomain()

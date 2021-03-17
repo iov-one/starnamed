@@ -63,5 +63,5 @@ func (m msgServer) TransferAccount(goCtx context.Context, msg *types.MsgTransfer
 }
 
 func (m msgServer) TransferDomain(goCtx context.Context, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {
-	return transferDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return transferDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }

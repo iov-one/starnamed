@@ -395,9 +395,9 @@ MsgTransferDomain is the request model used to transfer a domain
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the name of the domain |
-| owner | [bytes](#bytes) |  | Owner is the owner of the domain |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_admin | [bytes](#bytes) |  | NewAdmin is the new owner of the domain |
+| owner | [string](#string) |  | Owner is the owner of the domain |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_admin | [string](#string) |  | NewAdmin is the new owner of the domain |
 | transfer_flag | [int64](#int64) |  | TransferFlag controls the operations that occurs on a domain&#39;s accounts |
 
 

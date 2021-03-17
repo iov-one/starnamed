@@ -68,7 +68,7 @@ func getCmdTransferDomain() *cobra.Command {
 				return err
 			}
 			// get sdk.AccAddress from string
-			newOwnerAddr, err := sdk.AccAddressFromBech32(newOwner)
+			_, err = sdk.AccAddressFromBech32(newOwner)
 			if err != nil {
 				return err
 			}
@@ -76,9 +76,8 @@ func getCmdTransferDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -86,10 +85,10 @@ func getCmdTransferDomain() *cobra.Command {
 			// build msg
 			msg := &types.MsgTransferDomain{
 				Domain:       domain,
-				Owner:        clientCtx.GetFromAddress(),
-				NewAdmin:     newOwnerAddr,
+				Owner:        clientCtx.GetFromAddress().String(),
+				NewAdmin:     newOwner,
 				TransferFlag: types.TransferFlag(transferFlag),
-				Payer:        feePayer,
+				Payer:        feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
