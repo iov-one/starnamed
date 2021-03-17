@@ -366,9 +366,9 @@ MsgTransferAccount is the request model used to transfer accounts
 | ----- | ---- | ----- | ----------- |
 | domain | [string](#string) |  | Domain is the domain of the account |
 | name | [string](#string) |  | Name is the name of the account |
-| owner | [bytes](#bytes) |  | Owner is the owner of the account |
-| payer | [bytes](#bytes) |  | Payer is the address of the entity that pays the product and transaction fees |
-| new_owner | [bytes](#bytes) |  | NewOwner is the new owner of the account |
+| owner | [string](#string) |  | Owner is the owner of the account |
+| payer | [string](#string) |  | Payer is the address of the entity that pays the product and transaction fees |
+| new_owner | [string](#string) |  | NewOwner is the new owner of the account |
 | reset | [bool](#bool) |  | ToReset if true, removes all old data from account |
 
 

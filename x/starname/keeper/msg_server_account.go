@@ -297,7 +297,7 @@ func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcco
 }
 
 // transferAccount transfers account to a new owner and may clear resources and certificates
-func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {
+func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccountInternal) (*types.MsgTransferAccountResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

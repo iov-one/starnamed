@@ -125,12 +125,12 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(8),
 		},
 		"transfer account closed": {
-			Msg:         &types.MsgTransferAccount{},
+			Msg:         &types.MsgTransferAccountInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain},
 			ExpectedFee: sdk.NewDec(5),
 		},
 		"transfer account open": {
-			Msg:         &types.MsgTransferAccount{},
+			Msg:         &types.MsgTransferAccountInternal{},
 			Domain:      types.Domain{Type: types.OpenDomain},
 			ExpectedFee: sdk.NewDec(6),
 		},

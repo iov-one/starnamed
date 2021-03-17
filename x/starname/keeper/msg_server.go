@@ -59,7 +59,7 @@ func (m msgServer) ReplaceAccountResources(goCtx context.Context, msg *types.Msg
 }
 
 func (m msgServer) TransferAccount(goCtx context.Context, msg *types.MsgTransferAccount) (*types.MsgTransferAccountResponse, error) {
-	return transferAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return transferAccount(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) TransferDomain(goCtx context.Context, msg *types.MsgTransferDomain) (*types.MsgTransferDomainResponse, error) {

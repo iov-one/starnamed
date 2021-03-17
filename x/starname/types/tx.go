@@ -961,10 +961,56 @@ func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{payer, owner}
 }
 
-var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
+// MsgTransferAccountInternal embeds MsgTransferAccount and adds sdk.Address properties for Owner, Payer, and NewOwner
+type MsgTransferAccountInternal struct {
+	MsgTransferAccount
+	Owner    sdk.AccAddress
+	Payer    sdk.AccAddress
+	NewOwner sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgTransferAccountInternal struct corresponding to the method receiver
+func (m MsgTransferAccount) ToInternal() *MsgTransferAccountInternal {
+	var err error
+	var owner sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+	var newOwner sdk.AccAddress = nil
+
+	if m.Owner != "" {
+		owner, err = sdk.AccAddressFromBech32(m.Owner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.NewOwner != "" {
+		newOwner, err = sdk.AccAddressFromBech32(m.NewOwner)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgTransferAccountInternal{
+		MsgTransferAccount: m,
+		Owner:              owner,
+		Payer:              payer,
+		NewOwner:           newOwner,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgTransferAccountInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
+func (m *MsgTransferAccountInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -989,10 +1035,10 @@ func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Name == "" {
 		return errors.Wrap(ErrOpEmptyAcc, "empty")
 	}
-	if m.Owner == nil {
+	if m.Owner == "" {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.NewOwner == nil {
+	if m.NewOwner == "" {
 		return errors.Wrap(ErrInvalidOwner, "new owner is empty")
 	}
 	// success
@@ -1006,10 +1052,21 @@ func (m *MsgTransferAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Owner}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Owner}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{owner}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, owner}
 }
 
 // TransferFlag defines the type of domain transfer
