@@ -117,7 +117,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(11),
 		},
 		"add certs": {
-			Msg:         &types.MsgAddAccountCertificate{},
+			Msg:         &types.MsgAddAccountCertificateInternal{},
 			ExpectedFee: sdk.NewDec(9),
 		},
 		"replace resources": {

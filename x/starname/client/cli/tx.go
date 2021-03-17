@@ -594,9 +594,8 @@ func getCmdAddAccountCertificate() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -605,9 +604,9 @@ func getCmdAddAccountCertificate() *cobra.Command {
 			msg := &types.MsgAddAccountCertificate{
 				Domain:         domain,
 				Name:           name,
-				Owner:          clientCtx.GetFromAddress(),
+				Owner:          clientCtx.GetFromAddress().String(),
 				NewCertificate: c,
-				Payer:          feePayer,
+				Payer:          feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

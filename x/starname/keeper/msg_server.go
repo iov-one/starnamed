@@ -19,7 +19,7 @@ func NewMsgServerImpl(k *Keeper) types.MsgServer {
 }
 
 func (m msgServer) AddAccountCertificate(goCtx context.Context, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
-	return addAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return addAccountCertificate(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) DeleteAccount(goCtx context.Context, msg *types.MsgDeleteAccount) (*types.MsgDeleteAccountResponse, error) {

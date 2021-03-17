@@ -9,7 +9,7 @@ import (
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
-func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificate) (*types.MsgAddAccountCertificateResponse, error) {
+func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificateInternal) (*types.MsgAddAccountCertificateResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

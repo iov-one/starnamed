@@ -39,12 +39,12 @@ func Test_Close_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -80,12 +80,12 @@ func Test_Open_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -102,12 +102,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "does not exist",
 					Name:           "",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -127,12 +127,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -151,12 +151,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "does not exist",
-					Owner:          nil,
+					Owner:          "",
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -182,12 +182,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -213,12 +213,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          BobKey,
+					Owner:          BobKey.String(),
 					NewCertificate: nil,
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -250,12 +250,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("test"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateExists) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -287,21 +287,21 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("12345"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateSizeExceeded) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err = addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("1234"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -333,21 +333,21 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("12345"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
-				_, err = addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err = addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("1234"),
-				})
+				}.ToInternal())
 				if !errors.Is(err, types.ErrCertificateLimitReached) {
 					t.Fatalf("addAccountCertificate() expected error: %s, got: %s", types.ErrCertificateExists, err)
 				}
@@ -378,12 +378,12 @@ func Test_Common_addAccountCertificate(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := addAccountCertificate(ctx, k, &types.MsgAddAccountCertificate{
+				_, err := addAccountCertificate(ctx, k, types.MsgAddAccountCertificate{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          AliceKey,
+					Owner:          AliceKey.String(),
 					NewCertificate: []byte("test"),
-				})
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("addAccountCertificate() got error: %s", err)
 				}
