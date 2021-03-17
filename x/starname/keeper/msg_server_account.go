@@ -262,7 +262,7 @@ func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcc
 }
 
 // replaceAccountMetadata sets account metadata
-func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {
+func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAccountMetadataInternal) (*types.MsgReplaceAccountMetadataResponse, error) {
 	// perform domain checks
 	domains := k.DomainStore(ctx)
 	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)

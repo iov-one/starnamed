@@ -797,9 +797,8 @@ func getCmdSetAccountMetadata() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -807,8 +806,8 @@ func getCmdSetAccountMetadata() *cobra.Command {
 			msg := &types.MsgReplaceAccountMetadata{
 				Domain:         domain,
 				Name:           name,
-				Owner:          clientCtx.GetFromAddress(),
-				Payer:          feePayer,
+				Owner:          clientCtx.GetFromAddress().String(),
+				Payer:          feePayerStr,
 				NewMetadataURI: metadata,
 			}
 			// check if valid

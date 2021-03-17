@@ -109,7 +109,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(33),
 		},
 		"set metadata": {
-			Msg:         &types.MsgReplaceAccountMetadata{},
+			Msg:         &types.MsgReplaceAccountMetadataInternal{},
 			ExpectedFee: sdk.NewDec(15),
 		},
 		"delete certs": {

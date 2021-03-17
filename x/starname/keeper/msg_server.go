@@ -51,7 +51,7 @@ func (m msgServer) RenewDomain(goCtx context.Context, msg *types.MsgRenewDomain)
 }
 
 func (m msgServer) ReplaceAccountMetadata(goCtx context.Context, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {
-	return replaceAccountMetadata(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return replaceAccountMetadata(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) ReplaceAccountResources(goCtx context.Context, msg *types.MsgReplaceAccountResources) (*types.MsgReplaceAccountResourcesResponse, error) {

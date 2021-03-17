@@ -179,7 +179,7 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.delCert()
 	case *types.MsgAddAccountCertificateInternal:
 		return f.addCert()
-	case *types.MsgReplaceAccountMetadata:
+	case *types.MsgReplaceAccountMetadataInternal:
 		return f.setMetadata()
 	default:
 		return f.defaultFee()

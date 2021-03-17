@@ -2249,11 +2249,11 @@ func Test_Closed_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -2290,11 +2290,11 @@ func Test_Open_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountExpired) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
@@ -2311,11 +2311,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "does not exist",
 					Name:   "",
-					Owner:  AliceKey,
-				})
+					Owner:  AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -2333,12 +2333,12 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "",
 					NewMetadataURI: "",
-					Owner:          nil,
-				})
+					Owner:          "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrDomainExpired, err)
 				}
@@ -2358,11 +2358,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "does not exist",
-					Owner:  nil,
-				})
+					Owner:  "",
+				}.ToInternal())
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
 				}
@@ -2389,11 +2389,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  CharlieKey,
-				})
+					Owner:  CharlieKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2420,11 +2420,11 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  BobKey,
-				})
+					Owner:  BobKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("replaceAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
@@ -2454,21 +2454,21 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if !errors.Is(err, types.ErrMetadataSizeExceeded) {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
-				_, err = replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err = replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "12",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
@@ -2497,12 +2497,12 @@ func Test_Common_replaceAccountMetadata(t *testing.T) {
 				}).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := replaceAccountMetadata(ctx, k, &types.MsgReplaceAccountMetadata{
+				_, err := replaceAccountMetadata(ctx, k, types.MsgReplaceAccountMetadata{
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          AliceKey,
-				})
+					Owner:          AliceKey.String(),
+				}.ToInternal())
 				if err != nil {
 					t.Fatalf("replaceAccountMetadata() got error: %s", err)
 				}
