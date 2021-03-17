@@ -68,6 +68,7 @@ func NewTestCodec() *codec.ProtoCodec {
 		&types.MsgDeleteAccount{},
 		&types.MsgDeleteDomain{},
 		&types.MsgRegisterAccount{},
+		&types.MsgRenewAccount{},
 		&types.MsgRenewDomain{},
 		&types.MsgReplaceAccountResources{},
 		&types.MsgReplaceAccountMetadata{},

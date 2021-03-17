@@ -47,7 +47,7 @@ func (m msgServer) RenewAccount(goCtx context.Context, msg *types.MsgRenewAccoun
 }
 
 func (m msgServer) RenewDomain(goCtx context.Context, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
-	return renewDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg)
+	return renewDomain(sdk.UnwrapSDKContext(goCtx), *m.keeper, msg.ToInternal())
 }
 
 func (m msgServer) ReplaceAccountMetadata(goCtx context.Context, msg *types.MsgReplaceAccountMetadata) (*types.MsgReplaceAccountMetadataResponse, error) {

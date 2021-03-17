@@ -436,10 +436,46 @@ func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Payer, m.Signer}
 }
 
-var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
+// MsgRenewDomainInternal embeds MsgDeleteDomain and adds sdk.Address properties for Owner and Payer
+type MsgRenewDomainInternal struct {
+	MsgRenewDomain
+	Signer sdk.AccAddress
+	Payer  sdk.AccAddress
+}
+
+// ToInternal returns a pointer to the MsgRenewDomainInternal struct corresponding to the method receiver
+func (m MsgRenewDomain) ToInternal() *MsgRenewDomainInternal {
+	var err error
+	var signer sdk.AccAddress = nil
+	var payer sdk.AccAddress = nil
+
+	if m.Signer != "" {
+		signer, err = sdk.AccAddressFromBech32(m.Signer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if m.Payer != "" {
+		payer, err = sdk.AccAddressFromBech32(m.Payer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgi := MsgRenewDomainInternal{
+		MsgRenewDomain: m,
+		Signer:         signer,
+		Payer:          payer,
+	}
+
+	return &msgi
+}
+
+var _ MsgWithFeePayer = (*MsgRenewDomainInternal)(nil)
 
 // FeePayer implements FeePayer interface
-func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
+func (m *MsgRenewDomainInternal) FeePayer() sdk.AccAddress {
 	if !m.Payer.Empty() {
 		return m.Payer
 	}
@@ -471,10 +507,21 @@ func (m *MsgRenewDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
-	if m.Payer.Empty() {
-		return []sdk.AccAddress{m.Signer}
+	signer, err := sdk.AccAddressFromBech32(m.Signer)
+	if err != nil {
+		panic(err)
 	}
-	return []sdk.AccAddress{m.Payer, m.Signer}
+
+	if m.Payer == "" {
+		return []sdk.AccAddress{signer}
+	}
+
+	payer, err := sdk.AccAddressFromBech32(m.Payer)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{payer, signer}
 }
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)

@@ -586,7 +586,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				GetConfigSetter(k.ConfigurationKeeper).SetConfig(ctx, configuration.Config{})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewDomain(ctx, k, &types.MsgRenewDomain{Domain: "does not exist"})
+				_, err := renewDomain(ctx, k, types.MsgRenewDomain{Domain: "does not exist"}.ToInternal())
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("renewDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -613,7 +613,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				}).WithDomains(&domains).WithAccounts(&accounts).Create()
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mocks *Mocks) {
-				_, err := renewDomain(ctx, k, &types.MsgRenewDomain{Domain: "test"})
+				_, err := renewDomain(ctx, k, types.MsgRenewDomain{Domain: "test"}.ToInternal())
 				if err != nil {
 					t.Fatalf("renewDomain() got error: %s", err)
 				}

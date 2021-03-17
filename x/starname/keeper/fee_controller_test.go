@@ -48,42 +48,42 @@ func Test_FeeApplier(t *testing.T) {
 		ExpectedFee sdk.Dec
 	}{
 		"register closed domain 5": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "test1",
 			},
 			ExpectedFee: sdk.NewDec(14),
 		},
 		"register closed domain 4": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "test",
 			},
 			ExpectedFee: sdk.NewDec(13),
 		},
 		"register closed domain 3": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "tes",
 			},
 			ExpectedFee: sdk.NewDec(12),
 		},
 		"register closed domain 2": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "te",
 			},
 			ExpectedFee: sdk.NewDec(11),
 		},
 		"register closed domain 1": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "t",
 			},
 			ExpectedFee: sdk.NewDec(10),
 		},
 		"register open domain 5": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "test1",
 				Type: types.OpenDomain,
@@ -91,7 +91,7 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(28),
 		},
 		"register open domain default": {
-			Msg: &types.MsgRegisterDomain{},
+			Msg: &types.MsgRegisterDomainInternal{},
 			Domain: types.Domain{
 				Name: "test12",
 				Type: types.ClosedDomain,
@@ -155,12 +155,12 @@ func Test_FeeApplier(t *testing.T) {
 			ExpectedFee: sdk.NewDec(3),
 		},
 		"renew domain open": {
-			Msg:         &types.MsgRenewDomain{},
+			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.OpenDomain},
 			ExpectedFee: sdk.NewDec(14),
 		},
 		"renew domain closed": {
-			Msg:         &types.MsgRenewDomain{},
+			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "renew"},
 			ExpectedFee: sdk.NewDec(20), // 5-char domain + its three accounts-> "", "1", "2"; so 28/2 + 4/2*3=20
 		},
@@ -171,7 +171,7 @@ func Test_FeeApplier(t *testing.T) {
 		},
 		*/
 		"use default fee": {
-			Msg:         &types.MsgRenewDomain{},
+			Msg:         &types.MsgRenewDomainInternal{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "default-fee"},
 			ExpectedFee: sdk.NewDec(17), // 6+char domain + one account ""; so 30/2 + 4/2 * 1 = 17
 		},

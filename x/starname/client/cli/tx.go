@@ -273,9 +273,8 @@ func getCmdDeleteDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -284,7 +283,7 @@ func getCmdDeleteDomain() *cobra.Command {
 			msg := &types.MsgDeleteDomain{
 				Domain: domain,
 				Owner:  clientCtx.GetFromAddress().String(),
-				Payer:  feePayer.String(),
+				Payer:  feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -373,9 +372,8 @@ func getCmdRenewDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -383,8 +381,8 @@ func getCmdRenewDomain() *cobra.Command {
 			// build msg
 			msg := &types.MsgRenewDomain{
 				Domain: domain,
-				Signer: clientCtx.GetFromAddress(),
-				Payer:  feePayer,
+				Signer: clientCtx.GetFromAddress().String(),
+				Payer:  feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -731,7 +729,6 @@ func getCmdRegisterDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
@@ -739,9 +736,8 @@ func getCmdRegisterDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var feePayer sdk.AccAddress
 			if feePayerStr != "" {
-				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				_, err = sdk.AccAddressFromBech32(feePayerStr)
 				if err != nil {
 					return err
 				}
@@ -750,9 +746,8 @@ func getCmdRegisterDomain() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var broker sdk.AccAddress
 			if brokerStr != "" {
-				broker, err = sdk.AccAddressFromBech32(brokerStr)
+				_, err = sdk.AccAddressFromBech32(brokerStr)
 				if err != nil {
 					return err
 				}
@@ -761,8 +756,8 @@ func getCmdRegisterDomain() *cobra.Command {
 				Name:       domain,
 				Admin:      clientCtx.GetFromAddress().String(),
 				DomainType: types.DomainType(dType),
-				Broker:     broker.String(),
-				Payer:      feePayer.String(),
+				Broker:     brokerStr,
+				Payer:      feePayerStr,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

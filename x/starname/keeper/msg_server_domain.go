@@ -70,7 +70,7 @@ func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomainInter
 }
 
 // renewDomain renews a domain
-func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomain) (*types.MsgRenewDomainResponse, error) {
+func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (*types.MsgRenewDomainResponse, error) {
 	// do precondition and authorization checks
 	domains := k.DomainStore(ctx)
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
