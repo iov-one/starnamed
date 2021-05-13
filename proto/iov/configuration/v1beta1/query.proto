@@ -3,7 +3,7 @@ package wasmd.x.configuration.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "x/configuration/types/types.proto";
+import "iov/configuration/v1beta1/types.proto";
 
 option go_package = "github.com/iov-one/starnamed/x/configuration/types";
 option (gogoproto.goproto_getters_all) = false;

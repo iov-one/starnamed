@@ -3,7 +3,7 @@ package starnamed.x.starname.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "x/starname/types/types.proto";
+import "iov/starname/v1beta1/types.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
 option go_package = "github.com/iov-one/starnamed/x/starname/types";

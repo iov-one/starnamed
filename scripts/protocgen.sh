@@ -13,7 +13,7 @@ protoc_gen_gocosmos() {
 
 protoc_gen_gocosmos
 
-proto_dirs=$(find ./proto ./x/starname ./x/configuration -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
   buf protoc \
   -I "proto" \
@@ -34,5 +34,5 @@ buf protoc \
 $(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
 
 # move proto files to the right places
-cp -r github.com/CosmWasm/wasmd/* ./
+cp -r github.com/iov-one/starnamed/* ./
 rm -rf github.com

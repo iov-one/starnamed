@@ -2,7 +2,7 @@ syntax="proto3";
 package starnamed.x.starname.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "x/starname/types/types.proto";
+import "iov/starname/v1beta1/types.proto";
 
 option go_package="github.com/iov-one/starnamed/x/starname/types";
 
