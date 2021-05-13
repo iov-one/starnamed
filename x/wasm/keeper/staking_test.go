@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"encoding/json"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	"io/ioutil"
 	"testing"
 
