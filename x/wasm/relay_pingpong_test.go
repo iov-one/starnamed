@@ -3,11 +3,7 @@ package wasm_test
 import (
 	"encoding/json"
 	"fmt"
-	wasmd "github.com/iov-one/starnamed/app"
-	wasmibctesting "github.com/iov-one/starnamed/x/wasm/ibctesting"
-	wasmkeeper "github.com/iov-one/starnamed/x/wasm/internal/keeper"
-	"github.com/iov-one/starnamed/x/wasm/internal/keeper/wasmtesting"
-	wasmtypes "github.com/iov-one/starnamed/x/wasm/internal/types"
+
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -15,6 +11,11 @@ import (
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	ibcexported "github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
+	wasmd "github.com/iov-one/starnamed/app"
+	wasmibctesting "github.com/iov-one/starnamed/x/wasm/ibctesting"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
+	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
+	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -171,9 +172,11 @@ func (p *player) Execute(code wasmvm.Checksum, env wasmvmtypes.Env, info wasmvmt
 					SendPacket: &wasmvmtypes.SendPacketMsg{
 						ChannelID: start.ChannelID,
 						Data:      service.GetBytes(),
-						TimeoutBlock: &wasmvmtypes.IBCTimeoutBlock{
-							Revision: doNotTimeout.RevisionNumber,
-							Height:   doNotTimeout.RevisionHeight,
+						Timeout: wasmvmtypes.IBCTimeout{
+							Block: &wasmvmtypes.IBCTimeoutBlock{
+								Revision: doNotTimeout.RevisionNumber,
+								Height:   doNotTimeout.RevisionHeight,
+							},
 						},
 					},
 				},
@@ -271,9 +274,11 @@ func (p player) IBCPacketReceive(codeID wasmvm.Checksum, env wasmvmtypes.Env, pa
 	respHit := &wasmvmtypes.IBCMsg{SendPacket: &wasmvmtypes.SendPacketMsg{
 		ChannelID: packet.Src.ChannelID,
 		Data:      newHit.GetBytes(),
-		TimeoutBlock: &wasmvmtypes.IBCTimeoutBlock{
-			Revision: doNotTimeout.RevisionNumber,
-			Height:   doNotTimeout.RevisionHeight,
+		Timeout: wasmvmtypes.IBCTimeout{
+			Block: &wasmvmtypes.IBCTimeoutBlock{
+				Revision: doNotTimeout.RevisionNumber,
+				Height:   doNotTimeout.RevisionHeight,
+			},
 		},
 	}}
 	p.incrementCounter(sentBallsCountKey, store)

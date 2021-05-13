@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 )
 

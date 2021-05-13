@@ -20,8 +20,8 @@ import (
 	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/iov-one/starnamed/x/wasm/internal/keeper"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -101,7 +101,7 @@ func TestGenesisStoreCodeCmd(t *testing.T) {
 			homeDir := setupGenesis(t, spec.srcGenesis)
 
 			// when
-			cmd := GenesisStoreCodeCmd(homeDir)
+			cmd := GenesisStoreCodeCmd(homeDir, NewDefaultGenesisIO())
 			spec.mutator(cmd)
 			err := executeCmdWithContext(t, homeDir, cmd)
 			if spec.expError {
@@ -299,7 +299,7 @@ func TestInstantiateContractCmd(t *testing.T) {
 			homeDir := setupGenesis(t, spec.srcGenesis)
 
 			// when
-			cmd := GenesisInstantiateContractCmd(homeDir)
+			cmd := GenesisInstantiateContractCmd(homeDir, NewDefaultGenesisIO())
 			spec.mutator(cmd)
 			err := executeCmdWithContext(t, homeDir, cmd)
 			if spec.expError {
@@ -498,7 +498,7 @@ func TestExecuteContractCmd(t *testing.T) {
 	for msg, spec := range specs {
 		t.Run(msg, func(t *testing.T) {
 			homeDir := setupGenesis(t, spec.srcGenesis)
-			cmd := GenesisExecuteContractCmd(homeDir)
+			cmd := GenesisExecuteContractCmd(homeDir, NewDefaultGenesisIO())
 			spec.mutator(cmd)
 
 			// when

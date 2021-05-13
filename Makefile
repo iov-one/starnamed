@@ -9,8 +9,9 @@ BINDIR ?= $(GOPATH)/bin
 SIMAPP = ./app
 
 # for dockerized protobuf tools
-PROTO_CONTAINER := cosmwasm/prototools-docker:v0.1.0
-DOCKER_BUF := docker run --rm -v $(shell pwd)/buf.yaml:/workspace/buf.yaml -v $(shell go list -f "{{ .Dir }}" -m github.com/cosmos/cosmos-sdk):/workspace/cosmos_sdk_dir -v $(shell pwd):/workspace/wasmd  --workdir /workspace $(PROTO_CONTAINER)
+DOCKER := $(shell which docker)
+BUF_IMAGE=bufbuild/buf@sha256:9dc5d6645f8f8a2d5aaafc8957fbbb5ea64eada98a84cb09654e8f49d6f73b3e
+DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(BUF_IMAGE)
 HTTPS_GIT := https://github.com/CosmWasm/wasmd.git
 
 export GO111MODULE = on
@@ -67,34 +68,7 @@ endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
-coral_ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=coral \
-				  -X github.com/cosmos/cosmos-sdk/version.AppName=corald \
-				  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-				  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-				  -X github.com/CosmWasm/wasmd/app.NodeDir=.corald \
-				  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=coral \
-				  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
-# we could consider enabling governance override?
-#				  -X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin \
-
-coral_ldflags += $(LDFLAGS)
-coral_ldflags := $(strip $(coral_ldflags))
-
-flex_ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=gaiaflex \
-				  -X github.com/cosmos/cosmos-sdk/version.AppName=gaiaflexd \
-				  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-				  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-				  -X github.com/CosmWasm/wasmd/app.ProposalsEnabled=true \
-				  -X github.com/CosmWasm/wasmd/app.NodeDir=.gaiaflexd \
-				  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=cosmos \
-				  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
-
-flex_ldflags += $(LDFLAGS)
-flex_ldflags := $(strip $(flex_ldflags))
-
 BUILD_FLAGS := -tags "$(build_tags_comma_sep)" -ldflags '$(ldflags)' -trimpath
-CORAL_BUILD_FLAGS := -tags "$(build_tags_comma_sep)" -ldflags '$(coral_ldflags)' -trimpath
-FLEX_BUILD_FLAGS := -tags "$(build_tags_comma_sep)" -ldflags '$(flex_ldflags)' -trimpath
 
 # The below include contains the tools and runsim targets.
 include contrib/devtools/Makefile
@@ -107,23 +81,6 @@ ifeq ($(OS),Windows_NT)
 else
 	go build -mod=readonly $(BUILD_FLAGS) -o build/wasmd ./cmd/wasmd
 endif
-
-build-coral: go.sum
-ifeq ($(OS),Windows_NT)
-	exit 1
-else
-	go build -mod=readonly $(CORAL_BUILD_FLAGS) -o build/corald ./cmd/wasmd
-endif
-
-build-gaiaflex: go.sum
-ifeq ($(OS),Windows_NT)
-	exit 1
-else
-	go build -mod=readonly $(FLEX_BUILD_FLAGS) -o build/gaiaflexd ./cmd/wasmd
-endif
-
-build-linux: go.sum
-	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
 build-contract-tests-hooks:
 ifeq ($(OS),Windows_NT)
@@ -201,30 +158,31 @@ format:
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
+PROTO_BUILDER_IMAGE=tendermintdev/sdk-proto-gen@sha256:372dce7be2f465123e26459973ca798fc489ff2c75aeecd814c0ca8ced24faca
+PROTO_FORMATTER_IMAGE=tendermintdev/docker-build-proto@sha256:aabcfe2fc19c31c0f198d4cd26393f5e5ca9502d7ea3feafbfe972448fee7cae
 
-proto-all: proto-gen proto-lint proto-check-breaking
-.PHONY: proto-all
+proto-all: proto-format proto-lint proto-gen
 
-proto-gen: proto-lint
-	@docker run --rm \
-	  -v $(shell go list -f "{{ .Dir }}" -m github.com/cosmos/cosmos-sdk):/workspace/cosmos_sdk_dir \
-	  -v $(shell go list -f "{{ .Dir }}" -m github.com/gogo/protobuf):/workspace/protobuf_dir \
-	  -v $(shell pwd):/workspace \
-	  --workdir /workspace \
-	  --env COSMOS_SDK_DIR=/workspace/cosmos_sdk_dir \
-	  --env PROTOBUF_DIR=/workspace/protobuf_dir \
-	  $(PROTO_CONTAINER) ./scripts/protocgen.sh
-.PHONY: proto-gen
+proto-gen:
+	@echo "Generating Protobuf files"
+	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(PROTO_BUILDER_IMAGE) sh ./scripts/protocgen.sh
+
+proto-format:
+	@echo "Formatting Protobuf files"
+	$(DOCKER) run --rm -v $(CURDIR):/workspace \
+	--workdir /workspace $(PROTO_FORMATTER_IMAGE) \
+	find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
+
+proto-swagger-gen:
+	@./scripts/protoc-swagger-gen.sh
 
 proto-lint:
-	@$(DOCKER_BUF) buf check lint --error-format=json
-.PHONY: proto-lint
+	@$(DOCKER_BUF) check lint --error-format=json
 
 proto-check-breaking:
-	@$(DOCKER_BUF) buf check breaking --against-input $(HTTPS_GIT)#branch=master
-.PHONY: proto-check-breaking
+	@$(DOCKER_BUF) check breaking --against-input $(HTTPS_GIT)#branch=master
 
-.PHONY: all build-linux install install-debug \
+.PHONY: all install install-debug \
 	go-mod-cache draw-deps clean build format \
 	test test-all test-build test-cover test-unit test-race \
 	test-sim-import-export \

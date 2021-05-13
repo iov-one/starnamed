@@ -1,8 +1,8 @@
 package simulation
 
 import (
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // RandomizeGenState generates a random GenesisState for wasm
