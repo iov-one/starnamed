@@ -13,49 +13,26 @@ protoc_gen_gocosmos() {
 
 protoc_gen_gocosmos
 
-# TODO: FIXME: dmjp
+proto_dirs=$(find ./proto ./x/starname ./x/configuration -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+for dir in $proto_dirs; do
+  buf protoc \
+  -I "proto" \
+  -I "third_party/proto" \
+  --gocosmos_out=plugins=interfacetype+grpc,\
+Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:. \
+  --grpc-gateway_out=logtostderr=true:. \
+  $(find "${dir}" -maxdepth 1 -name '*.proto')
 
-PROJECT_PROTO_DIR=x/wasm/internal/types/
-COSMOS_SDK_DIR=${COSMOS_SDK_DIR:-$(go list -f "{{ .Dir }}" -m github.com/cosmos/cosmos-sdk)}
-PROTOBUF_DIR=${PROTOBUF_DIR:-$(go list -f "{{ .Dir }}" -m github.com/gogo/protobuf)}
+done
+#
+## command to generate docs using protoc-gen-doc
+buf protoc \
+-I "proto" \
+-I "third_party/proto" \
+--doc_out=./docs/proto \
+--doc_opt=./docs/proto/protodoc-markdown.tmpl,proto-docs.md \
+$(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
 
-# Generate Go types from protobuf
-protoc \
-  -I=. \
-  -I="$COSMOS_SDK_DIR/third_party/proto" \
-  -I="$COSMOS_SDK_DIR/proto" \
-  --gocosmos_out=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,plugins=interfacetype+grpc,paths=source_relative:. \
-  --grpc-gateway_out .\
-  --grpc-gateway_opt logtostderr=true \
-  --grpc-gateway_opt paths=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,paths=source_relative \
-  --doc_out=./doc \
-  --doc_opt=markdown,wasm.md \
-  $(find "${PROJECT_PROTO_DIR}" -maxdepth 1 -name '*.proto')
-
-# Generate Go from protobuf types for the configuration module
-protoc \
-  -I=. \
-  -I="$COSMOS_SDK_DIR/third_party/proto" \
-  -I="$COSMOS_SDK_DIR/proto" \
-  -I="$PROTOBUF_DIR/protobuf" \
-  --gocosmos_out=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,plugins=interfacetype+grpc,paths=source_relative:. \
-  --grpc-gateway_out .\
-  --grpc-gateway_opt logtostderr=true \
-  --grpc-gateway_opt paths=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative \
-  --doc_out=./doc \
-  --doc_opt=markdown,configuration.md \
-  $(find x/configuration/types -maxdepth 1 -name '*.proto')
-
-# Generate Go types from protobuf for the starname module
-protoc \
-  -I=. \
-  -I="$COSMOS_SDK_DIR/third_party/proto" \
-  -I="$COSMOS_SDK_DIR/proto" \
-  -I="$PROTOBUF_DIR/protobuf" \
-  --gocosmos_out=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,plugins=interfacetype+grpc,paths=source_relative:. \
-  --grpc-gateway_out .\
-  --grpc-gateway_opt logtostderr=true \
-  --grpc-gateway_opt paths=Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types,Mgoogle/protobuf/empty.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative \
-  --doc_out=./doc \
-  --doc_opt=markdown,starname.md \
-  $(find x/starname/types -maxdepth 1 -name '*.proto')
+# move proto files to the right places
+cp -r github.com/CosmWasm/wasmd/* ./
+rm -rf github.com
