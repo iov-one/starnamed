@@ -15,7 +15,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"

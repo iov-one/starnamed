@@ -15,7 +15,6 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/golang/protobuf/proto"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"

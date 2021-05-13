@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -54,7 +56,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/require"

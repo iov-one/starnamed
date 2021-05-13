@@ -24,8 +24,6 @@ import (
 	fuzz "github.com/google/gofuzz"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
-	"github.com/iov-one/starnamed/x/wasm/types"
-	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"

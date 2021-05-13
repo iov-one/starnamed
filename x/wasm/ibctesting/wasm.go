@@ -12,7 +12,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	wasmd "github.com/iov-one/starnamed/app"
 	"github.com/iov-one/starnamed/x/wasm/types"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/rand"
