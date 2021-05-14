@@ -8,7 +8,7 @@ import tmp from "tmp";
 
 const tmpFiles = [];
 
-export const binary = process.env.wasmd;
+export const binary = process.env.BINARY;
 export const chain = process.env.CHAIN;
 export const denomFee = process.env.DENOM_FEE;
 export const denomStake = process.env.DENOM_STAKE;
