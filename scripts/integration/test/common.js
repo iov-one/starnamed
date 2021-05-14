@@ -211,11 +211,13 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       `${dirSdk}/proto`,
       "-import-path",
-      ".", // chdir() below
+      "./proto", // chdir() below
       "-proto",
-      "./x/wasm/internal/types/query.proto",
+      "./proto/cosmwasm/wasm/v1beta1/query.proto",
       "-proto",
-      "./x/starname/types/query.proto",
+      "./proto/iov/starname/v1beta1/query.proto",
+      "-proto",
+      "./proto/iov/configuration/v1beta1/query.proto",
    ];
    if ( args ) grpcurlargs.push( ...args );
    grpcurlargs.push( urlGRpc );
