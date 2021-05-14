@@ -6,9 +6,9 @@ import tmp from "tmp";
 
 "use strict";
 
-const binary = "wasmd";
 const tmpFiles = [];
 
+export const binary = process.env.BINARY;
 export const chain = process.env.CHAIN;
 export const denomFee = process.env.DENOM_FEE;
 export const denomStake = process.env.DENOM_STAKE;
@@ -211,11 +211,13 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       `${dirSdk}/proto`,
       "-import-path",
-      ".", // chdir() below
+      "./proto", // chdir() below
       "-proto",
-      "./x/wasm/internal/types/query.proto",
+      "./proto/cosmwasm/wasm/v1beta1/query.proto",
       "-proto",
-      "./x/starname/types/query.proto",
+      "./proto/iov/starname/v1beta1/query.proto",
+      "-proto",
+      "./proto/iov/configuration/v1beta1/query.proto",
    ];
    if ( args ) grpcurlargs.push( ...args );
    grpcurlargs.push( urlGRpc );

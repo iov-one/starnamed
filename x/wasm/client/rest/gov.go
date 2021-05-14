@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 type StoreCodeProposalJsonReq struct {

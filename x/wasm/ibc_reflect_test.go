@@ -7,13 +7,21 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	ibcexported "github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
 	"github.com/iov-one/starnamed/x/wasm/ibctesting"
-	wasmkeeper "github.com/iov-one/starnamed/x/wasm/internal/keeper"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIBCReflectContract(t *testing.T) {
 	t.Skip("Skip TestIBCReflectContract for now") // TODO: FIXME
+
+	// scenario:
+	//  chain A: ibc_reflect_send.wasm
+	//  chain B: reflect.wasm + ibc_reflect.wasm
+	//
+	//  Chain A "ibc_reflect_send" sends a IBC packet "on channel connect" event to chain B "ibc_reflect"
+	//  "ibc_reflect" sends a submessage to "reflect" which is returned as submessage.
+
 	var (
 		coordinator = ibctesting.NewCoordinator(t, 2, nil, nil)
 		chainA      = coordinator.GetChain(ibctesting.GetChainID(0))
@@ -22,14 +30,14 @@ func TestIBCReflectContract(t *testing.T) {
 	coordinator.CommitBlock(chainA, chainB)
 
 	initMsg := []byte(`{}`)
-	codeID := chainA.StoreCodeFile("./internal/keeper/testdata/ibc_reflect_send.wasm").CodeID
+	codeID := chainA.StoreCodeFile("./keeper/testdata/ibc_reflect_send.wasm").CodeID
 	sendContractAddr := chainA.InstantiateContract(codeID, initMsg)
 
-	reflectID := chainB.StoreCodeFile("./internal/keeper/testdata/reflect.wasm").CodeID
+	reflectID := chainB.StoreCodeFile("./keeper/testdata/reflect.wasm").CodeID
 	initMsg = wasmkeeper.IBCReflectInitMsg{
 		ReflectCodeID: reflectID,
 	}.GetBytes(t)
-	codeID = chainB.StoreCodeFile("./internal/keeper/testdata/ibc_reflect.wasm").CodeID
+	codeID = chainB.StoreCodeFile("./keeper/testdata/ibc_reflect.wasm").CodeID
 
 	reflectContractAddr := chainB.InstantiateContract(codeID, initMsg)
 	var (
@@ -98,7 +106,7 @@ type AccountQuery struct {
 }
 
 type AccountResponse struct {
-	LastUpdateTime uint64            `json:"last_update_time"`
+	LastUpdateTime uint64            `json:"last_update_time,string"`
 	RemoteAddr     string            `json:"remote_addr"`
 	RemoteBalance  wasmvmtypes.Coins `json:"remote_balance"`
 }

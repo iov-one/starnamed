@@ -2,11 +2,6 @@ package wasm_test
 
 import (
 	"encoding/json"
-	wasmd "github.com/iov-one/starnamed/app"
-	"github.com/iov-one/starnamed/x/wasm/ibctesting"
-	wasmkeeper "github.com/iov-one/starnamed/x/wasm/internal/keeper"
-	wasmtesting "github.com/iov-one/starnamed/x/wasm/internal/keeper/wasmtesting"
-	"github.com/iov-one/starnamed/x/wasm/internal/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +10,11 @@ import (
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	ibcexported "github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
+	wasmd "github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/x/wasm/ibctesting"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
+	wasmtesting "github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -325,10 +325,10 @@ func (s *sendViaIBCTransferContract) Execute(code wasmvm.Checksum, env wasmvmtyp
 			ToAddress: in.ReceiverAddr,
 			Amount:    wasmvmtypes.NewCoin(in.CoinsToSend.Amount.Uint64(), in.CoinsToSend.Denom),
 			ChannelID: in.ChannelID,
-			TimeoutBlock: &wasmvmtypes.IBCTimeoutBlock{
+			Timeout: wasmvmtypes.IBCTimeout{Block: &wasmvmtypes.IBCTimeoutBlock{
 				Revision: 0,
 				Height:   110,
-			},
+			}},
 		},
 	}
 
@@ -360,9 +360,9 @@ func (s *sendEmulatedIBCTransferContract) Execute(code wasmvm.Checksum, env wasm
 
 	ibcMsg := &wasmvmtypes.IBCMsg{
 		SendPacket: &wasmvmtypes.SendPacketMsg{
-			ChannelID:        in.ChannelID,
-			Data:             dataPacket.GetBytes(),
-			TimeoutTimestamp: &in.Timeout,
+			ChannelID: in.ChannelID,
+			Data:      dataPacket.GetBytes(),
+			Timeout:   wasmvmtypes.IBCTimeout{Timestamp: in.Timeout},
 		},
 	}
 	return &wasmvmtypes.Response{Messages: []wasmvmtypes.CosmosMsg{{IBC: ibcMsg}}}, 0, nil
@@ -479,9 +479,9 @@ func (s *contractStub) IBCPacketTimeout(codeID wasmvm.Checksum, env wasmvmtypes.
 }
 
 func toIBCPacket(p wasmvmtypes.IBCPacket) channeltypes.Packet {
-	var timeout uint64
-	if p.TimeoutTimestamp != nil {
-		timeout = *p.TimeoutTimestamp
+	var height clienttypes.Height
+	if p.Timeout.Block != nil {
+		height = clienttypes.NewHeight(p.Timeout.Block.Revision, p.Timeout.Block.Height)
 	}
 	return channeltypes.Packet{
 		Sequence:           p.Sequence,
@@ -490,7 +490,7 @@ func toIBCPacket(p wasmvmtypes.IBCPacket) channeltypes.Packet {
 		DestinationPort:    p.Dest.PortID,
 		DestinationChannel: p.Dest.ChannelID,
 		Data:               p.Data,
-		TimeoutHeight:      clienttypes.NewHeight(p.TimeoutBlock.Revision, p.TimeoutBlock.Height),
-		TimeoutTimestamp:   timeout,
+		TimeoutHeight:      height,
+		TimeoutTimestamp:   p.Timeout.Timestamp,
 	}
 }

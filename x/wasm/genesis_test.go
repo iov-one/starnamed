@@ -22,7 +22,7 @@ func TestInitGenesis(t *testing.T) {
 	msg := MsgStoreCode{
 		Sender:       creator.String(),
 		WASMByteCode: testContract,
-		Source:       "https://github.com/CosmWasm/wasmd/blob/master/x/wasm/testdata/hackatom.wasm",
+		Source:       "https://github.com/iov-one/starnamed/blob/master/x/wasm/testdata/hackatom.wasm",
 		Builder:      "confio/cosmwasm-opt:0.7.0",
 	}
 	err := msg.ValidateBasic()
@@ -68,9 +68,9 @@ func TestInitGenesis(t *testing.T) {
 	assertContractList(t, q, data.ctx, 1, []string{contractBech32Addr})
 	assertContractInfo(t, q, data.ctx, contractBech32Addr, 1, creator)
 	assertContractState(t, q, data.ctx, contractBech32Addr, state{
-		Verifier:    []byte(fred),
-		Beneficiary: []byte(bob),
-		Funder:      []byte(creator),
+		Verifier:    fred.String(),
+		Beneficiary: bob.String(),
+		Funder:      creator.String(),
 	})
 
 	// export into genstate
@@ -90,8 +90,8 @@ func TestInitGenesis(t *testing.T) {
 	assertContractList(t, q2, newData.ctx, 1, []string{contractBech32Addr})
 	assertContractInfo(t, q2, newData.ctx, contractBech32Addr, 1, creator)
 	assertContractState(t, q2, newData.ctx, contractBech32Addr, state{
-		Verifier:    []byte(fred),
-		Beneficiary: []byte(bob),
-		Funder:      []byte(creator),
+		Verifier:    fred.String(),
+		Beneficiary: bob.String(),
+		Funder:      creator.String(),
 	})
 }

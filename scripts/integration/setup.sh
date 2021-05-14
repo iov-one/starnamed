@@ -3,7 +3,6 @@ set -o errexit -o nounset -o pipefail
 
 source .env
 
-BINARY=wasmd
 PASSWORD=${PASSWORD:-1234567890}
 STAKE=${DENOM_STAKE:-ustake}
 FEE=${DENOM_FEE:-tiov}

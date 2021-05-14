@@ -33,7 +33,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	wasmd "github.com/iov-one/starnamed/app"
-	"github.com/iov-one/starnamed/x/wasm/internal/keeper"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"

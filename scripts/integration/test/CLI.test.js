@@ -258,7 +258,7 @@ describe( "Tests the CLI.", () => {
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
       expect( newResolvedEmpty.account.owner ).toEqual( recipient );
-      expect( newResolvedEmpty.account.metadata_uri ).toEqual( "" );
+      expect( newResolvedEmpty.account.metadata_uri ).toEqual( undefined );
 
       expect( () => {
          cli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
@@ -566,7 +566,7 @@ describe( "Tests the CLI.", () => {
 
       const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
-      compareObjects( emptyResources, resolved1.account.resources );
+      expect( resolved1.account.hasOwnProperty( "resources" ) ).toBe( false );
    } );
 
 
@@ -599,6 +599,6 @@ describe( "Tests the CLI.", () => {
 
       const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
-      expect( resolved1.account.metadata_uri ).toEqual( metadata1 );
+      expect( resolved1.account.metadata_uri ).toEqual( undefined );
    } );
 } );
