@@ -4,9 +4,13 @@ import { multisigs, source2multisig } from "./lib/constants";
 
 const main = async () => {
    const state = await readExportedState();
-   const accounts = state.app_state.auth.accounts
+   const availables = state.app_state.auth.accounts
       .filter( account => account.value.coins.length )
       .sort( ( a, b ) => +b.value.coins[0].amount - +a.value.coins[0].amount );
+   const delegations = state.app_state.staking.delegations.reduce( ( o, delegation ) => {
+      o[delegation.delegator_address] = Number( delegation.shares );
+      return o;
+   }, {} );
    const star12special = Object.keys( multisigs ).reduce( ( o, k ) => {
       o[multisigs[k].star1] = multisigs[k]["//name"];
       return o;
@@ -21,9 +25,14 @@ const main = async () => {
       return names.map( name => `${name.name}*${name.domain}` ).join( " | " );
    };
 
-   accounts.forEach( account => {
-      const name = star12special[account.value.address] || getStarnames( account.value.address );
-      console.log( [ account.value.address, account.value.coins[0].amount / 1e6, name ].join( "," ) );
+   console.log( [ "star1", "total", "available", "delegated", "name(s)" ].join( "," ) );
+   availables.forEach( account => {
+      const star1 = account.value.address;
+      const name = star12special[star1] || getStarnames( star1 );
+      const available = account.value.coins[0].amount / 1e6;
+      const delegated = ( delegations[star1] || 0 ) / 1e6;
+      const total = available + delegated;
+      console.log( [ account.value.address, total, available, delegated, name ].join( "," ) );
    } );
 }
 
