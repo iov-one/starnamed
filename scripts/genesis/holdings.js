@@ -8,7 +8,8 @@ const main = async () => {
       .filter( account => account.value.coins.length )
       .sort( ( a, b ) => +b.value.coins[0].amount - +a.value.coins[0].amount );
    const delegations = state.app_state.staking.delegations.reduce( ( o, delegation ) => {
-      o[delegation.delegator_address] = Number( delegation.shares );
+      if ( !o.hasOwnProperty( delegation.delegator_address ) ) o[delegation.delegator_address] = 0;
+      o[delegation.delegator_address] += Number( delegation.shares );
       return o;
    }, {} );
    const unbondings = state.app_state.staking.unbonding_delegations.reduce( ( o, delegation ) => {
