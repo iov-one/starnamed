@@ -5,6 +5,7 @@ import {
    patchJestnet,
    patchMainnet,
    patchStargatenet,
+   transferCustody,
 } from "../../lib/migrate";
 import fs from "fs";
 import path from "path";
@@ -35,6 +36,21 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( capability.owners.push ).toBeDefined();
       expect( capability.owners.length ).toBe( 0 );
    };
+   const verifyCustody = genesis => {
+      const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y";
+      const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm";
+      const index = genesis0.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
+      const _star1Custodian0 = genesis0.app_state.auth.accounts[index];
+      const _star1Custodian = genesis.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
+      const custodian0 = genesis0.app_state.auth.accounts.find( account => account.value.address == star1New );
+      const custodian = genesis.app_state.auth.accounts.find( account => account.value.address == star1New );
+
+      expect( _star1Custodian0 ).toBeDefined();
+      expect( _star1Custodian ).toBe( -1 );
+      expect( genesis.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - 1 );
+      expect( custodian ).toBeDefined();
+      expect( custodian.value.coins[0].amount ).toBe( String( +custodian0.value.coins[0].amount + +_star1Custodian0.value.coins[0].amount ) );
+   };
 
 
    it( `Should burn tokens.`, async () => {
@@ -63,6 +79,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       enableIBC( genesis );
       verifyIBC( genesis );
+   } );
+
+
+   it( `Should transfer custody from _star1Custodian to custodian*iov.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      transferCustody( genesis );
+      verifyCustody( genesis );
    } );
 
 
@@ -215,12 +239,13 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const result = fs.readFileSync( path.join( config, "genesis.json" ), "utf-8" );
       const migrated = JSON.parse( result );
 
-      expect( migrated.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - flammable.length );
+      expect( migrated.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - flammable.length - 1 ); // - 1 for _star1Custodian
       expect( migrated.consensus_params.evidence.max_bytes ).toBe( "50000" );
       expect( migrated.consensus_params.evidence.max_age_duration ).toBe( "172800000000000" );
       expect( migrated.consensus_params.evidence.max_age_num_blocks ).toBe( "1000000" );
 
       verifyIBC( migrated );
+      verifyCustody( migrated );
 
       tmpobj.removeCallback();
    } );

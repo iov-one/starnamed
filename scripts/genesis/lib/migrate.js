@@ -78,6 +78,25 @@ export const enableIBC = genesis => {
    };
 };
 
+
+/**
+ * Transfers ownership of tokens and starnames from multisig _star1Custodian to custodian*iov.
+ * @param {Object} genesis - the state
+ */
+export const transferCustody = genesis => {
+   const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y";
+   const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm";
+   const index = genesis.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
+   const _star1Custodian = genesis.app_state.auth.accounts[index];
+   const custodian = genesis.app_state.auth.accounts.find( account => account.value.address == star1New );
+
+   // transfer tokens
+   genesis.app_state.auth.accounts.splice( index, 1 );
+   custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount + +_star1Custodian.value.coins[0].amount );
+
+   // TODO: transfer starnames
+};
+
 /**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
@@ -268,6 +287,7 @@ export const migrate = async args => {
    burnTokens( exported, flammable );
    updateTendermint( exported );
    enableIBC( exported );
+   transferCustody( exported );
 
    if ( patch ) patch( exported );
 
