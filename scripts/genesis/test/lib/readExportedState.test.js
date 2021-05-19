@@ -5,7 +5,7 @@ import readExportedState from "../../lib/readExportedState";
 
 describe( "Tests ../../lib/readExportedState.js.", () => {
    it( `Should read the iov-mainnet-2 dumped state file.`, async () => {
-      const state = await readExportedState();
+      const state = readExportedState();
 
       expect( state.chain_id ).toEqual( "iov-mainnet-2" );
       expect( state.app_state.staking.last_validator_powers.length ).toEqual( 16 );
