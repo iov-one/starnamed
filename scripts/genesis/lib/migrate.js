@@ -35,6 +35,50 @@ export const updateTendermint = state => {
 };
 
 /**
+ * Enables IBC as detailed in https://docs.cosmos.network/master/migrations/chain-upgrade-guide-040.html.
+ * @param {Object} genesis - the state
+ */
+export const enableIBC = genesis => {
+   genesis.app_state.ibc = {
+      "client_genesis": {
+         "clients": [],
+         "clients_consensus": [],
+         "create_localhost": false,
+         "params": {
+            "allowed_clients": [
+               "07-tendermint",
+            ]
+         }
+      },
+      "connection_genesis": {
+         "connections": [],
+         "client_connection_paths": []
+      },
+      "channel_genesis": {
+         "channels": [],
+         "acknowledgements": [],
+         "commitments": [],
+         "receipts": [],
+         "send_sequences": [],
+         "recv_sequences": [],
+         "ack_sequences": []
+      }
+   };
+   genesis.app_state.transfer = {
+      "port_id": "transfer",
+      "denom_traces": [],
+      "params": {
+         "send_enabled": true,
+         "receive_enabled": true
+      }
+   };
+   genesis.app_state.capability = {
+      "index": "1",
+      "owners": []
+   };
+};
+
+/**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
  */
@@ -196,6 +240,9 @@ export const patchStargatenet = genesis => {
 
       if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
    } );
+
+   // IBC
+   genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
 }
 
 /**
@@ -206,7 +253,7 @@ export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-ibc" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-ibc.` );
 
    // TODO: make unbonding time 21 days, voting period 9 days
-}
+};
 
 /**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
@@ -220,6 +267,7 @@ export const migrate = async args => {
 
    burnTokens( exported, flammable );
    updateTendermint( exported );
+   enableIBC( exported );
 
    if ( patch ) patch( exported );
 

@@ -1,9 +1,10 @@
 import {
    burnTokens,
+   enableIBC,
    migrate,
-   patchStargatenet,
    patchJestnet,
    patchMainnet,
+   patchStargatenet,
 } from "../../lib/migrate";
 import fs from "fs";
 import path from "path";
@@ -16,6 +17,24 @@ import tmp from "tmp";
 describe( "Tests ../../lib/migrate.js.", () => {
    const genesis0 = readExportedState();
    const flammable = [ "star1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjewks3" ];
+   const verifyIBC = genesis => {
+      const ibc = genesis.app_state.ibc;
+
+      expect( ibc.client_genesis.params.allowed_clients.find( client => client == "07-tendermint" ) ).toBeDefined();
+
+      const transfer = genesis.app_state.transfer;
+
+      expect( transfer.port_id ).toBe( "transfer" );
+      expect( transfer.params.send_enabled ).toBe( true );
+      expect( transfer.params.receive_enabled ).toBe( true );
+
+      const capability = genesis.app_state.capability;
+
+      expect( capability.index ).toBe( "1" );
+      expect( capability.owners ).toBeDefined();
+      expect( capability.owners.push ).toBeDefined();
+      expect( capability.owners.length ).toBe( 0 );
+   };
 
 
    it( `Should burn tokens.`, async () => {
@@ -36,6 +55,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       } );
 
       expect( genesis.app_state.auth.accounts.length ).toEqual( genesis0.app_state.auth.accounts.length - flammable.length );
+   } );
+
+
+   it( `Should enable IBC.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      enableIBC( genesis );
+      verifyIBC( genesis );
    } );
 
 
@@ -69,6 +96,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       genesis.chain_id = "stargatenet";
 
+      enableIBC( genesis );
       patchStargatenet( genesis );
 
       const current = genesis.app_state.auth.accounts;
@@ -133,6 +161,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.configuration.fees.fee_coin_denom ).toEqual( "uvoi" );
       expect( genesis.app_state.crisis.constant_fee.denom ).toEqual( "uvoi" );
       expect( genesis.app_state.gov.deposit_params.min_deposit[0].denom ).toEqual( "uvoi" );
+
+      const ibc = genesis.app_state.ibc;
+
+      expect( ibc.client_genesis.params.allowed_clients.length ).toBe( 2 );
+      expect( ibc.client_genesis.params.allowed_clients.find( client => client == "06-solomachine" ) ).toBeDefined();
    } );
 
 
@@ -141,6 +174,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       genesis.chain_id = "iov-mainnet-ibc";
 
+      enableIBC( genesis );
       patchMainnet( genesis );
 
       const de26star1 = "star1xnzwj34e8zefm7g7vtgnphfj6x2qgnq723rq0j";
@@ -162,6 +196,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( mam ).toBeTruthy();
       expect( mamiov.name ).toEqual( "mam" );
       expect( mamiov.resources[0].resource ).toEqual( mamstar1 );
+
+      const ibc = genesis.app_state.ibc;
+
+      expect( ibc.client_genesis.params.allowed_clients.length ).toBe( 1 );
    } );
 
 
@@ -181,6 +219,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( migrated.consensus_params.evidence.max_bytes ).toBe( "50000" );
       expect( migrated.consensus_params.evidence.max_age_duration ).toBe( "172800000000000" );
       expect( migrated.consensus_params.evidence.max_age_num_blocks ).toBe( "1000000" );
+
+      verifyIBC( migrated );
 
       tmpobj.removeCallback();
    } );
