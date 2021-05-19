@@ -39,46 +39,6 @@ export const multisigs = {
    },
 };
 
-export const conds = Object.keys( multisigs ).reduce( ( accumulator, key ) => {
-   const multisig = multisigs[key];
-
-   accumulator[multisig.address] = {
-      "//name": multisig["//name"],
-      iov1: key,
-      star1: multisig.star1,
-   }
-
-   return accumulator;
-}, {} );
-
-export const names = Object.keys( multisigs ).reduce( ( accumulator, key ) => {
-   const multisig = multisigs[key];
-
-   accumulator[multisig["//name"]] = {
-      cond: multisig.address,
-      iov1: key,
-      star1: multisig.star1,
-   }
-
-   return accumulator;
-}, {} );
-
-export const chainIds = {
-   "bip122-tmp-bcash":            "asset:bch",
-   "bip122-tmp-bitcoin":          "asset:btc",
-   "bip122-tmp-litecoin":         "asset:ltc",
-   "cosmos-binance-chain-tigris": "asset:bnb",
-   "cosmos-columbus-3":           "asset:luna", // terra
-   "cosmos-cosmoshub-3":          "asset:atom",
-   "cosmos-emoney-1":             "asset:ngm",
-   "cosmos-irishub":              "asset:iris",
-   "cosmos-kava-2":               "asset:kava",
-   "ethereum-eip155-1":           "asset:eth",
-   "iov-mainnet":                 "asset:iov",
-   "lisk-ed14889723":             "asset:lsk",
-   "starname-migration":          "asset:iov",
-   "tezos-tmp-mainnet":           "asset:xtz",
-};
 
 export const source2multisig = {
    iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x: {
