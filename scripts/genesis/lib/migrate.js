@@ -371,7 +371,7 @@ export const migrate = async args => {
       const done = data => {
          if ( Date.now() - t0 < dt || data.indexOf( "No addresses to dial." ) == -1 ) return; // short-circuit
          starnamed.kill();
-         console.log( data );
+         //console.log( data );
       };
       const starnamed = spawn( "starnamed", [ "start", "--home", home ] );
       let err = "", out = "";
