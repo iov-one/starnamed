@@ -40,7 +40,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const getAddress = account => { return account.value ? account.value.address : account.address }; // v0.39 vs v0.40
       const getAmount = account => { return account.value ? custodian.value : genesis.app_state.bank.balances.find( balance => balance.address == account.address ) }; // v0.39 vs v0.40
       const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y"; // _star1Custodian
-      const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm"; // custodian*iov
+      const star1New = genesis.app_state.starname.accounts.find( account => account.name == "custodian" && account.domain == "iov" ).owner; // custodian*iov
       const index = genesis0.app_state.auth.accounts.findIndex( account => getAddress( account ) == star1Old );
       const _star1Custodian0 = genesis0.app_state.auth.accounts[index];
       const _star1Custodian = genesis.app_state.auth.accounts.findIndex( account => getAddress( account ) == star1Old );

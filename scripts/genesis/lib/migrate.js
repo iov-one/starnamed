@@ -85,7 +85,7 @@ export const enableIBC = genesis => {
  */
 export const transferCustody = genesis => {
    const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y"; // _star1Custodian
-   const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm"; // custodian*iov
+   const star1New = genesis.app_state.starname.accounts.find( account => account.name == "custodian" && account.domain == "iov" ).owner; // custodian*iov
    const index = genesis.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
    const _star1Custodian = genesis.app_state.auth.accounts[index];
    const custodian = genesis.app_state.auth.accounts.find( account => account.value.address == star1New );
