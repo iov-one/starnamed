@@ -81,6 +81,7 @@ script:
       #  docker logout;
       #fi;
     #fi;
+  - ( cd scripts/genesis && node -r esm jestesm.js --runInBand --testTimeout 30000 )
   - ( cd scripts/integration && node setup.js && ./setup.sh )
   - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall starnamed )
