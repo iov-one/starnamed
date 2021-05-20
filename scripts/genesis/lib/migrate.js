@@ -99,6 +99,21 @@ export const transferCustody = genesis => {
 };
 
 /**
+ * Adjust inflation.
+ * @param {Object} genesis - the state
+ */
+export const adjustInflation = genesis => {
+   genesis.app_state.mint.minter.annual_provisions = "0.0";
+   genesis.app_state.mint.minter.inflation = "0.0";
+
+   genesis.app_state.mint.params.blocks_per_year = "4360000";
+   genesis.app_state.mint.params.goal_bonded = "0.0";
+   genesis.app_state.mint.params.inflation_max = "0.0";
+   genesis.app_state.mint.params.inflation_min = "0.0";
+   genesis.app_state.mint.params.inflation_rate_change = "0.0";
+};
+
+/**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
  */
@@ -272,7 +287,7 @@ export const patchStargatenet = genesis => {
 export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-ibc" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-ibc.` );
 
-   // TODO: make unbonding time 21 days, voting period 9 days
+   genesis.app_state.staking.params.unbonding_time = "1814400s";
 };
 
 /**
@@ -289,6 +304,7 @@ export const migrate = async args => {
    updateTendermint( exported );
    enableIBC( exported );
    transferCustody( exported );
+   adjustInflation( exported );
 
    if ( patch ) patch( exported );
 

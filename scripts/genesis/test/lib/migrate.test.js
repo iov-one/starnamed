@@ -1,4 +1,5 @@
 import {
+   adjustInflation,
    burnTokens,
    enableIBC,
    migrate,
@@ -58,6 +59,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.starname.accounts.length ).toBe( genesis0.app_state.starname.accounts.length );
       expect( genesis.app_state.starname.accounts.filter( account => account.owner == star1New ).length ).toBe( genesis0.app_state.starname.accounts.filter( account => account.owner == star1Old ).length + 1 ); // + 1 to account for custodian*iov
    };
+   const verifyInflation = genesis => {
+      expect( genesis.app_state.mint.minter.annual_provisions ).toBe( "0.0" );
+      expect( genesis.app_state.mint.minter.inflation ).toBe( "0.0" );
+
+      expect( genesis.app_state.mint.params.blocks_per_year ).toBe( "4360000" );
+      expect( genesis.app_state.mint.params.goal_bonded ).toBe( "0.0" );
+      expect( genesis.app_state.mint.params.inflation_max ).toBe( "0.0" );
+      expect( genesis.app_state.mint.params.inflation_min ).toBe( "0.0" );
+      expect( genesis.app_state.mint.params.inflation_rate_change ).toBe( "0.0" );
+   };
 
 
    it( `Should burn tokens.`, async () => {
@@ -94,6 +105,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       transferCustody( genesis );
       verifyCustody( genesis );
+   } );
+
+
+   it( `Should adjust inflation to 0%.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      adjustInflation( genesis );
+      verifyInflation( genesis );
    } );
 
 
