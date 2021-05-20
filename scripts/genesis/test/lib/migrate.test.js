@@ -60,14 +60,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.starname.accounts.filter( account => account.owner == star1New ).length ).toBe( genesis0.app_state.starname.accounts.filter( account => account.owner == star1Old ).length + 1 ); // + 1 to account for custodian*iov
    };
    const verifyInflation = genesis => {
-      expect( genesis.app_state.mint.minter.annual_provisions ).toBe( "0.0" );
-      expect( genesis.app_state.mint.minter.inflation ).toBe( "0.0" );
+      expect( +genesis.app_state.mint.minter.annual_provisions ).toBe( +"0.0" );
+      expect( +genesis.app_state.mint.minter.inflation ).toBe( +"0.0" );
 
-      expect( genesis.app_state.mint.params.blocks_per_year ).toBe( "4360000" );
-      expect( genesis.app_state.mint.params.goal_bonded ).toBe( "0.0" );
-      expect( genesis.app_state.mint.params.inflation_max ).toBe( "0.0" );
-      expect( genesis.app_state.mint.params.inflation_min ).toBe( "0.0" );
-      expect( genesis.app_state.mint.params.inflation_rate_change ).toBe( "0.0" );
+      expect( +genesis.app_state.mint.params.blocks_per_year ).toBe( +"4360000" );
+      expect( +genesis.app_state.mint.params.goal_bonded ).toBe( +"0.0" );
+      expect( +genesis.app_state.mint.params.inflation_max ).toBe( +"0.0" );
+      expect( +genesis.app_state.mint.params.inflation_min ).toBe( +"0.0" );
+      expect( +genesis.app_state.mint.params.inflation_rate_change ).toBe( +"0.0" );
    };
 
 
