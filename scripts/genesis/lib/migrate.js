@@ -115,6 +115,17 @@ export const adjustInflation = genesis => {
 };
 
 /**
+ * Add temporal units to durations.
+ * @param {Object} genesis - the state
+ */
+export const fixConfiguration = genesis => {
+   genesis.app_state.configuration.config.account_grace_period = "2592000s"; // 1 month
+   genesis.app_state.configuration.config.account_renew_period = "31557600s"; // 1 year
+   genesis.app_state.configuration.config.domain_grace_period = "2592000s"; // 1 month
+   genesis.app_state.configuration.config.domain_renew_period = "31557600s"; // 1 year
+};
+
+/**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
  */
@@ -306,6 +317,7 @@ export const migrate = async args => {
    enableIBC( exported );
    transferCustody( exported );
    adjustInflation( exported );
+   fixConfiguration( exported );
 
    if ( patch ) patch( exported );
 

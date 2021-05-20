@@ -2,6 +2,7 @@ import {
    adjustInflation,
    burnTokens,
    enableIBC,
+   fixConfiguration,
    migrate,
    patchJestnet,
    patchMainnet,
@@ -69,6 +70,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( +genesis.app_state.mint.params.inflation_min ).toBe( +"0.0" );
       expect( +genesis.app_state.mint.params.inflation_rate_change ).toBe( +"0.0" );
    };
+   const verifyConfiguration = genesis => {
+      expect( genesis.app_state.configuration.config.account_grace_period ).toBe( "2592000s" );
+      expect( genesis.app_state.configuration.config.account_renew_period ).toBe( "31557600s" );
+      expect( genesis.app_state.configuration.config.domain_grace_period ).toBe( "2592000s" );
+      expect( genesis.app_state.configuration.config.domain_renew_period ).toBe( "31557600s" );
+   };
 
 
    it( `Should burn tokens.`, async () => {
@@ -118,6 +125,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       adjustInflation( genesis );
       verifyInflation( genesis );
+   } );
+
+
+   it( `Should fix configuration durations.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      fixConfiguration( genesis );
+      verifyConfiguration( genesis );
    } );
 
 
@@ -278,6 +293,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       verifyIBC( migrated );
       verifyCustody( migrated );
       verifyInflation( migrated );
+      verifyConfiguration( migrated );
 
       tmpobj.removeCallback();
    } );
