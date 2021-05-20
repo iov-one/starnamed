@@ -16,6 +16,7 @@ export const burnTokens = ( state, star1s ) => {
 
       if ( index == -1 ) throw new Error( `Couldn't find ${star1} in genesis.app_state.auth.accounts.` );
 
+      state.app_state.supply.supply[0].amount = String( +state.app_state.supply.supply[0].amount - +state.app_state.auth.accounts[index].value.coins[0].amount );
       state.app_state.auth.accounts.splice( index, 1 );
    } );
 };

@@ -73,11 +73,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
    it( `Should burn tokens.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+      const supply0 = genesis0.app_state.supply.supply[0].amount;
+      let burn = 0;
 
       flammable.forEach( star1 => {
          const index = genesis.app_state.auth.accounts.findIndex( account => account.value.address == star1 );
 
          expect( index ).toBeGreaterThan( -1 );
+
+         burn += +genesis.app_state.auth.accounts[index].value.coins[0].amount;
       } );
 
       burnTokens( genesis, flammable );
@@ -89,6 +93,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       } );
 
       expect( genesis.app_state.auth.accounts.length ).toEqual( genesis0.app_state.auth.accounts.length - flammable.length );
+      expect( +genesis.app_state.supply.supply[0].amount ).toEqual( +supply0 - burn );
    } );
 
 
