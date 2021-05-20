@@ -32,8 +32,8 @@ func DefaultGenesisState() types.GenesisState {
 	config := types.Config{
 		Configurer:             "star1enqynlqt9wm6yskcn3ek5cld0ywjphwty3fhhn", // msig1
 		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
-		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
-		ValidURI:               "[-a-z0-9A-Z:]+$",
+		ValidAccountName:       "^[-_\\.a-z0-9]{1,64}$",
+		ValidURI:               "^[-a-z0-9A-Z:]+$",
 		ValidResource:          "^[a-z0-9A-Z]+$",
 		DomainRenewalPeriod:    31557600 * 1e9,
 		DomainRenewalCountMax:  2,
