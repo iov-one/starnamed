@@ -120,9 +120,17 @@ export const adjustInflation = genesis => {
  */
 export const fixConfiguration = genesis => {
    genesis.app_state.configuration.config.account_grace_period = "2592000s"; // 1 month
-   genesis.app_state.configuration.config.account_renew_period = "31557600s"; // 1 year
+   genesis.app_state.configuration.config.account_renewal_period = "31557600s"; // 1 year
    genesis.app_state.configuration.config.domain_grace_period = "2592000s"; // 1 month
-   genesis.app_state.configuration.config.domain_renew_period = "31557600s"; // 1 year
+   genesis.app_state.configuration.config.domain_renewal_period = "31557600s"; // 1 year
+
+   genesis.app_state.configuration.config.account_renewal_count_max = genesis.app_state.configuration.config.account_renew_count_max;
+   genesis.app_state.configuration.config.domain_renewal_count_max = genesis.app_state.configuration.config.domain_renew_count_max;
+
+   delete genesis.app_state.configuration.config.account_renew_count_max;
+   delete genesis.app_state.configuration.config.account_renew_period;
+   delete genesis.app_state.configuration.config.domain_renew_count_max;
+   delete genesis.app_state.configuration.config.domain_renew_period;
 };
 
 /**

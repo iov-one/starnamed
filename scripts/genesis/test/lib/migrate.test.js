@@ -72,9 +72,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
    };
    const verifyConfiguration = genesis => {
       expect( genesis.app_state.configuration.config.account_grace_period ).toBe( "2592000s" );
-      expect( genesis.app_state.configuration.config.account_renew_period ).toBe( "31557600s" );
+      expect( genesis.app_state.configuration.config.account_renewal_period ).toBe( "31557600s" );
       expect( genesis.app_state.configuration.config.domain_grace_period ).toBe( "2592000s" );
-      expect( genesis.app_state.configuration.config.domain_renew_period ).toBe( "31557600s" );
+      expect( genesis.app_state.configuration.config.domain_renewal_period ).toBe( "31557600s" );
+
+      expect( genesis.app_state.configuration.config.account_renewal_count_max ).toBe( genesis0.app_state.configuration.config.account_renew_count_max );
+      expect( genesis.app_state.configuration.config.domain_renewal_count_max ).toBe( genesis0.app_state.configuration.config.domain_renew_count_max );
    };
 
 
