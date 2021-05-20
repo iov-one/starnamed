@@ -30,7 +30,7 @@ func ValidateGenesis(data types.GenesisState) error {
 func DefaultGenesisState() types.GenesisState {
 	// set default configs
 	config := types.Config{
-		Configurer:             "wasm1enqynlqt9wm6yskcn3ek5cld0ywjphwt0hktf5", // msig1
+		Configurer:             "star1enqynlqt9wm6yskcn3ek5cld0ywjphwty3fhhn", // msig1
 		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
 		ValidAccountName:       "^[-_\\.a-z0-9]{1,64}$",
 		ValidURI:               "^[-a-z0-9A-Z:]+$",

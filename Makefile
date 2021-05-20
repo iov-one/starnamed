@@ -55,11 +55,11 @@ build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=wasm \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=wasmd \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=starname \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=starnamed \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=wasm \
+		  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=star \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq ($(WITH_CLEVELDB),yes)
@@ -79,7 +79,7 @@ build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/wasmd ./cmd/wasmd
+	go build -mod=readonly $(BUILD_FLAGS) -o build/starnamed ./cmd/wasmd
 endif
 
 build-contract-tests-hooks:
@@ -90,7 +90,7 @@ else
 endif
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/wasmd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/starnamed
 
 ########################################
 ### Tools & dependencies
