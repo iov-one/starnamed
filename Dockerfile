@@ -1,5 +1,5 @@
-# docker build . -t cosmwasm/wasmd:latest
-# docker run --rm -it cosmwasm/wasmd:latest /bin/sh
+# docker build . -t iov1/starnamed:latest
+# docker run --rm -it iov1/starnamed:latest /bin/sh
 FROM golang:1.15-alpine3.12 AS go-builder
 
 # this comes from standard alpine nightly file
@@ -24,7 +24,7 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 # --------------------------------------------------------
 FROM alpine:3.12
 
-COPY --from=go-builder /code/build/wasmd /usr/bin/wasmd
+COPY --from=go-builder /code/build/starnamed /usr/bin/starnamed
 
 COPY docker/* /opt/
 RUN chmod +x /opt/*.sh
@@ -38,4 +38,4 @@ EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
 
-CMD ["/usr/bin/wasmd", "version"]
+CMD ["/usr/bin/starnamed", "version"]

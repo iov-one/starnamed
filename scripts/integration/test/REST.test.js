@@ -10,7 +10,7 @@ describe( "Tests the REST API.", () => {
       const fetched = await fetchObject( `${urlRest}/node_info` );
 
       expect( fetched.node_info.network ).toEqual( chain );
-      expect( fetched.application_version.name ).toEqual( "wasm" );
+      expect( fetched.application_version.name ).toEqual( "starname" );
    } );
 
 

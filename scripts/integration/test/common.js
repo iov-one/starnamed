@@ -18,10 +18,10 @@ export const signer = process.env.SIGNER;
 export const urlGRpc = process.env.URL_GRPC;
 export const urlRest = process.env.URL_REST;
 export const urlRpc = process.env.URL_RPC;
-export const w1 = "wasm10z9fpz8mfr8csea4kkth7ssuwe5ncg2pxmzz6m"; // w1
-export const w2 = "wasm1jvkz7wr97666l32v6jma6jrcqu0lavderapsrl"; // w2
-export const w3 = "wasm1jmrj0g6z6uszp9m5wspmwlanan43shv0xmmdyh"; // w3
-export const msig1 = "wasm1enqynlqt9wm6yskcn3ek5cld0ywjphwt0hktf5"; // msig1
+export const w1 = "star10z9fpz8mfr8csea4kkth7ssuwe5ncg2pdaa7yu"; // w1
+export const w2 = "star1jvkz7wr97666l32v6jma6jrcqu0lavdegm7vac"; // w2
+export const w3 = "star1jmrj0g6z6uszp9m5wspmwlanan43shv0day36s"; // w3
+export const msig1 = "star1enqynlqt9wm6yskcn3ek5cld0ywjphwty3fhhn"; // msig1
 
 const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", "-f", `"{{ .Dir }}"`, "-m", "github.com/cosmos/cosmos-sdk" ] ).stdout ).trim().slice( 1, -1 );
 
