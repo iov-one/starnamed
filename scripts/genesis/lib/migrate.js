@@ -367,7 +367,7 @@ export const migrate = async args => {
 
    // test genesis.json by starting starnamed; we can't use `starnamed validate-genesis` because it craps out with Error: error validating genesis file /tmp/migrate-test-migrate-90es2e/config/genesis.json: invalid account found in genesis state; address: star1p0d75y4vpftsx9z35s93eppkky7kdh220vrk8n, error: account address and pubkey address do not match
    const validate = new Promise( ( resolve, reject ) => {
-      const t0 = Date.now(), dt = 3000;
+      const t0 = Date.now(), dt = 20000;
       const done = data => {
          if ( Date.now() - t0 < dt || data.indexOf( "No addresses to dial." ) == -1 ) return; // short-circuit
          starnamed.kill();
