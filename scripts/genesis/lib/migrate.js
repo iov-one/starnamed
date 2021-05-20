@@ -334,7 +334,7 @@ export const migrate = async args => {
 
          resolve( out );
       } );
-   } );
+   } ).catch( e => { throw e } );
 
    const out = await promise.catch( e => { throw e } );
 
@@ -344,4 +344,26 @@ export const migrate = async args => {
    const stargate = path.join( config, "genesis.json" );
 
    fs.writeFileSync( stargate, stringify( genesis, { space: "  " } ), "utf-8" );
+
+   // test genesis.json by starting starnamed; we can't use `starnamed validate-genesis` because it craps out with Error: error validating genesis file /tmp/migrate-test-migrate-90es2e/config/genesis.json: invalid account found in genesis state; address: star1p0d75y4vpftsx9z35s93eppkky7kdh220vrk8n, error: account address and pubkey address do not match
+   const validate = new Promise( ( resolve, reject ) => {
+      const starnamed = spawn( "starnamed", [ "start", "--home", home ] );
+      let err = "", out = "";
+
+      starnamed.stderr.on( "data", data => {
+         err += data;
+      } );
+
+      starnamed.stdout.on( "data", data => {
+         out += data;
+      } );
+
+      starnamed.on( "close", code => {
+         if ( code ) reject( err );
+
+         resolve( out );
+      } );
+   } ).catch( e => { throw e } );
+
+   await validate.catch( e => { throw e } );
 };
