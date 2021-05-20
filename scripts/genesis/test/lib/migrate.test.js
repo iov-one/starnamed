@@ -272,6 +272,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       verifyIBC( migrated );
       verifyCustody( migrated );
+      verifyInflation( migrated );
 
       tmpobj.removeCallback();
    } );
