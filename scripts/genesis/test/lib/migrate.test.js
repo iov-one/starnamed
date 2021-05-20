@@ -37,19 +37,21 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( capability.owners.length ).toBe( 0 );
    };
    const verifyCustody = genesis => {
-      const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y";
-      const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm";
-      const index = genesis0.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
+      const getAddress = account => { return account.value ? account.value.address : account.address }; // v0.39 vs v0.40
+      const getAmount = account => { return account.value ? custodian.value : genesis.app_state.bank.balances.find( balance => balance.address == account.address ) }; // v0.39 vs v0.40
+      const star1Old = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y"; // _star1Custodian
+      const star1New = "star1cw6vgl46my0pa690r8h5z4pq67mawedlqd9ukm"; // custodian*iov
+      const index = genesis0.app_state.auth.accounts.findIndex( account => getAddress( account ) == star1Old );
       const _star1Custodian0 = genesis0.app_state.auth.accounts[index];
-      const _star1Custodian = genesis.app_state.auth.accounts.findIndex( account => account.value.address == star1Old );
-      const custodian0 = genesis0.app_state.auth.accounts.find( account => account.value.address == star1New );
-      const custodian = genesis.app_state.auth.accounts.find( account => account.value.address == star1New );
+      const _star1Custodian = genesis.app_state.auth.accounts.findIndex( account => getAddress( account ) == star1Old );
+      const custodian0 = genesis0.app_state.auth.accounts.find( account => getAddress( account ) == star1New );
+      const custodian = genesis.app_state.auth.accounts.find( account => getAddress( account ) == star1New );
 
       expect( _star1Custodian0 ).toBeDefined();
       expect( _star1Custodian ).toBe( -1 );
-      expect( genesis.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - 1 );
+      expect( genesis.app_state.auth.accounts.length ).toBeLessThan( genesis0.app_state.auth.accounts.length ); // _star1Custodian is manually deleted and sdk module accounts are automagically deleted on migration to v0.40
       expect( custodian ).toBeDefined();
-      expect( custodian.value.coins[0].amount ).toBe( String( +custodian0.value.coins[0].amount + +_star1Custodian0.value.coins[0].amount ) );
+      expect( getAmount( custodian ).coins[0].amount ).toBe( String( +custodian0.value.coins[0].amount + +_star1Custodian0.value.coins[0].amount ) );
    };
 
 
