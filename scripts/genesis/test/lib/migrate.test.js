@@ -52,6 +52,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.auth.accounts.length ).toBeLessThan( genesis0.app_state.auth.accounts.length ); // _star1Custodian is manually deleted and sdk module accounts are automagically deleted on migration to v0.40
       expect( custodian ).toBeDefined();
       expect( getAmount( custodian ).coins[0].amount ).toBe( String( +custodian0.value.coins[0].amount + +_star1Custodian0.value.coins[0].amount ) );
+
+      expect( genesis.app_state.starname.domains.length ).toBe( genesis0.app_state.starname.domains.length );
+      expect( genesis.app_state.starname.domains.filter( domain => domain.admin == star1New ).length ).toBe( genesis0.app_state.starname.domains.filter( domain => domain.admin == star1Old ).length );
+      expect( genesis.app_state.starname.accounts.length ).toBe( genesis0.app_state.starname.accounts.length );
+      expect( genesis.app_state.starname.accounts.filter( account => account.owner == star1New ).length ).toBe( genesis0.app_state.starname.accounts.filter( account => account.owner == star1Old ).length + 1 ); // + 1 to account for custodian*iov
    };
 
 

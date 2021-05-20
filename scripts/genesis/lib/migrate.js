@@ -94,7 +94,8 @@ export const transferCustody = genesis => {
    genesis.app_state.auth.accounts.splice( index, 1 );
    custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount + +_star1Custodian.value.coins[0].amount );
 
-   // TODO: transfer starnames
+   genesis.app_state.starname.domains.forEach( domain => { if ( domain.admin == star1Old ) domain.admin = star1New } );
+   genesis.app_state.starname.accounts.forEach( account => { if ( account.owner == star1Old ) account.owner = star1New } );
 };
 
 /**
