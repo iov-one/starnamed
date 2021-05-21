@@ -19,6 +19,7 @@ dist
 tools-stamp
 docs/node_modules
 scripts/integration/node_modules
+scripts/genesis/node_modules
 
 # Data - ideally these don't exist
 baseapp/data/*
