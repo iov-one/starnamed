@@ -392,4 +392,6 @@ export const migrate = async args => {
    } ).catch( e => { throw e } );
 
    await validate.catch( e => { throw e } );
+
+   return genesis;
 };

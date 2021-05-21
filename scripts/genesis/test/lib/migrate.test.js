@@ -280,13 +280,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const exported = JSON.parse( JSON.stringify( genesis0 ) );
       const tmpobj = tmp.dirSync( { template: "migrate-test-migrate-XXXXXX", unsafeCleanup: true } );
       const home = tmpobj.name;
-      const config = path.join( home, "config" );
-
-      fs.mkdirSync( config );
-      await migrate( { flammable, exported, home } );
-
-      const result = fs.readFileSync( path.join( config, "genesis.json" ), "utf-8" );
-      const migrated = JSON.parse( result );
+      const migrated = await migrate( { flammable, exported, home } );
 
       expect( migrated.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - flammable.length - 1 ); // - 1 for _star1Custodian
       expect( migrated.consensus_params.evidence.max_bytes ).toBe( "50000" );
