@@ -150,13 +150,6 @@ export const patchJestnet = genesis => {
 export const patchStargatenet = genesis => {
    if ( genesis.chain_id != "stargatenet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != stargatenet.` );
 
-   // make dave and bojack rich for testing
-   const dave = genesis.app_state.auth.accounts.find( account => account.value.address == "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-   const bojack = genesis.app_state.auth.accounts.find( account => account.value.address == "star1z6rhjmdh2e9s6lvfzfwrh8a3kjuuy58y74l29t" );
-
-   if ( dave ) dave.value.coins[0].amount = "1000000000000";
-   if ( bojack ) bojack.value.coins[0].amount = "1000000000000";
-
    // add other test accounts
    const accounts = [
       {
@@ -240,24 +233,16 @@ export const patchStargatenet = genesis => {
          }
       },
    ];
+   const dsupply = accounts.reduce( ( sum, account ) => {
+      sum += +account.value.coins[0].amount;
+      return sum;
+   }, 0 );
 
    genesis.app_state.auth.accounts.push( ...accounts );
+   genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + dsupply );
 
-   // set the configuration owner and parameters
-   const config = genesis.app_state.configuration.config;
-
-   config["//note"] = "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3";
-   config.account_grace_period = 1 * 60 + "000000000"; // (ab)use javascript
-   config.account_renew_count_max = 2;
-   config.account_renew_period = 3 * 60 + "000000000";
-   config.resources_max = 10;
-   config.certificate_count_max = 3;
-   config.certificate_size_max = "1000";
-   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
-   config.domain_grace_period = 1 * 60 + "000000000";
-   config.domain_renew_count_max = 2;
-   config.domain_renew_period = 5 * 60 + "000000000";
-   config.metadata_size_max = "1000";
+   // set the configuration owner
+   genesis.app_state.configuration.config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
 
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => { if ( account.value.coins[0] ) account.value.coins[0].denom = "uvoi" } );
