@@ -289,6 +289,10 @@ export const patchStargatenet = genesis => {
       "renew_domain_open": "12345.000000000000000000",
    };
 
+   // convert uiov to uvoi
+   const reDenom = /"denom":"uiov"/g; // has to be a regex or only the first instance is replaces
+   genesis.app_state = JSON.parse( JSON.stringify( genesis.app_state ).replace( reDenom, '"denom":"uvoi"' ) );
+
    // convert URIs to testnet
    genesis.app_state.starname.accounts.forEach( account => {
       const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
