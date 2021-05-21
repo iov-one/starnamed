@@ -196,22 +196,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( w2.value.address ).toEqual( "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la" );
       expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
 
-      expect( dave.value.coins[0].amount ).toEqual( "1000000000000" );
-
       const config = genesis.app_state.configuration.config;
 
-      expect( config["//note"] ).toEqual( "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3" );
       expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
-      expect( config.account_grace_period ).toEqual( "60000000000" );
-      expect( config.account_renew_count_max ).toEqual( 2 );
-      expect( config.account_renew_period ).toEqual( "180000000000" );
-      expect( config.resources_max ).toEqual( 10 );
-      expect( config.certificate_count_max ).toEqual( 3 );
-      expect( config.certificate_size_max ).toEqual( "1000" );
-      expect( config.domain_grace_period ).toEqual( "60000000000" );
-      expect( config.domain_renew_count_max ).toEqual( 2 );
-      expect( config.domain_renew_period ).toEqual( "300000000000" );
-      expect( config.metadata_size_max ).toEqual( "1000" );
 
       const iov = genesis.app_state.starname.domains.find( domain => domain.name == "iov" );
       const zeros = genesis.app_state.starname.domains.find( domain => domain.name == "0000" );
