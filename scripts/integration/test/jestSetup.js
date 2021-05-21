@@ -1,7 +1,7 @@
 module.exports = async ( globalConfig ) => {
    const spawnSync = require( "child_process" ).spawnSync;
    const log = process.env.CONTINUOUS_INTEGRATION ? console.log : () => {};
-   const binary = "starnamed";
+   const binary = process.env.BINARY;
 
 
    const cli = ( args ) => {
