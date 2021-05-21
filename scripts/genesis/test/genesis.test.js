@@ -32,10 +32,12 @@ describe( "Tests ../genesis.js.", () => {
       const genesis = await createGenesis( exported, patchStargatenet );
 
       veryifyCommon( genesis );
+
+      expect( genesis.app_state.configuration.config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
    } );
 
 
-   it.only( `Should create iov-mainnet-ibc's genesis file.`, async () => {
+   it( `Should create iov-mainnet-ibc's genesis file.`, async () => {
       const exported = JSON.parse( JSON.stringify( exported0 ) );
 
       exported.chain_id = "iov-mainnet-ibc";
@@ -43,5 +45,8 @@ describe( "Tests ../genesis.js.", () => {
       const genesis = await createGenesis( exported, patchMainnet );
 
       veryifyCommon( genesis );
+
+      expect( genesis.app_state.configuration.config.configurer ).toEqual( "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78" );
+      expect( genesis.app_state.staking.params.unbonding_time ).toBe( "1814400s" );
    } );
 } );

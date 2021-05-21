@@ -296,7 +296,7 @@ export const patchStargatenet = genesis => {
 export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-ibc" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-ibc.` );
 
-   genesis.app_state.staking.params.unbonding_time = "1814400";
+   genesis.app_state.staking.params.unbonding_time = "1814400000000000";
 };
 
 /**
