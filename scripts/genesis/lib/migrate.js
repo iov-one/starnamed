@@ -385,6 +385,10 @@ export const migrate = async args => {
       } );
 
       starnamed.on( "close", code => {
+         // clean-up superflous files
+         [ "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].forEach( file => fs.unlinkSync( path.join( config, file ) ) );
+         [ "data", "wasm" ].map( dir => path.join( home, dir ) ).forEach( dir => { if ( fs.existsSync( dir ) ) fs.rmdirSync( dir, { recursive: true } ) } );
+
          if ( code ) reject( err );
 
          resolve( out );
