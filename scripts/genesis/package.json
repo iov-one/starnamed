@@ -1,0 +1,23 @@
+{
+   "name": "genesis",
+   "version": "1.0.0",
+   "description": "Generate genesis files for stargatenet and/or iov-mainnet-ibc",
+   "scripts": {
+      "test": "node -r esm jestesm.js --testEnvironment node --runInBand --testTimeout 60000"
+   },
+   "repository": "https://github.com/iov-one/starnamed",
+   "author": "dave@iov.one",
+   "license": "MIT",
+   "private": false,
+   "dependencies": {
+      "Base64": "^1.1.0",
+      "esm": "^3.2.25",
+      "json-stable-stringify": "^1.0.1",
+      "node-fetch": "^2.6.1"
+   },
+   "devDependencies": {
+      "jest": "^25.4.0",
+      "jest-cli": "^25.4.0",
+      "tmp": "^0.2.1"
+   }
+}
