@@ -26,9 +26,6 @@ describe( "Tests ../genesis.js.", () => {
 
    it( `Should create stargatenet's genesis file.`, async () => {
       const exported = JSON.parse( JSON.stringify( exported0 ) );
-
-      exported.chain_id = "stargatenet";
-
       const genesis = await createGenesis( exported, patchStargatenet );
 
       veryifyCommon( genesis );
@@ -39,9 +36,6 @@ describe( "Tests ../genesis.js.", () => {
 
    it( `Should create iov-mainnet-ibc's genesis file.`, async () => {
       const exported = JSON.parse( JSON.stringify( exported0 ) );
-
-      exported.chain_id = "iov-mainnet-ibc";
-
       const genesis = await createGenesis( exported, patchMainnet );
 
       veryifyCommon( genesis );

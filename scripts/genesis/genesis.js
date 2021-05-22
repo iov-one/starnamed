@@ -10,11 +10,9 @@ const main = async () => {
    const patch = mainnet ? patchMainnet : patchStargatenet;
    const exported = readExportedState();
    const flammable = [ "star1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjewks3" ]; // accounts to burn: blackhole*iov
+   const migrated = await migrate( {  exported, flammable, home, patch } );
 
-   exported.chain_id = chain_id;
-
-   // migration
-   await migrate( {  exported, flammable, home, patch } );
+   if ( migrated.chain_id != chain_id ) throw new Error( `${migrated.chain_id} != ${chain_id} after migrate!` );
 }
 
 

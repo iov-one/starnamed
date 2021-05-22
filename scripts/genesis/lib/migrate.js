@@ -138,8 +138,7 @@ export const fixConfiguration = genesis => {
  * @param {Object} genesis - the jestnet genesis object
  */
 export const patchJestnet = genesis => {
-   if ( genesis.chain_id != "jestnet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != jestnet.` );
-
+   genesis.chain_id = "jestnet";
    genesis.app_state.starname.domains[0].valid_until = "1633046401";
 }
 
@@ -148,7 +147,7 @@ export const patchJestnet = genesis => {
  * @param {Object} genesis - the stargatenet genesis object
  */
 export const patchStargatenet = genesis => {
-   if ( genesis.chain_id != "stargatenet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != stargatenet.` );
+   genesis.chain_id != "stargatenet";
 
    // add other test accounts
    const accounts = [
@@ -294,8 +293,7 @@ export const patchStargatenet = genesis => {
  * @param {Object} genesis - the iov-mainnet-ibc genesis object
  */
 export const patchMainnet = genesis => {
-   if ( genesis.chain_id != "iov-mainnet-ibc" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-ibc.` );
-
+   genesis.chain_id = "iov-mainnet-ibc";
    genesis.app_state.staking.params.unbonding_time = "1814400000000000";
 };
 

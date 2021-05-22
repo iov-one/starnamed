@@ -139,20 +139,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
-   it( `Should fail to patch wrong-chain_id.`, async () => {
-      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
-
-      genesis.chain_id = "wrong-chain_id";
-
-      expect( () => { patchJestnet( genesis ) } ).toThrow( `Wrong chain_id: ${genesis.chain_id} != jestnet.` );
-   } );
-
-
    it( `Should patch jestnet.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
       const previous = genesis.app_state.starname.domains[0].valid_until;
-
-      genesis.chain_id = "jestnet";
 
       patchJestnet( genesis );
 
@@ -166,8 +155,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
    it( `Should patch stargatenet.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
       const previous = [].concat( genesis.app_state.auth.accounts );
-
-      genesis.chain_id = "stargatenet";
 
       enableIBC( genesis );
       patchStargatenet( genesis );
@@ -231,8 +218,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
    it( `Should patch iov-mainnet-ibc.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
-
-      genesis.chain_id = "iov-mainnet-ibc";
 
       enableIBC( genesis );
       patchMainnet( genesis );
