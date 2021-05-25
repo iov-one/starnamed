@@ -11,7 +11,7 @@ os:
 dist: xenial
 
 go:
-  - "1.15.5"
+  - "1.16.x"
   - stable
 
 addons:
