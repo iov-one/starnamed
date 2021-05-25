@@ -1,9 +1,10 @@
 package types
 
 import (
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
-	"strings"
 )
 
 const DomainAdminIndex crud.IndexID = 0x1
