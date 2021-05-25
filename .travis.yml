@@ -12,7 +12,7 @@ dist: xenial
 
 go:
   - "1.15.5"
-  - master
+  - stable
 
 addons:
   apt:
@@ -81,6 +81,23 @@ script:
       #  docker logout;
       #fi;
     #fi;
+  # Check linting and formatting of starname and configuration modules
+  - |
+    function checkEmpty() {
+      if [ -n "$1" ]
+      then
+        echo -e "\nFiles with syntax or formatting errors ($ERR_FILES)\n"
+        return 1
+      fi
+    }
+  # If a syntax error occurs, the following command fails
+  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir gofmt -l -s '{}' \+`
+  # Then check formatting errors
+  - checkEmpty "$ERR_FILES"
+  # Check advanced files formatting, including imports
+  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+`
+  - checkEmpty "$ERR_FILES"
+
   - ( cd scripts/genesis && yarn install && yarn test && rm -rf ~/.starnamed )
   - ( cd scripts/integration && yarn install && node -r dotenv/config setup.js && ./setup.sh )
   - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
