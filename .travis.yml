@@ -43,6 +43,10 @@ env:
     - COMMIT=$(git log -1 --format='%H')
     - IMAGE_NAME="iov1/starnamed:${BUILD_VERSION}"
 
+
+before_script:
+  - go get -u golang.org/x/tools/cmd/goimports
+
 script:
   - set -eo pipefail
   - make test-unit test-race test-cover
