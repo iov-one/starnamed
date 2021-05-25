@@ -1,8 +1,8 @@
 package configuration
 
 import (
-	"github.com/iov-one/starnamed/x/configuration/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
 // GetFees returns the network fees
