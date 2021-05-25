@@ -3,11 +3,11 @@ package rest
 import (
 	"net/http"
 
-	"github.com/iov-one/starnamed/x/configuration/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
