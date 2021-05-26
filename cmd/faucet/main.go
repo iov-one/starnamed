@@ -1,7 +1,8 @@
-package main
+package faucet
 
 import (
 	"context"
+	"github.com/spf13/cobra"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +15,16 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
-func main() {
+func Cmd() *cobra.Command {
+	return &cobra.Command{
+		Use:                        "faucet",
+		Short:                      "Launch the faucet service",
+		Long:                       "Launch the HTTP faucet service",
+		Run:                        cmd,
+	}
+}
+
+func cmd(*cobra.Command,[]string) {
 	// setup configuration
 	conf, err := pkg.NewConfiguration()
 	if err != nil {
