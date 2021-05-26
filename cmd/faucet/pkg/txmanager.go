@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"context"
+	"github.com/iov-one/starnamed/app"
+	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
 	"os"
 	"sync"
 
@@ -23,7 +25,7 @@ import (
 
 type TxManager struct {
 	conf      Configuration
-	node      rpchttp.ABCIClient
+	node      rpchttp.Client
 	keys      keyring.Keyring
 	faucetAcc authtypes.AccountI
 	mux       sync.Mutex
@@ -38,7 +40,7 @@ func (tm *TxManager) queryWithData(path string, data []byte) ([]byte, int64, err
 	return res.Response.Value, res.Response.Height, nil
 }
 
-func NewTxManager(conf Configuration, node rpchttp.ABCIClient) *TxManager {
+func NewTxManager(conf Configuration, node rpchttp.Client) *TxManager {
 	return &TxManager{node: node, conf: conf}
 }
 
@@ -49,13 +51,17 @@ func (tm *TxManager) WithKeybase(keys keyring.Keyring) *TxManager {
 
 func (tm *TxManager) Init() error {
 	tm.clientCtx = client.Context{}.
-		WithJSONMarshaler(ModuleCdc.Marshaler).
+		// WithJSONMarshaler(ModuleCdc.Marshaler).
+		// The following line was taken from wasmd implementation
+		WithJSONMarshaler(clientcodec.NewProtoCodec(ModuleCdc.Marshaler, ModuleCdc.InterfaceRegistry)).
 		WithInterfaceRegistry(ModuleCdc.InterfaceRegistry).
 		WithTxConfig(ModuleCdc.TxConfig).
 		WithLegacyAmino(ModuleCdc.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock) //TODO: check the mode we need for our application
+		WithBroadcastMode(flags.BroadcastSync).
+		WithHomeDir(app.DefaultNodeHome).
+		WithClient(tm.node)
 
 	info, err := tm.keys.Key("faucet")
 	if err != nil {
