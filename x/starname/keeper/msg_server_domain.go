@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/starname/types"
@@ -28,7 +29,18 @@ func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomainInternal)
 	accounts := k.AccountStore(ctx)
 	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).Delete()
 
-	// success TODO maybe emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			//TODO: shouldn't we add this ?
+			// sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgDeleteDomainResponse{}, nil
 }
 
@@ -65,7 +77,19 @@ func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomainInter
 	ex := NewDomainExecutor(ctx, d).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Create()
 
-	// success TODO think here, can we emit any useful event
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Admin.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyDomainType, (string)(msg.DomainType)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Admin.String()),
+			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
+		),
+	)
 	return &types.MsgRegisterDomainResponse{}, nil
 }
 
@@ -96,7 +120,17 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (
 	accounts := k.AccountStore(ctx)
 	NewDomainExecutor(ctx, ctrl.Domain()).WithDomains(&domains).WithAccounts(&accounts).WithConfiguration(conf).Renew()
 
-	// success TODO emit event
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
+		),
+	)
 	return &types.MsgRenewDomainResponse{}, nil
 }
 
@@ -128,6 +162,18 @@ func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomainInter
 	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
 	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
 
-	// success; TODO emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyTransferDomainNewOwner, msg.NewAdmin.String()),
+			sdk.NewAttribute(types.AttributeKeyTransferDomainFlag, fmt.Sprintf("%d", msg.TransferFlag)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgTransferDomainResponse{}, nil
 }
