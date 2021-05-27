@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"github.com/iov-one/starnamed/cmd/faucet"
 	"io"
 	"os"
 	"path/filepath"
@@ -90,7 +89,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
-		faucet.Cmd(),
 		debug.Cmd(),
 	)
 
