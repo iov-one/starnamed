@@ -2,24 +2,21 @@ package pkg
 
 import (
 	"context"
-	"github.com/iov-one/starnamed/app"
-	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
 	"os"
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
-	"github.com/cosmos/cosmos-sdk/types/errors"
-	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/iov-one/starnamed/app"
+	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
 	rpchttp "github.com/tendermint/tendermint/rpc/client"
 )
 
