@@ -51,12 +51,9 @@ func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCe
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewCertificate, fmt.Sprintf("%x", msg.NewCertificate)),
-			// TODO: this is always the sender, so it is already included 
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -101,12 +98,9 @@ func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcc
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyDeletedCertificate, fmt.Sprintf("%x", msg.DeleteCertificate)),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -147,11 +141,8 @@ func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountInterna
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -216,7 +207,6 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInt
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
 		),
@@ -267,11 +257,8 @@ func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccountInternal)
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
 		),
 	)
@@ -319,12 +306,9 @@ func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcc
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewResources, strings.Join(resourcesDescriptors, ";")),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -367,12 +351,9 @@ func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcco
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewMetadata, msg.NewMetadataURI),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -414,13 +395,10 @@ func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccountInt
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyTransferAccountNewOwner, msg.NewOwner.String()),
 			sdk.NewAttribute(types.AttributeKeyTransferAccountReset, strconv.FormatBool(msg.ToReset)),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)

@@ -34,9 +34,7 @@ func deleteDomain(ctx sdk.Context, k Keeper, msg *types.MsgDeleteDomainInternal)
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -81,11 +79,8 @@ func registerDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomainInter
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Admin.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyDomainType, (string)(msg.DomainType)),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Admin.String()),
 			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
 		),
@@ -125,10 +120,7 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
 		),
 	)
@@ -168,12 +160,9 @@ func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomainInter
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			//TODO: adding sender here seems to be a duplicate
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyTransferDomainNewOwner, msg.NewAdmin.String()),
 			sdk.NewAttribute(types.AttributeKeyTransferDomainFlag, fmt.Sprintf("%d", msg.TransferFlag)),
-			// TODO: this is always the sender, so it is already included
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
