@@ -1,7 +1,7 @@
 ## How to export private key
 
 ```bash
-iovnscli keys export faucet
+starnamed keys export faucet
 ```
 - Input a passphrase. Remember you will use this pass phrase as env variable.
 - Copy armor and use it in env variable:
