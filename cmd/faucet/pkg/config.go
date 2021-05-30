@@ -1,76 +1,83 @@
 package pkg
 
 import (
+	"flag"
+	"fmt"
+	"math"
 	"os"
-	"strconv"
+
+	"github.com/iov-one/starnamed/app"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 )
 
 type Configuration struct {
-	TendermintRPC string
-	Port          string
-	ChainID       string
-	CoinDenom     string
-	Armor         string
-	Passphrase    string
-	Memo          string
-	SendAmount    int64
-	GasPrices     sdk.Coin
-	GasAdjust     float64
-	KeyringPass   string
+	GRPCEndpoint          string
+	TendermintRPCEndpoint string
+	Port                  uint
+	ChainID               string
+	ArmorFile             string
+	Memo                  string
+	SendAmount            sdk.Coin
+	GasPrices             sdk.Coin
+	GasAdjust             float64
 }
 
-func env(name, fallback string) string {
-	if v, ok := os.LookupEnv(name); ok {
-		return v
+func ParseConfiguration() (*Configuration, error) {
+
+	sdk.GetConfig().SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
+
+	sendAmountPtr := flag.String("send-amount", "100tiov", "Coin to send when receiving a credit request")
+	grpcEndpointPtr := flag.String("grpc-endpoint", "localhost:9090", "The address and port of a tendermint node gRPC")
+	rpcEndpointPtr := flag.String("rpc-endpoint", "http://localhost:26657", "A full address, with protocol and port, of a tendermint node RPC")
+	portPtr := flag.Uint("listen-port", 8080, "The port the faucet HTTP server will listen to")
+	memoPtr := flag.String("memo", "Sent with love by IOV", "The message associated with the transaction")
+	chainIdPtr := flag.String("chain-id", "integration-test", "The chain ID")
+	armorFilePtr := flag.String("faucet-armor-file", ".faucet_key", "The faucet private key file")
+	gasPricePtr := flag.String("gas-price", "0.000001tiov", "The gas price")
+	gasAdjustPtr := flag.Float64("gas-adjust", 1.2, "The gas adjustement")
+
+	flag.Parse()
+
+	// Validate server listening port
+	if *portPtr > math.MaxUint16 {
+		return nil, fmt.Errorf("invalid port number : %v", *portPtr)
 	}
-	return fallback
-}
 
-const (
-	gas           = "0"
-	ga            = "0.2"
-	fallBackArmor = `
------BEGIN TENDERMINT PRIVATE KEY-----
-salt: BF94D84D7E0BFEF9AB735D9315AD271E
-type: secp256k1
-kdf: bcrypt
-
-PECa11ktJ6mV4iTnhHGIL9nhjdXjplQDt5n+o5nddvnmS613AWbCL5FrC3WErdCR
-vdsyKdlue2uLJizP46Ao3w6PKMBVYgIkKe97GjA=
-=MZbT
------END TENDERMINT PRIVATE KEY-----
-`
-	faucetAddr = "star1pdp388k2jj5zsxx67v02pxtttguf6r4jj79v00"
-)
-
-func NewConfiguration() (*Configuration, error) {
-	gasPrices := env("GAS_PRICES", "10.0uvoi")
-	gasPricesCoins, err := sdk.ParseCoinNormalized(gasPrices)
+	_, err := os.Stat(*armorFilePtr)
 	if err != nil {
-		return nil, errors.Wrap(err, "Invalid gas prices")
+		return nil, errors.Wrapf(err, "provide a valid faucet private key file: %v", *armorFilePtr)
 	}
 
-	ga := env("GAS_ADJUST", ga)
-	gasAdjust, err := strconv.ParseFloat(ga, 64)
+	// Parse and validate send amount
+	amt, err := sdk.ParseCoinNormalized(*sendAmountPtr)
 	if err != nil {
-		return nil, errors.Wrap(err, "GAS_ADJUST")
+		return nil, errors.Wrapf(err, "provide a valid coin amount")
 	}
 
-	sendStr := env("SEND_AMOUNT", "100")
-	send, err := strconv.Atoi(sendStr)
+	if amt.IsNegative() {
+		return nil, errors.Wrapf(err, "could not send a negative amount")
+	}
+
+	gasPrice, err := sdk.ParseCoinNormalized(*gasPricePtr)
+	if err != nil {
+		return nil, errors.Wrapf(err, "provide a valid gas price")
+	}
+
+	if gasPrice.IsNegative() {
+		return nil, errors.Wrapf(err, "could not use a negative gas price")
+	}
+
 	return &Configuration{
-		TendermintRPC: env("TENDERMINT_RPC", "http://localhost:26657"),
-		Port:          env("PORT", ":8080"),
-		ChainID:       env("CHAIN_ID", "local"),
-		CoinDenom:     env("COIN_DENOM", "tiov"),
-		Armor:         env("ARMOR", fallBackArmor),
-		Passphrase:    env("PASSPHRASE", "12345678"),
-		Memo:          "sent by IOV with love",
-		SendAmount:    int64(send),
-		GasPrices:     gasPricesCoins,
-		GasAdjust:     gasAdjust,
+		GRPCEndpoint:          *grpcEndpointPtr,
+		TendermintRPCEndpoint: *rpcEndpointPtr,
+		Port:                  *portPtr,
+		ChainID:               *chainIdPtr,
+		ArmorFile:             *armorFilePtr,
+		Memo:                  *memoPtr,
+		SendAmount:            amt,
+		GasPrices:             gasPrice,
+		GasAdjust:             *gasAdjustPtr,
 	}, nil
 }
