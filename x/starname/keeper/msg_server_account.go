@@ -1,15 +1,21 @@
 package keeper
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
+
+// serializeResources serializes an array of resources to a string, to be embedded in the events
+func serializeResources(resources []*types.Resource) string {
+	bytes, _ := json.Marshal(resources)
+	return string(bytes)
+}
 
 func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificateInternal) (*types.MsgAddAccountCertificateResponse, error) {
 	// perform domain checks
@@ -199,8 +205,6 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInt
 	ex.Create()
 
 	// success
-	//TODO: add resources ?
-	//TODO: add registerer ?
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -208,6 +212,8 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInt
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyRegisterer, msg.Registerer.String()),
+			sdk.NewAttribute(types.AttributeKeyResources, serializeResources(msg.Resources)),
 			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
 		),
 	)
@@ -298,17 +304,13 @@ func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcc
 	ex.ReplaceResources(msg.NewResources)
 
 	// success
-	resourcesDescriptors := make([]string, len(msg.NewResources))
-	for i, res := range msg.NewResources {
-		resourcesDescriptors[i] = string(types.GetResourceKey(res.URI, res.Resource))
-	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			sdk.NewAttribute(types.AttributeKeyNewResources, strings.Join(resourcesDescriptors, ";")),
+			sdk.NewAttribute(types.AttributeKeyNewResources, serializeResources(msg.NewResources)),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)

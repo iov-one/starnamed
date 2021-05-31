@@ -19,6 +19,8 @@ const (
 const (
 	AttributeKeyAccountName             = "account_name"
 	AttributeKeyBroker                  = "broker"
+	AttributeKeyRegisterer              = "registerer"
+	AttributeKeyResources               = "resources"
 	AttributeKeyDeletedCertificate      = "deleted_certificate"
 	AttributeKeyDomainName              = "domain_name"
 	AttributeKeyDomainType              = "domain_type"
