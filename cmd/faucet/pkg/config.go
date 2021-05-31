@@ -20,7 +20,7 @@ type Configuration struct {
 	ArmorFile             string
 	Memo                  string
 	SendAmount            sdk.Coin
-	GasPrices             sdk.Coin
+	GasPrices             sdk.DecCoin
 	GasAdjust             float64
 }
 
@@ -60,7 +60,7 @@ func ParseConfiguration() (*Configuration, error) {
 		return nil, errors.Wrapf(err, "could not send a negative amount")
 	}
 
-	gasPrice, err := sdk.ParseCoinNormalized(*gasPricePtr)
+	gasPrice, err := sdk.ParseDecCoin(*gasPricePtr)
 	if err != nil {
 		return nil, errors.Wrapf(err, "provide a valid gas price")
 	}

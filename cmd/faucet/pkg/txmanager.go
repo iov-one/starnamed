@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"math"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -142,8 +143,12 @@ func (tm *TxManager) BuildAndSignTx(targetAddr string) ([]byte, error) {
 	}
 	txBuilder.SetGasLimit(adjusted)
 
-	feeAmt := sdk.NewInt(int64(adjusted * tm.conf.GasPrices.Amount.Uint64()))
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(tm.conf.GasPrices.Denom, feeAmt)))
+	if adjusted > math.MaxInt64 {
+		return nil, errors.New("faucet", 2, "Gas used too high for an integer representation")
+	}
+
+	feeAmt := tm.conf.GasPrices.Amount.Mul(sdk.NewDec(int64(adjusted)))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(tm.conf.GasPrices.Denom, feeAmt.TruncateInt())))
 
 	// Sign the transaction
 	if err := clienttx.Sign(fact, "faucet", txBuilder, true); err != nil {
