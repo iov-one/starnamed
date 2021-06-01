@@ -281,7 +281,7 @@ export const patchStargatenet = genesis => {
    genesis.app_state.starname.accounts.forEach( account => {
       const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
 
-      if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
+      if ( resource ) resource.uri = "asset:voi";
    } );
 
    // IBC
