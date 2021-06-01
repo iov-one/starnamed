@@ -147,7 +147,7 @@ export const patchJestnet = genesis => {
  * @param {Object} genesis - the stargatenet genesis object
  */
 export const patchStargatenet = genesis => {
-   genesis.chain_id != "stargatenet";
+   genesis.chain_id = "stargatenet";
 
    // add other test accounts
    const accounts = [
