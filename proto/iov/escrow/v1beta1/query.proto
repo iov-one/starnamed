@@ -1,0 +1,26 @@
+syntax = "proto3";
+package starnamed.x.escrow.v1beta1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "iov/escrow/v1beta1/types.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/escrow/types";
+
+// Query provides defines the gRPC querier service
+service Query {
+    // Escrow queries the Escrow by the specified hash lock
+    rpc Escrow(QueryEscrowRequest) returns (QueryEscrowResponse) {
+        option (google.api.http).get = "/starnamed/x/escrow/{id}";
+    }
+}
+
+// QueryEscrowRequest is the request type for the Query/Escrow RPC method
+message QueryEscrowRequest {
+    string id = 1;
+}
+
+// QueryBalanceResponse is the response type for the Query/Escrow RPC method
+message QueryEscrowResponse {
+    v1beta1.Escrow escrow = 1;
+}

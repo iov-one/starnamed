@@ -1,0 +1,13 @@
+syntax = "proto3";
+package starnamed.x.escrow.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "iov/escrow/v1beta1/types.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/escrow/types";
+
+// GenesisState defines the Escrow module's genesis state
+message GenesisState {
+    repeated v1beta1.Escrow escrows = 2 [ (gogoproto.nullable) = false ];
+}
