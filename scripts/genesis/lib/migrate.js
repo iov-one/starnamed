@@ -393,7 +393,7 @@ export const patchStargatenet = genesis => {
    genesis.app_state.staking.last_total_power = String( +genesis.app_state.staking.last_total_power + power );
    genesis.app_state.staking.last_validator_powers.push( {
       "Address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
-      "power": String( power )
+      "Power": String( power )
    } );
    genesis.app_state.staking.validators.push( {
       "commission": {
