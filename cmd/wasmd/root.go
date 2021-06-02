@@ -47,6 +47,8 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
+	config.SetCoinType(app.CoinType)
+	config.SetFullFundraiserPath(app.FullFundraiserPath)
 	config.Seal()
 
 	initClientCtx := client.Context{}.
