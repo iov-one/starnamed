@@ -416,7 +416,7 @@ export const patchStargatenet = genesis => {
        "jailed": false,
        "min_self_delegation": "1",
        "operator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
-       "status": 0,
+       "status": 2,
        "tokens": `${power * 1e6}`,
        "unbonding_height": "0",
        "unbonding_time": "1970-01-01T00:00:00Z"
