@@ -9,8 +9,6 @@ import {
    patchStargatenet,
    transferCustody,
 } from "../../lib/migrate";
-import fs from "fs";
-import path from "path";
 import readExportedState from "../../lib/readExportedState";
 import tmp from "tmp";
 
@@ -152,7 +150,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
-   it( `Should patch stargatenet.`, async () => {
+   it.only( `Should patch stargatenet.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
       const previous = [].concat( genesis.app_state.auth.accounts );
 
@@ -213,6 +211,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( ibc.client_genesis.params.allowed_clients.length ).toBe( 2 );
       expect( ibc.client_genesis.params.allowed_clients.find( client => client == "06-solomachine" ) ).toBeDefined();
+
+      // stargatenet validator
+      expect( genesis.validators.length ).toEqual( genesis0.validators.length + 1 );
+      expect( genesis.app_state.staking.validators.length ).toEqual( genesis0.app_state.staking.validators.length + 1 );
+      expect( genesis.app_state.staking.params.max_validators ).toEqual( genesis0.app_state.staking.params.max_validators + 1 );
+      expect( genesis.app_state.staking.delegations.length ).toEqual( genesis0.app_state.staking.delegations.length + 1 );
+
+      const stargatenet = genesis.app_state.auth.accounts.find( account => account.value.address == "star1ru72dnvdf3c6ja3z20m82pef7ummrqwwh0jjyj" );
+
+      expect( stargatenet ).toBeDefined();
    } );
 
 

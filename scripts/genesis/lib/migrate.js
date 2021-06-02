@@ -286,6 +286,83 @@ export const patchStargatenet = genesis => {
 
    // IBC
    genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
+
+   // hack mainnet validators
+   let power = genesis.validators.reduce( ( power, validator, i ) => {
+      validator.name = `OG${i}`; // hide the mainnet name
+      power += +validator.power;
+
+      return power;
+   }, 0 );
+
+   // give the stargate validator more than 2/3+ of the voting power
+   power *= 4;
+   genesis.app_state.auth.accounts.push( {
+      "//name": "stargatenet",
+      "type": "cosmos-sdk/Account",
+      "value": {
+         "address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+         "coins": [
+            {
+               "denom": "uvoi",
+               "amount": `${power * 1e6}`
+            }
+         ],
+         "public_key": null,
+         "account_number": "0",
+         "sequence": "0"
+      }
+   } );
+   genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + power * 1e6 );
+
+   // add stargatenet validator
+   genesis.validators.push( {
+      "address": "",
+      "name": "stargatenet",
+      "power": String( power ),
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "SlMF1rf9z/5JidhxpEZJFgJGiCRN1CDFwogSzgMxMD4="
+      }
+   } );
+   genesis.app_state.staking.params.max_validators = genesis.validators.length;
+   genesis.app_state.staking.last_total_power = String( +genesis.app_state.staking.last_total_power + power );
+   genesis.app_state.staking.last_validator_powers.push( {
+      "address": "starvaloper1nkpf2xhu53qp905fgjtlrgy5m4ppax8775kexp",
+      "power": String( power )
+   } );
+   genesis.app_state.staking.validators.push( {
+      "commission": {
+         "commission_rates": {
+           "max_change_rate": "0.010000000000000000",
+           "max_rate": "0.200000000000000000",
+           "rate": "0.100000000000000000"
+         },
+         "update_time": "2021-05-28T12:16:39.214976662Z"
+       },
+       // dmjp: dave@slim:~/.starnamed/config/priv_validator_key.json
+       "consensus_pubkey": "starvalconspub1zcjduepqfffst44hlh8lujvfmpc6g3jfzcpydzpyfh2zp3wz3qfvuqe3xqlqfnkl6a",
+       "delegator_shares": `${power * 1e6}.000000000000000000`,
+       "description": {
+         "details": "stargatenet.mne.txt",
+         "identity": "",
+         "moniker": "stargatenet",
+         "security_contact": "",
+         "website": ""
+       },
+       "jailed": false,
+       "min_self_delegation": "1",
+       "operator_address": "starvaloper1nkpf2xhu53qp905fgjtlrgy5m4ppax8775kexp",
+       "status": 0,
+       "tokens": `${power * 1e6}`,
+       "unbonding_height": "0",
+       "unbonding_time": "1970-01-01T00:00:00Z"
+   } );
+   genesis.app_state.staking.delegations.push( {
+      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+      "shares": `${power * 1e6}.000000000000000000`,
+      "validator_address": "starvaloper1nkpf2xhu53qp905fgjtlrgy5m4ppax8775kexp"
+   } );
 }
 
 /**
@@ -373,7 +450,8 @@ export const migrate = async args => {
 
       starnamed.on( "close", code => {
          // clean-up superflous files
-         [ "addrbook.json", "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
+         // dmjp [ "addrbook.json", "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
+         [ "addrbook.json", "app.toml", "config.toml", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
          [ "data", "wasm" ].map( dir => path.join( home, dir ) ).forEach( dir => { if ( fs.existsSync( dir ) ) fs.rmdirSync( dir, { recursive: true } ) } );
          fs.readdirSync( config ).filter( f => f.indexOf( "write-file-atomic" ) == 0 ).forEach( f => fs.unlinkSync( path.join( config, f ) ) );
 
