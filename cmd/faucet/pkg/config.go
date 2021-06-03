@@ -6,14 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/viper"
-
-	"github.com/spf13/pflag"
-
-	"github.com/iov-one/starnamed/app"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/starnamed/app"
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 type Configuration struct {
