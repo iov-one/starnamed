@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
@@ -8,6 +9,8 @@ import (
 type TypeID uint64
 
 type TransferableObject interface {
+	codec.ProtoMarshaler
+
 	GetType() TypeID
 	GetObject() crud.Object
 

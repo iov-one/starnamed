@@ -1,5 +1,5 @@
 // nolint
 package types
 
-// HTLC module event types and attributes
+// escrow module event types
 const ()

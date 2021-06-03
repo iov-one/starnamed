@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	crud "github.com/iov-one/cosmos-sdk-crud"
+
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	"github.com/iov-one/starnamed/x/escrow/types"
@@ -63,16 +65,10 @@ func (k Keeper) GetNextId() tmbytes.HexBytes {
 	return nil
 }
 
-// TODO: check the utility of this
-// EnsureModuleAccountPermissions syncs the bep3 module account's permissions with those in the supply keeper.
-func (k Keeper) EnsureModuleAccountPermissions(ctx sdk.Context) error {
-	maccI := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-	macc, ok := maccI.(*authtypes.ModuleAccount)
+func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
+	store, ok := k.storeHolders[id]
 	if !ok {
-		return fmt.Errorf("expected %s account to be a module account type", types.ModuleName)
+		return nil, types.ErrUnknownTypeID
 	}
-	_, perms := k.accountKeeper.GetModuleAddressAndPermissions(types.ModuleName)
-	macc.Permissions = perms
-	k.accountKeeper.SetModuleAccount(ctx, macc)
-	return nil
+	return store.GetCRUDStore(), nil
 }

@@ -1,9 +1,10 @@
 package keeper
 
 import (
-	"bytes"
-	"encoding/hex"
+	"reflect"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/pkg/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,131 +22,256 @@ func (k Keeper) CreateEscrow(
 	object types.TransferableObject,
 	deadline uint64,
 ) (
+	//TODO: shouldn't this return a string ?
 	tmbytes.HexBytes,
 	error,
 ) {
-	// TODO : replace this
 	id := k.GetNextId()
 
+	//TODO: shouldn't this be hex-encoding ?
+	stringId := string(id)
+
 	// check if the escrow already exists
-	if k.HasEscrow(ctx, id) {
+	if k.HasEscrow(ctx, stringId) {
 		return id, sdkerrors.Wrap(types.ErrIdNotUnique, id.String())
 	}
 
-	//TODO: transfer ownership of starname to escrow
-	err := object.Transfer(seller, k.GetEscrowAccount(ctx).GetAddress())
+	// Create and validate the escrow
+	escrow := types.NewEscrow(
+		id, buyer, seller, price, object, types.Open, deadline,
+	)
+	err := escrow.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: validate that accounts are not module accounts
+
+	// Retrieve the store for this object
+	objectStore, err := k.getStoreForID(object.GetType())
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the object is in the store and is equal to the store's version
+	err = k.checkObjectWithStore(objectStore, object)
+	if err != nil {
+		return nil, err
+	}
+
+	// transfer ownership of the object to the escrow account
+	err = k.doObjectTransferWithStore(seller, k.GetEscrowAccount(ctx).GetAddress(), object, objectStore)
 	if err != nil {
 		return nil, errors.Wrap(err, "Cannot transfer the object to the module account")
 	}
 
-	escrow := types.NewEscrow(
-		id, buyer, seller, price, object, types.Open, deadline,
-	)
+	// save the modified object
+	err = objectStore.Update(object.GetObject())
+	if err != nil {
+		return nil, err
+	}
 
-	// set the escrow
-	k.SetEscrow(ctx, escrow, id)
+	// save the escrow
+	k.saveEscrow(ctx, escrow)
 
 	return id, nil
 }
 
-// ClaimEscrow claims the specified escrow with the given secret
-func (k Keeper) ClaimEscrow(
+func (k Keeper) UpdateEscrow(
 	ctx sdk.Context,
 	id tmbytes.HexBytes,
-	secret tmbytes.HexBytes,
-) (
-	string,
-	bool,
-	error,
-) {
+	seller sdk.AccAddress,
+	buyer sdk.AccAddress,
+	object types.TransferableObject,
+	deadline uint64,
+) error {
+	//TODO: shouldn't this be hex-encoding ?
+	stringId := string(id)
+	// check if the escrow exists
+	if !k.HasEscrow(ctx, stringId) {
+		return sdkerrors.Wrap(types.ErrEscrowNotFound, stringId)
+	}
+
+	//TODO: implement the update method
+	return nil
+}
+
+// TransferToEscrow transfers coins from the buyer to the escrow account
+func (k Keeper) TransferToEscrow(
+	ctx sdk.Context,
+	id tmbytes.HexBytes,
+	amount sdk.Coins,
+
+) error {
+	//TODO: shouldn't this be hex-encoding ?
+	stringId := string(id)
 	// query the escrow
-	escrow, found := k.GetEscrow(ctx, id)
+	escrow, found := k.GetEscrow(ctx, stringId)
 	if !found {
-		return "", false, types.None, sdkerrors.Wrap(types.ErrUnknownEscrow, id.String())
+		return sdkerrors.Wrap(types.ErrEscrowNotFound, stringId)
 	}
 
 	// check if the escrow is open
 	if escrow.State != types.Open {
-		return "", false, types.None, sdkerrors.Wrap(types.ErrEscrowNotOpen, id.String())
+		return sdkerrors.Wrap(types.ErrEscrowNotOpen, stringId)
 	}
 
-	hashLock, _ := hex.DecodeString(escrow.HashLock)
+	//TODO: check if deadline here is needed or if BeginBlocker is a sufficient warranty
 
-	// check if the secret matches with the hash lock
-	if !bytes.Equal(types.GetHashLock(secret, escrow.Timestamp), hashLock) {
-		return "", false, types.None, sdkerrors.Wrap(types.ErrInvalidSecret, secret.String())
-	}
-
-	to, err := sdk.AccAddressFromBech32(escrow.To)
+	buyer, err := sdk.AccAddressFromBech32(escrow.Buyer)
+	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
 	if err != nil {
-		return "", false, types.None, err
+		return sdkerrors.Wrapf(err, "Invalid buyer address : %v", escrow.Buyer)
 	}
 
-	if escrow.Transfer {
-		if err := k.claimHTLT(ctx, escrow); err != nil {
-			return "", false, types.None, err
-		}
-	} else {
-		if err := k.claimEscrow(ctx, escrow.Amount, to); err != nil {
-			return "", false, types.None, err
-		}
+	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
+	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+	if err != nil {
+		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
+	}
+	// Check if the provided amount is valid
+	if !amount.IsValid() {
+		return types.ErrInvalidAmount
 	}
 
-	// update the secret and state of the escrow
-	escrow.Secret = secret.String()
+	// Check if the amount is greater or equal than the price
+	if !amount.IsAllGTE(escrow.Price) {
+		return types.ErrTransferAmountTooLow
+	}
+
+	// Send the price to the module
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, escrow.Price)
+	if err != nil {
+		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
+	}
+
+	// Do the exchange
+	err = k.doSwap(ctx, escrow, buyer, seller)
+	//TODO: should we try to recover ? (e.g. sending back coins / object and closing the escrow on transfer failure)
+	if err != nil {
+		panic(err)
+	}
+
 	escrow.State = types.Completed
-	escrow.ClosedBlock = uint64(ctx.BlockHeight())
-	k.SetEscrow(ctx, escrow, id)
-
-	// delete from the expiration queue
-	k.DeleteEscrowFromExpiredQueue(ctx, escrow.ExpirationHeight, id)
-
-	return escrow.HashLock, escrow.Transfer, escrow.Direction, nil
-}
-
-// RefundEscrow refunds the specified escrow
-func (k Keeper) RefundEscrow(ctx sdk.Context, h types.Escrow, id tmbytes.HexBytes) error {
-	sender, err := sdk.AccAddressFromBech32(h.Sender)
-	if err != nil {
-		return err
-	}
-
-	if h.Transfer {
-		if err := k.refundHTLT(ctx, h.Direction, sender, h.Amount); err != nil {
-			return err
-		}
-	} else {
-		if err := k.refundEscrow(ctx, sender, h.Amount); err != nil {
-			return err
-		}
-	}
-
-	// update the state of the escrow
-	h.State = types.Refunded
-	h.ClosedBlock = uint64(ctx.BlockHeight())
-	k.SetEscrow(ctx, h, id)
+	k.deleteEscrow(ctx, escrow)
 
 	return nil
 }
 
+func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress) error {
+
+	// Transfer the object from the module to the buyer
+	err := k.doObjectTransfer(k.GetEscrowAccount(ctx).GetAddress(), buyer, escrow.GetObject())
+	if err != nil {
+		return sdkerrors.Wrap(err, "Cannot send the object to the buyer")
+	}
+	//TODO: save object in store
+
+	// Transfer the coins
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, seller, escrow.Price)
+	if err != nil {
+		return sdkerrors.Wrap(err, "Cannot send the coins to the seller")
+	}
+	return nil
+}
+
+// RefundEscrow refunds the specified escrow
+func (k Keeper) RefundEscrow(ctx sdk.Context, escrow types.Escrow) error {
+
+	//TODO: checks
+
+	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
+	if err != nil {
+		return err
+	}
+	if err := k.refundEscrow(ctx, escrow, seller); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.AccAddress) error {
+
+	// Transfer the object back to the seller
+	err := k.doObjectTransfer(k.GetEscrowAccount(ctx).GetAddress(), seller, escrow.GetObject())
+	if err != nil {
+		return sdkerrors.Wrap(err, "Error while transferring the object back to the seller")
+
+	}
+
+	// update the state of the escrow
+	escrow.State = types.Refunded
+	//TODO: delete escrow
+	k.saveEscrow(ctx, escrow)
+	return nil
+}
+
+func (k Keeper) doObjectTransfer(from, to sdk.AccAddress, object types.TransferableObject) error {
+	// Retrieve the object store
+	objectStore, err := k.getStoreForID(object.GetType())
+	if err != nil {
+		return err
+	}
+	return k.doObjectTransferWithStore(from, to, object, objectStore)
+}
+
+func (k Keeper) doObjectTransferWithStore(from, to sdk.AccAddress, object types.TransferableObject, objectStore crud.Store) error {
+	// Transfer the object
+	err := object.Transfer(from, to)
+	if err != nil {
+		return err
+	}
+
+	// Save the object in its store
+	err = objectStore.Update(object.GetObject())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {
-	return ctx.KVStore(k.storeKey)
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.EscrowStoreKey)
+}
+
+func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
+	var objInStore crud.Object
+	err := objectStore.Read(object.GetObject().PrimaryKey(), objInStore)
+	if err != nil {
+		return types.ErrUnknownObject
+	}
+
+	if !reflect.DeepEqual(objInStore, object) {
+		return sdkerrors.Wrap(types.ErrUnknownObject, "The object and his stored version does not match")
+	}
+
+	return nil
+}
+
+func (k Keeper) getEscrowKey(id string) []byte {
+	//TODO: shouldn't this be hex-decoding ?
+	return []byte(id)
 }
 
 // HasEscrow checks if the given escrow exists
-func (k Keeper) HasEscrow(ctx sdk.Context, id tmbytes.HexBytes) bool {
-	return k.getStore(ctx).Has(types.GetEscrowKey(id))
+func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
+	return k.getStore(ctx).Has(k.getEscrowKey(id))
 }
 
-// SetEscrow sets the given escrow
-func (k Keeper) SetEscrow(ctx sdk.Context, escrow types.Escrow, id tmbytes.HexBytes) {
+// saveEscrow sets the given escrow
+func (k Keeper) saveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	bz := k.cdc.MustMarshalBinaryBare(&escrow)
-	k.getStore(ctx).Set(types.GetEscrowKey(id), bz)
+	k.getStore(ctx).Set(k.getEscrowKey(escrow.Id), bz)
+}
+
+func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
+	k.getStore(ctx).Delete(k.getEscrowKey(escrow.Id))
 }
 
 // GetEscrow retrieves the specified escrow
-func (k Keeper) GetEscrow(ctx sdk.Context, id tmbytes.HexBytes) (escrow types.Escrow, found bool) {
-	bz := k.getStore(ctx).Get(types.GetEscrowKey(id))
+func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, found bool) {
+	bz := k.getStore(ctx).Get(k.getEscrowKey(id))
 	if bz == nil {
 		return escrow, false
 	}
@@ -160,7 +286,7 @@ func (k Keeper) IterateEscrows(
 ) {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.EscrowKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.EscrowStoreKey)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -168,26 +294,6 @@ func (k Keeper) IterateEscrows(
 
 		var escrow types.Escrow
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &escrow)
-
-		if stop := op(id, escrow); stop {
-			break
-		}
-	}
-}
-
-// IterateEscrowExpiredQueueByHeight iterates through the escrow expiration queue by the specified height
-func (k Keeper) IterateEscrowExpiredQueueByHeight(
-	ctx sdk.Context, height uint64,
-	op func(id tmbytes.HexBytes, h types.Escrow) (stop bool),
-) {
-	store := ctx.KVStore(k.storeKey)
-
-	iterator := sdk.KVStorePrefixIterator(store, types.GetEscrowExpiredQueueSubspace(height))
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		id := tmbytes.HexBytes(iterator.Key()[9:])
-		escrow, _ := k.GetEscrow(ctx, id)
 
 		if stop := op(id, escrow); stop {
 			break

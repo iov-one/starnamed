@@ -24,11 +24,8 @@ message Escrow {
     repeated cosmos.base.v1beta1.Coin price = 5 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     EscrowState state = 6;
     uint64 deadline = 7;
-    uint64 closed_block = 8 [ (gogoproto.moretags) = "yaml:\"closed_block\"" ];
-
 
     /*
-    string secret = 8;
     uint64 timestamp = 9;
     uint64 expiration_height = 10 [ (gogoproto.moretags) = "yaml:\"expiration_height\"" ];*/
 }

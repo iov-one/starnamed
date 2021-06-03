@@ -10,5 +10,6 @@ const (
 
 //QueryEscrowParams defines the params to query an escrow
 type QueryEscrowParams struct {
+	//TODO: shouldn't this be a string ?
 	ID tmbytes.HexBytes
 }

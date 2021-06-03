@@ -6,6 +6,8 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/exported"
 )
 
+//TODO: resync with cosmos sdk
+
 // BankKeeper defines the expected bank keeper (noalias)
 type BankKeeper interface {
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error

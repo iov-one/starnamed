@@ -1,5 +1,6 @@
 package types
 
+// TODO: not sure if this is the correct place
 const (
 	// ModuleName is the name of the escrow module
 	ModuleName = "escrow"
@@ -15,11 +16,8 @@ const (
 )
 
 var (
-	// Keys for store prefixes
-	EscrowKey = []byte{0x01} // prefix for escrow
-)
+	//TODO: move this in the keeper, nothing to do there
 
-// GetEscrowKey returns the key for the escrow with the specified id
-func GetEscrowKey(id []byte) []byte {
-	return append(EscrowKey, id...)
-}
+	// EscrowStoreKey Key for store prefixes
+	EscrowStoreKey = []byte{0x01} // prefix for escrow
+)

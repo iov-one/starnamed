@@ -1519,7 +1519,6 @@ Escrow defines the struct of an escrow
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
-| `closed_block` | [uint64](#uint64) |  |  |
 
 
 
