@@ -426,7 +426,7 @@ export const patchStargatenet = genesis => {
    genesis.app_state = JSON.parse( JSON.stringify( genesis.app_state ).replace( reDenom, '"denom":"uvoi"' ) );
 
    // convert URIs to testnet
-   genesis.app_state.starname.accounts.forEach( account => {
+   genesis.app_state.starname.accounts && genesis.app_state.starname.accounts.forEach( account => {
       const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
 
       if ( resource ) resource.uri = "asset:voi";
