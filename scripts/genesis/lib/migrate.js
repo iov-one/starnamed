@@ -108,7 +108,7 @@ export const adjustInflation = genesis => {
    genesis.app_state.mint.minter.inflation = "0.0";
 
    genesis.app_state.mint.params.blocks_per_year = "4360000";
-   genesis.app_state.mint.params.goal_bonded = "0.0";
+   genesis.app_state.mint.params.goal_bonded = "0.67"; // CONSENSUS FAILURE!!! err="division by zero" if 0.0
    genesis.app_state.mint.params.inflation_max = "0.0";
    genesis.app_state.mint.params.inflation_min = "0.0";
    genesis.app_state.mint.params.inflation_rate_change = "0.0";
