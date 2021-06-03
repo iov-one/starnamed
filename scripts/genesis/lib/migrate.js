@@ -134,6 +134,154 @@ export const fixConfiguration = genesis => {
 };
 
 /**
+ * Add a 2/3+ validator to the genesis object.
+ * @param {Object} genesis - the state
+ */
+export const injectValidator = genesis => {
+   let power = genesis.validators.reduce( ( power, validator ) => {
+      power += +validator.power;
+      return power;
+   }, 0 );
+
+   // give the stargate validator more than 2/3+ of the voting power
+   power *= 4;
+   genesis.app_state.auth.accounts.push( {
+      "//name": "stargatenet",
+      "type": "cosmos-sdk/Account",
+      "value": {
+         "address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+         "coins": [
+            {
+               "denom": "uvoi",
+               "amount": "0"
+            }
+         ],
+         "public_key": null,
+         "account_number": "0",
+         "sequence": "0"
+      }
+   } );
+   genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + power * 1e6 );
+   const bonded_tokens_pool = genesis.app_state.auth.accounts.find( account => account.value.name == "bonded_tokens_pool" );
+   bonded_tokens_pool.value.coins[0].amount = String( +bonded_tokens_pool.value.coins[0].amount + power * 1e6 );
+
+   // add stargatenet validator
+   const priv_validator_key = {
+      "address": "376CA61EB1F1D06E9C0D35DE7A20AD07C30A6FF0",
+      "pub_key": {
+         "type": "tendermint/PubKeyEd25519",
+         "value": "bCnsOFqyBBHiHMj3/8CI/hwiuUI9J86OnqCOrfJLHd0="
+      },
+      "priv_key": {
+         "type": "tendermint/PrivKeyEd25519",
+         "value": "Yl0FhSxIEn71UAJB1YEGYap3Hb73qoYmD905PPIU/7tsKew4WrIEEeIcyPf/wIj+HCK5Qj0nzo6eoI6t8ksd3Q=="
+      }
+   };
+   genesis.validators.push( {
+      "address": "",
+      "name": "stargatenet",
+      "power": String( power ),
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": priv_validator_key.pub_key.value
+      }
+   } );
+   genesis.app_state.distribution.delegator_starting_infos.push( {
+      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+      "starting_info": {
+         "creation_height": "0",
+         "previous_period": "1",
+         "stake": `${power}.000000000000000000`
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.outstanding_rewards.push( {
+      "outstanding_rewards": [
+         {
+            "amount": "0.000000000000000000",
+            "denom": "uvoi"
+         }
+      ],
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_accumulated_commissions.push( {
+      "accumulated": [
+         {
+            "amount": "0.000000000000000000",
+            "denom": "uvoi"
+         }
+      ],
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_current_rewards.push( {
+      "rewards": {
+         "period": "2",
+         "rewards": [
+            {
+               "amount": "0.000000000000000000",
+               "denom": "uvoi"
+            }
+         ]
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_historical_rewards.push( {
+      "period": "1",
+      "rewards": {
+         "cumulative_reward_ratio": null,
+         "reference_count": 2
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.slashing.missed_blocks.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = [];
+   genesis.app_state.slashing.signing_infos.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = {
+      "address": "starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw",
+      "index_offset": "3723359",
+      "jailed_until": "1970-01-01T00:00:00Z",
+      "missed_blocks_counter": "0",
+      "start_height": "0",
+      "tombstoned": false
+   };
+   genesis.app_state.staking.delegations.push( {
+      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+      "shares": `${power * 1e6}.000000000000000000`,
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.staking.last_total_power = String( +genesis.app_state.staking.last_total_power + power );
+   genesis.app_state.staking.last_validator_powers.push( {
+      "Address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
+      "Power": String( power )
+   } );
+   genesis.app_state.staking.validators.push( {
+      "commission": {
+         "commission_rates": {
+           "max_change_rate": "0.010000000000000000",
+           "max_rate": "0.200000000000000000",
+           "rate": "0.100000000000000000"
+         },
+         "update_time": "2021-05-28T12:16:39.214976662Z"
+       },
+       "consensus_pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g", // from priv_validator_key
+       "delegator_shares": `${power * 1e6}.000000000000000000`,
+       "description": {
+         "details": "stargatenet.mne.txt",
+         "identity": "",
+         "moniker": "stargatenet",
+         "security_contact": "",
+         "website": ""
+       },
+       "jailed": false,
+       "min_self_delegation": "1",
+       "operator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
+       "status": 2,
+       "tokens": `${power * 1e6}`,
+       "unbonding_height": "0",
+       "unbonding_time": "1970-01-01T00:00:00Z"
+   } );
+   genesis.app_state.staking.params.max_validators = genesis.app_state.staking.last_validator_powers.length;
+}
+
+/**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
  */
@@ -287,150 +435,11 @@ export const patchStargatenet = genesis => {
    // IBC
    genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
 
-   // hack mainnet validators
-   let power = genesis.validators.reduce( ( power, validator, i ) => {
-      validator.name = `OG${i}`; // hide the mainnet name
-      power += +validator.power;
+   // hide mainnet validtor names
+   genesis.validators.forEach( ( validator, i ) => validator.name = `OG${i}` );
 
-      return power;
-   }, 0 );
-
-   // give the stargate validator more than 2/3+ of the voting power
-   power *= 4;
-   genesis.app_state.auth.accounts.push( {
-      "//name": "stargatenet",
-      "type": "cosmos-sdk/Account",
-      "value": {
-         "address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
-         "coins": [
-            {
-               "denom": "uvoi",
-               "amount": "0"
-            }
-         ],
-         "public_key": null,
-         "account_number": "0",
-         "sequence": "0"
-      }
-   } );
-   genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + power * 1e6 );
-   const bonded_tokens_pool = genesis.app_state.auth.accounts.find( account => account.value.name == "bonded_tokens_pool" );
-   bonded_tokens_pool.value.coins[0].amount = String( +bonded_tokens_pool.value.coins[0].amount + power * 1e6 );
-
-   // add stargatenet validator
-   const priv_validator_key = {
-      "address": "376CA61EB1F1D06E9C0D35DE7A20AD07C30A6FF0",
-      "pub_key": {
-         "type": "tendermint/PubKeyEd25519",
-         "value": "bCnsOFqyBBHiHMj3/8CI/hwiuUI9J86OnqCOrfJLHd0="
-      },
-      "priv_key": {
-         "type": "tendermint/PrivKeyEd25519",
-         "value": "Yl0FhSxIEn71UAJB1YEGYap3Hb73qoYmD905PPIU/7tsKew4WrIEEeIcyPf/wIj+HCK5Qj0nzo6eoI6t8ksd3Q=="
-      }
-   };
-   genesis.validators.push( {
-      "address": "",
-      "name": "stargatenet",
-      "power": String( power ),
-      "pub_key": {
-        "type": "tendermint/PubKeyEd25519",
-        "value": priv_validator_key.pub_key.value
-      }
-   } );
-   genesis.app_state.distribution.delegator_starting_infos.push( {
-      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
-      "starting_info": {
-         "creation_height": "0",
-         "previous_period": "1",
-         "stake": `${power}.000000000000000000`
-      },
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.distribution.outstanding_rewards.push( {
-      "outstanding_rewards": [
-         {
-            "amount": "0.000000000000000000",
-            "denom": "uvoi"
-         }
-      ],
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.distribution.validator_accumulated_commissions.push( {
-      "accumulated": [
-         {
-            "amount": "0.000000000000000000",
-            "denom": "uvoi"
-         }
-      ],
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.distribution.validator_current_rewards.push( {
-      "rewards": {
-         "period": "2",
-         "rewards": [
-            {
-               "amount": "0.000000000000000000",
-               "denom": "uvoi"
-            }
-         ]
-      },
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.distribution.validator_historical_rewards.push( {
-      "period": "1",
-      "rewards": {
-         "cumulative_reward_ratio": null,
-         "reference_count": 2
-      },
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.slashing.missed_blocks.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = [];
-   genesis.app_state.slashing.signing_infos.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = {
-      "address": "starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw",
-      "index_offset": "3723359",
-      "jailed_until": "1970-01-01T00:00:00Z",
-      "missed_blocks_counter": "0",
-      "start_height": "0",
-      "tombstoned": false
-   };
-   genesis.app_state.staking.delegations.push( {
-      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
-      "shares": `${power * 1e6}.000000000000000000`,
-      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
-   } );
-   genesis.app_state.staking.last_total_power = String( +genesis.app_state.staking.last_total_power + power );
-   genesis.app_state.staking.last_validator_powers.push( {
-      "Address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
-      "Power": String( power )
-   } );
-   genesis.app_state.staking.validators.push( {
-      "commission": {
-         "commission_rates": {
-           "max_change_rate": "0.010000000000000000",
-           "max_rate": "0.200000000000000000",
-           "rate": "0.100000000000000000"
-         },
-         "update_time": "2021-05-28T12:16:39.214976662Z"
-       },
-       "consensus_pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g", // from priv_validator_key
-       "delegator_shares": `${power * 1e6}.000000000000000000`,
-       "description": {
-         "details": "stargatenet.mne.txt",
-         "identity": "",
-         "moniker": "stargatenet",
-         "security_contact": "",
-         "website": ""
-       },
-       "jailed": false,
-       "min_self_delegation": "1",
-       "operator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
-       "status": 2,
-       "tokens": `${power * 1e6}`,
-       "unbonding_height": "0",
-       "unbonding_time": "1970-01-01T00:00:00Z"
-   } );
-   genesis.app_state.staking.params.max_validators = genesis.app_state.staking.last_validator_powers.length;
+   // add a dominant validators
+   injectValidator( genesis );
 }
 
 /**
