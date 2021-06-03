@@ -1,10 +1,14 @@
 package pkg
 
 import (
-	"flag"
 	"fmt"
 	"math"
 	"os"
+	"strings"
+
+	"github.com/spf13/viper"
+
+	"github.com/spf13/pflag"
 
 	"github.com/iov-one/starnamed/app"
 
@@ -22,36 +26,46 @@ type Configuration struct {
 	SendAmount            sdk.Coin
 	GasPrices             sdk.DecCoin
 	GasAdjust             float64
+	Passphrase            string
 }
 
 func ParseConfiguration() (*Configuration, error) {
 
 	sdk.GetConfig().SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
 
-	sendAmountPtr := flag.String("send-amount", "100tiov", "Coin to send when receiving a credit request")
-	grpcEndpointPtr := flag.String("grpc-endpoint", "localhost:9090", "The address and port of a tendermint node gRPC")
-	rpcEndpointPtr := flag.String("rpc-endpoint", "http://localhost:26657", "A full address, with protocol and port, of a tendermint node RPC")
-	portPtr := flag.Uint("listen-port", 8080, "The port the faucet HTTP server will listen to")
-	memoPtr := flag.String("memo", "Sent with love by IOV", "The message associated with the transaction")
-	chainIdPtr := flag.String("chain-id", "integration-test", "The chain ID")
-	armorFilePtr := flag.String("faucet-armor-file", ".faucet_key", "The faucet private key file")
-	gasPricePtr := flag.String("gas-price", "0.000001tiov", "The gas price")
-	gasAdjustPtr := flag.Float64("gas-adjust", 1.2, "The gas adjustement")
+	pflag.String("send-amount", "100tiov", "Coin to send when receiving a credit request")
+	pflag.String("grpc-endpoint", "localhost:9090", "The address and port of a tendermint node gRPC")
+	pflag.String("rpc-endpoint", "http://localhost:26657", "A full address, with protocol and port, of a tendermint node RPC")
+	pflag.Uint("listen-port", 8080, "The port the faucet HTTP server will listen to")
+	pflag.String("memo", "Sent with love by IOV", "The message associated with the transaction")
+	pflag.String("chain-id", "integration-test", "The chain ID")
+	pflag.String("armor-file", ".faucet_key", "The faucet private key file")
+	pflag.String("gas-price", "0.000001tiov", "The gas price")
+	pflag.Float64("gas-adjust", 1.2, "The gas adjustement")
 
-	flag.Parse()
+	pflag.Parse()
+
+	err := viper.BindPFlags(pflag.CommandLine)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not read command-line arguments")
+	}
+	// Bind environment variables
+	viper.SetEnvPrefix("FAUCET")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
 
 	// Validate server listening port
-	if *portPtr > math.MaxUint16 {
-		return nil, fmt.Errorf("invalid port number : %v", *portPtr)
+	if viper.GetUint("listen-port") > math.MaxUint16 {
+		return nil, fmt.Errorf("invalid port number : %v", viper.GetUint("listen-port"))
 	}
 
-	_, err := os.Stat(*armorFilePtr)
+	_, err = os.Stat(viper.GetString("armor-file"))
 	if err != nil {
-		return nil, errors.Wrapf(err, "provide a valid faucet private key file: %v", *armorFilePtr)
+		return nil, errors.Wrapf(err, "provide a valid faucet private key file: %v", viper.GetString("armor-file"))
 	}
 
 	// Parse and validate send amount
-	amt, err := sdk.ParseCoinNormalized(*sendAmountPtr)
+	amt, err := sdk.ParseCoinNormalized(viper.GetString("send-amount"))
 	if err != nil {
 		return nil, errors.Wrapf(err, "provide a valid coin amount")
 	}
@@ -60,7 +74,7 @@ func ParseConfiguration() (*Configuration, error) {
 		return nil, errors.Wrapf(err, "could not send a negative amount")
 	}
 
-	gasPrice, err := sdk.ParseDecCoin(*gasPricePtr)
+	gasPrice, err := sdk.ParseDecCoin(viper.GetString("gas-price"))
 	if err != nil {
 		return nil, errors.Wrapf(err, "provide a valid gas price")
 	}
@@ -70,14 +84,15 @@ func ParseConfiguration() (*Configuration, error) {
 	}
 
 	return &Configuration{
-		GRPCEndpoint:          *grpcEndpointPtr,
-		TendermintRPCEndpoint: *rpcEndpointPtr,
-		Port:                  *portPtr,
-		ChainID:               *chainIdPtr,
-		ArmorFile:             *armorFilePtr,
-		Memo:                  *memoPtr,
+		GRPCEndpoint:          viper.GetString("grpc-endpoint"),
+		TendermintRPCEndpoint: viper.GetString("rpc-endpoint"),
+		Port:                  viper.GetUint("listen-port"),
+		ChainID:               viper.GetString("chain-id"),
+		ArmorFile:             viper.GetString("armor-file"),
+		Memo:                  viper.GetString("memo"),
 		SendAmount:            amt,
 		GasPrices:             gasPrice,
-		GasAdjust:             *gasAdjustPtr,
+		Passphrase:            viper.GetString("armor-passphrase"),
+		GasAdjust:             viper.GetFloat64("gas-adjust"),
 	}, nil
 }

@@ -48,19 +48,26 @@ func main() {
 		panic(errors.Wrapf(err, "Cannot read the private key: %v", conf.ArmorFile))
 	}
 
-	fmt.Printf("[%v key] Passphrase : ", conf.ArmorFile)
-	passphrase, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Print("\n")
-
-	if err != nil {
-		panic(err)
+	var passphrase string
+	if len(conf.Passphrase) == 0 {
+		fmt.Printf("[%v key] Passphrase : ", conf.ArmorFile)
+		passphraseBytes, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Print("\n")
+		passphrase = string(passphraseBytes)
+		// Garbage collect the passphrase bytes
+		passphraseBytes = nil
+	} else {
+		passphrase = conf.Passphrase
 	}
 
-	if err := keys.ImportPrivKey("faucet", string(armor), string(passphrase)); err != nil {
+	if err := keys.ImportPrivKey("faucet", string(armor), passphrase); err != nil {
 		log.Fatalf("keybase: %v", err)
 	}
-	// Garbage collect the passphrase
-	passphrase = nil
+	// Erase the passphrase
+	passphrase = ""
 
 	// setup tx manager
 	txManager := pkg.NewTxManager(conf, grpcClient, rpcClient).WithKeybase(keys)
