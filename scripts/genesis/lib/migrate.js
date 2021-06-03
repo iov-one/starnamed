@@ -430,7 +430,7 @@ export const patchStargatenet = genesis => {
        "unbonding_height": "0",
        "unbonding_time": "1970-01-01T00:00:00Z"
    } );
-   genesis.app_state.staking.params.max_validators = genesis.app_state.staking.validators.length;
+   genesis.app_state.staking.params.max_validators = genesis.app_state.staking.last_validator_powers.length;
 }
 
 /**

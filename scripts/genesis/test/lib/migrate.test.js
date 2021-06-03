@@ -150,7 +150,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
-   it.only( `Should patch stargatenet.`, async () => {
+   it( `Should patch stargatenet.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
       const previous = [].concat( genesis.app_state.auth.accounts );
 
@@ -218,7 +218,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.staking.params.max_validators ).toEqual( genesis0.app_state.staking.params.max_validators + 1 );
       expect( genesis.app_state.staking.delegations.length ).toEqual( genesis0.app_state.staking.delegations.length + 1 );
 
-      const stargatenet = genesis.app_state.auth.accounts.find( account => account.value.address == "star1ru72dnvdf3c6ja3z20m82pef7ummrqwwh0jjyj" );
+      const stargatenet = genesis.app_state.auth.accounts.find( account => account.value.address == "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp" );
 
       expect( stargatenet ).toBeDefined();
    } );
