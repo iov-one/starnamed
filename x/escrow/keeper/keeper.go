@@ -23,7 +23,10 @@ type Keeper struct {
 	paramSpace    paramstypes.Subspace
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
+	//TODO : store it into persistent storage !!
+	lastBlockTime uint64
 	storeHolders  map[types.TypeID]types.StoreHolder
+	blockedAddrs  map[string]bool
 }
 
 // NewKeeper creates a new escrow Keeper instance
@@ -33,6 +36,7 @@ func NewKeeper(
 	paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	blockedAddrs map[string]bool,
 	storeHolders map[types.TypeID]types.StoreHolder,
 ) Keeper {
 	// ensure the escrow module account is set
@@ -47,6 +51,7 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		storeHolders:  storeHolders,
+		blockedAddrs:  blockedAddrs,
 	}
 }
 
@@ -60,9 +65,13 @@ func (k Keeper) GetEscrowAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
-func (k Keeper) GetNextId() tmbytes.HexBytes {
+func (k Keeper) FetchNextId() tmbytes.HexBytes {
 	//TODO: not implemented
 	return nil
+}
+
+func (k Keeper) NextId() {
+	//TODO: not implemented
 }
 
 func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
@@ -71,4 +80,16 @@ func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
 		return nil, types.ErrUnknownTypeID
 	}
 	return store.GetCRUDStore(), nil
+}
+
+func (k Keeper) SetLastBlockTime(date uint64) {
+	k.lastBlockTime = date
+}
+
+func (k Keeper) GetLastBlockTime() uint64 {
+	return k.lastBlockTime
+}
+
+func (k Keeper) isBlockedAddr(address string) bool {
+	return k.blockedAddrs[address]
 }

@@ -1,22 +1,24 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewGenesisState constructs a new GenesisState instance
-func NewGenesisState(escrows []Escrow) *GenesisState {
+func NewGenesisState(escrows []Escrow, lastBlockTime uint64) *GenesisState {
 	return &GenesisState{
-		Escrows: escrows,
+		Escrows:       escrows,
+		LastBlockTime: lastBlockTime,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis message for testing
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Escrows: []Escrow{},
+		Escrows:       []Escrow{},
+		LastBlockTime: 0,
 	}
 }
 
@@ -30,6 +32,10 @@ func ValidateGenesis(data GenesisState) error {
 
 		if escrow.State != Open {
 			return sdkerrors.Wrap(ErrEscrowNotOpen, escrow.Id)
+		}
+
+		if escrow.Deadline <= data.LastBlockTime {
+			return sdkerrors.Wrap(ErrEscrowExpired, escrow.Id)
 		}
 
 		if err := escrow.Validate(); err != nil {

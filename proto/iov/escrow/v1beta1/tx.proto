@@ -29,13 +29,12 @@ service Msg {
 // MsgCreateEscrow defines a message to create an escrow
 message MsgCreateEscrow {
     option (gogoproto.equal) = true;
-
-    string id = 1;
-    string seller = 2;
-    string buyer = 3;
-    google.protobuf.Any object = 4 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
-    repeated cosmos.base.v1beta1.Coin price = 5 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
-    uint64 deadline = 6;
+    string seller = 1;
+    string buyer = 2;
+    // TODO: Maybe just (pk, type) ?
+    google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
+    repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    uint64 deadline = 5;
 }
 
 // MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
@@ -48,10 +47,11 @@ message MsgUpdateEscrow {
     option (gogoproto.equal) = true;
 
     string id = 1;
-    string seller = 2;
-    string buyer = 3;
-    repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
-    uint64 deadline = 5;
+    string updater = 2;
+    string seller = 3;
+    string buyer = 4;
+    repeated cosmos.base.v1beta1.Coin price = 5[ (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    uint64 deadline = 6;
 }
 
 // MsgUpdateEscrowResponse defines the Msg/UpdateEscrow response type
@@ -59,7 +59,8 @@ message MsgUpdateEscrowResponse {}
 
 message MsgTransferToEscrow {
     string id = 1;
-    repeated cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    string sender = 2;
+    repeated cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
 }
 
 message MsgTransferToEscrowResponse {
@@ -68,6 +69,7 @@ message MsgTransferToEscrowResponse {
 
 message MsgRefundEscrow {
     string id = 1;
+    string seller = 2;
 }
 
 message MsgRefundEscrowResponse {}

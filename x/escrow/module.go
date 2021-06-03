@@ -6,24 +6,21 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/iov-one/starnamed/x/escrow/client/cli"
-	"github.com/iov-one/starnamed/x/escrow/client/rest"
-	"github.com/iov-one/starnamed/x/escrow/keeper"
-	"github.com/iov-one/starnamed/x/escrow/simulation"
-	"github.com/iov-one/starnamed/x/wasm/types"
-
-	"github.com/gorilla/mux"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/iov-one/starnamed/x/escrow/client/cli"
+	"github.com/iov-one/starnamed/x/escrow/client/rest"
+	"github.com/iov-one/starnamed/x/escrow/keeper"
+	"github.com/iov-one/starnamed/x/escrow/simulation"
+	"github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -51,7 +48,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 }
 
 // ValidateGenesis performs genesis state validation for the HTLC module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
@@ -70,12 +67,12 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
-// GetTxCmd returns the root tx command for the HTLC module.
+// GetTxCmd returns the root tx command for the escrow module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-// GetQueryCmd returns no root query command for the HTLC module.
+// GetQueryCmd returns no root query command for the escrow module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
@@ -106,7 +103,7 @@ func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper, accountKeeper types
 	}
 }
 
-// Name returns the HTLC module's name.
+// Name returns the escrow module's name.
 func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterServices registers module services.
@@ -115,23 +112,23 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// RegisterInvariants registers the HTLC module invariants.
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
+// RegisterInvariants registers the escrow module invariants.
+func (am AppModule) RegisterInvariants(sdk.InvariantRegistry) {}
 
-// Route returns the message routing key for the HTLC module.
+// Route returns the message routing key for the escrow module.
 func (am AppModule) Route() sdk.Route {
 	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
 }
 
-// QuerierRoute returns the HTLC module's querier route name.
+// QuerierRoute returns the escrow module's querier route name.
 func (AppModule) QuerierRoute() string { return types.RouterKey }
 
-// LegacyQuerierHandler returns the HTLC module sdk.Querier.
+// LegacyQuerierHandler returns the escrow module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
 }
 
-// InitGenesis performs genesis initialization for the HTLC module. It returns
+// InitGenesis performs genesis initialization for the escrow module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
@@ -146,12 +143,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock performs a no-op.
+// BeginBlock handles the escrow expiration logic
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	BeginBlocker(ctx, am.keeper)
 }
 
-// EndBlock returns the end blocker for the HTLC module. It returns no validator updates.
+// EndBlock returns the end blocker for the escrow module. It returns no validator updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
@@ -160,25 +157,30 @@ func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Validato
 
 // AppModuleSimulation functions
 
-// GenerateGenesisState creates a randomized GenState of the HTLC module.
-func (AppModule) GenerateGenesisState(_ *module.SimulationState) {}
+// GenerateGenesisState creates a randomized GenState of the escrow module.
+func (AppModule) GenerateGenesisState(*module.SimulationState) {
+	//TODO: complete this for simulation
+}
 
 // ProposalContents doesn't return any content functions for governance proposals.
-func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
+func (AppModule) ProposalContents(module.SimulationState) []simtypes.WeightedProposalContent {
+	//TODO: complete this for simulation
 	return nil
 }
 
-// RandomizedParams creates randomized HTLC param changes for the simulator.
-func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
+// RandomizedParams creates randomized escrow param changes for the simulator.
+func (AppModule) RandomizedParams(*rand.Rand) []simtypes.ParamChange {
+	//TODO: complete this for simulation
 	return nil
 }
 
-// RegisterStoreDecoder registers a decoder for HTLC module's types
+// RegisterStoreDecoder registers a decoder for escrow module's types
 func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
 	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 
-// WeightedOperations returns the all the HTLC module operations with their respective weights.
-func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+// WeightedOperations returns the all the escrow module operations with their respective weights.
+func (am AppModule) WeightedOperations(module.SimulationState) []simtypes.WeightedOperation {
+	//TODO: complete this for simulation
 	return []simtypes.WeightedOperation{}
 }

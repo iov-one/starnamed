@@ -17,7 +17,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		panic(err.Error())
 	}
 
-	//TODO: what is it for ?? : k.SetPreviousBlockTime(ctx, data.PreviousBlockTime)
+	k.SetLastBlockTime(data.LastBlockTime)
 
 	//var incomingSupplies sdk.Coins
 	//var outgoingSupplies sdk.Coins
@@ -42,13 +42,9 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		},
 	)
 
-	// TODO: what is it for ?
-	/*previousBlockTime, found := k.GetPreviousBlockTime(ctx)
-	if !found {
-		previousBlockTime = types.DefaultPreviousBlockTime
-	}*/
+	lastBlockTime := k.GetLastBlockTime()
 
-	return types.NewGenesisState(escrows)
+	return types.NewGenesisState(escrows, lastBlockTime)
 }
 
 //TODO: what was this for ?
@@ -64,5 +60,5 @@ func PrepForZeroHeightGenesis(ctx sdk.Context, k keeper.Keeper) {
 			return false
 		},
 	)
-	// TODO: update asset supplies and previous block time
+	// TODO: update previous block time
 }*/

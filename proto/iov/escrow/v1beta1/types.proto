@@ -20,6 +20,7 @@ message Escrow {
     string id = 1;
     string seller = 2;
     string buyer = 3;
+    // TODO: Maybe just (pk, type) ?
     google.protobuf.Any object = 4 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
     repeated cosmos.base.v1beta1.Coin price = 5 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     EscrowState state = 6;
@@ -40,4 +41,6 @@ enum EscrowState {
     ESCROW_STATE_COMPLETED = 1 [ (gogoproto.enumvalue_customname) = "Completed" ];
     // ESCROW_STATE_REFUNDED defines a refunded state.
     ESCROW_STATE_REFUNDED = 2 [ (gogoproto.enumvalue_customname) = "Refunded" ];
+    // ESCROW_STATE_REFUNDED defines an expired state.
+    ESCROW_STATE_EXPIRED = 3 [ (gogoproto.enumvalue_customname) = "Expired" ];
 }

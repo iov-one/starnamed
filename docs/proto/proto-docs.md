@@ -1515,7 +1515,7 @@ Escrow defines the struct of an escrow
 | `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `buyer` | [string](#string) |  |  |
-| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  | TODO: Maybe just (pk, type) ? |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
@@ -1537,6 +1537,7 @@ EscrowState defines the state of an escrow
 | ESCROW_STATE_OPEN | 0 | ESCROW_STATE_OPEN defines an open state. |
 | ESCROW_STATE_COMPLETED | 1 | ESCROW_STATE_COMPLETED defines a completed state. |
 | ESCROW_STATE_REFUNDED | 2 | ESCROW_STATE_REFUNDED defines a refunded state. |
+| ESCROW_STATE_EXPIRED | 3 | ESCROW_STATE_REFUNDED defines an expired state. |
 
 
  <!-- end enums -->
@@ -1563,6 +1564,7 @@ GenesisState defines the Escrow module's genesis state
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
+| `last_block_time` | [uint64](#uint64) |  |  |
 
 
 
@@ -1649,10 +1651,9 @@ MsgCreateEscrow defines a message to create an escrow
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `buyer` | [string](#string) |  |  |
-| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  | TODO: Maybe just (pk, type) ? |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
 
@@ -1685,6 +1686,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
+| `seller` | [string](#string) |  |  |
 
 
 
@@ -1710,6 +1712,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
 | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 
 
@@ -1736,6 +1739,7 @@ MsgUpdateEscrow defines a message to update an escrow
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
+| `updater` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `buyer` | [string](#string) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
