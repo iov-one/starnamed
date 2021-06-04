@@ -9,8 +9,11 @@ import {
    patchMainnet,
    patchStargatenet,
    transferCustody,
+   injectValidator,
 } from "../../lib/migrate";
+import fs from "fs";
 import readExportedState from "../../lib/readExportedState";
+import path from "path";
 import tmp from "tmp";
 
 "use strict";
@@ -82,6 +85,24 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.wasm.params.code_upload_access.permission ).toBe( "Nobody" );
       expect( genesis.app_state.wasm.params.instantiate_default_permission ).toBe( "Nobody" );
    };
+   const launchLocally = async patch => {
+      const exported = JSON.parse( JSON.stringify( genesis0 ) );
+      const tmpobj = tmp.dirSync( { template: "migrate-test-launch-XXXXXX", unsafeCleanup: true } );
+      const flammable = [ "star1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjewks3" ]; // accounts to burn: blackhole*iov
+      const home = tmpobj.name;
+      const validated = ( err, out ) => {
+         const data = err.length ? err : out; // stupid cosmos-sdk
+         console.log( data );
+         const validator = data.indexOf( "This node is a validator" );
+         const state = JSON.parse( fs.readFileSync( path.join( home, "data", "priv_validator_state.json" ) ) );
+
+         expect( validator ).toBeGreaterThan( -1 );
+         expect( +state.height ).toBeGreaterThan( 0 );
+      };
+      const migrated = await migrate( { flammable, exported, home, patch, validated } );
+
+      expect( migrated.validators.find( validator => validator.name == stargatenet ) ).toBeDefined();
+   }
 
 
    it( `Should burn tokens.`, async () => {
@@ -287,5 +308,20 @@ describe( "Tests ../../lib/migrate.js.", () => {
       verifyWasm( migrated );
 
       tmpobj.removeCallback();
+   } );
+
+
+   it.skip( `Should launch stargatenet locally.`, async () => {
+      await launchLocally( patchStargatenet );
+   } );
+
+
+   it.skip( `Should launch iov-mainnet-ibc locally.`, async () => {
+      const patch = genesis => {
+         patchMainnet( genesis );
+         injectValidator( genesis );
+      };
+
+      await launchLocally( patch );
    } );
 } );

@@ -474,6 +474,7 @@ export const patchMainnet = genesis => {
  * @param {Object} args - various objects required for the transformation
  */
 export const migrate = async args => {
+   const validated = args.validated; // callback on validated
    const flammable = args.flammable;
    const exported = args.exported;
    const home = args.home;
@@ -547,14 +548,16 @@ export const migrate = async args => {
       } );
 
       starnamed.on( "close", code => {
-         // clean-up superflous files
-         [ "addrbook.json", "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
-         [ "data", "wasm" ].map( dir => path.join( home, dir ) ).forEach( dir => { if ( fs.existsSync( dir ) ) fs.rmdirSync( dir, { recursive: true } ) } );
-         fs.readdirSync( config ).filter( f => f.indexOf( "write-file-atomic" ) == 0 ).forEach( f => fs.unlinkSync( path.join( config, f ) ) );
-
+         if ( validated ) validated( err, out );
          if ( code ) reject( err );
 
          resolve( out );
+
+         // clean-up superflous files
+         // dmjp [ "addrbook.json", "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
+         [ "addrbook.json", "app.toml", "config.toml", "node_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
+         [ "data", "wasm" ].map( dir => path.join( home, dir ) ).forEach( dir => { if ( fs.existsSync( dir ) ) fs.rmdirSync( dir, { recursive: true } ) } );
+         fs.readdirSync( config ).filter( f => f.indexOf( "write-file-atomic" ) == 0 ).forEach( f => fs.unlinkSync( path.join( config, f ) ) );
       } );
    } ).catch( e => { throw e } );
 
