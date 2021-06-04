@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import stringify from "json-stable-stringify";
@@ -148,6 +148,20 @@ export const fixConfiguration = genesis => {
    delete genesis.app_state.configuration.config.domain_renew_period;
 };
 
+
+// a testnet validator key
+const priv_validator_key = {
+   "address": "376CA61EB1F1D06E9C0D35DE7A20AD07C30A6FF0",
+   "pub_key": {
+      "type": "tendermint/PubKeyEd25519",
+      "value": "bCnsOFqyBBHiHMj3/8CI/hwiuUI9J86OnqCOrfJLHd0="
+   },
+   "priv_key": {
+      "type": "tendermint/PrivKeyEd25519",
+      "value": "Yl0FhSxIEn71UAJB1YEGYap3Hb73qoYmD905PPIU/7tsKew4WrIEEeIcyPf/wIj+HCK5Qj0nzo6eoI6t8ksd3Q=="
+   }
+};
+
 /**
  * Add a 2/3+ validator to the genesis object.
  * @param {Object} genesis - the state
@@ -181,17 +195,6 @@ export const injectValidator = genesis => {
    bonded_tokens_pool.value.coins[0].amount = String( +bonded_tokens_pool.value.coins[0].amount + power * 1e6 );
 
    // add stargatenet validator
-   const priv_validator_key = {
-      "address": "376CA61EB1F1D06E9C0D35DE7A20AD07C30A6FF0",
-      "pub_key": {
-         "type": "tendermint/PubKeyEd25519",
-         "value": "bCnsOFqyBBHiHMj3/8CI/hwiuUI9J86OnqCOrfJLHd0="
-      },
-      "priv_key": {
-         "type": "tendermint/PrivKeyEd25519",
-         "value": "Yl0FhSxIEn71UAJB1YEGYap3Hb73qoYmD905PPIU/7tsKew4WrIEEeIcyPf/wIj+HCK5Qj0nzo6eoI6t8ksd3Q=="
-      }
-   };
    genesis.validators.push( {
       "address": "",
       "name": "stargatenet",
@@ -490,7 +493,7 @@ export const migrate = async args => {
    const config = path.join( home, "config" );
    const launchpad = path.join( config, "launchpad.json" );
 
-   if ( !fs.existsSync( config ) ) fs.mkdirSync( config );
+   spawnSync( "starnamed", [ "init", "v0.40", "--home", home ] ); // init the config directory
    fs.writeFileSync( launchpad, stringify( exported, { space: "  " } ), "utf-8" );
 
    // ...and migrate it to genesis.json
@@ -519,8 +522,10 @@ export const migrate = async args => {
 
    const genesis = JSON.parse( out );
    const stargate = path.join( config, "genesis.json" );
+   const priv_key = path.join( config, "priv_validator_key.json" )
 
    fs.writeFileSync( stargate, stringify( genesis, { space: "  " } ), "utf-8" );
+   fs.writeFileSync( priv_key, stringify( priv_validator_key, { space: "  " } ), "utf-8" );
 
    // test genesis.json by starting starnamed; we can't use `starnamed validate-genesis` because it craps out with Error: error validating genesis file /tmp/migrate-test-migrate-90es2e/config/genesis.json: invalid account found in genesis state; address: star1p0d75y4vpftsx9z35s93eppkky7kdh220vrk8n, error: account address and pubkey address do not match
    const validate = new Promise( ( resolve, reject ) => {
