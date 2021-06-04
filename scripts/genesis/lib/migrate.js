@@ -79,6 +79,21 @@ export const enableIBC = genesis => {
    };
 };
 
+/**
+ * Injects the wasm parms
+ * @param {Object} genesis - the state
+ */
+export const injectWasm = genesis => {
+   genesis.app_state.wasm = {
+      "params": {
+         "code_upload_access": {
+            "permission": "Nobody"
+         },
+         "instantiate_default_permission": "Nobody",
+         "max_wasm_code_size": "614400"
+      }
+   };
+};
 
 /**
  * Transfers ownership of tokens and starnames from multisig _star1Custodian to custodian*iov.
@@ -433,7 +448,7 @@ export const patchStargatenet = genesis => {
    } );
 
    // IBC
-   genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
+   if ( genesis.app_state.ibc ) genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
 
    // hide mainnet validtor names
    genesis.validators.forEach( ( validator, i ) => validator.name = `OG${i}` );
@@ -452,7 +467,7 @@ export const patchMainnet = genesis => {
 };
 
 /**
- * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
+ * Performs all the necessary transformations to migrate from a v0.39 chain to a v0.4+ chain.
  * @param {Object} args - various objects required for the transformation
  */
 export const migrate = async args => {
@@ -464,6 +479,7 @@ export const migrate = async args => {
    burnTokens( exported, flammable );
    updateTendermint( exported );
    enableIBC( exported );
+   injectWasm( exported );
    transferCustody( exported );
    adjustInflation( exported );
    fixConfiguration( exported );

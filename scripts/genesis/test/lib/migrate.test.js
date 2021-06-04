@@ -3,6 +3,7 @@ import {
    burnTokens,
    enableIBC,
    fixConfiguration,
+   injectWasm,
    migrate,
    patchJestnet,
    patchMainnet,
@@ -77,6 +78,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.configuration.config.account_renewal_count_max ).toBe( genesis0.app_state.configuration.config.account_renew_count_max );
       expect( genesis.app_state.configuration.config.domain_renewal_count_max ).toBe( genesis0.app_state.configuration.config.domain_renew_count_max );
    };
+   const verifyWasm = genesis => {
+      expect( genesis.app_state.wasm.params.code_upload_access.permission ).toBe( "Nobody" );
+      expect( genesis.app_state.wasm.params.instantiate_default_permission ).toBe( "Nobody" );
+   };
 
 
    it( `Should burn tokens.`, async () => {
@@ -134,6 +139,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       fixConfiguration( genesis );
       verifyConfiguration( genesis );
+   } );
+
+
+   it( `Should inject wasm params.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      injectWasm( genesis );
+      verifyWasm( genesis );
    } );
 
 
@@ -271,6 +284,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       verifyCustody( migrated );
       verifyInflation( migrated );
       verifyConfiguration( migrated );
+      verifyWasm( migrated );
 
       tmpobj.removeCallback();
    } );
