@@ -24,6 +24,9 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 # --------------------------------------------------------
 FROM alpine:3.12
 
+# add extremely useful commands to the image
+RUN apk update && apk upgrade && apk --no-cache add curl jq openssh-client rsync
+
 COPY --from=go-builder /code/build/starnamed /usr/bin/starnamed
 
 COPY docker/* /opt/
