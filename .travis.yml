@@ -11,7 +11,7 @@ os:
 dist: xenial
 
 go:
-  - "1.16.x"
+  - 1.16.5
   - stable
 
 addons:
@@ -38,7 +38,7 @@ env:
     - GO111MODULE=on
     - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
     - GORACE="halt_on_error=1"
-    - MAIN_GO_VERSION=1.15.5
+    - MAIN_GO_VERSION=1.16.5
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
     - IMAGE_NAME="iov1/starnamed:${BUILD_VERSION}"
