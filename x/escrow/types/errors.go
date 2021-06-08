@@ -13,4 +13,6 @@ var (
 	ErrUnknownTypeID        = sdkerrors.Register(ModuleName, 8, "The object type ID is unknown")
 	ErrUnknownObject        = sdkerrors.Register(ModuleName, 9, "The object does not exist")
 	ErrInvalidAccount       = sdkerrors.Register(ModuleName, 10, "This account cannot be used in an escrow")
+	ErrPastDeadline         = sdkerrors.Register(ModuleName, 11, "The deadline has passed")
+	ErrEmptyUpdate          = sdkerrors.Register(ModuleName, 12, "No fields have been filled : nothing to update")
 )

@@ -1,6 +1,11 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"encoding/hex"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
+)
 
 // TODO: not sure if this is the correct place
 const (
@@ -20,14 +25,23 @@ const (
 var (
 	//TODO: move this in the keeper, nothing to do there
 
-	// EscrowStoreKey Key for store prefixes
+	// Keys for store prefixes
 	EscrowStoreKey   = []byte{0x01} // prefix for escrow
 	DeadlineStoreKey = []byte{0x02} // prefix for escrow stored by expiration date
+	ParamsStoreKey   = []byte{0x03} // prefix for the keeper parameters
+
+	// Keys for the parameters store
+	ParamsStoreLastBlockTime = []byte{0x01}
+	ParamsStoreNextId        = []byte{0x02}
 )
 
 func GetEscrowKey(id string) []byte {
-	//TODO: shouldn't this be hex-decoding ?
-	return []byte(id)
+	key, err := hex.DecodeString(id)
+	if err != nil {
+		//TODO: should we panic here ?
+		panic(errors.Wrap(err, "Invalid escrow key format"))
+	}
+	return key
 }
 
 func GetDeadlineKey(deadline uint64, id string) []byte {

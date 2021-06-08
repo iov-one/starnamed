@@ -9,7 +9,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// NewQuerier creates a new HTLC Querier instance
+// NewQuerier creates a new escrow Querier instance
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
@@ -26,6 +26,15 @@ func queryEscrow(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerier
 	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	//TODO : this
-	return nil, nil
+
+	escrow, found := k.GetEscrow(ctx, params.Id)
+	if !found {
+		return nil, sdkerrors.Wrap(types.ErrEscrowNotFound, params.Id)
+	}
+
+	bz, err := legacyQuerierCdc.MarshalJSON(&escrow)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "Cannot marshall the queried escrow")
+	}
+	return bz, nil
 }

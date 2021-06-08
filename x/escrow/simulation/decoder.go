@@ -4,26 +4,29 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/iov-one/starnamed/x/escrow/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/kv"
-
-	"github.com/irisnet/irismod/modules/htlc/types"
 )
 
-// NewDecodeStore unmarshals the KVPair's Value to the corresponding HTLC type
+// NewDecodeStore unmarshals the KVPair's Value to the corresponding escrow type
 func NewDecodeStore(cdc codec.Marshaler) func(kvA, kvB kv.Pair) string {
 	return func(kvA, kvB kv.Pair) string {
 		switch {
-		case bytes.Equal(kvA.Key[:1], types.HTLCKey):
-			var htlc1, htlc2 types.HTLC
-			cdc.MustUnmarshalBinaryBare(kvA.Value, &htlc1)
-			cdc.MustUnmarshalBinaryBare(kvB.Value, &htlc2)
-			return fmt.Sprintf("%v\n%v", htlc1, htlc2)
+		case bytes.Equal(kvA.Key[:1], types.EscrowStoreKey):
+			var escrow1, escrow2 types.Escrow
+			cdc.MustUnmarshalBinaryBare(kvA.Value, &escrow1)
+			cdc.MustUnmarshalBinaryBare(kvB.Value, &escrow2)
+			return fmt.Sprintf("%v\n%v", escrow1, escrow2)
 
-		case bytes.Equal(kvA.Key[:1], types.HTLCExpiredQueueKey):
+		case bytes.Equal(kvA.Key[:1], types.DeadlineStoreKey):
+			return fmt.Sprintf("%v\n%v", kvA.Value, kvB.Value)
+		case bytes.Equal(kvA.Key[:1], types.ParamsStoreKey):
+			//TODO: factor in parameter name
 			return fmt.Sprintf("%v\n%v", kvA.Value, kvB.Value)
 		default:
-			panic(fmt.Sprintf("invalid HTLC key prefix %X", kvA.Key[:1]))
+			panic(fmt.Sprintf("invalid escrow key prefix %X", kvA.Key[:1]))
 		}
 	}
 }

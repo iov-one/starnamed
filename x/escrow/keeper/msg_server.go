@@ -64,6 +64,7 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(err, "Invalid seller address : %v", msg.Seller)
 		}
+		// Check we are not using blocked addresses
 		if m.isBlockedAddr(msg.Seller) {
 			return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Seller)
 		}
@@ -73,6 +74,7 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(err, "Invalid buyer address : %v", msg.Buyer)
 		}
+		// Check we are not using blocked addresses
 		if m.isBlockedAddr(msg.Buyer) {
 			return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Buyer)
 		}

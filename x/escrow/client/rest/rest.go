@@ -22,23 +22,23 @@ func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
 
 // UpdateEscrowReq defines the properties of an escrow update request's body.
 type UpdateEscrowReq struct {
-	BaseReq              rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Sender               string       `json:"sender" yaml:"sender"`
-	To                   string       `json:"to" yaml:"to"`
-	ReceiverOnOtherChain string       `json:"receiver_on_other_chain" yaml:"receiver_on_other_chain"`
-	SenderOnOtherChain   string       `json:"sender_on_other_chain" yaml:"sender_on_other_chain"`
-	Amount               sdk.Coins    `json:"amount" yaml:"amount"`
-	HashLock             string       `json:"hash_lock" yaml:"hash_lock"`
-	TimeLock             uint64       `json:"time_lock" yaml:"time_lock"`
-	Timestamp            uint64       `json:"timestamp" yaml:"timestamp"`
-	Transfer             bool         `json:"transfer" yaml:"transfer"`
+	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Updater  string       `json:"updater" yaml:"updater"`
+	Seller   string       `json:"seller" yaml:"seller"`
+	Buyer    string       `json:"buyer" yaml:"buyer"`
+	Price    sdk.Coins    `json:"price" yaml:"price"`
+	Deadline uint64       `json:"expiration" yaml:"expiration"`
 }
 
 // TransferToEscrowReq defines the properties of a transfer to an escrow request's body.
 type TransferToEscrowReq struct {
 	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Id  string       `json:"id" yaml:"id"`
-	Amount  sdk.Coins       `json:"id" yaml:"id"`
+	Sender  string       `json:"sender" yaml:"sender"`
+	Amount  sdk.Coins    `json:"amount" yaml:"amount"`
 }
 
-type
+// RefundEscrowReq defines the properties of a escrow refund request's body.
+type RefundEscrowReq struct {
+	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Seller  string       `json:"seller" yaml:"seller"`
+}

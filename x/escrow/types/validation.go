@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	// HTLCIDLength is the length for the hash lock in hex string
-	HTLCIDLength = 64
+	// EscrowIDLength is the length for the hash lock in hex string
+	EscrowIDLength = 64
 )
 
 // ValidatePrice verifies whether the given amount is legal
@@ -23,9 +23,8 @@ func ValidatePrice(price sdk.Coins) error {
 
 // ValidateID verifies whether the given ID lock is legal
 func ValidateID(id string) error {
-	//TODO: make that have sense
-	if len(id) != HTLCIDLength {
-		return sdkerrors.Wrapf(ErrInvalidID, "length of the escrow id must be %d", HTLCIDLength)
+	if len(id) != EscrowIDLength {
+		return sdkerrors.Wrapf(ErrInvalidID, "length of the escrow id must be %d", EscrowIDLength)
 	}
 	if _, err := hex.DecodeString(id); err != nil {
 		return sdkerrors.Wrapf(ErrInvalidID, "id must be a hex encoded string")
@@ -45,13 +44,15 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 }
 
 func ValidateState(state EscrowState) error {
-	if state != Open {
+	if state != EscrowState_Open {
 		return sdkerrors.Wrap(ErrEscrowNotOpen, strconv.FormatUint(uint64(state), 10))
 	}
 	return nil
 }
 
-func ValidateDeadline(deadline uint64) error {
-	//TODO: check deadline
+func ValidateDeadline(deadline uint64, lastBlockTime uint64) error {
+	if deadline < lastBlockTime {
+		return ErrPastDeadline
+	}
 	return nil
 }

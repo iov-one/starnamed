@@ -1,10 +1,8 @@
 package keeper
 
 import (
-	"bytes"
 	"reflect"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/pkg/errors"
 
@@ -26,21 +24,18 @@ func (k Keeper) CreateEscrow(
 	string,
 	error,
 ) {
-	id := k.FetchNextId()
-
-	//TODO: shouldn't this be hex-encoding ?
-	stringId := string(id)
+	id := k.FetchNextId(ctx)
 
 	// check if the escrow already exists
-	if k.HasEscrow(ctx, stringId) {
-		return "", sdkerrors.Wrap(types.ErrIdNotUnique, id.String())
+	if k.HasEscrow(ctx, id) {
+		return "", sdkerrors.Wrap(types.ErrIdNotUnique, id)
 	}
 
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
 		id, buyer, seller, price, object, deadline,
 	)
-	err := escrow.Validate()
+	err := escrow.Validate(k.GetLastBlockTime(ctx))
 	if err != nil {
 		return "", err
 	}
@@ -71,10 +66,10 @@ func (k Keeper) CreateEscrow(
 
 	// save the escrow
 	k.saveEscrow(ctx, escrow)
-	k.NextId()
+	k.NextId(ctx)
 	//TODO: Emit event
 
-	return stringId, nil
+	return id, nil
 }
 
 func (k Keeper) UpdateEscrow(
@@ -87,13 +82,72 @@ func (k Keeper) UpdateEscrow(
 	deadline uint64,
 ) error {
 	// check if the escrow exists
-	_, found := k.GetEscrow(ctx, id)
+	escrow, found := k.GetEscrow(ctx, id)
 	if !found {
 		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
 
-	//TODO: take care of deadline store if modifying deadline !
-	//TODO: implement the update method
+	//TODO: check no-op update
+	if seller == nil && buyer == nil && price == nil && deadline == 0 {
+		return types.ErrEmptyUpdate
+	}
+
+	oldBuyer, err := sdk.AccAddressFromBech32(escrow.Buyer)
+	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+	if err != nil {
+		return sdkerrors.Wrapf(err, "Invalid buyer address : %v", escrow.Buyer)
+	}
+
+	oldSeller, err := sdk.AccAddressFromBech32(escrow.Seller)
+	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+	if err != nil {
+		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
+	}
+
+	//TODO: is that the behavior we want ?
+	// If the updater is the buyer, he can update the buyer address, to delegate the escrow
+	if updater.Equals(oldBuyer) {
+		if seller != nil || price != nil || deadline != 0 {
+			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the seller update the seller address, the price and the deadline values")
+		}
+		// Here we know that buyer != nil (because at least one field is non nil, and we just checked all others are)
+		//TODO : get rid of warning or perform an extra security check
+		escrow.Buyer = buyer.String()
+	} else if updater.Equals(oldSeller) { // If the updater is the seller, he can update the seller, price and deadline
+		if buyer != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the buyer can update the buyer address")
+		}
+
+		// Update seller, price and deadline if provided
+		if seller != nil {
+			escrow.Seller = seller.String()
+		}
+		if price != nil {
+			escrow.Price = price
+		}
+		if deadline != 0 {
+			//TODO: is that the behavior we want ?
+
+			// We can only delay the deadline
+			if deadline < escrow.Deadline {
+				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The new deadline cannot be before the old one")
+			}
+			// We are modifying the deadline, get rid of old deadline indexing
+			k.deleteEscrowFromDeadlineStore(ctx, escrow)
+			// The new deadline indexing will be added when we save the escrow
+			escrow.Deadline = deadline
+		}
+	} else {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the buyer or the seller can update an escrow")
+	}
+
+	//TODO: is this correct or should we validate data before ?
+	err = escrow.Validate(k.GetLastBlockTime(ctx))
+	if err != nil {
+		return err
+	}
+
+	k.saveEscrow(ctx, escrow)
 	return nil
 }
 
@@ -125,7 +179,7 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	// Ensure that the sender is the designated buyer of this escrow
-	if !bytes.Equal(buyer, sender) {
+	if !sender.Equals(buyer) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the designated buyer can transfer coins to the escrow")
 	}
 
@@ -201,7 +255,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 	}
 
 	// Ensure the seller is the one asking for a refund
-	if !bytes.Equal(sender, seller) {
+	if !sender.Equals(seller) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the designated seller can trigger a refund")
 	}
 
@@ -254,14 +308,6 @@ func (k Keeper) doObjectTransferWithStore(from, to sdk.AccAddress, object types.
 	return nil
 }
 
-func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), types.EscrowStoreKey)
-}
-
-func (k Keeper) getDeadlineStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), types.DeadlineStoreKey)
-}
-
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
 	k.getDeadlineStore(ctx).Set(types.GetDeadlineKey(escrow.Deadline, escrow.Id), types.GetEscrowKey(escrow.Id))
 }
@@ -310,7 +356,7 @@ func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, foun
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 
-// getEscrowImpl retrieves the specified escrow with its key
+// getEscrowByKey retrieves the specified escrow with its key
 func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow, found bool) {
 	bz := k.getStore(ctx).Get(key)
 	if bz == nil {

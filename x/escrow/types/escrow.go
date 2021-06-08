@@ -2,7 +2,6 @@ package types
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,7 +9,7 @@ import (
 
 // NewEscrow constructs a new escrow instance
 func NewEscrow(
-	id tmbytes.HexBytes,
+	id string,
 	seller sdk.AccAddress,
 	buyer sdk.AccAddress,
 	price sdk.Coins,
@@ -22,7 +21,7 @@ func NewEscrow(
 		panic(err)
 	}
 	return Escrow{
-		Id:       id.String(),
+		Id:       id,
 		Seller:   seller.String(),
 		Buyer:    buyer.String(),
 		Object:   objectAny,
@@ -33,7 +32,7 @@ func NewEscrow(
 }
 
 // Validate validates the escrow
-func (e Escrow) Validate() error {
+func (e Escrow) Validate(lastBlockTime uint64) error {
 	if err := ValidateID(e.Id); err != nil {
 		return err
 	}
@@ -53,13 +52,12 @@ func (e Escrow) Validate() error {
 	if err := ValidatePrice(e.Price); err != nil {
 		return err
 	}
-	// TODO: Validate seller and buyer account exist ??
 	// Validate state
 	if err := ValidateState(e.State); err != nil {
 		return err
 	}
 	// Validate deadline
-	if err := ValidateDeadline(e.Deadline); err != nil {
+	if err := ValidateDeadline(e.Deadline, lastBlockTime); err != nil {
 		return err
 	}
 	return nil

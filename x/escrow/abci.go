@@ -14,5 +14,5 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	currentDate := uint64(ctx.BlockTime().Unix())
 	k.RefundExpiredEscrows(ctx, currentDate)
 
-	k.SetLastBlockTime(currentDate)
+	k.SetLastBlockTime(ctx, currentDate)
 }

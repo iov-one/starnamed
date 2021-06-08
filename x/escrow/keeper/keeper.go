@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"fmt"
 
-	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/cosmos/cosmos-sdk/store"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 
 	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -23,8 +25,6 @@ type Keeper struct {
 	paramSpace    paramstypes.Subspace
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	//TODO : store it into persistent storage !!
-	lastBlockTime uint64
 	storeHolders  map[types.TypeID]types.StoreHolder
 	blockedAddrs  map[string]bool
 }
@@ -65,13 +65,14 @@ func (k Keeper) GetEscrowAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
-func (k Keeper) FetchNextId() tmbytes.HexBytes {
-	//TODO: not implemented
-	return nil
+func (k Keeper) FetchNextId(ctx sdk.Context) string {
+	return hex.EncodeToString(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
 }
 
-func (k Keeper) NextId() {
-	//TODO: not implemented
+func (k Keeper) NextId(ctx sdk.Context) {
+	idBytes := k.getParamStore(ctx).Get(types.ParamsStoreNextId)
+	next := sdk.BigEndianToUint64(idBytes) + 1
+	k.getParamStore(ctx).Set(types.ParamsStoreNextId, sdk.Uint64ToBigEndian(next))
 }
 
 func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
@@ -82,12 +83,24 @@ func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
 	return store.GetCRUDStore(), nil
 }
 
-func (k Keeper) SetLastBlockTime(date uint64) {
-	k.lastBlockTime = date
+func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.EscrowStoreKey)
 }
 
-func (k Keeper) GetLastBlockTime() uint64 {
-	return k.lastBlockTime
+func (k Keeper) getDeadlineStore(ctx sdk.Context) sdk.KVStore {
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.DeadlineStoreKey)
+}
+
+func (k Keeper) getParamStore(ctx sdk.Context) store.KVStore {
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.ParamsStoreKey)
+}
+
+func (k Keeper) SetLastBlockTime(ctx sdk.Context, date uint64) {
+	k.getParamStore(ctx).Set(types.ParamsStoreLastBlockTime, sdk.Uint64ToBigEndian(date))
+}
+
+func (k Keeper) GetLastBlockTime(ctx sdk.Context) uint64 {
+	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(types.ParamsStoreLastBlockTime))
 }
 
 func (k Keeper) isBlockedAddr(address string) bool {

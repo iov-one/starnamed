@@ -30,15 +30,16 @@ func ValidateGenesis(data GenesisState) error {
 			return fmt.Errorf("found duplicate escrow ID %s", escrow.Id)
 		}
 
-		if escrow.State != Open {
+		if escrow.State != EscrowState_Open {
 			return sdkerrors.Wrap(ErrEscrowNotOpen, escrow.Id)
 		}
 
+		//TODO: duplicate check (but with more explicit error message) with escrow.Validate() => validateDeadline()
 		if escrow.Deadline <= data.LastBlockTime {
 			return sdkerrors.Wrap(ErrEscrowExpired, escrow.Id)
 		}
 
-		if err := escrow.Validate(); err != nil {
+		if err := escrow.Validate(data.LastBlockTime); err != nil {
 			return err
 		}
 

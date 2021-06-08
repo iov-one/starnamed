@@ -11,13 +11,16 @@ import (
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
+//TODO: add escrow.nextID to the genesis state
+
 // InitGenesis stores the genesis state
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	if err := types.ValidateGenesis(data); err != nil {
 		panic(err.Error())
 	}
 
-	k.SetLastBlockTime(data.LastBlockTime)
+	//TODO: check if we should use initial_date instead
+	k.SetLastBlockTime(ctx, data.LastBlockTime)
 
 	//var incomingSupplies sdk.Coins
 	//var outgoingSupplies sdk.Coins
@@ -42,23 +45,14 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		},
 	)
 
-	lastBlockTime := k.GetLastBlockTime()
+	lastBlockTime := k.GetLastBlockTime(ctx)
 
 	return types.NewGenesisState(escrows, lastBlockTime)
 }
 
-//TODO: what was this for ?
-/*
 func PrepForZeroHeightGenesis(ctx sdk.Context, k keeper.Keeper) {
-	k.IterateHTLCs(
-		ctx,
-		func(id tmbytes.HexBytes, h types.HTLC) (stop bool) {
-			if h.State == types.Open {
-				h.ExpirationHeight = h.ExpirationHeight - uint64(ctx.BlockHeight()) + 1
-				k.SetHTLC(ctx, h, id)
-			}
-			return false
-		},
-	)
 	// TODO: update previous block time
-}*/
+	// TODO: check what we need to
+	//TODO: check how to do this init
+	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
+}
