@@ -83,32 +83,31 @@ script:
       release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-      echo TODO docker;
+      if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
+        # worry about gitian later
+        #./contrib/gitian-build.sh linux ;
+        #mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
+        docker build --pull --tag ${IMAGE_NAME} . ;
+      fi;
+
+      if [[ $release_latest == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";#
+
+        docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
+        docker push "iov1/starnamed:latest";
+
+        docker logout;
+      fi;
+
+      if [[ $release_tag == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+
+        docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
+        docker push "iov1/starnamed:$TRAVIS_TAG";
+
+        docker logout;
+      fi;
     fi;
-      #if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-      #  ./contrib/gitian-build.sh linux ;
-      #  mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-      #  docker build --pull --tag ${IMAGE_NAME} . ;
-      #fi;
-
-      #if [[ $release_latest == "yes" ]]; then
-      #  docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";#
-      #
-      #  docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
-      #  docker push "iov1/starnamed:latest";
-      #
-      #  docker logout;
-      #fi;
-
-      #if [[ $release_tag == "yes" ]]; then
-      #  docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-      #
-      #  docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
-      #  docker push "iov1/starnamed:$TRAVIS_TAG";
-      #
-      #  docker logout;
-      #fi;
-    #fi;
 
 notifications:
   email: false
