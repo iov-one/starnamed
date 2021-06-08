@@ -523,20 +523,26 @@ export const migrate = async args => {
 
    const genesis = JSON.parse( out );
    const stargate = path.join( config, "genesis.json" );
-   const priv_key = path.join( config, "priv_validator_key.json" )
+   const priv_key = path.join( config, "priv_validator_key.json" );
+   const conf = path.join( config, "config.toml" );
+   const toml = String( fs.readFileSync( conf ) );
 
    fs.writeFileSync( stargate, stringify( genesis, { space: "  " } ), "utf-8" );
    fs.writeFileSync( priv_key, stringify( priv_validator_key, { space: "  " } ), "utf-8" );
+   fs.writeFileSync( conf, toml
+      .replace( /fast_sync = true/, "fast_sync = false" ) // unbelievably required or the State module won't start
+      .replace( /skip_timeout_commit = false/, "skip_timeout_commit = true" ) // be fast
+   , "utf-8" );
 
    // test genesis.json by starting starnamed; we can't use `starnamed validate-genesis` because it craps out with Error: error validating genesis file /tmp/migrate-test-migrate-90es2e/config/genesis.json: invalid account found in genesis state; address: star1p0d75y4vpftsx9z35s93eppkky7kdh220vrk8n, error: account address and pubkey address do not match
    const validate = new Promise( ( resolve, reject ) => {
       const t0 = Date.now(), dt = 20000;
       const done = data => {
-         if ( Date.now() - t0 < dt || data.indexOf( "No addresses to dial." ) == -1 ) return; // short-circuit
+         if ( Date.now() - t0 < dt ) return; // short-circuit
          starnamed.kill();
          //console.log( data );
       };
-      const starnamed = spawn( "starnamed", [ "start", "--home", home ] );
+      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", "5" ] );
       let err = "", out = "";
 
       starnamed.stderr.on( "data", data => {

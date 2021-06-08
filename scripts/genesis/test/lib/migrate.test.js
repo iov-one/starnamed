@@ -92,7 +92,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const home = tmpobj.name;
       const validated = ( err, out ) => {
          const data = err.length ? err : out; // stupid cosmos-sdk
-         console.log( data );
+         //console.log( data );
          const validator = data.indexOf( "This node is a validator" );
          const state = JSON.parse( fs.readFileSync( path.join( home, "data", "priv_validator_state.json" ) ) );
 
@@ -101,7 +101,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       };
       const migrated = await migrate( { flammable, exported, home, patch, validated } );
 
-      expect( migrated.validators.find( validator => validator.name == stargatenet ) ).toBeDefined();
+      expect( migrated.validators.find( validator => validator.name == "stargatenet" ) ).toBeDefined();
    }
 
 
@@ -311,12 +311,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
-   it.skip( `Should launch stargatenet locally.`, async () => {
+   it( `Should launch stargatenet locally.`, async () => {
       await launchLocally( patchStargatenet );
    } );
 
 
-   it.skip( `Should launch iov-mainnet-ibc locally.`, async () => {
+   it( `Should launch iov-mainnet-ibc locally.`, async () => {
       const patch = genesis => {
          patchMainnet( genesis );
          injectValidator( genesis );
