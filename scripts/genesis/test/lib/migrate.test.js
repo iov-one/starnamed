@@ -217,7 +217,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       const config = genesis.app_state.configuration.config;
 
-      expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( config.configurer ).toEqual( "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv" );
 
       const iov = genesis.app_state.starname.domains.find( domain => domain.name == "iov" );
       const zeros = genesis.app_state.starname.domains.find( domain => domain.name == "0000" );
