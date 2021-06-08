@@ -15,8 +15,6 @@ func NewEscrow(
 	buyer sdk.AccAddress,
 	price sdk.Coins,
 	object TransferableObject,
-	//TODO: do we need a state ?
-	state EscrowState,
 	deadline uint64,
 ) Escrow {
 	objectAny, err := codectypes.NewAnyWithValue(object)
@@ -29,7 +27,7 @@ func NewEscrow(
 		Buyer:    buyer.String(),
 		Object:   objectAny,
 		Price:    price,
-		State:    state,
+		State:    EscrowState_Open,
 		Deadline: deadline,
 	}
 }

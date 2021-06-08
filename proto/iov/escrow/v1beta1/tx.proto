@@ -28,10 +28,8 @@ service Msg {
 
 // MsgCreateEscrow defines a message to create an escrow
 message MsgCreateEscrow {
-    option (gogoproto.equal) = true;
     string seller = 1;
     string buyer = 2;
-    // TODO: Maybe just (pk, type) ?
     google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
     repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     uint64 deadline = 5;
@@ -44,8 +42,6 @@ message MsgCreateEscrowResponse {
 
 // MsgUpdateEscrow defines a message to update an escrow
 message MsgUpdateEscrow {
-    option (gogoproto.equal) = true;
-
     string id = 1;
     string updater = 2;
     string seller = 3;
@@ -64,7 +60,6 @@ message MsgTransferToEscrow {
 }
 
 message MsgTransferToEscrowResponse {
-    // TODO: bool transferCompleted ?
 }
 
 message MsgRefundEscrow {

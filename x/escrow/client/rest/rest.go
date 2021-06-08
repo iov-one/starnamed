@@ -11,8 +11,7 @@ import (
 // Rest variable names
 // nolint
 const (
-	RestID    = "id"
-	RestDenom = "denom"
+	IDParam = "id"
 )
 
 // RegisterHandlers defines routes that get registered by the main application
@@ -21,8 +20,8 @@ func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
 	registerTxRoutes(cliCtx, r)
 }
 
-// CreateHTLCReq defines the properties of an HTLC creation request's body.
-type CreateHTLCReq struct {
+// UpdateEscrowReq defines the properties of an escrow update request's body.
+type UpdateEscrowReq struct {
 	BaseReq              rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Sender               string       `json:"sender" yaml:"sender"`
 	To                   string       `json:"to" yaml:"to"`
@@ -35,9 +34,11 @@ type CreateHTLCReq struct {
 	Transfer             bool         `json:"transfer" yaml:"transfer"`
 }
 
-// ClaimHTLCReq defines the properties of an HTLC claim request's body.
-type ClaimHTLCReq struct {
+// TransferToEscrowReq defines the properties of a transfer to an escrow request's body.
+type TransferToEscrowReq struct {
 	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Sender  string       `json:"sender" yaml:"sender"`
-	Secret  string       `json:"secret" yaml:"secret"`
+	Id  string       `json:"id" yaml:"id"`
+	Amount  sdk.Coins       `json:"id" yaml:"id"`
 }
+
+type

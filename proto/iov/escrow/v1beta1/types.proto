@@ -12,11 +12,8 @@ option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 option (gogoproto.goproto_getters_all) = false;
 
 
-
 // Escrow defines the struct of an escrow
 message Escrow {
-    option (gogoproto.equal) = true;
-
     string id = 1;
     string seller = 2;
     string buyer = 3;
@@ -33,7 +30,7 @@ message Escrow {
 
 // EscrowState defines the state of an escrow
 enum EscrowState {
-    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.goproto_enum_prefix) = true;
 
     // ESCROW_STATE_OPEN defines an open state.
     ESCROW_STATE_OPEN = 0 [ (gogoproto.enumvalue_customname) = "Open" ];

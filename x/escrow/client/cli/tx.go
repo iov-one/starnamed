@@ -1,171 +1,112 @@
 package cli
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
-	"strings"
 
-	"github.com/spf13/cobra"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-
-	"github.com/irisnet/irismod/modules/htlc/types"
+	"github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/spf13/cobra"
 )
 
 // NewTxCmd returns the transaction commands for this module
 func NewTxCmd() *cobra.Command {
-	htlcTxCmd := &cobra.Command{
+	escrowTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "HTLC transaction subcommands",
+		Short:                      "Escrow transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
-	htlcTxCmd.AddCommand(
-		GetCmdCreateHTLC(),
-		GetCmdClaimHTLC(),
+	escrowTxCmd.AddCommand(
+		GetCmdUpdateEscrow(),
+		GetCmdTransferToEscrow(),
+		GetCmdRefundEscrow(),
 	)
 
-	return htlcTxCmd
+	return escrowTxCmd
 }
 
-// GetCmdCreateHTLC implements creating an HTLC command
-func GetCmdCreateHTLC() *cobra.Command {
+// GetCmdUpdateEscrow implements updating an escrow command
+func GetCmdUpdateEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create an HTLC",
-		Long:  "Create an HTLC.",
-		Example: fmt.Sprintf(
-			"$ %s tx htlc create "+
-				"--to=<recipient> "+
-				"--receiver-on-other-chain=<receiver-on-other-chain> "+
-				"--sender-on-other-chain=<sender-on-other-chain> "+
-				"--amount=<amount> "+
-				"--hash-lock=<hash-lock> "+
-				"--timestamp=<timestamp> "+
-				"--time-lock=<time-lock> "+
-				"--transfer=false "+
-				"--from=mykey",
-			version.AppName,
-		),
-		PreRunE: preCheckCmd,
+		Use:   "update [id]",
+		Short: "Updates an escrow",
+		Long: "Updates the fields of an escrow. Object is not modifiable, buyer address is modifiable by the buyer" +
+			" and all the other fields are modifiable by the seller.",
+		Example: fmt.Sprintf("$ %s tx escrow update <id> --price 5atom", version.AppName),
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			sender := clientCtx.GetFromAddress()
+			updater := clientCtx.GetFromAddress().String()
 
-			toAddr, err := cmd.Flags().GetString(FlagTo)
+			seller, err := cmd.Flags().GetString(FlagSeller)
+			if err != nil {
+				return err
+			}
+			buyer, err := cmd.Flags().GetString(FlagBuyer)
+			if err != nil {
+				return err
+			}
+			price, err := cmd.Flags().GetString(FlagPrice)
 			if err != nil {
 				return err
 			}
 
-			if _, err := sdk.AccAddressFromBech32(toAddr); err != nil {
-				return err
-			}
-
-			receiverOnOtherChain, err := cmd.Flags().GetString(FlagReceiverOnOtherChain)
-			if err != nil {
-				return err
-			}
-
-			senderOnOtherChain, err := cmd.Flags().GetString(FlagSenderOnOtherChain)
-			if err != nil {
-				return err
-			}
-
-			amountStr, err := cmd.Flags().GetString(FlagAmount)
-			if err != nil {
-				return err
-			}
-
-			amount, err := sdk.ParseCoinsNormalized(amountStr)
-			if err != nil {
-				return err
-			}
-
-			timestamp, err := cmd.Flags().GetUint64(FlagTimestamp)
-			if err != nil {
-				return err
-			}
-
-			timeLock, err := cmd.Flags().GetUint64(FlagTimeLock)
-			if err != nil {
-				return err
-			}
-
-			transfer, err := cmd.Flags().GetBool(FlagTransfer)
-			if err != nil {
-				return err
-			}
-
-			secret := make([]byte, 32)
-			var hashLock []byte
-
-			flags := cmd.Flags()
-			if flags.Changed(FlagHashLock) {
-				hashLock, err = cmd.Flags().GetBytesHex(FlagHashLock)
+			var priceCoins sdk.Coins
+			if len(price) > 0 {
+				priceCoins, err = sdk.ParseCoinsNormalized(price)
 				if err != nil {
-					return err
+					return sdkerrors.Wrap(err, "Incorrect price format")
 				}
-			} else if flags.Changed(FlagSecret) {
-				if secret, err = cmd.Flags().GetBytesHex(FlagSecret); err != nil {
-					return err
-				}
-				hashLock = types.GetHashLock(secret, timestamp)
-			} else {
-				if _, err = rand.Read(secret); err != nil {
-					return err
-				}
-				hashLock = types.GetHashLock(secret, timestamp)
 			}
 
-			msg := types.NewMsgCreateHTLC(
-				sender.String(), toAddr, receiverOnOtherChain,
-				senderOnOtherChain, amount, hex.EncodeToString(hashLock),
-				timestamp, timeLock, transfer,
-			)
+			deadline, err := cmd.Flags().GetUint64(FlagDeadline)
+			if err != nil {
+				return err
+			}
+
+			msg := types.MsgUpdateEscrow{
+				Id:       args[0],
+				Updater:  updater,
+				Seller:   seller,
+				Buyer:    buyer,
+				Price:    priceCoins,
+				Deadline: deadline,
+			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 
-			if err = tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg); err == nil && !flags.Changed(FlagHashLock) {
-				fmt.Println("**Important** save this secret, hashLock in a safe place.")
-				fmt.Println("It is the only way to claim or refund the locked coins from an HTLC")
-				fmt.Println()
-				fmt.Printf("Secret:      %s\nHashLock:    %s\n",
-					strings.ToUpper(hex.EncodeToString(secret)), strings.ToUpper(hex.EncodeToString(hashLock)),
-				)
-			}
-			return err
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
-
-	cmd.Flags().AddFlagSet(FsCreateHTLC)
-	_ = cmd.MarkFlagRequired(FlagTo)
-	_ = cmd.MarkFlagRequired(FlagAmount)
-	_ = cmd.MarkFlagRequired(FlagTimeLock)
+	cmd.Flags().AddFlagSet(FsEscrow)
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
 
-// GetCmdClaimHTLC implements claiming an HTLC command
-func GetCmdClaimHTLC() *cobra.Command {
+// GetCmdTransferToEscrow implements transfering to an escrow command
+func GetCmdTransferToEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "claim [id] [secret]",
-		Short:   "Claim an HTLC",
-		Long:    "Claim an open HTLC with a secret.",
-		Example: fmt.Sprintf("$ %s tx htlc claim <id> <secret> --from mykey", version.AppName),
-		Args:    cobra.ExactArgs(2),
+		Use:   "transfer [id] [amount]",
+		Short: "Transfers coins to an escrow",
+		Long: "Transfer coins to an escrow, if the minimum price is not reached, the transaction will fail." +
+			"Otherwise, an amount equal to the escrow price will be sent to the escrow and the exchange will" +
+			"be done",
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -174,15 +115,16 @@ func GetCmdClaimHTLC() *cobra.Command {
 
 			sender := clientCtx.GetFromAddress().String()
 
-			if _, err := hex.DecodeString(args[0]); err != nil {
-				return err
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "Invalid amount format")
 			}
 
-			if _, err := hex.DecodeString(args[1]); err != nil {
-				return err
+			msg := types.MsgTransferToEscrow{
+				Id:     args[0],
+				Sender: sender,
+				Amount: amount,
 			}
-
-			msg := types.NewMsgClaimHTLC(sender, args[0], args[1])
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -195,12 +137,33 @@ func GetCmdClaimHTLC() *cobra.Command {
 	return cmd
 }
 
-func preCheckCmd(cmd *cobra.Command, _ []string) error {
-	flags := cmd.Flags()
+// GetCmdRefundEscrow implements refunding an escrow command
+func GetCmdRefundEscrow() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "refund [id]",
+		Short: "Refund the engaged assets in an escrow",
+		Long:  "Refund the engaged assets in an escrow.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-	if flags.Changed(FlagSecret) && flags.Changed(FlagHashLock) {
-		return fmt.Errorf("can not provide both the secret and hash lock")
+			seller := clientCtx.GetFromAddress().String()
+
+			msg := types.MsgRefundEscrow{
+				Id:     args[0],
+				Seller: seller,
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+		},
 	}
+	flags.AddTxFlagsToCmd(cmd)
 
-	return nil
+	return cmd
 }

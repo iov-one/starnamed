@@ -12,6 +12,7 @@ type TransferableObject interface {
 	codec.ProtoMarshaler
 
 	GetType() TypeID
+	//TODO: simplify this to transfer only the used data (getPk, load(store), update(store))
 	GetObject() crud.Object
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)

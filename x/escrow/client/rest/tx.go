@@ -18,7 +18,7 @@ func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
 	// create an HTLC
 	r.HandleFunc("/htlc/htlcs", createHTLCHandlerFn(cliCtx)).Methods("POST")
 	// claim an HTLC
-	r.HandleFunc(fmt.Sprintf("/htlc/htlcs/{%s}/claim", RestID), claimHTLCHandlerFn(cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/htlc/htlcs/{%s}/claim", IDParam), claimHTLCHandlerFn(cliCtx)).Methods("POST")
 }
 
 func createHTLCHandlerFn(cliCtx client.Context) http.HandlerFunc {

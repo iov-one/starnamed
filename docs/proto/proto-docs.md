@@ -1653,7 +1653,7 @@ MsgCreateEscrow defines a message to create an escrow
 | ----- | ---- | ----- | ----------- |
 | `seller` | [string](#string) |  |  |
 | `buyer` | [string](#string) |  |  |
-| `object` | [google.protobuf.Any](#google.protobuf.Any) |  | TODO: Maybe just (pk, type) ? |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
 

@@ -16,11 +16,19 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgCreateEscrow:
-			res, err := msgServer.CreateHTLC(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.CreateEscrow(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		case *types.MsgUpdateEscrow:
-			res, err := msgServer.ClaimHTLC(sdk.WrapSDKContext(ctx), msg)
+			res, err := msgServer.UpdateEscrow(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgRefundEscrow:
+			res, err := msgServer.RefundEscrow(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgTransferToEscrow:
+			res, err := msgServer.TransferToEscrow(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:

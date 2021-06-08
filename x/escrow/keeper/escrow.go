@@ -38,7 +38,7 @@ func (k Keeper) CreateEscrow(
 
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
-		id, buyer, seller, price, object, types.Open, deadline,
+		id, buyer, seller, price, object, deadline,
 	)
 	err := escrow.Validate()
 	if err != nil {
@@ -112,7 +112,7 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	// check if the escrow is open
-	if escrow.State != types.Open {
+	if escrow.State != types.EscrowState_Open {
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
 
@@ -157,7 +157,7 @@ func (k Keeper) TransferToEscrow(
 		panic(err)
 	}
 
-	escrow.State = types.Completed
+	escrow.State = types.EscrowState_Completed
 	k.deleteEscrow(ctx, escrow)
 	//TODO: Emit event
 
@@ -189,7 +189,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
 
-	if escrow.State != types.Open {
+	if escrow.State != types.EscrowState_Open {
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
 
@@ -224,7 +224,7 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 	}
 
 	// update the state of the escrow
-	escrow.State = types.Refunded
+	escrow.State = types.EscrowState_Refunded
 	// delete escrow
 	k.deleteEscrow(ctx, escrow)
 	return nil
@@ -297,7 +297,7 @@ func (k Keeper) saveEscrow(ctx sdk.Context, escrow types.Escrow) {
 }
 
 func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
-	if escrow.State == types.Open {
+	if escrow.State == types.EscrowState_Open {
 		panic("Attempted to delete an open escrow")
 	}
 
