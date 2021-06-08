@@ -79,6 +79,7 @@ func NewTestCodec() *codec.ProtoCodec {
 
 type Mocks struct {
 	Supply *mock.SupplyKeeperMock
+	Escrow *mock.EscrowKeeperMock
 }
 
 // NewTestKeeper a new test keeper, context, and mocks
@@ -100,12 +101,14 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	mocks := new(Mocks)
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
+	// Create mock escrow keeper
+	mocks.Escrow = mock.NewEscrowKeeper()
 	// create config keeper
 	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
 	// create context
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), mocks.Escrow.Mock(), nil), ctx, mocks
 }
 
 var _, testAddrs = utils.GeneratePrivKeyAddressPairs(3)

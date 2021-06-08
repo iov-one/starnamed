@@ -5,16 +5,16 @@ package types
 
 import (
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
 	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
-	_ "github.com/iov-one/starnamed/x/starname/types"
 	_ "github.com/regen-network/cosmos-proto"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -66,10 +66,9 @@ func (EscrowState) EnumDescriptor() ([]byte, []int) {
 
 // Escrow defines the struct of an escrow
 type Escrow struct {
-	Id     string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Seller string `protobuf:"bytes,2,opt,name=seller,proto3" json:"seller,omitempty"`
-	Buyer  string `protobuf:"bytes,3,opt,name=buyer,proto3" json:"buyer,omitempty"`
-	// TODO: Maybe just (pk, type) ?
+	Id       string                                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Seller   string                                   `protobuf:"bytes,2,opt,name=seller,proto3" json:"seller,omitempty"`
+	Buyer    string                                   `protobuf:"bytes,3,opt,name=buyer,proto3" json:"buyer,omitempty"`
 	Object   *types.Any                               `protobuf:"bytes,4,opt,name=object,proto3" json:"object,omitempty"`
 	Price    github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=price,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"price"`
 	State    EscrowState                              `protobuf:"varint,6,opt,name=state,proto3,enum=starnamed.x.escrow.v1beta1.EscrowState" json:"state,omitempty"`

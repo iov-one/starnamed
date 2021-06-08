@@ -1,8 +1,6 @@
 package escrow
 
 import (
-	"encoding/hex"
-
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 
 	"github.com/iov-one/starnamed/x/escrow/types"
@@ -11,26 +9,17 @@ import (
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
-//TODO: add escrow.nextID to the genesis state
-
 // InitGenesis stores the genesis state
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	if err := types.ValidateGenesis(data); err != nil {
 		panic(err.Error())
 	}
 
-	//TODO: check if we should use initial_date instead
 	k.SetLastBlockTime(ctx, data.LastBlockTime)
 
-	//var incomingSupplies sdk.Coins
-	//var outgoingSupplies sdk.Coins
 	for _, escrow := range data.GetEscrows() {
-		_, err := hex.DecodeString(escrow.Id)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		//TODO: manage this
+		//TODO: check other things, in addition to the validation done in ValidateGenesis?
+		k.SaveEscrow(ctx, escrow)
 	}
 }
 
@@ -46,13 +35,14 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	)
 
 	lastBlockTime := k.GetLastBlockTime(ctx)
+	nextID := k.GetNextIDForExport(ctx)
 
-	return types.NewGenesisState(escrows, lastBlockTime)
+	return types.NewGenesisState(escrows, lastBlockTime, nextID)
 }
 
+//PrepForZeroHeightGenesis TODO: figure out is this is actually needed or if it is legacy (and if it is, does anything needs to be done in replacement)
 func PrepForZeroHeightGenesis(ctx sdk.Context, k keeper.Keeper) {
 	// TODO: update previous block time
-	// TODO: check what we need to
 	//TODO: check how to do this init
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 }

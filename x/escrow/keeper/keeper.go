@@ -55,6 +55,18 @@ func NewKeeper(
 	}
 }
 
+//TODO: documentation
+func (k Keeper) AddStore(id types.TypeID, store crud.Store) {
+	k.AddStoreHolder(id, types.NewSimpleStoreHolder(func(sdk.Context) crud.Store { return store }))
+}
+
+func (k Keeper) AddStoreHolder(id types.TypeID, store types.StoreHolder) {
+	if _, alreadyPresent := k.storeHolders[id]; alreadyPresent {
+		panic(fmt.Errorf("cannot register a store holder for type id %v because it is already registered", id))
+	}
+	k.storeHolders[id] = store
+}
+
 // Logger returns a module-specific logger
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("irismod/%s", types.ModuleName))
@@ -69,18 +81,21 @@ func (k Keeper) FetchNextId(ctx sdk.Context) string {
 	return hex.EncodeToString(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
 }
 
+func (k Keeper) GetNextIDForExport(ctx sdk.Context) uint64 {
+	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
+}
+
 func (k Keeper) NextId(ctx sdk.Context) {
-	idBytes := k.getParamStore(ctx).Get(types.ParamsStoreNextId)
-	next := sdk.BigEndianToUint64(idBytes) + 1
+	next := k.GetNextIDForExport(ctx) + 1
 	k.getParamStore(ctx).Set(types.ParamsStoreNextId, sdk.Uint64ToBigEndian(next))
 }
 
-func (k Keeper) getStoreForID(id types.TypeID) (crud.Store, error) {
+func (k Keeper) getStoreForID(ctx sdk.Context, id types.TypeID) (crud.Store, error) {
 	store, ok := k.storeHolders[id]
 	if !ok {
 		return nil, types.ErrUnknownTypeID
 	}
-	return store.GetCRUDStore(), nil
+	return store.GetCRUDStore(ctx), nil
 }
 
 func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {

@@ -11,4 +11,5 @@ option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 message GenesisState {
     repeated v1beta1.Escrow escrows = 1 [ (gogoproto.nullable) = false ];
     uint64 last_block_time = 2;
+    uint64 next_escrow_id = 3;
 }

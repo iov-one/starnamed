@@ -21,5 +21,20 @@ type TransferableObject interface {
 }
 
 type StoreHolder interface {
-	GetCRUDStore() crud.Store
+	GetCRUDStore(sdk.Context) crud.Store
+}
+
+// Checks that SimpleStoreHolder implements the StoreHolder interface
+var _ StoreHolder = SimpleStoreHolder{}
+
+type SimpleStoreHolder struct {
+	retrieveStore func(sdk.Context) crud.Store
+}
+
+func NewSimpleStoreHolder(storeRetriever func(sdk.Context) crud.Store) SimpleStoreHolder {
+	return SimpleStoreHolder{retrieveStore: storeRetriever}
+}
+
+func (s SimpleStoreHolder) GetCRUDStore(ctx sdk.Context) crud.Store {
+	return s.retrieveStore(ctx)
 }

@@ -41,7 +41,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// Retrieve the store for this object
-	objectStore, err := k.getStoreForID(object.GetType())
+	objectStore, err := k.getStoreForID(ctx, object.GetType())
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +65,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// save the escrow
-	k.saveEscrow(ctx, escrow)
+	k.SaveEscrow(ctx, escrow)
 	k.NextId(ctx)
 	//TODO: Emit event
 
@@ -147,7 +147,7 @@ func (k Keeper) UpdateEscrow(
 		return err
 	}
 
-	k.saveEscrow(ctx, escrow)
+	k.SaveEscrow(ctx, escrow)
 	return nil
 }
 
@@ -221,7 +221,7 @@ func (k Keeper) TransferToEscrow(
 func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress) error {
 
 	// Transfer the object from the module to the buyer
-	err := k.doObjectTransfer(k.GetEscrowAccount(ctx).GetAddress(), buyer, escrow.GetObject())
+	err := k.doObjectTransfer(ctx, k.GetEscrowAccount(ctx).GetAddress(), buyer, escrow.GetObject())
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the object to the buyer")
 	}
@@ -271,7 +271,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.AccAddress) error {
 
 	// Transfer the object back to the seller
-	err := k.doObjectTransfer(k.GetEscrowAccount(ctx).GetAddress(), seller, escrow.GetObject())
+	err := k.doObjectTransfer(ctx, k.GetEscrowAccount(ctx).GetAddress(), seller, escrow.GetObject())
 	if err != nil {
 		return sdkerrors.Wrap(err, "Error while transferring the object back to the seller")
 
@@ -284,9 +284,9 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 	return nil
 }
 
-func (k Keeper) doObjectTransfer(from, to sdk.AccAddress, object types.TransferableObject) error {
+func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Retrieve the object store
-	objectStore, err := k.getStoreForID(object.GetType())
+	objectStore, err := k.getStoreForID(ctx, object.GetType())
 	if err != nil {
 		return err
 	}
@@ -335,8 +335,8 @@ func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
 	return k.getStore(ctx).Has(types.GetEscrowKey(id))
 }
 
-// saveEscrow sets the given escrow
-func (k Keeper) saveEscrow(ctx sdk.Context, escrow types.Escrow) {
+// SaveEscrow sets the given escrow
+func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	bz := k.cdc.MustMarshalBinaryBare(&escrow)
 	k.getStore(ctx).Set(types.GetEscrowKey(escrow.Id), bz)
 	k.addEscrowToDeadlineStore(ctx, escrow)

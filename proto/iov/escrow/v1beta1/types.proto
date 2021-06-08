@@ -17,7 +17,6 @@ message Escrow {
     string id = 1;
     string seller = 2;
     string buyer = 3;
-    // TODO: Maybe just (pk, type) ?
     google.protobuf.Any object = 4 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
     repeated cosmos.base.v1beta1.Coin price = 5 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     EscrowState state = 6;

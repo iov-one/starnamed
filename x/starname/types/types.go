@@ -3,6 +3,8 @@ package types
 import (
 	"strings"
 
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
@@ -13,6 +15,12 @@ const AccountAdminIndex crud.IndexID = 0x1
 const AccountDomainIndex crud.IndexID = 0x2
 const AccountResourcesIndex crud.IndexID = 0x3
 const AccountBrokerIndex crud.IndexID = 0x4
+
+// Type IDs used by the escrow module
+const (
+	DomainTypeID  escrowtypes.TypeID = 0x1
+	AccountTypeID escrowtypes.TypeID = 0x2
+)
 
 // Delimit the uri and resource in GetResourceKey() with an ineligible
 // character since, technically, it'd be possible to have uri "d" and

@@ -7,19 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -85,10 +75,22 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/gorilla/mux"
 	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/escrow"
+	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
 	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
+	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmjson "github.com/tendermint/tendermint/libs/json"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -174,6 +176,7 @@ var (
 		vesting.AppModuleBasic{},
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
+		escrow.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -186,6 +189,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                {authtypes.Burner},
+		escrowtypes.ModuleName:         nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -232,6 +236,7 @@ type WasmApp struct {
 	wasmKeeper       wasm.Keeper
 	configKeeper     configuration.Keeper
 	starnameKeeper   starname.Keeper
+	escrowKeeper     escrowkeeper.Keeper
 
 	scopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	scopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -263,7 +268,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey,
+		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey, escrowtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -389,12 +394,22 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.getSubspace(configuration.ModuleName),
 	)
 
+	// Create the escrow keeper
+	app.escrowKeeper = escrowkeeper.NewKeeper(appCodec,
+		keys[escrowtypes.StoreKey],
+		app.getSubspace(escrowtypes.ModuleName),
+		app.accountKeeper,
+		app.bankKeeper,
+		app.ModuleAccountAddrs(),
+		make(map[escrowtypes.TypeID]escrowtypes.StoreHolder),
+	)
 	// starname keeper
 	app.starnameKeeper = starname.NewKeeper(
 		appCodec,
 		keys[starname.DomainStoreKey],
 		app.configKeeper,
 		app.bankKeeper,
+		app.escrowKeeper,
 		app.getSubspace(starname.ModuleName),
 	)
 
@@ -445,6 +460,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		transferModule,
 		configuration.NewAppModule(app.configKeeper),
 		starname.NewAppModule(app.starnameKeeper),
+		escrow.NewAppModule(appCodec, app.escrowKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -453,7 +469,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
-		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
+		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName, escrowtypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName)
 
@@ -469,7 +485,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
 		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, ibctransfertypes.ModuleName,
 		// wasm after ibc transfer
-		wasm.ModuleName, configuration.ModuleName, starname.ModuleName,
+		wasm.ModuleName, configuration.ModuleName, starname.ModuleName, escrowtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -675,6 +691,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(configuration.ModuleName)
 	paramsKeeper.Subspace(starname.ModuleName)
+	paramsKeeper.Subspace(escrowtypes.ModuleName)
 
 	return paramsKeeper
 }

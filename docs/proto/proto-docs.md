@@ -1515,7 +1515,7 @@ Escrow defines the struct of an escrow
 | `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `buyer` | [string](#string) |  |  |
-| `object` | [google.protobuf.Any](#google.protobuf.Any) |  | TODO: Maybe just (pk, type) ? |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
@@ -1565,6 +1565,7 @@ GenesisState defines the Escrow module's genesis state
 | ----- | ---- | ----- | ----------- |
 | `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
 | `last_block_time` | [uint64](#uint64) |  |  |
+| `next_escrow_id` | [uint64](#uint64) |  |  |
 
 
 

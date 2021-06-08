@@ -10,6 +10,8 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
+//TODO : this package implements legacy REST routes
+
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query an escrow
 	r.HandleFunc(fmt.Sprintf("/%s/{%s}", types.ModuleName, IDParam), queryEscrowHandlerFn(cliCtx)).Methods("GET")
@@ -28,7 +30,6 @@ func queryEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Id: vars[IDParam],
 		}
 
-		//TODO: check if we can use protobuf instead
 		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
@@ -42,12 +44,18 @@ type ConfigurationKeeper interface {
 	GetDomainGracePeriod(ctx sdk.Context) time.Duration
 }
 
+// EscrowKeeper defines the behaviour of the escrow keeper, used to add stores to the module
+type EscrowKeeper interface {
+	AddStoreHolder(id escrowtypes.TypeID, storeHolder escrowtypes.StoreHolder)
+}
+
 // Keeper of the domain store
 // TODO split this keeper in sub-struct in order to avoid possible mistakes with keys and not clutter the exposed methods
 type Keeper struct {
 	// external keepers
 	ConfigurationKeeper ConfigurationKeeper
 	SupplyKeeper        SupplyKeeper
+	EscrowKeeper        EscrowKeeper
 	// default fields
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
 	Cdc        codec.Marshaler
@@ -55,15 +63,27 @@ type Keeper struct {
 }
 
 // NewKeeper creates aliceAddr domain keeper
-func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, escrow EscrowKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		StoreKey:            storeKey,
 		Cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
 		SupplyKeeper:        supply,
+		EscrowKeeper:        escrow,
 		paramspace:          paramspace,
 	}
+	keeper.AddStoreHolders()
 	return keeper
+}
+
+// AddStoreHolders adds the starname objects (domains and accounts) store holders to the escrow module
+func (k Keeper) AddStoreHolders() {
+	domainRetriever := func(ctx sdk.Context) crud.Store { return k.DomainStore(ctx) }
+	accountRetriever := func(ctx sdk.Context) crud.Store { return k.AccountStore(ctx) }
+
+	// Register the store holders
+	k.EscrowKeeper.AddStoreHolder(types.DomainTypeID, escrowtypes.NewSimpleStoreHolder(domainRetriever))
+	k.EscrowKeeper.AddStoreHolder(types.AccountTypeID, escrowtypes.NewSimpleStoreHolder(accountRetriever))
 }
 
 // AccountStore returns the crud.Store used to interact with account objects
