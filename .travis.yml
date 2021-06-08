@@ -65,6 +65,7 @@ script:
   # Check advanced files formatting, including imports
   - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+`
   - checkEmpty "$ERR_FILES"
+  # TODO enable dangerbot
   - echo TODO docker run -it --rm -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
   # test
   - make test-unit test-race test-cover
@@ -83,14 +84,14 @@ script:
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
       if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-        # worry about gitian later
+        # worry about gitian later ;
         #./contrib/gitian-build.sh linux ;
         #mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
         docker build --pull --tag ${IMAGE_NAME} . ;
       fi;
 
       if [[ $release_latest == "yes" ]]; then
-        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";#
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 
         docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
         docker push "iov1/starnamed:latest";
