@@ -337,7 +337,7 @@ export const patchStargatenet = genesis => {
          "//name": "msig1",
          "type": "cosmos-sdk/Account",
          "value": {
-            "address": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
+            "address": "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv",
             "coins": [
                {
                   "denom": "uiov",
@@ -407,7 +407,7 @@ export const patchStargatenet = genesis => {
    genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + dsupply );
 
    // set the configuration owner
-   genesis.app_state.configuration.config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
+   genesis.app_state.configuration.config.configurer = "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv"; // intentionally not a mainnet multisig
 
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => { if ( account.value.coins[0] ) account.value.coins[0].denom = "uvoi" } );
