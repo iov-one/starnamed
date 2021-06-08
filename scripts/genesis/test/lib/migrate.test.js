@@ -210,7 +210,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( w3 ).toBeTruthy();
 
       expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( msig1.value.address ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( msig1.value.address ).toEqual( "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv" );
       expect( w1.value.address ).toEqual( "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q" );
       expect( w2.value.address ).toEqual( "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la" );
       expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
