@@ -3,15 +3,17 @@ import {
    burnTokens,
    enableIBC,
    fixConfiguration,
+   injectWasm,
    migrate,
    patchJestnet,
    patchMainnet,
    patchStargatenet,
    transferCustody,
+   injectValidator,
 } from "../../lib/migrate";
 import fs from "fs";
-import path from "path";
 import readExportedState from "../../lib/readExportedState";
+import path from "path";
 import tmp from "tmp";
 
 "use strict";
@@ -65,7 +67,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( +genesis.app_state.mint.minter.inflation ).toBe( +"0.0" );
 
       expect( +genesis.app_state.mint.params.blocks_per_year ).toBe( +"4360000" );
-      expect( +genesis.app_state.mint.params.goal_bonded ).toBe( +"0.0" );
+      expect( +genesis.app_state.mint.params.goal_bonded ).toBeGreaterThan( +"0.0" );
       expect( +genesis.app_state.mint.params.inflation_max ).toBe( +"0.0" );
       expect( +genesis.app_state.mint.params.inflation_min ).toBe( +"0.0" );
       expect( +genesis.app_state.mint.params.inflation_rate_change ).toBe( +"0.0" );
@@ -79,6 +81,28 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesis.app_state.configuration.config.account_renewal_count_max ).toBe( genesis0.app_state.configuration.config.account_renew_count_max );
       expect( genesis.app_state.configuration.config.domain_renewal_count_max ).toBe( genesis0.app_state.configuration.config.domain_renew_count_max );
    };
+   const verifyWasm = genesis => {
+      expect( genesis.app_state.wasm.params.code_upload_access.permission ).toBe( "Nobody" );
+      expect( genesis.app_state.wasm.params.instantiate_default_permission ).toBe( "Nobody" );
+   };
+   const launchLocally = async patch => {
+      const exported = JSON.parse( JSON.stringify( genesis0 ) );
+      const tmpobj = tmp.dirSync( { template: "migrate-test-launch-XXXXXX", unsafeCleanup: true } );
+      const flammable = [ "star1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjewks3" ]; // accounts to burn: blackhole*iov
+      const home = tmpobj.name;
+      const validated = ( err, out ) => {
+         const data = err.length ? err : out; // stupid cosmos-sdk
+         //console.log( data );
+         const validator = data.indexOf( "This node is a validator" );
+         const state = JSON.parse( fs.readFileSync( path.join( home, "data", "priv_validator_state.json" ) ) );
+
+         expect( validator ).toBeGreaterThan( -1 );
+         expect( +state.height ).toBeGreaterThan( 0 );
+      };
+      const migrated = await migrate( { flammable, exported, home, patch, validated } );
+
+      expect( migrated.validators.find( validator => validator.name == "stargatenet" ) ).toBeDefined();
+   }
 
 
    it( `Should burn tokens.`, async () => {
@@ -139,6 +163,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
+   it( `Should inject wasm params.`, async () => {
+      const genesis = JSON.parse( JSON.stringify( genesis0 ) );
+
+      injectWasm( genesis );
+      verifyWasm( genesis );
+   } );
+
+
    it( `Should patch jestnet.`, async () => {
       const genesis = JSON.parse( JSON.stringify( genesis0 ) );
       const previous = genesis.app_state.starname.domains[0].valid_until;
@@ -178,14 +210,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( w3 ).toBeTruthy();
 
       expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( msig1.value.address ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( msig1.value.address ).toEqual( "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv" );
       expect( w1.value.address ).toEqual( "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q" );
       expect( w2.value.address ).toEqual( "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la" );
       expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
 
       const config = genesis.app_state.configuration.config;
 
-      expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( config.configurer ).toEqual( "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv" );
 
       const iov = genesis.app_state.starname.domains.find( domain => domain.name == "iov" );
       const zeros = genesis.app_state.starname.domains.find( domain => domain.name == "0000" );
@@ -213,6 +245,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( ibc.client_genesis.params.allowed_clients.length ).toBe( 2 );
       expect( ibc.client_genesis.params.allowed_clients.find( client => client == "06-solomachine" ) ).toBeDefined();
+
+      // stargatenet validator
+      expect( genesis.validators.length ).toEqual( genesis0.validators.length + 1 );
+      expect( genesis.app_state.staking.validators.length ).toEqual( genesis0.app_state.staking.validators.length + 1 );
+      expect( genesis.app_state.staking.params.max_validators ).toEqual( genesis0.app_state.staking.params.max_validators + 1 );
+      expect( genesis.app_state.staking.delegations.length ).toEqual( genesis0.app_state.staking.delegations.length + 1 );
+
+      const stargatenet = genesis.app_state.auth.accounts.find( account => account.value.address == "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp" );
+
+      expect( stargatenet ).toBeDefined();
    } );
 
 
@@ -263,7 +305,23 @@ describe( "Tests ../../lib/migrate.js.", () => {
       verifyCustody( migrated );
       verifyInflation( migrated );
       verifyConfiguration( migrated );
+      verifyWasm( migrated );
 
       tmpobj.removeCallback();
+   } );
+
+
+   it( `Should launch stargatenet locally.`, async () => {
+      await launchLocally( patchStargatenet );
+   } );
+
+
+   it( `Should launch iov-mainnet-ibc locally.`, async () => {
+      const patch = genesis => {
+         patchMainnet( genesis );
+         injectValidator( genesis );
+      };
+
+      await launchLocally( patch );
    } );
 } );

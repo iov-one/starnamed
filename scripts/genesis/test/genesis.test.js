@@ -30,7 +30,7 @@ describe( "Tests ../genesis.js.", () => {
 
       veryifyCommon( genesis );
 
-      expect( genesis.app_state.configuration.config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( genesis.app_state.configuration.config.configurer ).toEqual( "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv" );
    } );
 
 
