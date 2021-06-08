@@ -455,6 +455,13 @@ export const patchStargatenet = genesis => {
 
    // hide mainnet validtor names
    genesis.validators.forEach( ( validator, i ) => validator.name = `OG${i}` );
+   genesis.app_state.staking.validators.forEach( validator => validator.description = {
+      "details": "",
+      "identity": "",
+      "moniker": "",
+      "security_contact": "",
+      "website": ""
+   } );
 
    // add a dominant validators
    injectValidator( genesis );

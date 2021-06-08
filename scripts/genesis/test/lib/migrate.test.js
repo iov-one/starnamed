@@ -255,6 +255,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const stargatenet = genesis.app_state.auth.accounts.find( account => account.value.address == "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp" );
 
       expect( stargatenet ).toBeDefined();
+
+      // other validators
+      genesis.app_state.staking.validators.forEach( validator => {
+         const description = validator.description;
+         if ( description.moniker != "stargatenet" ) {
+            Object.keys( description ).forEach( key => {
+               expect( description[key] ).toEqual( "" );
+            } );
+         }
+      } );
    } );
 
 
