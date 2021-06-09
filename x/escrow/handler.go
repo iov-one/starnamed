@@ -7,7 +7,7 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-// NewHandler creates an sdk.Handler for all the HTLC type messages
+// NewHandler creates an sdk.Handler for all the escrow type messages
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	msgServer := keeper.NewMsgServerImpl(k)
 

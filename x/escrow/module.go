@@ -42,12 +42,12 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the HTLC module.
+// DefaultGenesis returns default genesis state as raw bytes for the escrow module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation for the HTLC module.
+// ValidateGenesis performs genesis state validation for the escrow module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -57,12 +57,12 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, _ client.TxEncodi
 	return types.ValidateGenesis(data)
 }
 
-// RegisterRESTRoutes registers the REST routes for the HTLC module.
+// RegisterRESTRoutes registers the REST routes for the escrow module.
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
 	rest.RegisterHandlers(clientCtx, rtr)
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the HTLC module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the escrow module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
@@ -77,14 +77,14 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// RegisterInterfaces registers interfaces and implementations of the HTLC module.
+// RegisterInterfaces registers interfaces and implementations of the escrow module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
 }
 
 // ____________________________________________________________________________
 
-// AppModule implements an application module for the HTLC module.
+// AppModule implements an application module for the escrow module.
 type AppModule struct {
 	AppModuleBasic
 
@@ -133,7 +133,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the HTLC module.
+// ExportGenesis returns the exported genesis state as raw bytes for the escrow module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
