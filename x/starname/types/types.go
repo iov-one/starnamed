@@ -1,7 +1,10 @@
 package types
 
 import (
+	"fmt"
 	"strings"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 
@@ -122,6 +125,27 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 	}
 	// return keys
 	return sk
+}
+
+// Make Account implement escrowtypes.TransferableObject
+func (m *Account) GetType() escrowtypes.TypeID {
+	return AccountTypeID
+}
+
+func (m *Account) GetObject() crud.Object {
+	return m
+}
+
+func (m *Account) IsOwnedBy(account sdk.AccAddress) (bool, error) {
+	return m.Owner.Equals(account), nil
+}
+
+func (m *Account) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
+	if isOwned, _ := m.IsOwnedBy(from); !isOwned {
+		return fmt.Errorf("%s is not owned by %s", m.GetStarname(), from)
+	}
+	m.Owner = to
+	return nil
 }
 
 // Certificate defines a certificate

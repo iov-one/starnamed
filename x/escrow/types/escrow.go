@@ -31,6 +31,16 @@ func NewEscrow(
 	}
 }
 
+// UnpackInterfaces make sure the Anys included in Escrow are unpacked (e.g the object field)
+func (msg *Escrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	if msg.Object != nil {
+		var obj TransferableObject
+		return unpacker.UnpackAny(msg.Object, &obj)
+	}
+
+	return nil
+}
+
 // Validate validates the escrow
 func (e Escrow) Validate(lastBlockTime uint64) error {
 	if err := ValidateID(e.Id); err != nil {
@@ -65,4 +75,12 @@ func (e Escrow) Validate(lastBlockTime uint64) error {
 
 func (e *Escrow) GetObject() TransferableObject {
 	return e.Object.GetCachedValue().(TransferableObject)
+}
+
+func (e *Escrow) SyncObject() {
+	any, err := codectypes.NewAnyWithValue(e.GetObject())
+	if err != nil {
+		panic(sdkerrors.Wrap(err, "Cannot sync escrow object with its cached value"))
+	}
+	e.Object = any
 }

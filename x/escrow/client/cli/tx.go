@@ -72,9 +72,17 @@ func GetCmdUpdateEscrow() *cobra.Command {
 				}
 			}
 
-			deadline, err := cmd.Flags().GetUint64(FlagDeadline)
+			deadlineStr, err := cmd.Flags().GetString(FlagDeadline)
 			if err != nil {
 				return err
+			}
+
+			var deadline uint64
+			if len(deadlineStr) != 0 {
+				deadline, err = parseDeadline(deadlineStr)
+				if err != nil {
+					return err
+				}
 			}
 
 			msg := types.MsgUpdateEscrow{

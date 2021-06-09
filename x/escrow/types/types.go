@@ -16,7 +16,6 @@ type TransferableObject interface {
 	GetObject() crud.Object
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)
-	CanTransfer(from sdk.AccAddress, to sdk.AccAddress) error
 	Transfer(from sdk.AccAddress, to sdk.AccAddress) error
 }
 

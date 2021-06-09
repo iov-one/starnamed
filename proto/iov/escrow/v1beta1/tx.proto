@@ -4,7 +4,6 @@ package starnamed.x.escrow.v1beta1;
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "iov/escrow/v1beta1/types.proto";
-import "iov/starname/v1beta1/types.proto";
 import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
 

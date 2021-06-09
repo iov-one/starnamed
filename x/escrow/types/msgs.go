@@ -45,6 +45,16 @@ func NewMsgCreateEscrow(
 	}
 }
 
+// UnpackInterfaces make sure the Anys included in MsgCreateEscrow are unpacked (e.g the object field)
+func (msg *MsgCreateEscrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	if msg.Object != nil {
+		var obj TransferableObject
+		return unpacker.UnpackAny(msg.Object, &obj)
+	}
+
+	return nil
+}
+
 // Route implements Msg
 func (msg MsgCreateEscrow) Route() string { return RouterKey }
 
@@ -140,7 +150,9 @@ func (msg MsgUpdateEscrow) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid updater address (%s)", err)
 	}
 
+	var hasUpdate = false
 	if len(msg.Seller) != 0 {
+		hasUpdate = true
 		_, err := sdk.AccAddressFromBech32(msg.Seller)
 		if err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
@@ -148,15 +160,25 @@ func (msg MsgUpdateEscrow) ValidateBasic() error {
 	}
 
 	if len(msg.Buyer) != 0 {
+		hasUpdate = true
 		if _, err := sdk.AccAddressFromBech32(msg.Buyer); err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid buyer address (%s)", err)
 		}
 	}
 
 	if msg.Price != nil {
+		hasUpdate = true
 		if err := ValidatePrice(msg.Price); err != nil {
 			return err
 		}
+	}
+
+	if msg.Deadline != 0 {
+		hasUpdate = true
+	}
+
+	if !hasUpdate {
+		return ErrEmptyUpdate
 	}
 
 	return nil

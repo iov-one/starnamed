@@ -3,12 +3,11 @@ package keeper
 import (
 	"reflect"
 
-	crud "github.com/iov-one/cosmos-sdk-crud"
-	"github.com/pkg/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/pkg/errors"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
@@ -31,23 +30,22 @@ func (k Keeper) CreateEscrow(
 		return "", sdkerrors.Wrap(types.ErrIdNotUnique, id)
 	}
 
-	// Create and validate the escrow
-	escrow := types.NewEscrow(
-		id, buyer, seller, price, object, deadline,
-	)
-	err := escrow.Validate(k.GetLastBlockTime(ctx))
-	if err != nil {
-		return "", err
-	}
-
 	// Retrieve the store for this object
 	objectStore, err := k.getStoreForID(ctx, object.GetType())
 	if err != nil {
 		return "", err
 	}
-
 	// Check the object is in the store and is equal to the store's version
 	err = k.checkObjectWithStore(objectStore, object)
+	if err != nil {
+		return "", err
+	}
+
+	// Create and validate the escrow
+	escrow := types.NewEscrow(
+		id, seller, buyer, price, object, deadline,
+	)
+	err = escrow.Validate(k.GetLastBlockTime(ctx))
 	if err != nil {
 		return "", err
 	}
@@ -123,9 +121,15 @@ func (k Keeper) UpdateEscrow(
 			escrow.Seller = seller.String()
 		}
 		if price != nil {
+			if err := types.ValidatePrice(price); err != nil {
+				return err
+			}
 			escrow.Price = price
 		}
 		if deadline != 0 {
+			if err := types.ValidateDeadline(deadline, k.GetLastBlockTime(ctx)); err != nil {
+				return err
+			}
 			//TODO: is that the behavior we want ?
 
 			// We can only delay the deadline
@@ -139,12 +143,6 @@ func (k Keeper) UpdateEscrow(
 		}
 	} else {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the buyer or the seller can update an escrow")
-	}
-
-	//TODO: is this correct or should we validate data before ?
-	err = escrow.Validate(k.GetLastBlockTime(ctx))
-	if err != nil {
-		return err
 	}
 
 	k.SaveEscrow(ctx, escrow)
@@ -289,7 +287,8 @@ func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, objec
 	objectStore, err := k.getStoreForID(ctx, object.GetType())
 	if err != nil {
 		return err
-	}
+	} // Retrieve the store for this object
+
 	return k.doObjectTransferWithStore(from, to, object, objectStore)
 }
 
@@ -317,7 +316,8 @@ func (k Keeper) deleteEscrowFromDeadlineStore(ctx sdk.Context, escrow types.Escr
 }
 
 func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
-	var objInStore crud.Object
+	var objInStore = object.GetObject()
+	//TODO: cleanup this mess
 	err := objectStore.Read(object.GetObject().PrimaryKey(), objInStore)
 	if err != nil {
 		return types.ErrUnknownObject
@@ -337,6 +337,7 @@ func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
 
 // SaveEscrow sets the given escrow
 func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
+	escrow.SyncObject()
 	bz := k.cdc.MustMarshalBinaryBare(&escrow)
 	k.getStore(ctx).Set(types.GetEscrowKey(escrow.Id), bz)
 	k.addEscrowToDeadlineStore(ctx, escrow)
@@ -353,6 +354,7 @@ func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 
 // GetEscrow retrieves the specified escrow
 func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, found bool) {
+	//TODO : check is open
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 

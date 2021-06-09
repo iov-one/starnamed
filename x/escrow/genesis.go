@@ -16,6 +16,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	}
 
 	k.SetLastBlockTime(ctx, data.LastBlockTime)
+	k.ImportNextID(ctx, data.NextEscrowId)
 
 	for _, escrow := range data.GetEscrows() {
 		//TODO: check other things, in addition to the validation done in ValidateGenesis?

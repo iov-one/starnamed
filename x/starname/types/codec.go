@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -42,6 +44,12 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgReplaceAccountResources{},
 		&MsgTransferAccount{},
 		&MsgTransferDomain{},
+	)
+	registry.RegisterImplementations(
+		(*escrowtypes.TransferableObject)(nil),
+		// Register the account object as a TransferableObject implementation to send it in a MsgCreateEscrow
+		// TODO: is this the correct way of doing this ?
+		&Account{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

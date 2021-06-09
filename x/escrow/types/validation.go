@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	// EscrowIDLength is the length for the hash lock in hex string
-	EscrowIDLength = 64
+	// EscrowIDLength is the length for the hex encoded escrow id (uint64 => 8 bytes => 16 chars)
+	EscrowIDLength = 16
 )
 
 // ValidatePrice verifies whether the given amount is legal
@@ -38,7 +38,7 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 		return err
 	}
 	if !ownedBySeller {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "The object does not belong to %v", seller)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "The object does not belong to %s", seller)
 	}
 	return nil
 }

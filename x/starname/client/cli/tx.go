@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	escrowcli "github.com/iov-one/starnamed/x/escrow/client/cli"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
 )
@@ -19,8 +20,8 @@ import (
 // GetTxCmd clubs together all the CLI tx commands
 func GetTxCmd() *cobra.Command {
 	domainTxCmd := &cobra.Command{
-		Use:                        types.DomainStoreKey,
-		Short:                      fmt.Sprintf("%s transactions subcommands", types.DomainStoreKey),
+		Use:                        types.ModuleName,
+		Short:                      fmt.Sprintf("%s transactions subcommands", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -39,6 +40,7 @@ func GetTxCmd() *cobra.Command {
 		getCmdDeleteAccountCertificate(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
+		getCmdCreateEscrow(),
 	)
 	return domainTxCmd
 }
@@ -821,6 +823,53 @@ func getCmdSetAccountMetadata() *cobra.Command {
 	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
 	cmd.Flags().StringP("metadata", "m", "", "the new metadata, leave empty to unset")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func getCmdCreateEscrow() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "create-escrow",
+		Aliases: []string{"ce", "escrow-create", "ec"},
+		Short:   "creates an escrow for a domain or an account",
+		Long:    "Creates an escrow to sell a domain or an account at a fixed price",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			// get flags
+			domain, err := cmd.Flags().GetString("domain")
+			if err != nil {
+				return err
+			}
+			name, err := cmd.Flags().GetString("account")
+			if err != nil {
+				return err
+			}
+
+			starname := &types.Account{
+				Domain: domain,
+				Name:   &name,
+				Owner:  clientCtx.FromAddress,
+			}
+
+			msg, err := escrowcli.NewMsgCreateEscrow(clientCtx, cmd, starname)
+			if err != nil {
+				return err
+			}
+			// check if valid
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+			// broadcast request
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	// add flags
+	escrowcli.AddCreateEscrowFlags(cmd)
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
+	cmd.Flags().StringP("account", "n", "", "the name of the account whose resources you want to replace")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

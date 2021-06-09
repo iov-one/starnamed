@@ -77,6 +77,10 @@ func (k Keeper) GetEscrowAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
+func (k Keeper) ImportNextID(ctx sdk.Context, nextID uint64) {
+	k.getParamStore(ctx).Set(types.ParamsStoreNextId, sdk.Uint64ToBigEndian(nextID))
+}
+
 func (k Keeper) FetchNextId(ctx sdk.Context) string {
 	return hex.EncodeToString(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
 }
