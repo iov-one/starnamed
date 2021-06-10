@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -71,8 +72,11 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 		panic(err)
 	}
 	var accounts []types.Account
-	account := new(types.Account)
+
 	for ; cursor.Valid(); cursor.Next() {
+		// The account has to be reallocated at each iteration
+		// Otherwise the name get overwritten (as it as a pointer, copying the account is not sufficient)
+		account := new(types.Account)
 		err = cursor.Read(account)
 		if err != nil {
 			panic(err)
