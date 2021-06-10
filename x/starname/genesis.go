@@ -51,7 +51,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data types.GenesisState) {
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	// domains
-	cursor, err := k.DomainStore(ctx).Query().Where().Index(0x2).Equals([]byte{0x2}).Do() // HARD-CODE in conjunction with keeper.go
+	cursor, err := k.DomainStore(ctx).Query().Do()
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	}
 
 	// accounts
-	cursor, err = k.AccountStore(ctx).Query().Where().Index(0x1).Equals([]byte{0x1}).Do() // HARD-CODE in conjunction with keeper.go
+	cursor, err = k.AccountStore(ctx).Query().Do()
 	if err != nil {
 		panic(err)
 	}
