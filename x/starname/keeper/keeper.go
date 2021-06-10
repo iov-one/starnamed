@@ -52,6 +52,9 @@ type Keeper struct {
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
+	// crud stores
+	accountStore crud.Store
+	domainStore  crud.Store
 }
 
 // NewKeeper creates aliceAddr domain keeper
@@ -67,13 +70,19 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 }
 
 // AccountStore returns the crud.Store used to interact with account objects
-func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
-	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
+func (k *Keeper) AccountStore(ctx sdk.Context) crud.Store {
+	if k.accountStore == nil {
+		k.accountStore = crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
+	}
+	return k.accountStore
 }
 
 // DomainStore returns the crud.Store used to interact with domain objects
-func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
-	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
+func (k *Keeper) DomainStore(ctx sdk.Context) crud.Store {
+	if k.domainStore == nil {
+		k.domainStore = crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
+	}
+	return k.domainStore
 }
 
 // Logger returns aliceAddr module-specific logger.
