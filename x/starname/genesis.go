@@ -91,6 +91,6 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 
 // validateDomain checks if a domain is valid or not
 func validateDomain(d types.Domain) error {
-	// TODO fill
+	// TODO validate domain against the configuration module's domain constraints
 	return nil
 }
