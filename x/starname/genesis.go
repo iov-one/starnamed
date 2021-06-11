@@ -76,8 +76,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 		// The account has to be reallocated at each iteration
 		// Otherwise the name get overwritten (as it as a pointer, copying the account is not sufficient)
 		account := new(types.Account)
-		err = cursor.Read(account)
-		if err != nil {
+		if err = cursor.Read(account); err != nil {
 			panic(err)
 		}
 		accounts = append(accounts, *account)
