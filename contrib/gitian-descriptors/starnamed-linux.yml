@@ -1,5 +1,5 @@
 ---
-name: "iovns-linux"
+name: "starnamed-linux"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -20,14 +20,14 @@ packages:
 - "xxd"
 - "quilt"
 remotes:
-- "url": "https://github.com/iov-one/iovns.git"
-  "dir": "iovns"
+- "url": "https://github.com/iov-one/starnamed.git"
+  "dir": "starnamed"
 files:
-- "go1.14.linux-amd64.tar.gz"
+- "go1.16.5.linux-amd64.tar.gz"
 script: |
   set -e -o pipefail
 
-  GO_SRC_RELEASE=go1.14.linux-amd64
+  GO_SRC_RELEASE=go1.16.5.linux-amd64
   GO_SRC_TARBALL="${GO_SRC_RELEASE}.tar.gz"
   # Compile go and configure the environment
   export TAR_OPTIONS="--mtime="$REFERENCE_DATE\\\ $REFERENCE_TIME""
@@ -47,12 +47,12 @@ script: |
   export GO111MODULE=on
 
   # Make release tarball
-  pushd iovns
+  pushd starnamed
   VERSION=$(git describe --tags | sed 's/^v//')
   COMMIT=$(git log -1 --format='%H')
-  DISTNAME=iovns-${VERSION}
+  DISTNAME=starnamed-${VERSION}
   git archive --format tar.gz --prefix ${DISTNAME}/ -o ${DISTNAME}.tar.gz HEAD
-  SOURCEDIST=`pwd`/`echo iovns-*.tar.gz`
+  SOURCEDIST=`pwd`/`echo starnamed-*.tar.gz`
   popd
 
   # Correct tar file order
@@ -60,11 +60,11 @@ script: |
   pushd temp
   tar xf $SOURCEDIST
   rm $SOURCEDIST
-  find iovns-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > $SOURCEDIST
+  find starnamed-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > $SOURCEDIST
   popd
 
   # Prepare GOPATH and install deps
-  distsrc=${GOPATH}/src/github.com/iov-one/iovns
+  distsrc=${GOPATH}/src/github.com/iov-one/starnamed
   mkdir -p ${distsrc}
   pushd ${distsrc}
   tar --strip-components=1 -xf $SOURCEDIST
@@ -73,11 +73,12 @@ script: |
 
   # Configure LDFLAGS for reproducible builds
   LDFLAGS="-extldflags=-static -buildid=${VERSION} -s -w \
-    -X github.com/cosmos/cosmos-sdk/version.Name=iovns \
-    -X github.com/cosmos/cosmos-sdk/version.ServerName=iovnsd \
-    -X github.com/cosmos/cosmos-sdk/version.ClientName=iovnscli \
+    -X github.com/cosmos/cosmos-sdk/version.AppName=starnamed \
     -X github.com/cosmos/cosmos-sdk/version.Version=${VERSION} \
     -X github.com/cosmos/cosmos-sdk/version.Commit=${COMMIT} \
+    -X github.com/iov-one/starnamed/app.Bech32Prefix=star \
+    -X github.com/iov-one/starnamed/app.CoinTypeStr=234 \
+    -X github.com/iov-one/starnamed/app.NodeDir=.starnamed \
     -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger"
 
   # Extract release tarball and build
@@ -85,9 +86,9 @@ script: |
     INSTALLPATH=`pwd`/installed/${DISTNAME}-${arch}
     mkdir -p ${INSTALLPATH}
 
-    # Build iovns tool suite
+    # Build starnamed tool suite
     pushd ${distsrc}
-    for prog in iovnscli iovnsd; do
+    for prog in starnamed; do
       GOARCH=${arch} GOROOT_FINAL=${GOROOT} go build -a \
         -trimpath \
         -gcflags=all=-trimpath=${GOPATH} \
