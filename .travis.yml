@@ -83,8 +83,8 @@ script:
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
       if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-        echo "TODO ./contrib/gitian-build.sh linux" ;
-        echo "TODO mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build" ;
+        ./contrib/gitian-build.sh linux" ;
+        mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
         docker build --pull --tag ${IMAGE_NAME} . ;
       fi;
 
