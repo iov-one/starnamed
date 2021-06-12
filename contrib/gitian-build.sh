@@ -8,17 +8,17 @@
 set -euo pipefail
 
 GITIAN_CACHE_DIRNAME='.gitian-builder-cache'
-GO_RELEASE='1.14'
+GO_RELEASE='1.16.5'
 GO_TARBALL="go${GO_RELEASE}.linux-amd64.tar.gz"
 GO_TARBALL_URL="https://dl.google.com/go/${GO_TARBALL}"
 
 # Defaults
 
 DEFAULT_SIGN_COMMAND='gpg --detach-sign'
-DEFAULT_IOVNS_SIGS=${IOVNS_SIGS:-'iovns.sigs'}
+DEFAULT_STARNAMED_SIGS=${STARNAMED_SIGS:-'starnamed.sigs'}
 DEFAULT_GITIAN_REPO='https://github.com/tendermint/gitian-builder'
 DEFAULT_GBUILD_FLAGS=''
-DEFAULT_SIGS_REPO='https://github.com/iov-one/iovns.sigs'
+DEFAULT_SIGS_REPO='https://github.com/iov-one/starnamed.sigs'
 
 # Overrides
 
@@ -51,8 +51,8 @@ The following platforms are supported:
    -s IDENTITY      sign build as IDENTITY
 
 If a GPG identity is supplied via the -s flag, the build will be signed and verified.
-The signature will be saved in '${DEFAULT_IOVNS_SIGS}/'. An alternative output directory
-for signatures can be supplied via the environment variable \$IOVNS_SIGS.
+The signature will be saved in '${DEFAULT_STARNAMED_SIGS}/'. An alternative output directory
+for signatures can be supplied via the environment variable \$STARNAMED_SIGS.
 
 The default signing command used to sign the build is '$DEFAULT_SIGN_COMMAND'.
 An alternative signing command can be supplied via the environment
@@ -62,7 +62,7 @@ EOF
 
 
 f_builddir() {
-  printf '%s' "${g_workdir}/iovns-build-$1"
+  printf '%s' "${g_workdir}/starnamed-build-$1"
 }
 
 f_prep_build() {
@@ -91,7 +91,7 @@ f_build() {
 
   l_descriptor=$1
 
-  bin/gbuild --commit iovns="$g_commit" ${GBUILD_FLAGS} "$l_descriptor"
+  bin/gbuild --commit starnamed="$g_commit" ${GBUILD_FLAGS} "$l_descriptor"
   libexec/stop-target || f_echo_stderr "warning: couldn't stop target"
 }
 
@@ -168,7 +168,7 @@ shift "$((OPTIND-1))"
 g_platforms=$(f_demangle_platforms "${1}")
 g_workdir="$(pwd)"
 g_commit="$(git rev-parse HEAD)"
-g_sigs_dir=${IOVNS_SIGS:-"${g_workdir}/${DEFAULT_IOVNS_SIGS}"}
+g_sigs_dir=${STARNAMED_SIGS:-"${g_workdir}/${DEFAULT_STARNAMED_SIGS}"}
 
 f_ensure_cache
 
@@ -179,7 +179,7 @@ f_prep_build "${g_platforms}"
 export USE_DOCKER=1
 for g_os in ${g_platforms}; do
   g_release="$(git describe --tags --abbrev=9 | sed 's/^v//')-${g_os}"
-  g_descriptor="${g_workdir}/contrib/gitian-descriptors/iovns-${g_os}.yml"
+  g_descriptor="${g_workdir}/contrib/gitian-descriptors/starnamed-${g_os}.yml"
   [ -f ${g_descriptor} ]
   g_builddir="$(f_builddir ${g_os})"
 
