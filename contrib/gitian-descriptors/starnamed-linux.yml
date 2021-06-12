@@ -71,6 +71,9 @@ script: |
   go mod download
   popd
 
+  # allow gcc to pick-up libwasmvm.so
+  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmvm)/api"
+
   # Configure LDFLAGS for reproducible builds
   LDFLAGS="-extldflags=-static -buildid=${VERSION} -s -w \
     -X github.com/cosmos/cosmos-sdk/version.AppName=starnamed \
