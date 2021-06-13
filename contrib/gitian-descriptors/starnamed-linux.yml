@@ -48,8 +48,8 @@ script: |
 
   # Make release tarball
   pushd starnamed
-  VERSION=$(git describe --tags | sed 's/^v//')
-  COMMIT=$(git log -1 --format='%H')
+  export VERSION=$(git describe --tags | sed 's/^v//')
+  export COMMIT=$(git log -1 --format='%H')
   DISTNAME=starnamed-${VERSION}
   git archive --format tar.gz --prefix ${DISTNAME}/ -o ${DISTNAME}.tar.gz HEAD
   SOURCEDIST=`pwd`/`echo starnamed-*.tar.gz`
@@ -71,22 +71,24 @@ script: |
   go mod download
   popd
 
-  # Extract release tarball and build
+  # Hack a build with make install
   for arch in ${ARCHS}; do
     INSTALLPATH=`pwd`/installed/${DISTNAME}-${arch}
     mkdir -p ${INSTALLPATH}
 
     # Build starnamed
     pushd ${distsrc}
+    sed -i "0,/VERSION/{s/VERSION.*/VERISION=${VERSION}/}" Makefile # HACK
+    sed -i "0,/COMMIT/{s/COMMIT.*/COMMIT=${COMMIT}/}" Makefile # HACK
     make install
     popd # ${distsrc}
 
-    pushd ${INSTALLPATH}
+    pushd ${GOPATH}/bin
     find -type f | sort | tar \
       --no-recursion --mode='u+rw,go+r-w,a+X' \
       --numeric-owner --sort=name \
       --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-linux-${arch}.tar.gz
-    popd  # installed
+    popd  # ${GOPATH}/bin
   done
 
   rm -rf ${distsrc}
