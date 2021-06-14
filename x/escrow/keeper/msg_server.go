@@ -38,6 +38,9 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 	obj := msg.Object.GetCachedValue().(types.TransferableObject)
 	// Create the escrow
 	id, err := m.Keeper.CreateEscrow(sdkCtx, seller, msg.Price, obj, msg.Deadline)
+	if err != nil {
+		return nil, err
+	}
 	return &types.MsgCreateEscrowResponse{Id: id}, nil
 }
 
