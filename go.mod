@@ -4,8 +4,8 @@ go 1.15
 
 require (
 	github.com/CosmWasm/wasmvm v0.14.0
-	github.com/cosmos/cosmos-sdk v0.42.4
-	github.com/cosmos/iavl v0.15.3
+	github.com/cosmos/cosmos-sdk v0.42.5
+	github.com/cosmos/iavl v0.16.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20200901110807-248326c1351b
 	github.com/fatih/structs v1.1.0
 	github.com/gogo/protobuf v1.3.3
@@ -13,13 +13,13 @@ require (
 	github.com/google/gofuzz v1.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/iov-one/cosmos-sdk-crud v0.2.0
+	github.com/iov-one/cosmos-sdk-crud v0.2.1
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.10.0
-	github.com/prometheus/common v0.21.0
+	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/common v0.26.0
 	github.com/rakyll/statik v0.1.7
 	github.com/regen-network/cosmos-proto v0.3.1
-	github.com/rs/zerolog v1.21.0
+	github.com/rs/zerolog v1.22.0
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3

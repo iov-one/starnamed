@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
+	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -70,19 +71,13 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 }
 
 // AccountStore returns the crud.Store used to interact with account objects
-func (k *Keeper) AccountStore(ctx sdk.Context) crud.Store {
-	if k.accountStore == nil {
-		k.accountStore = crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
-	}
-	return k.accountStore
+func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
+	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
 }
 
 // DomainStore returns the crud.Store used to interact with domain objects
-func (k *Keeper) DomainStore(ctx sdk.Context) crud.Store {
-	if k.domainStore == nil {
-		k.domainStore = crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
-	}
-	return k.domainStore
+func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
+	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
 }
 
 // Logger returns aliceAddr module-specific logger.
