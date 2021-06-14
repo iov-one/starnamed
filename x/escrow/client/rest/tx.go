@@ -8,11 +8,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 const (
 	ModuleRouteName = "escrows"
+	CreateRoute     = "create"
 	UpdateRoute     = "update"
 	TransferToRoute = "transfer"
 	RefundRoute     = "refund"
@@ -20,6 +22,7 @@ const (
 
 func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
 	escrowRouteTpl := fmt.Sprintf("/%s/{%s}/", ModuleRouteName, IDParam)
+	r.HandleFunc(escrowRouteTpl+CreateRoute, createEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+UpdateRoute, updateEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+TransferToRoute, transferToEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+RefundRoute, refundEscrowHandlerFn(cliCtx)).Methods("POST")
@@ -116,6 +119,28 @@ func refundEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, &msg)
+	}
+}
+
+func createEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		var req CreateEscrowReq
+		if !rest.ReadRESTReq(writer, request, cliCtx.LegacyAmino, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(writer) {
+			return
+		}
+
+		msg := types.NewMsgCreateEscrow(req.Seller, req.Object, req.Price, req.Deadline)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		tx.WriteGeneratedTxResponse(cliCtx, writer, req.BaseReq, &msg)
 	}
 }
 

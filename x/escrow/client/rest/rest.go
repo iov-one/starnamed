@@ -6,6 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 // Rest variable names
@@ -18,6 +20,15 @@ const (
 func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
 	registerQueryRoutes(cliCtx, r)
 	registerTxRoutes(cliCtx, r)
+}
+
+// CreateEscrowReq defines the properties of a escrow creation request's body.
+type CreateEscrowReq struct {
+	BaseReq  rest.BaseReq             `json:"base_req" yaml:"base_req"`
+	Seller   string                   `json:"seller" yaml:"seller"`
+	Price    sdk.Coins                `json:"price" yaml:"price"`
+	Deadline uint64                   `json:"expiration" yaml:"expiration"`
+	Object   types.TransferableObject `json:"object" yaml:"object"`
 }
 
 // UpdateEscrowReq defines the properties of an escrow update request's body.
