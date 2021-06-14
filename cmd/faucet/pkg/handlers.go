@@ -46,27 +46,27 @@ func (f *FaucetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate the address
 	_, err := sdk.AccAddressFromBech32(addrStr)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errors.Wrap(err, "incorrect bech32 address"))
+		_, _ = fmt.Fprint(os.Stderr, errors.Wrap(err, "incorrect bech32 address"))
 		jsonErr(w, http.StatusBadRequest, "provide a valid bech32 address")
 		return
 	}
 
 	tx, err := f.tm.BuildAndSignTx(addrStr)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errors.Wrap(err, "tx signing failed"))
+		_, _ = fmt.Fprint(os.Stderr, errors.Wrap(err, "tx signing failed"))
 		jsonErr(w, http.StatusInternalServerError, "Error while signing message : retry later")
 		return
 	}
 
 	res, err := f.tm.BroadcastTx(tx)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errors.Wrap(err, "broadcast tx failed"))
+		_, _ = fmt.Fprint(os.Stderr, errors.Wrap(err, "broadcast tx failed"))
 		jsonErr(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
 	if res.Code != errors.SuccessABCICode {
-		fmt.Fprint(os.Stderr, "broadcast tx failed : %v", res.RawLog)
+		_, _ = fmt.Fprintf(os.Stderr, "broadcast tx failed : %v", res.RawLog)
 		jsonErr(w, http.StatusInternalServerError, "internal error")
 		return
 	}
