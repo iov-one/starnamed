@@ -1665,7 +1665,7 @@ MsgUpdateEscrow defines a message to update an escrow
 | `id` | [string](#string) |  |  |
 | `updater` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
-| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | FIXME: this generates invalid go code that needs to be patched after each code generation |
 | `deadline` | [uint64](#uint64) |  |  |
 
 
