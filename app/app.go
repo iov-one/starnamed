@@ -94,6 +94,7 @@ import (
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
+	_ "github.com/iov-one/starnamed/client/docs/statik"
 )
 
 const appName = "WasmApp"
