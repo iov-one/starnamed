@@ -48,6 +48,10 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "Invalid updater address : %v", msg.Updater)
 	}
+	// Check that we are not using blocked (e.g module) accounts
+	if m.isBlockedAddr(msg.Updater) {
+		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Updater)
+	}
 
 	// The seller address is optional
 	var seller sdk.AccAddress
@@ -78,6 +82,10 @@ func (m msgServer) TransferToEscrow(ctx context.Context, msg *types.MsgTransferT
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "Invalid sender address : %v", msg.Sender)
 	}
+	// Check that we are not using blocked (e.g module) accounts
+	if m.isBlockedAddr(msg.Sender) {
+		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Sender)
+	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	err = m.Keeper.TransferToEscrow(sdkCtx, sender, msg.Id, msg.Amount)
@@ -94,6 +102,10 @@ func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow)
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "Invalid sender address : %v", msg.Sender)
+	}
+	// Check that we are not using blocked (e.g module) accounts
+	if m.isBlockedAddr(msg.Sender) {
+		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Sender)
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
