@@ -274,7 +274,7 @@ paths:
         - Query
   '/starname/v1beta1/account/{starname}':
     get:
-      summary: Starname gets accounts associated with a given domain.
+      summary: Starname gets all the information associated with a starname.
       operationId: Starname
       responses:
         '200':
@@ -4044,7 +4044,7 @@ definitions:
                   "@type": "type.googleapis.com/google.protobuf.Duration",
                   "value": "1.212s"
                 }
-  wasmd.x.configuration.v1beta1.Config:
+  starnamed.x.configuration.v1beta1.Config:
     type: object
     properties:
       configurer:
@@ -4127,7 +4127,7 @@ definitions:
           MetadataSizeMax defines maximum size of metadata that could be saved
           under an account
     title: Config is the configuration of the network
-  wasmd.x.configuration.v1beta1.Fees:
+  starnamed.x.configuration.v1beta1.Fees:
     type: object
     properties:
       fee_coin_denom:
@@ -4226,7 +4226,7 @@ definitions:
     title: >-
       Fees contains different type of fees to calculate coins to detract when
       processing different messages
-  wasmd.x.configuration.v1beta1.QueryConfigResponse:
+  starnamed.x.configuration.v1beta1.QueryConfigResponse:
     type: object
     properties:
       config:
@@ -4316,7 +4316,7 @@ definitions:
     description: >-
       QueryConfigResponse is the response type for the Query/Configuration RPC
       method.
-  wasmd.x.configuration.v1beta1.QueryFeesResponse:
+  starnamed.x.configuration.v1beta1.QueryFeesResponse:
     type: object
     properties:
       fees:
