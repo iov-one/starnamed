@@ -843,9 +843,13 @@ func getCmdCreateEscrow() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			name, err := cmd.Flags().GetString("account")
+			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
+			}
+
+			if len(clientCtx.FromAddress) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
 			}
 
 			starname := &types.Account{
@@ -869,7 +873,7 @@ func getCmdCreateEscrow() *cobra.Command {
 	// add flags
 	escrowcli.AddCreateEscrowFlags(cmd)
 	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
-	cmd.Flags().StringP("account", "n", "", "the name of the account whose resources you want to replace")
+	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

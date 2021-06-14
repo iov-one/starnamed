@@ -48,6 +48,9 @@ func GetCmdUpdateEscrow() *cobra.Command {
 			}
 
 			updater := clientCtx.GetFromAddress().String()
+			if len(updater) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
+			}
 
 			seller, err := cmd.Flags().GetString(FlagSeller)
 			if err != nil {
@@ -115,6 +118,9 @@ func GetCmdTransferToEscrow() *cobra.Command {
 			}
 
 			sender := clientCtx.GetFromAddress().String()
+			if len(sender) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
+			}
 
 			amount, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
@@ -152,6 +158,9 @@ func GetCmdRefundEscrow() *cobra.Command {
 			}
 
 			sender := clientCtx.GetFromAddress().String()
+			if len(sender) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
+			}
 
 			msg := types.MsgRefundEscrow{
 				Id:     args[0],
