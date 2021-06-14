@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -67,6 +68,7 @@ func (m msgServer) InstantiateContract(goCtx context.Context, msg *types.MsgInst
 		sdk.NewAttribute(types.AttributeKeySigner, msg.Sender),
 		sdk.NewAttribute(types.AttributeKeyCodeID, fmt.Sprintf("%d", msg.CodeID)),
 		sdk.NewAttribute(types.AttributeKeyContract, contractAddr.String()),
+		sdk.NewAttribute(types.AttributeResultDataHex, hex.EncodeToString(data)),
 	))
 
 	return &types.MsgInstantiateContractResponse{
@@ -86,7 +88,7 @@ func (m msgServer) ExecuteContract(goCtx context.Context, msg *types.MsgExecuteC
 		return nil, sdkerrors.Wrap(err, "contract")
 	}
 
-	res, err := m.keeper.Execute(ctx, contractAddr, senderAddr, msg.Msg, msg.Funds)
+	data, err := m.keeper.Execute(ctx, contractAddr, senderAddr, msg.Msg, msg.Funds)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +98,12 @@ func (m msgServer) ExecuteContract(goCtx context.Context, msg *types.MsgExecuteC
 		sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 		sdk.NewAttribute(types.AttributeKeySigner, msg.Sender),
 		sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
+		sdk.NewAttribute(types.AttributeResultDataHex, hex.EncodeToString(data)),
 	))
 
 	return &types.MsgExecuteContractResponse{
-		Data: res.Data,
+		Data: data,
 	}, nil
-
 }
 
 func (m msgServer) MigrateContract(goCtx context.Context, msg *types.MsgMigrateContract) (*types.MsgMigrateContractResponse, error) {
@@ -115,7 +117,7 @@ func (m msgServer) MigrateContract(goCtx context.Context, msg *types.MsgMigrateC
 		return nil, sdkerrors.Wrap(err, "contract")
 	}
 
-	res, err := m.keeper.Migrate(ctx, contractAddr, senderAddr, msg.CodeID, msg.MigrateMsg)
+	data, err := m.keeper.Migrate(ctx, contractAddr, senderAddr, msg.CodeID, msg.MigrateMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -124,11 +126,13 @@ func (m msgServer) MigrateContract(goCtx context.Context, msg *types.MsgMigrateC
 		sdk.EventTypeMessage,
 		sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 		sdk.NewAttribute(types.AttributeKeySigner, msg.Sender),
+		sdk.NewAttribute(types.AttributeKeyCodeID, fmt.Sprintf("%d", msg.CodeID)),
 		sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
+		sdk.NewAttribute(types.AttributeResultDataHex, hex.EncodeToString(data)),
 	))
 
 	return &types.MsgMigrateContractResponse{
-		Data: res.Data,
+		Data: data,
 	}, nil
 }
 
