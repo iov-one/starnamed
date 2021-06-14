@@ -22,7 +22,7 @@ service Query {
         option (google.api.http).get = "/starname/v1beta1/accounts/domain/{domain}";
     }
 
-    // Starname gets accounts associated with a given domain.
+    // Starname gets all the information associated with a starname.
     rpc Starname (QueryStarnameRequest) returns (QueryStarnameResponse) {
         option (google.api.http).get = "/starname/v1beta1/account/{starname}";
     }
