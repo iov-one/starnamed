@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,15 +15,15 @@ import (
 func NewDecodeStore(cdc codec.Marshaler) func(kvA, kvB kv.Pair) string {
 	return func(kvA, kvB kv.Pair) string {
 		switch {
-		case bytes.Equal(kvA.Key[:1], types.EscrowStoreKey):
+		case bytes.Equal(kvA.Key[:1], keeper.EscrowStoreKey):
 			var escrow1, escrow2 types.Escrow
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &escrow1)
 			cdc.MustUnmarshalBinaryBare(kvB.Value, &escrow2)
 			return fmt.Sprintf("%v\n%v", escrow1, escrow2)
 
-		case bytes.Equal(kvA.Key[:1], types.DeadlineStoreKey):
+		case bytes.Equal(kvA.Key[:1], keeper.DeadlineStoreKey):
 			return fmt.Sprintf("%v\n%v", kvA.Value, kvB.Value)
-		case bytes.Equal(kvA.Key[:1], types.ParamsStoreKey):
+		case bytes.Equal(kvA.Key[:1], keeper.ParamsStoreKey):
 			//TODO: factor in parameter name
 			return fmt.Sprintf("%v\n%v", kvA.Value, kvB.Value)
 		default:

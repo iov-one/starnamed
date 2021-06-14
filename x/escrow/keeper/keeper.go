@@ -19,6 +19,17 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+var (
+	// Keys for store prefixes
+	EscrowStoreKey   = []byte{0x01} // prefix for escrow
+	DeadlineStoreKey = []byte{0x02} // prefix for escrow stored by expiration date
+	ParamsStoreKey   = []byte{0x03} // prefix for the keeper parameters
+
+	// Keys for the parameters store
+	paramsStoreLastBlockTime = []byte{0x01}
+	paramsStoreNextId        = []byte{0x02}
+)
+
 // Keeper defines the escrow keeper
 type Keeper struct {
 	storeKey      sdk.StoreKey
@@ -80,20 +91,20 @@ func (k Keeper) GetEscrowAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 }
 
 func (k Keeper) ImportNextID(ctx sdk.Context, nextID uint64) {
-	k.getParamStore(ctx).Set(types.ParamsStoreNextId, sdk.Uint64ToBigEndian(nextID))
+	k.getParamStore(ctx).Set(paramsStoreNextId, sdk.Uint64ToBigEndian(nextID))
 }
 
 func (k Keeper) FetchNextId(ctx sdk.Context) string {
-	return hex.EncodeToString(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
+	return hex.EncodeToString(k.getParamStore(ctx).Get(paramsStoreNextId))
 }
 
 func (k Keeper) GetNextIDForExport(ctx sdk.Context) uint64 {
-	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(types.ParamsStoreNextId))
+	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(paramsStoreNextId))
 }
 
 func (k Keeper) NextId(ctx sdk.Context) {
 	next := k.GetNextIDForExport(ctx) + 1
-	k.getParamStore(ctx).Set(types.ParamsStoreNextId, sdk.Uint64ToBigEndian(next))
+	k.getParamStore(ctx).Set(paramsStoreNextId, sdk.Uint64ToBigEndian(next))
 }
 
 func (k Keeper) getStoreForID(ctx sdk.Context, id types.TypeID) (crud.Store, error) {
@@ -105,23 +116,23 @@ func (k Keeper) getStoreForID(ctx sdk.Context, id types.TypeID) (crud.Store, err
 }
 
 func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), types.EscrowStoreKey)
+	return prefix.NewStore(ctx.KVStore(k.storeKey), EscrowStoreKey)
 }
 
 func (k Keeper) getDeadlineStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), types.DeadlineStoreKey)
+	return prefix.NewStore(ctx.KVStore(k.storeKey), DeadlineStoreKey)
 }
 
 func (k Keeper) getParamStore(ctx sdk.Context) store.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), types.ParamsStoreKey)
+	return prefix.NewStore(ctx.KVStore(k.storeKey), ParamsStoreKey)
 }
 
 func (k Keeper) SetLastBlockTime(ctx sdk.Context, date uint64) {
-	k.getParamStore(ctx).Set(types.ParamsStoreLastBlockTime, sdk.Uint64ToBigEndian(date))
+	k.getParamStore(ctx).Set(paramsStoreLastBlockTime, sdk.Uint64ToBigEndian(date))
 }
 
 func (k Keeper) GetLastBlockTime(ctx sdk.Context) uint64 {
-	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(types.ParamsStoreLastBlockTime))
+	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(paramsStoreLastBlockTime))
 }
 
 func (k Keeper) isBlockedAddr(address string) bool {

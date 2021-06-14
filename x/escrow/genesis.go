@@ -19,7 +19,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	k.ImportNextID(ctx, data.NextEscrowId)
 
 	for _, escrow := range data.GetEscrows() {
-		//TODO: check other things, in addition to the validation done in ValidateGenesis?
 		k.SaveEscrow(ctx, escrow)
 	}
 }
@@ -43,7 +42,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 
 //PrepForZeroHeightGenesis TODO: figure out is this is actually needed or if it is legacy (and if it is, does anything needs to be done in replacement)
 func PrepForZeroHeightGenesis(ctx sdk.Context, k keeper.Keeper) {
-	// TODO: update previous block time
 	//TODO: check how to do this init
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 }
