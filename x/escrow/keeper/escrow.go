@@ -6,9 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
-	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/pkg/errors"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 // CreateEscrow creates an escrow
@@ -53,12 +54,6 @@ func (k Keeper) CreateEscrow(
 	err = k.doObjectTransferWithStore(seller, k.GetEscrowAccount(ctx).GetAddress(), object, objectStore)
 	if err != nil {
 		return "", errors.Wrap(err, "Cannot transfer the object to the module account")
-	}
-
-	// save the modified object
-	err = objectStore.Update(object.GetObject())
-	if err != nil {
-		return "", err
 	}
 
 	// save the escrow
@@ -182,7 +177,12 @@ func (k Keeper) TransferToEscrow(
 
 	// Do the exchange
 	err = k.doSwap(ctx, escrow, buyer, seller)
-	//TODO: should we try to recover ? (e.g. sending back coins / object and closing the escrow on transfer failure)
+	// If an error occurs here, the buyer have sent the coins and :
+	// - The buyer can have received the object or not
+	// - The seller has not received the coins
+	// This case should never happen because the escrow should possess the coins and the object
+	//TODO: or maybe some other external problems could make this transaction fail
+	// how can we recover in that case ?
 	if err != nil {
 		panic(err)
 	}
@@ -277,11 +277,7 @@ func (k Keeper) doObjectTransferWithStore(from, to sdk.AccAddress, object types.
 	}
 
 	// Save the object in its store
-	err = objectStore.Update(object.GetObject())
-	if err != nil {
-		return err
-	}
-	return nil
+	return objectStore.Update(object.GetObject())
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
