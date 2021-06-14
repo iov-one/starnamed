@@ -1,5 +1,6 @@
 syntax = "proto3";
-package wasmd.x.configuration.v1beta1;
+package starnamed.x.configuration.v1beta1;
+
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
