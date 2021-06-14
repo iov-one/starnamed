@@ -91,11 +91,6 @@
   
     - [Query](#wasmd.x.configuration.v1beta1.Query)
   
-- [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
-    - [Account](#starnamed.x.starname.v1beta1.Account)
-    - [Domain](#starnamed.x.starname.v1beta1.Domain)
-    - [Resource](#starnamed.x.starname.v1beta1.Resource)
-  
 - [iov/escrow/v1beta1/types.proto](#iov/escrow/v1beta1/types.proto)
     - [Escrow](#starnamed.x.escrow.v1beta1.Escrow)
   
@@ -121,6 +116,11 @@
     - [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse)
   
     - [Msg](#starnamed.x.escrow.v1beta1.Msg)
+  
+- [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
+    - [Account](#starnamed.x.starname.v1beta1.Account)
+    - [Domain](#starnamed.x.starname.v1beta1.Domain)
+    - [Resource](#starnamed.x.starname.v1beta1.Resource)
   
 - [iov/starname/v1beta1/genesis.proto](#iov/starname/v1beta1/genesis.proto)
     - [GenesisState](#starnamed.x.starname.v1beta1.GenesisState)
@@ -1422,81 +1422,6 @@ Query provides defines the gRPC querier service.
 
 
 
-<a name="iov/starname/v1beta1/types.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## iov/starname/v1beta1/types.proto
-
-
-
-<a name="starnamed.x.starname.v1beta1.Account"></a>
-
-### Account
-Account defines an account that belongs to a domain
-NOTE: It should not be confused with cosmos-sdk auth account
-github.com/cosmos/cosmos-sdk/x/auth.Account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `domain` | [string](#string) |  | Domain references the domain this account belongs to |
-| `name` | [google.protobuf.StringValue](#google.protobuf.StringValue) |  | Name is the name of the account |
-| `owner` | [bytes](#bytes) |  | Owner is the address that owns the account |
-| `broker` | [bytes](#bytes) |  | Broker identifies an entity that facilitated the transaction of the account and can be empty |
-| `valid_until` | [int64](#int64) |  | ValidUntil defines a unix timestamp of the expiration of the account in seconds |
-| `resources` | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources is the list of resources an account resolves to |
-| `certificates` | [bytes](#bytes) | repeated | Certificates contains the list of certificates to identify the account owner |
-| `metadata_uri` | [string](#string) |  | MetadataURI contains a link to extra information regarding the account |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.Domain"></a>
-
-### Domain
-Domain defines a domain
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `name` | [string](#string) |  | Name is the name of the domain |
-| `admin` | [bytes](#bytes) |  | Admin is the owner of the domain |
-| `broker` | [bytes](#bytes) |  |  |
-| `valid_until` | [int64](#int64) |  | ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds |
-| `type` | [string](#string) |  | Type defines the type of the domain |
-
-
-
-
-
-
-<a name="starnamed.x.starname.v1beta1.Resource"></a>
-
-### Resource
-Resource defines a resource owned by an account
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `uri` | [string](#string) |  | URI defines the ID of the resource |
-| `resource` | [string](#string) |  | Resource is the resource |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
 <a name="iov/escrow/v1beta1/types.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1514,7 +1439,6 @@ Escrow defines the struct of an escrow
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
-| `buyer` | [string](#string) |  |  |
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
@@ -1653,7 +1577,6 @@ MsgCreateEscrow defines a message to create an escrow
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `seller` | [string](#string) |  |  |
-| `buyer` | [string](#string) |  |  |
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
@@ -1687,7 +1610,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
-| `seller` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
 
 
 
@@ -1742,7 +1665,6 @@ MsgUpdateEscrow defines a message to update an escrow
 | `id` | [string](#string) |  |  |
 | `updater` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
-| `buyer` | [string](#string) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
 
@@ -1778,6 +1700,81 @@ Msg defines the escrow Msg service
 | `UpdateEscrow` | [MsgUpdateEscrow](#starnamed.x.escrow.v1beta1.MsgUpdateEscrow) | [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse) | UpdateEscrow defines a method for updating an escrow | |
 | `TransferToEscrow` | [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow) | [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse) | TransferToEscrow defines a method for the buyer to transfer funds to the escrow | |
 | `RefundEscrow` | [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow) | [MsgRefundEscrowResponse](#starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse) | RefundEscrow defines a method for the seller to return the assets locked in the escrow | |
+
+ <!-- end services -->
+
+
+
+<a name="iov/starname/v1beta1/types.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/starname/v1beta1/types.proto
+
+
+
+<a name="starnamed.x.starname.v1beta1.Account"></a>
+
+### Account
+Account defines an account that belongs to a domain
+NOTE: It should not be confused with cosmos-sdk auth account
+github.com/cosmos/cosmos-sdk/x/auth.Account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `domain` | [string](#string) |  | Domain references the domain this account belongs to |
+| `name` | [google.protobuf.StringValue](#google.protobuf.StringValue) |  | Name is the name of the account |
+| `owner` | [bytes](#bytes) |  | Owner is the address that owns the account |
+| `broker` | [bytes](#bytes) |  | Broker identifies an entity that facilitated the transaction of the account and can be empty |
+| `valid_until` | [int64](#int64) |  | ValidUntil defines a unix timestamp of the expiration of the account in seconds |
+| `resources` | [Resource](#starnamed.x.starname.v1beta1.Resource) | repeated | Resources is the list of resources an account resolves to |
+| `certificates` | [bytes](#bytes) | repeated | Certificates contains the list of certificates to identify the account owner |
+| `metadata_uri` | [string](#string) |  | MetadataURI contains a link to extra information regarding the account |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.Domain"></a>
+
+### Domain
+Domain defines a domain
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `name` | [string](#string) |  | Name is the name of the domain |
+| `admin` | [bytes](#bytes) |  | Admin is the owner of the domain |
+| `broker` | [bytes](#bytes) |  |  |
+| `valid_until` | [int64](#int64) |  | ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds |
+| `type` | [string](#string) |  | Type defines the type of the domain |
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.Resource"></a>
+
+### Resource
+Resource defines a resource owned by an account
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `uri` | [string](#string) |  | URI defines the ID of the resource |
+| `resource` | [string](#string) |  | Resource is the resource |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 

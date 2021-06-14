@@ -11,7 +11,6 @@ import (
 func NewEscrow(
 	id string,
 	seller sdk.AccAddress,
-	buyer sdk.AccAddress,
 	price sdk.Coins,
 	object TransferableObject,
 	deadline uint64,
@@ -23,7 +22,6 @@ func NewEscrow(
 	return Escrow{
 		Id:       id,
 		Seller:   seller.String(),
-		Buyer:    buyer.String(),
 		Object:   objectAny,
 		Price:    price,
 		State:    EscrowState_Open,
@@ -51,9 +49,7 @@ func (e Escrow) Validate(lastBlockTime uint64) error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
 	}
-	if _, err := sdk.AccAddressFromBech32(e.Buyer); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid buyer address (%s)", err)
-	}
+
 	// Validate object valid and possessed by the seller
 	if err := ValidateObject(e.GetObject(), seller); err != nil {
 		return err

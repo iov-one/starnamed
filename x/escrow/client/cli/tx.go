@@ -3,13 +3,11 @@ package cli
 import (
 	"fmt"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/spf13/cobra"
@@ -55,10 +53,6 @@ func GetCmdUpdateEscrow() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			buyer, err := cmd.Flags().GetString(FlagBuyer)
-			if err != nil {
-				return err
-			}
 			price, err := cmd.Flags().GetString(FlagPrice)
 			if err != nil {
 				return err
@@ -89,7 +83,6 @@ func GetCmdUpdateEscrow() *cobra.Command {
 				Id:       args[0],
 				Updater:  updater,
 				Seller:   seller,
-				Buyer:    buyer,
 				Price:    priceCoins,
 				Deadline: deadline,
 			}
@@ -158,11 +151,11 @@ func GetCmdRefundEscrow() *cobra.Command {
 				return err
 			}
 
-			seller := clientCtx.GetFromAddress().String()
+			sender := clientCtx.GetFromAddress().String()
 
 			msg := types.MsgRefundEscrow{
 				Id:     args[0],
-				Seller: seller,
+				Sender: sender,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

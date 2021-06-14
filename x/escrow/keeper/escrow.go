@@ -15,7 +15,6 @@ import (
 func (k Keeper) CreateEscrow(
 	ctx sdk.Context,
 	seller sdk.AccAddress,
-	buyer sdk.AccAddress,
 	price sdk.Coins,
 	object types.TransferableObject,
 	deadline uint64,
@@ -43,7 +42,7 @@ func (k Keeper) CreateEscrow(
 
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
-		id, seller, buyer, price, object, deadline,
+		id, seller, price, object, deadline,
 	)
 	err = escrow.Validate(k.GetLastBlockTime(ctx))
 	if err != nil {
@@ -75,25 +74,23 @@ func (k Keeper) UpdateEscrow(
 	id string,
 	updater sdk.AccAddress,
 	seller sdk.AccAddress,
-	buyer sdk.AccAddress,
 	price sdk.Coins,
 	deadline uint64,
 ) error {
-	// check if the escrow exists
+	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
 	if !found {
 		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
 
-	//TODO: check no-op update
-	if seller == nil && buyer == nil && price == nil && deadline == 0 {
-		return types.ErrEmptyUpdate
+	// check that the escrow is open
+	if escrow.State != types.EscrowState_Open {
+		return sdkerrors.Wrap(types.ErrEscrowExpired, id)
 	}
 
-	oldBuyer, err := sdk.AccAddressFromBech32(escrow.Buyer)
-	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
-	if err != nil {
-		return sdkerrors.Wrapf(err, "Invalid buyer address : %v", escrow.Buyer)
+	//TODO: check no-op update
+	if seller == nil && price == nil && deadline == 0 {
+		return types.ErrEmptyUpdate
 	}
 
 	oldSeller, err := sdk.AccAddressFromBech32(escrow.Seller)
@@ -102,20 +99,8 @@ func (k Keeper) UpdateEscrow(
 		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
 	}
 
-	//TODO: is that the behavior we want ?
-	// If the updater is the buyer, he can update the buyer address, to delegate the escrow
-	if updater.Equals(oldBuyer) {
-		if seller != nil || price != nil || deadline != 0 {
-			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the seller update the seller address, the price and the deadline values")
-		}
-		// Here we know that buyer != nil (because at least one field is non nil, and we just checked all others are)
-		//TODO : get rid of warning or perform an extra security check
-		escrow.Buyer = buyer.String()
-	} else if updater.Equals(oldSeller) { // If the updater is the seller, he can update the seller, price and deadline
-		if buyer != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the buyer can update the buyer address")
-		}
-
+	// If the updater is the seller, he can update the seller, price and deadline
+	if updater.Equals(oldSeller) {
 		// Update seller, price and deadline if provided
 		if seller != nil {
 			escrow.Seller = seller.String()
@@ -152,33 +137,20 @@ func (k Keeper) UpdateEscrow(
 // TransferToEscrow transfers coins from the buyer to the escrow account
 func (k Keeper) TransferToEscrow(
 	ctx sdk.Context,
-	sender sdk.AccAddress,
+	buyer sdk.AccAddress,
 	id string,
 	amount sdk.Coins,
 
 ) error {
-	// check if the escrow exists
+	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
 	if !found {
 		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
 
-	// check if the escrow is open
+	// check that the escrow is open
 	if escrow.State != types.EscrowState_Open {
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
-	}
-
-	//TODO: check if deadline here is needed or if BeginBlocker is a sufficient warranty
-
-	buyer, err := sdk.AccAddressFromBech32(escrow.Buyer)
-	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
-	if err != nil {
-		return sdkerrors.Wrapf(err, "Invalid buyer address : %v", escrow.Buyer)
-	}
-
-	// Ensure that the sender is the designated buyer of this escrow
-	if !sender.Equals(buyer) {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the designated buyer can transfer coins to the escrow")
 	}
 
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
@@ -186,6 +158,12 @@ func (k Keeper) TransferToEscrow(
 	if err != nil {
 		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
 	}
+
+	// Ensure that the buyer is not the seller of this escrow
+	if buyer.Equals(seller) {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "The owner of the escrow cannot transfer coins to the escrow")
+	}
+
 	// Check if the provided amount is valid
 	if !amount.IsValid() {
 		return types.ErrInvalidAmount
@@ -241,22 +219,23 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
 
-	if escrow.State != types.EscrowState_Open {
+	if escrow.State != types.EscrowState_Open && escrow.State != types.EscrowState_Expired {
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
 
-	//TODO: check if deadline here is needed or if BeginBlocker is a sufficient warranty
+	//TODO: handle expired vs open
 
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
 	if err != nil {
 		return err
 	}
 
-	// Ensure the seller is the one asking for a refund
-	if !sender.Equals(seller) {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the designated seller can trigger a refund")
+	// Ensure the seller is the one asking for a refund or that escrow is expired
+	if !sender.Equals(seller) && escrow.State != types.EscrowState_Expired {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the escrow owner can trigger a refund if the escrow is not expired")
 	}
 
+	// We refund the object to the seller
 	if err := k.refundEscrow(ctx, escrow, seller); err != nil {
 		return err
 	}
@@ -347,6 +326,9 @@ func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 	if escrow.State == types.EscrowState_Open {
 		panic("Attempted to delete an open escrow")
 	}
+	if escrow.State == types.EscrowState_Expired {
+		panic("Attempted to delete an expired escrow without refunding it")
+	}
 
 	k.getStore(ctx).Delete(types.GetEscrowKey(escrow.Id))
 	k.deleteEscrowFromDeadlineStore(ctx, escrow)
@@ -354,7 +336,6 @@ func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 
 // GetEscrow retrieves the specified escrow
 func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, found bool) {
-	//TODO : check is open
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 
@@ -368,7 +349,7 @@ func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow
 	return escrow, true
 }
 
-func (k Keeper) IterateExpiredEscrows(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
+func (k Keeper) IterateExpiringEscrows(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
 	store := k.getDeadlineStore(ctx)
 	// TODO : check if that's actually valid
 	end := sdk.Uint64ToBigEndian(date + 1)
@@ -386,12 +367,25 @@ func (k Keeper) IterateExpiredEscrows(ctx sdk.Context, date uint64, op func(type
 	}
 
 }
-
-func (k Keeper) RefundExpiredEscrows(ctx sdk.Context, date uint64) {
-	k.IterateExpiredEscrows(ctx, date,
+func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
+	k.IterateExpiringEscrows(ctx, date,
 		func(e types.Escrow) (stop bool) {
+			if e.State == types.EscrowState_Open {
+				e.State = types.EscrowState_Expired
+			}
+			return false
+		})
+}
+
+func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
+	k.IterateEscrows(ctx,
+		func(id tmbytes.HexBytes, e types.Escrow) (stop bool) {
 			//TODO: check if allowed because we modify expired store (refund -> delete escrow -> delete escrow from expired store)
 			// while iterating over it
+
+			if e.State != types.EscrowState_Expired {
+				return false
+			}
 
 			// refund escrow
 			seller, err := sdk.AccAddressFromBech32(e.Seller)

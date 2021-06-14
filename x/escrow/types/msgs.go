@@ -27,7 +27,6 @@ var (
 // NewMsgCreateEscrow creates a new MsgCreateEscrow instance
 func NewMsgCreateEscrow(
 	seller string,
-	buyer string,
 	object TransferableObject,
 	price sdk.Coins,
 	deadline uint64,
@@ -38,7 +37,6 @@ func NewMsgCreateEscrow(
 	}
 	return MsgCreateEscrow{
 		Seller:   seller,
-		Buyer:    buyer,
 		Object:   packedObj,
 		Price:    price,
 		Deadline: deadline,
@@ -66,10 +64,6 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 	seller, err := sdk.AccAddressFromBech32(msg.Seller)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.Buyer); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid buyer address (%s)", err)
 	}
 
 	if err := ValidatePrice(msg.Price); err != nil {
@@ -109,9 +103,9 @@ func (msg MsgRefundEscrow) ValidateBasic() error {
 		return err
 	}
 
-	_, err := sdk.AccAddressFromBech32(msg.Seller)
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
 	}
 	return nil
 }
@@ -124,7 +118,7 @@ func (msg MsgRefundEscrow) GetSignBytes() []byte {
 
 // GetSigners implements Msg
 func (msg MsgRefundEscrow) GetSigners() []sdk.AccAddress {
-	seller, err := sdk.AccAddressFromBech32(msg.Seller)
+	seller, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
 	}
@@ -156,13 +150,6 @@ func (msg MsgUpdateEscrow) ValidateBasic() error {
 		_, err := sdk.AccAddressFromBech32(msg.Seller)
 		if err != nil {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
-		}
-	}
-
-	if len(msg.Buyer) != 0 {
-		hasUpdate = true
-		if _, err := sdk.AccAddressFromBech32(msg.Buyer); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid buyer address (%s)", err)
 		}
 	}
 

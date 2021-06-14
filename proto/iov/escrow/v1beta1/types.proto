@@ -1,7 +1,6 @@
 syntax = "proto3";
 package starnamed.x.escrow.v1beta1;
 
-import "iov/starname/v1beta1/types.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
@@ -16,15 +15,13 @@ option (gogoproto.goproto_getters_all) = false;
 message Escrow {
     string id = 1;
     string seller = 2;
-    string buyer = 3;
-    google.protobuf.Any object = 4 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
-    repeated cosmos.base.v1beta1.Coin price = 5 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
-    EscrowState state = 6;
-    uint64 deadline = 7;
+    google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
+    repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    EscrowState state = 5;
+    uint64 deadline = 6;
 
     /*
-    uint64 timestamp = 9;
-    uint64 expiration_height = 10 [ (gogoproto.moretags) = "yaml:\"expiration_height\"" ];*/
+    uint64 timestamp = 9;*/
 }
 
 // EscrowState defines the state of an escrow

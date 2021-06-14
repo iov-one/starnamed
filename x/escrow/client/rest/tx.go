@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/iov-one/starnamed/x/escrow/types"
-
-	"github.com/gorilla/mux"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 const (
@@ -48,7 +46,6 @@ func updateEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Id:       id,
 			Updater:  req.Updater,
 			Seller:   req.Seller,
-			Buyer:    req.Buyer,
 			Price:    req.Price,
 			Deadline: req.Deadline,
 		}
@@ -111,7 +108,7 @@ func refundEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 
 		msg := types.MsgRefundEscrow{
 			Id:     id,
-			Seller: req.Seller,
+			Sender: req.Sender,
 		}
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

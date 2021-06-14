@@ -25,7 +25,6 @@ type UpdateEscrowReq struct {
 	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Updater  string       `json:"updater" yaml:"updater"`
 	Seller   string       `json:"seller" yaml:"seller"`
-	Buyer    string       `json:"buyer" yaml:"buyer"`
 	Price    sdk.Coins    `json:"price" yaml:"price"`
 	Deadline uint64       `json:"expiration" yaml:"expiration"`
 }
@@ -40,5 +39,5 @@ type TransferToEscrowReq struct {
 // RefundEscrowReq defines the properties of a escrow refund request's body.
 type RefundEscrowReq struct {
 	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Seller  string       `json:"seller" yaml:"seller"`
+	Sender  string       `json:"sender" yaml:"sender"`
 }

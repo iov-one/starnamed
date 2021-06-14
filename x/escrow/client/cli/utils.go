@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/escrow/types"
@@ -14,11 +13,6 @@ import (
 
 func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.TransferableObject) (*types.MsgCreateEscrow, error) {
 	seller := ctx.GetFromAddress().String()
-
-	buyer, err := verifyErrAndNonEmpty(cmd, FlagBuyer)
-	if err != nil {
-		return nil, err
-	}
 
 	priceStr, err := verifyErrAndNonEmpty(cmd, FlagPrice)
 	if err != nil {
@@ -39,14 +33,14 @@ func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.Transf
 		return nil, err
 	}
 
-	msg := types.NewMsgCreateEscrow(seller, buyer, obj, price, deadline)
+	msg := types.NewMsgCreateEscrow(seller, obj, price, deadline)
 	return &msg, nil
 }
 
 func AddCreateEscrowFlags(cmd *cobra.Command) {
-	cmd.Flags().String(FlagBuyer, "", "TODO: desc")
-	cmd.Flags().String(FlagPrice, "", "TODO: desc")
-	cmd.Flags().String(FlagDeadline, "", "TODO: desc")
+	//FIXME: duplicated from flags.go
+	cmd.Flags().String(FlagPrice, "", "Price of the object")
+	cmd.Flags().String(FlagDeadline, "", "Expiration date of the escrow, in the RFC3339 time format")
 }
 
 func verifyErrAndNonEmpty(cmd *cobra.Command, flag string) (string, error) {

@@ -12,7 +12,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	// Automatically refund all expired escrows
 	currentDate := uint64(ctx.BlockTime().Unix())
-	k.RefundExpiredEscrows(ctx, currentDate)
+	k.MarkExpiredEscrows(ctx, currentDate)
 
 	k.SetLastBlockTime(ctx, currentDate)
 }

@@ -30,22 +30,14 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 		return nil, sdkerrors.Wrapf(err, "Invalid seller address : %v", msg.Seller)
 	}
 
-	buyer, err := sdk.AccAddressFromBech32(msg.Buyer)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "Invalid buyer address : %v", msg.Buyer)
-	}
-
 	// Check that we are not using blocked (e.g module) accounts
 	if m.isBlockedAddr(msg.Seller) {
 		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Seller)
 	}
-	if m.isBlockedAddr(msg.Buyer) {
-		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Buyer)
-	}
 
 	obj := msg.Object.GetCachedValue().(types.TransferableObject)
 	// Create the escrow
-	id, err := m.Keeper.CreateEscrow(sdkCtx, seller, buyer, msg.Price, obj, msg.Deadline)
+	id, err := m.Keeper.CreateEscrow(sdkCtx, seller, msg.Price, obj, msg.Deadline)
 	return &types.MsgCreateEscrowResponse{Id: id}, nil
 }
 
@@ -57,8 +49,8 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 		return nil, sdkerrors.Wrapf(err, "Invalid updater address : %v", msg.Updater)
 	}
 
-	// The sender and buyer are optional
-	var seller, buyer sdk.AccAddress
+	// The seller address is optional
+	var seller sdk.AccAddress
 	if len(msg.Seller) != 0 {
 		seller, err = sdk.AccAddressFromBech32(msg.Seller)
 		if err != nil {
@@ -69,19 +61,9 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 			return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Seller)
 		}
 	}
-	if len(msg.Buyer) != 0 {
-		buyer, err = sdk.AccAddressFromBech32(msg.Buyer)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(err, "Invalid buyer address : %v", msg.Buyer)
-		}
-		// Check we are not using blocked addresses
-		if m.isBlockedAddr(msg.Buyer) {
-			return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Buyer)
-		}
-	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	err = m.Keeper.UpdateEscrow(sdkCtx, msg.Id, updater, seller, buyer, msg.Price, msg.Deadline)
+	err = m.Keeper.UpdateEscrow(sdkCtx, msg.Id, updater, seller, msg.Price, msg.Deadline)
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +91,9 @@ func (m msgServer) TransferToEscrow(ctx context.Context, msg *types.MsgTransferT
 func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow) (*types.MsgRefundEscrowResponse, error) {
 
 	// Check and extract the seller (who sent this message) address
-	sender, err := sdk.AccAddressFromBech32(msg.Seller)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "Invalid seller address : %v", msg.Seller)
+		return nil, sdkerrors.Wrapf(err, "Invalid sender address : %v", msg.Sender)
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
