@@ -1,20 +1,23 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/spf13/cobra"
+
 	escrowcli "github.com/iov-one/starnamed/x/escrow/client/cli"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"github.com/spf13/cobra"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
@@ -852,13 +855,17 @@ func getCmdCreateEscrow() *cobra.Command {
 				return fmt.Errorf("a sender address must be provided with the --from flag")
 			}
 
-			starname := &types.Account{
-				Domain: domain,
-				Name:   &name,
-				Owner:  clientCtx.FromAddress,
+			res, err := types.NewQueryClient(clientCtx).Starname(
+				context.Background(),
+				&types.QueryStarnameRequest{
+					Starname: strings.Join([]string{name, domain}, types.StarnameSeparator),
+				},
+			)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "Error while resolving the starname")
 			}
 
-			msg, err := escrowcli.NewMsgCreateEscrow(clientCtx, cmd, starname)
+			msg, err := escrowcli.NewMsgCreateEscrow(clientCtx, cmd, res.Account)
 			if err != nil {
 				return err
 			}
