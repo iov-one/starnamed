@@ -14,13 +14,14 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/iov-one/starnamed/x/escrow/client/cli"
 	"github.com/iov-one/starnamed/x/escrow/client/rest"
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/simulation"
 	"github.com/iov-one/starnamed/x/escrow/types"
-	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -109,7 +110,9 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 }
 
 // RegisterInvariants registers the escrow module invariants.
-func (am AppModule) RegisterInvariants(sdk.InvariantRegistry) {}
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
+}
 
 // Route returns the message routing key for the escrow module.
 func (am AppModule) Route() sdk.Route {
