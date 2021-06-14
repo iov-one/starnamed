@@ -53,6 +53,9 @@ type Keeper struct {
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
+	// crud stores
+	accountStore crud.Store
+	domainStore  crud.Store
 }
 
 // NewKeeper creates aliceAddr domain keeper

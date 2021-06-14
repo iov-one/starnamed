@@ -10,23 +10,24 @@ import (
 )
 
 func TestExportGenesis(t *testing.T) {
-	t.Skip("Skip TestExportGenesis for now") // TODO: FIXME
-	expected := `{"domains":[{"name":"test","admin":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"type":"open"}],"accounts":[{"domain":"test","name":"","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""},{"domain":"test","name":"test","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""}]}`
+	expected := `{"domains":[{"name":"test","admin":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100,"type":"open"}],"accounts":[{"domain":"test","name":"","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100},{"domain":"test","name":"test","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100}]}`
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	accounts := k.AccountStore(ctx)
+	domains := k.DomainStore(ctx)
 	keeper.NewDomainExecutor(ctx, types.Domain{
 		Name:       "test",
 		Admin:      keeper.AliceKey,
 		ValidUntil: 100,
 		Type:       types.OpenDomain,
 		Broker:     nil,
-	}).Create()
+	}).WithAccounts(&accounts).WithDomains(&domains).Create()
 	keeper.NewAccountExecutor(ctx, types.Account{
 		Domain:      "test",
 		Name:        utils.StrPtr("test"),
 		Owner:       keeper.AliceKey,
 		ValidUntil:  100,
 		MetadataURI: "",
-	}).Create()
+	}).WithAccounts(&accounts).Create()
 	b, err := json.Marshal(ExportGenesis(ctx, k))
 	if err != nil {
 		t.Fatal(err)
