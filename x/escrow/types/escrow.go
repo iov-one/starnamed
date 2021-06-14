@@ -39,12 +39,12 @@ func (msg *Escrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return nil
 }
 
-// Validate validates the escrow
-func (e Escrow) Validate(lastBlockTime uint64) error {
+// ValidateWithoutDeadline validates the escrow without validating the deadline
+func (e Escrow) ValidateWithoutDeadline() error {
 	if err := ValidateID(e.Id); err != nil {
 		return err
 	}
-	// Validate seller and buyer accounts
+	// Validate seller address
 	seller, err := sdk.AccAddressFromBech32(e.Seller)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
@@ -59,14 +59,17 @@ func (e Escrow) Validate(lastBlockTime uint64) error {
 		return err
 	}
 	// Validate state
-	if err := ValidateState(e.State); err != nil {
+	return ValidateState(e.State)
+}
+
+// Validate validates the escrow
+func (e Escrow) Validate(lastBlockTime uint64) error {
+	// Validate all fields espect dedaline
+	if err := e.ValidateWithoutDeadline(); err != nil {
 		return err
 	}
 	// Validate deadline
-	if err := ValidateDeadline(e.Deadline, lastBlockTime); err != nil {
-		return err
-	}
-	return nil
+	return ValidateDeadline(e.Deadline, lastBlockTime)
 }
 
 func (e *Escrow) GetObject() TransferableObject {

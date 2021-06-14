@@ -41,22 +41,16 @@ func ValidateGenesis(data GenesisState) error {
 			return fmt.Errorf("found escrow ID greater than next escrow ID : %v", escrow.Id)
 		}
 
-		// Escrow state must be open
-		if escrow.State != EscrowState_Open {
-			return sdkerrors.Wrap(ErrEscrowNotOpen, escrow.Id)
-		}
-
-		//TODO: duplicate check (but with more explicit error message) with escrow.Validate() => validateDeadline()
-		if escrow.Deadline <= data.LastBlockTime {
+		if escrow.Deadline <= data.LastBlockTime && escrow.State != EscrowState_Expired {
 			return sdkerrors.Wrap(ErrEscrowExpired, escrow.Id)
 		}
 
 		// Validate the escrow fields
-		if err := escrow.Validate(data.LastBlockTime); err != nil {
+		if err := escrow.ValidateWithoutDeadline(); err != nil {
 			return err
 		}
 
-		// Mark the escrow is as seen
+		// Mark the escrow as seen
 		ids[escrow.Id] = true
 	}
 	return nil

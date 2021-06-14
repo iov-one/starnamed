@@ -94,9 +94,9 @@ func (k Keeper) UpdateEscrow(
 	}
 
 	oldSeller, err := sdk.AccAddressFromBech32(escrow.Seller)
-	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
 	if err != nil {
-		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
+		// this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+		panic(sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller))
 	}
 
 	// If the updater is the seller, he can update the seller, price and deadline
@@ -154,9 +154,9 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
-	//TODO: this should be always valid because escrow is guaranteed to be in a valid state when created/updated
 	if err != nil {
-		return sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller)
+		//this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+		panic(sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller))
 	}
 
 	// Ensure that the buyer is not the seller of this escrow
@@ -222,8 +222,6 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 	if escrow.State != types.EscrowState_Open && escrow.State != types.EscrowState_Expired {
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
-
-	//TODO: handle expired vs open
 
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
 	if err != nil {

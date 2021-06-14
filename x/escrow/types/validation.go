@@ -44,7 +44,7 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 }
 
 func ValidateState(state EscrowState) error {
-	if state != EscrowState_Open {
+	if state != EscrowState_Open && state != EscrowState_Expired {
 		return sdkerrors.Wrap(ErrEscrowNotOpen, strconv.FormatUint(uint64(state), 10))
 	}
 	return nil

@@ -9,8 +9,9 @@ import (
 
 	crud "github.com/iov-one/cosmos-sdk-crud"
 
-	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,11 +56,12 @@ func NewKeeper(
 	}
 }
 
-//TODO: documentation
+// AddStore registers a simple store holder for the specified type id, which always retrieves the given store
 func (k Keeper) AddStore(id types.TypeID, store crud.Store) {
 	k.AddStoreHolder(id, types.NewSimpleStoreHolder(func(sdk.Context) crud.Store { return store }))
 }
 
+// AddStoreHolder registers a store holder for the specified type id
 func (k Keeper) AddStoreHolder(id types.TypeID, store types.StoreHolder) {
 	if _, alreadyPresent := k.storeHolders[id]; alreadyPresent {
 		panic(fmt.Errorf("cannot register a store holder for type id %v because it is already registered", id))
