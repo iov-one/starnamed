@@ -62,7 +62,7 @@ script:
   # Then check formatting errors
   - checkEmpty "$ERR_FILES"
   # Check advanced files formatting, including imports
-  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+`
+  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+ | grep -v .pb.`
   - checkEmpty "$ERR_FILES"
   # TODO enable dangerbot
   - echo TODO docker run -it --rm -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
