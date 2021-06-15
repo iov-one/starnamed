@@ -51,6 +51,7 @@ script:
   # Check linting and formatting of starname and configuration modules
   - |
     function checkEmpty() {
+      echo -e "'$1'" ;
       if [[ "$1" =~ ".go" ]]
       then
         echo -e "\nFiles with syntax or formatting errors ($ERR_FILES)\n"
