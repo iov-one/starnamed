@@ -6,10 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -18,6 +14,9 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -770,7 +769,7 @@ type QueryClient interface {
 	Domain(ctx context.Context, in *QueryDomainRequest, opts ...grpc.CallOption) (*QueryDomainResponse, error)
 	// DomainAccounts gets accounts associated with a given domain.
 	DomainAccounts(ctx context.Context, in *QueryDomainAccountsRequest, opts ...grpc.CallOption) (*QueryDomainAccountsResponse, error)
-	// Starname gets accounts associated with a given domain.
+	// Starname gets all the information associated with a starname.
 	Starname(ctx context.Context, in *QueryStarnameRequest, opts ...grpc.CallOption) (*QueryStarnameResponse, error)
 	// OwnerAccounts gets accounts associated with a given owner.
 	OwnerAccounts(ctx context.Context, in *QueryOwnerAccountsRequest, opts ...grpc.CallOption) (*QueryOwnerAccountsResponse, error)
@@ -870,7 +869,7 @@ type QueryServer interface {
 	Domain(context.Context, *QueryDomainRequest) (*QueryDomainResponse, error)
 	// DomainAccounts gets accounts associated with a given domain.
 	DomainAccounts(context.Context, *QueryDomainAccountsRequest) (*QueryDomainAccountsResponse, error)
-	// Starname gets accounts associated with a given domain.
+	// Starname gets all the information associated with a starname.
 	Starname(context.Context, *QueryStarnameRequest) (*QueryStarnameResponse, error)
 	// OwnerAccounts gets accounts associated with a given owner.
 	OwnerAccounts(context.Context, *QueryOwnerAccountsRequest) (*QueryOwnerAccountsResponse, error)
