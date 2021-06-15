@@ -4,129 +4,7 @@ info:
   description: 'A REST interface for state queries, legacy transactions'
   version: 1.0.0
 paths:
-  /wasm/v1beta1/configuration/config:
-    get:
-      summary: Config gets starname configuration.
-      operationId: Config
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              config:
-                description: Configuration is the starname configuration.
-                type: object
-                properties:
-                  configurer:
-                    type: string
-                    title: >-
-                      Configurer is the configuration owner, the addresses
-                      allowed to handle fees and register domains with no
-                      superuser
-                  valid_domain_name:
-                    type: string
-                    title: >-
-                      ValidDomainName defines a regexp that determines if a
-                      domain name is valid or not
-                  valid_account_name:
-                    type: string
-                    title: >-
-                      ValidAccountName defines a regexp that determines if an
-                      account name is valid or not
-                  valid_uri:
-                    type: string
-                    title: >-
-                      ValidURI defines a regexp that determines if resource uri
-                      is valid or not
-                  valid_resource:
-                    type: string
-                    title: ValidResource determines a regexp for a resource content
-                  domain_renewal_period:
-                    type: string
-                    title: >-
-                      DomainRenewalPeriod defines the duration of the domain
-                      renewal period in seconds
-                  domain_renewal_count_max:
-                    type: integer
-                    format: int64
-                    title: >-
-                      DomainRenewalCountMax defines maximum number of domain
-                      renewals a user can do
-                  domain_grace_period:
-                    type: string
-                    title: >-
-                      DomainGracePeriod defines the grace period for a domain
-                      deletion in seconds
-                  account_renewal_period:
-                    type: string
-                    title: >-
-                      AccountRenewalPeriod defines the duration of the account
-                      renewal period in seconds
-                  account_renewal_count_max:
-                    type: integer
-                    format: int64
-                    title: >-
-                      AccountRenewalCountMax defines maximum number of account
-                      renewals a user can do
-                  account_grace_period:
-                    type: string
-                    title: >-
-                      DomainGracePeriod defines the grace period for a domain
-                      deletion in seconds
-                  resources_max:
-                    type: integer
-                    format: int64
-                    title: >-
-                      ResourcesMax defines maximum number of resources could be
-                      saved under an account
-                  certificate_size_max:
-                    type: string
-                    format: uint64
-                    title: >-
-                      CertificateSizeMax defines maximum size of a certificate
-                      that could be saved under an account
-                  certificate_count_max:
-                    type: integer
-                    format: int64
-                    title: >-
-                      CertificateCountMax defines maximum number of certificates
-                      that could be saved under an account
-                  metadata_size_max:
-                    type: string
-                    format: uint64
-                    title: >-
-                      MetadataSizeMax defines maximum size of metadata that
-                      could be saved under an account
-                title: Config is the configuration of the network
-            description: >-
-              QueryConfigResponse is the response type for the
-              Query/Configuration RPC method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      tags:
-        - Query
-  /wasm/v1beta1/configuration/fees:
+  /starname/v1beta1/configuration/fees:
     get:
       summary: Fees gets starname product fees.
       operationId: Fees
@@ -248,6 +126,128 @@ paths:
             title: >-
               QueryFeesResponse is the response type for the Query/Fees RPC
               method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /starname/v1beta1/configuration/params:
+    get:
+      summary: Config gets starname configuration.
+      operationId: Config
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              config:
+                description: Configuration is the starname configuration.
+                type: object
+                properties:
+                  configurer:
+                    type: string
+                    title: >-
+                      Configurer is the configuration owner, the addresses
+                      allowed to handle fees and register domains with no
+                      superuser
+                  valid_domain_name:
+                    type: string
+                    title: >-
+                      ValidDomainName defines a regexp that determines if a
+                      domain name is valid or not
+                  valid_account_name:
+                    type: string
+                    title: >-
+                      ValidAccountName defines a regexp that determines if an
+                      account name is valid or not
+                  valid_uri:
+                    type: string
+                    title: >-
+                      ValidURI defines a regexp that determines if resource uri
+                      is valid or not
+                  valid_resource:
+                    type: string
+                    title: ValidResource determines a regexp for a resource content
+                  domain_renewal_period:
+                    type: string
+                    title: >-
+                      DomainRenewalPeriod defines the duration of the domain
+                      renewal period in seconds
+                  domain_renewal_count_max:
+                    type: integer
+                    format: int64
+                    title: >-
+                      DomainRenewalCountMax defines maximum number of domain
+                      renewals a user can do
+                  domain_grace_period:
+                    type: string
+                    title: >-
+                      DomainGracePeriod defines the grace period for a domain
+                      deletion in seconds
+                  account_renewal_period:
+                    type: string
+                    title: >-
+                      AccountRenewalPeriod defines the duration of the account
+                      renewal period in seconds
+                  account_renewal_count_max:
+                    type: integer
+                    format: int64
+                    title: >-
+                      AccountRenewalCountMax defines maximum number of account
+                      renewals a user can do
+                  account_grace_period:
+                    type: string
+                    title: >-
+                      DomainGracePeriod defines the grace period for a domain
+                      deletion in seconds
+                  resources_max:
+                    type: integer
+                    format: int64
+                    title: >-
+                      ResourcesMax defines maximum number of resources could be
+                      saved under an account
+                  certificate_size_max:
+                    type: string
+                    format: uint64
+                    title: >-
+                      CertificateSizeMax defines maximum size of a certificate
+                      that could be saved under an account
+                  certificate_count_max:
+                    type: integer
+                    format: int64
+                    title: >-
+                      CertificateCountMax defines maximum number of certificates
+                      that could be saved under an account
+                  metadata_size_max:
+                    type: string
+                    format: uint64
+                    title: >-
+                      MetadataSizeMax defines maximum size of metadata that
+                      could be saved under an account
+                title: Config is the configuration of the network
+            description: >-
+              QueryConfigResponse is the response type for the
+              Query/Configuration RPC method.
         default:
           description: An unexpected error response.
           schema:
