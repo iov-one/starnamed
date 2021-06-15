@@ -1,157 +1,113 @@
 package escrow_test
 
 import (
-	"math/rand"
-	"time"
+	"encoding/hex"
 
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-	tmtime "github.com/tendermint/tendermint/types/time"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	crud "github.com/iov-one/cosmos-sdk-crud"
+	"github.com/tendermint/tendermint/libs/rand"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/irisnet/irismod/modules/htlc/types"
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-var (
-	DenomMap                    = map[int]string{0: "htltbnb", 1: "htltinc"}
-	MinTimeLock          uint64 = 220
-	MaxTimeLock          uint64 = 270
-	TestDeputy                  = sdk.AccAddress(crypto.AddressHash([]byte("TestDeputy")))
-	ReceiverOnOtherChain        = "ReceiverOnOtherChain"
-	SenderOnOtherChain          = "SenderOnOtherChain"
-)
+// Assert that TestObject is a TransferableObject
+var _ types.TransferableObject = &TestObject{}
 
-func i(in int64) sdk.Int {
-	return sdk.NewInt(in)
+const TypeID_TestObject = 1
+
+type TestObject struct {
+	types.TestObject
 }
 
-func c(denom string, amount int64) sdk.Coin {
-	return sdk.NewInt64Coin(denom, amount)
+func (m *TestObject) PrimaryKey() []byte {
+	return m.Owner
 }
 
-func cs(coins ...sdk.Coin) sdk.Coins {
-	return sdk.NewCoins(coins...)
+func (m *TestObject) SecondaryKeys() []crud.SecondaryKey {
+	return make([]crud.SecondaryKey, 0)
 }
 
-func ts(minOffset int) uint64 {
-	return uint64(tmtime.Now().Add(time.Duration(minOffset) * time.Minute).Unix())
+func (m *TestObject) GetType() types.TypeID {
+	return TypeID_TestObject
 }
 
-func NewHTLTGenesis(deputyAddress sdk.AccAddress) *types.GenesisState {
+func (m *TestObject) GetObject() crud.Object {
+	return m
+}
+
+func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
+	return m.Owner.Equals(account), nil
+}
+
+func (m *TestObject) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
+	if !m.Owner.Equals(from) {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "the object %v does not belong to %v", m.Id, from.String())
+	}
+	m.Owner = to
+	return nil
+}
+
+type EscrowGenerator struct {
+	NextId       uint64
+	NextObjectId uint64
+	Now          uint64
+}
+
+func (gen *EscrowGenerator) NextID() string {
+	id := hex.EncodeToString(sdk.Uint64ToBigEndian(gen.NextId))
+	gen.NextId++
+	return id
+}
+
+func (gen *EscrowGenerator) NextObjectID() uint64 {
+	id := gen.NextObjectId
+	gen.NextObjectId++
+	return id
+}
+
+func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *TestObject) {
+	obj := &TestObject{types.TestObject{
+		Id:    gen.NextObjectID(),
+		Owner: seller,
+	}}
+	packedObj, err := cdctypes.NewAnyWithValue(obj)
+	if err != nil {
+		panic(err)
+	}
+	return types.Escrow{
+		Id:       gen.NextID(),
+		Seller:   seller.String(),
+		Object:   packedObj,
+		Price:    price,
+		Deadline: deadline,
+	}, obj
+}
+
+func (gen *EscrowGenerator) NewEmptyEscrowGenesis() *types.GenesisState {
 	return &types.GenesisState{
-		Params: types.Params{
-			AssetParams: []types.AssetParam{
-				{
-					Denom: "htltbnb",
-					SupplyLimit: types.SupplyLimit{
-						Limit:          sdk.NewInt(350000000000000),
-						TimeLimited:    false,
-						TimeBasedLimit: sdk.ZeroInt(),
-						TimePeriod:     time.Hour,
-					},
-					Active:        true,
-					DeputyAddress: TestDeputy.String(),
-					FixedFee:      sdk.NewInt(1000),
-					MinSwapAmount: sdk.OneInt(),
-					MaxSwapAmount: sdk.NewInt(1000000000000),
-					MinBlockLock:  MinTimeLock,
-					MaxBlockLock:  MaxTimeLock,
-				},
-				{
-					Denom: "htltinc",
-					SupplyLimit: types.SupplyLimit{
-						Limit:          sdk.NewInt(100000000000),
-						TimeLimited:    false,
-						TimeBasedLimit: sdk.ZeroInt(),
-						TimePeriod:     time.Hour,
-					},
-					Active:        true,
-					DeputyAddress: TestDeputy.String(),
-					FixedFee:      sdk.NewInt(1000),
-					MinSwapAmount: sdk.OneInt(),
-					MaxSwapAmount: sdk.NewInt(1000000000000),
-					MinBlockLock:  MinTimeLock,
-					MaxBlockLock:  MaxTimeLock,
-				},
-			},
-		},
-		Supplies: []types.AssetSupply{
-			types.NewAssetSupply(
-				sdk.NewCoin("htltbnb", sdk.ZeroInt()),
-				sdk.NewCoin("htltbnb", sdk.ZeroInt()),
-				sdk.NewCoin("htltbnb", sdk.ZeroInt()),
-				sdk.NewCoin("htltbnb", sdk.ZeroInt()),
-				time.Duration(0),
-			),
-			types.NewAssetSupply(
-				sdk.NewCoin("htltinc", sdk.ZeroInt()),
-				sdk.NewCoin("htltinc", sdk.ZeroInt()),
-				sdk.NewCoin("htltinc", sdk.ZeroInt()),
-				sdk.NewCoin("htltinc", sdk.ZeroInt()),
-				time.Duration(0),
-			),
-		},
-		PreviousBlockTime: types.DefaultPreviousBlockTime,
+		Escrows:       []types.Escrow{},
+		LastBlockTime: 0,
+		NextEscrowId:  0,
 	}
 }
 
-// GeneratePrivKeyAddressPairsFromRand generates (deterministically) a total of n secp256k1 private keys and addresses.
-func GeneratePrivKeyAddressPairs(n int) (keys []crypto.PrivKey, addrs []sdk.AccAddress) {
-	r := rand.New(rand.NewSource(12345)) // make the generation deterministic
-	keys = make([]crypto.PrivKey, n)
-	addrs = make([]sdk.AccAddress, n)
-	for i := 0; i < n; i++ {
-		secret := make([]byte, 32)
-		if _, err := r.Read(secret); err != nil {
-			panic("Could not read randomness")
-		}
-		keys[i] = secp256k1.GenPrivKeySecp256k1(secret)
-		addrs[i] = sdk.AccAddress(keys[i].PubKey().Address())
+func (gen *EscrowGenerator) NewEscrowGenesis(numEscrows int) *types.GenesisState {
+	escrows := make([]types.Escrow, 0)
+
+	now := gen.Now
+	for i := 0; i < numEscrows; i++ {
+		seller := rand.Bytes(20)
+		coins := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(rand.Int64()+1)))
+		escrow, _ := gen.NewTestEscrow(seller, coins, now+uint64(i*500))
+		escrows = append(escrows, escrow)
 	}
-	return
-}
 
-func GenerateRandomSecret() ([]byte, error) {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		return []byte{}, err
+	return &types.GenesisState{
+		Escrows:       escrows,
+		LastBlockTime: now,
+		NextEscrowId:  0,
 	}
-	return bytes, nil
-}
-
-func loadSwapAndSupply(addr sdk.AccAddress, index int) (types.HTLC, types.AssetSupply) {
-	coin := c(DenomMap[index], 50000)
-	expireOffset := MinTimeLock
-	timestamp := ts(index)
-	amount := cs(coin)
-	randomSecret, _ := GenerateRandomSecret()
-	randomHashLock := types.GetHashLock(randomSecret, timestamp)
-	id := types.GetID(addr, addr, amount, randomHashLock)
-	htlc := types.NewHTLC(
-		id,
-		addr,
-		addr,
-		ReceiverOnOtherChain,
-		SenderOnOtherChain,
-		amount,
-		randomHashLock,
-		[]byte{},
-		timestamp,
-		expireOffset,
-		types.Open,
-		1,
-		true,
-		types.Incoming,
-	)
-
-	supply := types.NewAssetSupply(
-		coin,
-		c(coin.Denom, 0),
-		c(coin.Denom, 0),
-		c(coin.Denom, 0),
-		time.Duration(0),
-	)
-
-	return htlc, supply
 }

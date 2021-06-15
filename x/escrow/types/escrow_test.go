@@ -1,3 +1,3 @@
 package types_test
 
-// TODO
+func Test

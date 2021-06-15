@@ -5,12 +5,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	"github.com/iov-one/starnamed/x/wasm"
 )
 
 var emptyWasmOpts []wasm.Option = nil
@@ -88,7 +89,7 @@ func TestGetEnabledProposals(t *testing.T) {
 	}
 }
 
-func setGenesis(gapp *WasmApp) error {
+func SetGenesis(gapp *WasmApp) error {
 	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	if err != nil {

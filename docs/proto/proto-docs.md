@@ -105,6 +105,9 @@
   
     - [Query](#starnamed.x.escrow.v1beta1.Query)
   
+- [iov/escrow/v1beta1/test.proto](#iov/escrow/v1beta1/test.proto)
+    - [TestObject](#starnamed.x.escrow.v1beta1.TestObject)
+  
 - [iov/escrow/v1beta1/tx.proto](#iov/escrow/v1beta1/tx.proto)
     - [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow)
     - [MsgCreateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse)
@@ -1556,6 +1559,38 @@ Query provides defines the gRPC querier service
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the Escrow by the specified hash lock | GET|/starnamed/x/escrow/{id}|
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/test.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/test.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.TestObject"></a>
+
+### TestObject
+Escrow defines the struct of an escrow
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [uint64](#uint64) |  |  |
+| `owner` | [bytes](#bytes) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 

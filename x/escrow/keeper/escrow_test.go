@@ -67,12 +67,6 @@ func (suite *HTLCTestSuite) SetupTest() {
 	suite.GenerateHTLCDetails()
 }
 
-func (suite *HTLCTestSuite) setTestParams() {
-	params := suite.keeper.GetParams(suite.ctx)
-	params.AssetParams[1].Active = true
-	suite.keeper.SetParams(suite.ctx, params)
-}
-
 func (suite *HTLCTestSuite) GenerateHTLCDetails() {
 	var timestamps []uint64
 	var randomSecrets []tmbytes.HexBytes
