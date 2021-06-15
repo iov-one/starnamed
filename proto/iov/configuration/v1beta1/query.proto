@@ -38,10 +38,10 @@ message QueryFeesResponse {
 service Query {
    // Config gets starname configuration.
    rpc Config (QueryConfigRequest) returns (QueryConfigResponse) {
-       option (google.api.http).get = "/wasm/v1beta1/configuration/config";
+       option (google.api.http).get = "/starname/v1beta1/configuration/params";
    }
    // Fees gets starname product fees.
    rpc Fees (QueryFeesRequest) returns (QueryFeesResponse) {
-       option (google.api.http).get = "/wasm/v1beta1/configuration/fees";
+       option (google.api.http).get = "/starname/v1beta1/configuration/fees";
    }
 }
