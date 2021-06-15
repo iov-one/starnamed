@@ -75,21 +75,21 @@
     - [Query](#starnamed.x.wasm.v1beta1.Query)
   
 - [iov/configuration/v1beta1/types.proto](#iov/configuration/v1beta1/types.proto)
-    - [Config](#wasmd.x.configuration.v1beta1.Config)
-    - [Fees](#wasmd.x.configuration.v1beta1.Fees)
-    - [GenesisState](#wasmd.x.configuration.v1beta1.GenesisState)
+    - [Config](#starnamed.x.configuration.v1beta1.Config)
+    - [Fees](#starnamed.x.configuration.v1beta1.Fees)
+    - [GenesisState](#starnamed.x.configuration.v1beta1.GenesisState)
   
 - [iov/configuration/v1beta1/msgs.proto](#iov/configuration/v1beta1/msgs.proto)
-    - [MsgUpdateConfig](#wasmd.x.configuration.v1beta1.MsgUpdateConfig)
-    - [MsgUpdateFees](#wasmd.x.configuration.v1beta1.MsgUpdateFees)
+    - [MsgUpdateConfig](#starnamed.x.configuration.v1beta1.MsgUpdateConfig)
+    - [MsgUpdateFees](#starnamed.x.configuration.v1beta1.MsgUpdateFees)
   
 - [iov/configuration/v1beta1/query.proto](#iov/configuration/v1beta1/query.proto)
-    - [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest)
-    - [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse)
-    - [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest)
-    - [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse)
+    - [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest)
+    - [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse)
+    - [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest)
+    - [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse)
   
-    - [Query](#wasmd.x.configuration.v1beta1.Query)
+    - [Query](#starnamed.x.configuration.v1beta1.Query)
   
 - [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
@@ -1182,7 +1182,7 @@ Query provides defines the gRPC querier service
 
 
 
-<a name="wasmd.x.configuration.v1beta1.Config"></a>
+<a name="starnamed.x.configuration.v1beta1.Config"></a>
 
 ### Config
 Config is the configuration of the network
@@ -1211,7 +1211,7 @@ Config is the configuration of the network
 
 
 
-<a name="wasmd.x.configuration.v1beta1.Fees"></a>
+<a name="starnamed.x.configuration.v1beta1.Fees"></a>
 
 ### Fees
 Fees contains different type of fees to calculate coins to detract when processing different messages
@@ -1246,7 +1246,7 @@ Fees contains different type of fees to calculate coins to detract when processi
 
 
 
-<a name="wasmd.x.configuration.v1beta1.GenesisState"></a>
+<a name="starnamed.x.configuration.v1beta1.GenesisState"></a>
 
 ### GenesisState
 GenesisState - genesis state of x/configuration
@@ -1254,8 +1254,8 @@ GenesisState - genesis state of x/configuration
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `config` | [Config](#wasmd.x.configuration.v1beta1.Config) |  |  |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
+| `config` | [Config](#starnamed.x.configuration.v1beta1.Config) |  |  |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  |  |
 
 
 
@@ -1278,7 +1278,7 @@ GenesisState - genesis state of x/configuration
 
 
 
-<a name="wasmd.x.configuration.v1beta1.MsgUpdateConfig"></a>
+<a name="starnamed.x.configuration.v1beta1.MsgUpdateConfig"></a>
 
 ### MsgUpdateConfig
 MsgUpdateConfig is used to update starname configuration
@@ -1287,14 +1287,14 @@ MsgUpdateConfig is used to update starname configuration
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `signer` | [string](#string) |  | Signer is the address of the entity who is doing the transaction |
-| `new_configuration` | [Config](#wasmd.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
+| `new_configuration` | [Config](#starnamed.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
 
 
 
 
 
 
-<a name="wasmd.x.configuration.v1beta1.MsgUpdateFees"></a>
+<a name="starnamed.x.configuration.v1beta1.MsgUpdateFees"></a>
 
 ### MsgUpdateFees
 MsgUpdateFees is used to update the starname product fees in the starname module.
@@ -1302,7 +1302,7 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  |  |
 | `configurer` | [string](#string) |  |  |
 
 
@@ -1326,7 +1326,7 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryConfigRequest"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryConfigRequest"></a>
 
 ### QueryConfigRequest
 QueryConfigRequest is the request type for the Query/Configuration RPC method.
@@ -1336,7 +1336,7 @@ QueryConfigRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryConfigResponse"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryConfigResponse"></a>
 
 ### QueryConfigResponse
 QueryConfigResponse is the response type for the Query/Configuration RPC method.
@@ -1344,14 +1344,14 @@ QueryConfigResponse is the response type for the Query/Configuration RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `config` | [Config](#wasmd.x.configuration.v1beta1.Config) |  | Configuration is the starname configuration. |
+| `config` | [Config](#starnamed.x.configuration.v1beta1.Config) |  | Configuration is the starname configuration. |
 
 
 
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryFeesRequest"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryFeesRequest"></a>
 
 ### QueryFeesRequest
 QueryFeesRequest is the request type for the Query/Configuration RPC method.
@@ -1361,7 +1361,7 @@ QueryFeesRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryFeesResponse"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryFeesResponse"></a>
 
 ### QueryFeesResponse
 QueryFeesResponse is the response type for the Query/Fees RPC method
@@ -1369,7 +1369,7 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  | Fees is the starname product fee object. |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  | Fees is the starname product fee object. |
 
 
 
@@ -1382,15 +1382,15 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
  <!-- end HasExtensions -->
 
 
-<a name="wasmd.x.configuration.v1beta1.Query"></a>
+<a name="starnamed.x.configuration.v1beta1.Query"></a>
 
 ### Query
 Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Config` | [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/wasm/v1beta1/configuration/config|
-| `Fees` | [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/wasm/v1beta1/configuration/fees|
+| `Config` | [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/starname/v1beta1/configuration/params|
+| `Fees` | [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/starname/v1beta1/configuration/fees|
 
  <!-- end services -->
 
@@ -1778,7 +1778,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Domain` | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname's domain info. | GET|/starname/v1beta1/domain/{name}|
 | `DomainAccounts` | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. | GET|/starname/v1beta1/accounts/domain/{domain}|
-| `Starname` | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. | GET|/starname/v1beta1/account/{starname}|
+| `Starname` | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets all the information associated with a starname. | GET|/starname/v1beta1/account/{starname}|
 | `OwnerAccounts` | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. | GET|/starname/v1beta1/accounts/owner/{owner}|
 | `OwnerDomains` | [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest) | [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse) | OwnerDomains gets domains associated with a given owner. | GET|/starname/v1beta1/domains/owner/{owner}|
 | `ResourceAccounts` | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. | GET|/starname/v1beta1/accounts/resource/{uri}/{resource}|
