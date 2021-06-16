@@ -76,11 +76,12 @@ script: |
     INSTALLPATH=`pwd`/installed/${DISTNAME}-${arch}
     mkdir -p ${INSTALLPATH}
 
-    # Build starnamed
+    # Build starnamed and copy libwasmvm.so next to it
     pushd ${distsrc}
     sed -i "0,/VERSION/{s/VERSION.*/VERISION=${VERSION}/}" Makefile # HACK
     sed -i "0,/COMMIT/{s/COMMIT.*/COMMIT=${COMMIT}/}" Makefile # HACK
     make install
+    cp -av "$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmvm)/api/libwasmvm.so" ${GOPATH}/bin
     popd # ${distsrc}
 
     pushd ${GOPATH}/bin
