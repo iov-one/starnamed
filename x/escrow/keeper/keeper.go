@@ -49,7 +49,6 @@ func NewKeeper(
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	blockedAddrs map[string]bool,
-	storeHolders map[types.TypeID]types.StoreHolder,
 ) Keeper {
 	// ensure the escrow module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -62,7 +61,7 @@ func NewKeeper(
 		paramSpace:    paramSpace,
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
-		storeHolders:  storeHolders,
+		storeHolders:  make(map[types.TypeID]types.StoreHolder),
 		blockedAddrs:  blockedAddrs,
 	}
 }
