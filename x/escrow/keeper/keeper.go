@@ -15,7 +15,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -84,9 +83,9 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("irismod/%s", types.ModuleName))
 }
 
-// GetEscrowAccount returns the escrow module account
-func (k Keeper) GetEscrowAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+// GetEscrowAddress returns the escrow module address
+func (k Keeper) GetEscrowAddress() sdk.AccAddress {
+	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
 func (k Keeper) ImportNextID(ctx sdk.Context, nextID uint64) {
