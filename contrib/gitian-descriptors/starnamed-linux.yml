@@ -80,6 +80,7 @@ script: |
     pushd ${distsrc}
     sed -i "0,/VERSION/{s/VERSION.*/VERISION=${VERSION}/}" Makefile # HACK
     sed -i "0,/COMMIT/{s/COMMIT.*/COMMIT=${COMMIT}/}" Makefile # HACK
+    sed -i "0,/BUILD_FLAGS/{s@BUILD_FLAGS.*@& -gcflags=all=-trimpath=${GOPATH} -asmflags=all=-trimpath=${GOPATH}@}" Makefile # HACK
     make install
     cp -av "$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmvm)/api/libwasmvm.so" ${GOPATH}/bin
     popd # ${distsrc}
