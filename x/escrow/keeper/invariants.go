@@ -51,7 +51,7 @@ func StateInvariant(k Keeper) sdk.Invariant {
 				return false
 			}
 
-			if ownedByModule, err := obj.IsOwnedBy(k.GetEscrowAccount(ctx).GetAddress()); err != nil || !ownedByModule {
+			if ownedByModule, err := obj.IsOwnedBy(k.GetEscrowAddress()); err != nil || !ownedByModule {
 				invalidEscrows++
 			}
 
