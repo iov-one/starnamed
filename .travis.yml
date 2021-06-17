@@ -32,6 +32,8 @@ cache:
     - $HOME/gopath/pkg/mod
     - $TRAVIS_BUILD_DIR/.gitian-builder-cache
     - /var/cache/apt-cacher-ng
+    - scripts/genesis/node_modules
+    - scripts/integration/node_modules
 
 env:
   global:
