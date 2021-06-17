@@ -109,8 +109,8 @@ script:
       if [[ $release_tag == "yes" ]]; then
         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 
-        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
-        docker push "iov1/starnamed:$TRAVIS_TAG" ;
+        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "${IMAGE_APP}:$TRAVIS_TAG" ;
+        docker push "${IMAGE_APP}:$TRAVIS_TAG" ;
 
         docker tag  "${IMAGE_FAUCET}:${BUILD_VERSION}" "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
         docker push "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
