@@ -41,8 +41,8 @@ env:
     - MAIN_GO_VERSION=1.16.5
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
-    - IMAGE_APP="iov1/starnamed:${BUILD_VERSION}"
-    - IMAGE_FAUCET="iov1/faucet:${BUILD_VERSION}"
+    - IMAGE_APP="iov1/starnamed"
+    - IMAGE_FAUCET="iov1/faucet"
 
 before_script:
   - go install golang.org/x/tools/cmd/goimports@latest
@@ -88,7 +88,7 @@ script:
 
         ./contrib/gitian-build.sh linux ;
         mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-        docker build --pull --tag ${IMAGE_APP} . ;
+        docker build --pull --tag "${IMAGE_APP}:${BUILD_VERSION}" . ;
         ( cd cmd/faucet && make docker ) ;
 
         docker logout ;
@@ -97,25 +97,25 @@ script:
       if [[ $release_latest == "yes" ]]; then
         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 
-        docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
-        docker push "iov1/starnamed:latest";
+        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "${IMAGE_APP}:latest" ;
+        docker push "${IMAGE_APP}:latest" ;
 
-        docker tag  "iov1/faucet:${BUILD_VERSION}" "iov1/faucet:latest" ;
-        docker push "iov1/faucet:latest";
+        docker tag  "${IMAGE_FAUCET}:${BUILD_VERSION}" "${IMAGE_FAUCET}:latest" ;
+        docker push "${IMAGE_FAUCET}:latest" ;
 
-        docker logout;
+        docker logout ;
       fi;
 
       if [[ $release_tag == "yes" ]]; then
         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 
-        docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
-        docker push "iov1/starnamed:$TRAVIS_TAG";
+        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
+        docker push "iov1/starnamed:$TRAVIS_TAG" ;
 
-        docker tag  "iov1/faucet:${BUILD_VERSION}" "iov1/faucet:$TRAVIS_TAG" ;
-        docker push "iov1/faucet:$TRAVIS_TAG";
+        docker tag  "${IMAGE_FAUCET}:${BUILD_VERSION}" "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
+        docker push "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
 
-        docker logout;
+        docker logout ;
       fi;
     fi;
 
