@@ -93,7 +93,7 @@ script:
         ./contrib/gitian-build.sh linux ;
         mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
         docker build --pull --tag "${IMAGE_APP}:${BUILD_VERSION}" . ;
-        ( cd cmd/faucet && make docker ) ;
+        ( cd cmd/faucet && IMAGE_FAUCET="${IMAGE_FAUCET}:${BUILD_VERSION}" make docker ) ;
 
         docker logout ;
       fi;
