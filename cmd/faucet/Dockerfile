@@ -1,9 +1,8 @@
-# Final image
-FROM alpine:edge
+FROM alpine:3.14
 
-WORKDIR /root
+RUN apk update && apk upgrade && apk --no-cache add gcompat libgcc
 
-# Copy over binaries from the build-env
-COPY /faucet /usr/bin/faucet
+COPY libwasmvm.so /usr/lib/
+COPY faucet /usr/bin/
 
 CMD ["faucet"]
