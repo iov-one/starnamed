@@ -9,7 +9,7 @@ install:
 	go install .
 
 build:
-	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build .
+	GOARCH=amd64 GOOS=linux go build .
 
 test:
 	go vet -mod=readonly ./...
