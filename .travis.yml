@@ -51,6 +51,8 @@ before_script:
 
 script:
   - set -eo pipefail
+  # avoid failed builds due to rate limiting, see https://stackoverflow.com/a/25683955/5887599
+  - curl -H "Authorization: token $GITHUB_API_KEY" https://api.github.com
   # Check linting and formatting of starname and configuration modules
   - |
     function checkEmpty() {
