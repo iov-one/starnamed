@@ -41,7 +41,8 @@ env:
     - MAIN_GO_VERSION=1.16.5
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
-    - IMAGE_NAME="iov1/starnamed:${BUILD_VERSION}"
+    - IMAGE_APP="iov1/starnamed:${BUILD_VERSION}"
+    - IMAGE_FAUCET="iov1/faucet:${BUILD_VERSION}"
 
 before_script:
   - go install golang.org/x/tools/cmd/goimports@latest
@@ -87,9 +88,10 @@ script:
 
         ./contrib/gitian-build.sh linux ;
         mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-        docker build --pull --tag ${IMAGE_NAME} . ;
+        docker build --pull --tag ${IMAGE_APP} . ;
+        ( cd cmd/faucet && make docker ) ;
 
-        docker logout;
+        docker logout ;
       fi;
 
       if [[ $release_latest == "yes" ]]; then
@@ -97,6 +99,9 @@ script:
 
         docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
         docker push "iov1/starnamed:latest";
+
+        docker tag  "iov1/faucet:${BUILD_VERSION}" "iov1/faucet:latest" ;
+        docker push "iov1/faucet:latest";
 
         docker logout;
       fi;
@@ -106,6 +111,9 @@ script:
 
         docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
         docker push "iov1/starnamed:$TRAVIS_TAG";
+
+        docker tag  "iov1/faucet:${BUILD_VERSION}" "iov1/faucet:$TRAVIS_TAG" ;
+        docker push "iov1/faucet:$TRAVIS_TAG";
 
         docker logout;
       fi;
