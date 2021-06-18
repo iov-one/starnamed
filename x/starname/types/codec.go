@@ -48,7 +48,6 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*escrowtypes.TransferableObject)(nil),
 		// Register the account object as a TransferableObject implementation to send it in a MsgCreateEscrow
-		// TODO: is this the correct way of doing this ?
 		&Account{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

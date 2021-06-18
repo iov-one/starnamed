@@ -1,122 +1,53 @@
 package keeper_test
 
 import (
-	gocontext "context"
-	"encoding/hex"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/irisnet/irismod/modules/htlc/keeper"
-	"github.com/irisnet/irismod/modules/htlc/types"
-	"github.com/irisnet/irismod/simapp"
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 type QueryTestSuite struct {
-	suite.Suite
-
-	cdc    codec.JSONMarshaler
-	ctx    sdk.Context
-	keeper *keeper.Keeper
-	app    *simapp.SimApp
-
-	queryClient types.QueryClient
-	addrs       []sdk.AccAddress
-	htlcIDs     []tmbytes.HexBytes
-	isHTLCID    map[string]bool
+	BaseKeeperSuite
 }
 
-func (suite *QueryTestSuite) SetupTest() {
-	app := simapp.SetupWithGenesisHTLC(NewHTLTGenesis(TestDeputy))
-
-	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{Height: 1, Time: tmtime.Now()})
-	suite.cdc = codec.NewAminoCodec(app.LegacyAmino())
-	suite.keeper = &app.HTLCKeeper
-	suite.app = app
-
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.keeper)
-	suite.queryClient = types.NewQueryClient(queryHelper)
-
-	suite.setTestHTLCs()
-}
-
-func (suite *QueryTestSuite) setTestHTLCs() {
-	_, addrs := GeneratePrivKeyAddressPairs(11)
-	suite.addrs = addrs
-
-	var htlcIDs []tmbytes.HexBytes
-	isHTLCID := make(map[string]bool)
-	for i := 0; i < 10; i++ {
-		timeLock := MinTimeLock
-		amount := cs(c("htltbnb", 100))
-		timestamp := ts(0)
-		randomSecret, _ := GenerateRandomSecret()
-		randomHashLock := types.GetHashLock(randomSecret, timestamp)
-
-		id, err := suite.keeper.CreateHTLC(
-			suite.ctx,
-			TestDeputy,
-			suite.addrs[i],
-			ReceiverOnOtherChain,
-			SenderOnOtherChain,
-			amount,
-			randomHashLock,
-			timestamp,
-			timeLock,
-			true,
-		)
-		suite.Nil(err)
-
-		htlcIDs = append(htlcIDs, id)
-		isHTLCID[hex.EncodeToString(id)] = true
-	}
-	suite.htlcIDs = htlcIDs
-	suite.isHTLCID = isHTLCID
+func (s *QueryTestSuite) SetupTest() {
+	s.Setup()
 }
 
 func TestQueryTestSuite(t *testing.T) {
 	suite.Run(t, new(QueryTestSuite))
 }
 
-func (suite *QueryTestSuite) TestQueryAssetSupply() {
-	supplyResp, err := suite.queryClient.AssetSupply(gocontext.Background(), &types.QueryAssetSupplyRequest{Denom: "htltbnb"})
-	suite.Require().NoError(err)
+func (s *QueryTestSuite) TestQueryEscrow() {
+	price := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	existingEscrow, _ := s.generator.NewTestEscrow(s.generator.NewAccAddress(), price, s.generator.NowAfter(10))
+	expiredEscrow, _ := s.generator.NewTestEscrow(s.generator.NewAccAddress(), price, s.generator.NowAfter(0)-10)
 
-	expected, found := suite.keeper.GetAssetSupply(suite.ctx, "htltbnb")
-	suite.Require().True(found)
-	suite.Equal(expected, *supplyResp.AssetSupply)
-}
+	s.keeper.SaveEscrow(s.ctx, existingEscrow)
+	s.keeper.SaveEscrow(s.ctx, expiredEscrow)
 
-func (suite *QueryTestSuite) TestQueryAssetSupplies() {
-	suppliesResp, err := suite.queryClient.AssetSupplies(gocontext.Background(), &types.QueryAssetSuppliesRequest{})
-	suite.Require().NoError(err)
+	existingEscrowId := existingEscrow.Id
+	expiredEscrowId := expiredEscrow.Id
+	nonExistingEscrowId := "AABBCCDDEEFF1122"
 
-	expected := suite.keeper.GetAllAssetSupplies(suite.ctx)
-	suite.Equal(expected, suppliesResp.AssetSupplies)
-}
+	// Normal
+	resp, err := s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: existingEscrowId})
 
-func (suite *QueryTestSuite) TestQueryHTLC() {
-	htlcResp, err := suite.queryClient.HTLC(gocontext.Background(), &types.QueryHTLCRequest{Id: suite.htlcIDs[0].String()})
-	suite.Require().NoError(err)
+	s.Assert().Nil(err)
+	s.Assert().Equal(existingEscrow, resp.Escrow)
 
-	expected, found := suite.keeper.GetHTLC(suite.ctx, suite.htlcIDs[0])
-	suite.Require().True(found)
-	suite.Equal(expected, *htlcResp.Htlc)
-}
+	// Expired
+	resp, err = s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: expiredEscrowId})
 
-func (suite *QueryTestSuite) TestQueryParams() {
-	paramsResp, err := suite.queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
-	suite.Require().NoError(err)
+	s.Assert().Nil(err)
+	s.Assert().Equal(expiredEscrow, resp.Escrow)
 
-	expected := suite.keeper.GetParams(suite.ctx)
-	suite.Equal(expected, paramsResp.Params)
+	// Does not exist
+	resp, err = s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: nonExistingEscrowId})
+
+	s.Assert().NotNil(err)
+	s.Assert().ErrorIs(err, types.ErrEscrowNotFound)
 }
