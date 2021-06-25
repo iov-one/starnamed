@@ -1,6 +1,7 @@
-# Add A Node To iov-mainnet-ibc
+# Add A (Validator) Node To iov-mainnet-ibc
 
-Execute the following commands to light-up a node for **iov-mainnet-ibc**.
+Execute the following commands to light-up a node for **iov-mainnet-ibc**.  Be sure to change the custom environment variables `USER_IOV`, the user that will run the node, and `SIGNER`, the key that will sign the `create-validator` transaction.  `USER_IOV` must exist before you can proceed.  If your node is not a validator then `SIGNER` is inconsequential.
+
 
 ```sh
 sudo su -c bash # make life easier for the next ~100 lines
@@ -12,6 +13,9 @@ cd /etc/systemd/system
 # custom variables - use values appropriate for your setup
 export USER_IOV=iov # "iov" is not recommended
 export SIGNER=dave*iov # signer for the create-validator tx
+
+# assert that USER_IOV exists
+id ${USER_IOV} && echo '✅ All good!' || echo "❌ ${USER_IOV} does not exist."
 
 # constants
 export CHAIN_ID=iov-mainnet-ibc # IBC enabled Starname (IOV) chain id
