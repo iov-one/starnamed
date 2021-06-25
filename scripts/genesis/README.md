@@ -1,5 +1,7 @@
 # Add A Node To iov-mainnet-ibc
 
+Execute the following commands to light-up a node for **iov-mainnet-ibc**.
+
 ```sh
 sudo su -c bash # make life easier for the next ~100 lines
 
