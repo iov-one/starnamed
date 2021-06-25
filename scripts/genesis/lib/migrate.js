@@ -552,7 +552,9 @@ export const migrate = async args => {
          const height = String( data ).match( reHeight );
          if ( ( height && height.length > 1 && +height[1] >= halt ) || Date.now() - t0 > dt ) starnamed.kill();
       };
-      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", halt, "--log_format", "json" ] );
+      const p2p = process.env.PORT_P2P || "tcp://127.0.0.1:16656";
+      const rpc = process.env.PORT_RPC || "tcp://127.0.0.1:16657";
+      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", halt, "--log_format", "json", "--p2p.laddr", p2p, "--rpc.laddr", rpc ] );
       let err = "", out = "";
 
       starnamed.stderr.on( "data", data => {
