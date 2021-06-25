@@ -69,7 +69,7 @@ systemctl daemon-reload
 
 # download gitian built binary; starnamed is the Starname Asset Name Service daemon
 mkdir -p ${DIR_STARNAMED} && cd ${DIR_STARNAMED}
-wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep 505aaddb5a8390576a6f0315627387a64a5682133ddc07b612fd2e05f1280bad && tar xvf $(basename ${STARNAMED}) && echo "✅ All good!" || echo "❌ BAD BINARY!"
+wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep 505aaddb5a8390576a6f0315627387a64a5682133ddc07b612fd2e05f1280bad && tar xvf $(basename ${STARNAMED}) && echo '✅ All good!' || echo '❌ BAD BINARY!'
 
 # create starnamed.sh, a wrapper for starnamed
 cat <<__EOF_STARNAMED_SH__ > starnamed.sh
@@ -100,7 +100,7 @@ starnamed init ${MONIKER} --chain-id ${CHAIN_ID} --home ${DIR_WORK} 2>&1 | jq -r
 
 # get the genesis file
 curl --fail https://gist.githubusercontent.com/davepuchyr/6bea7bf369064d118195e9b15ea08a0f/raw/genesis.json > config/genesis.json
-sha256sum config/genesis.json | grep __TBD__ && echo "✅ All good!" || echo "❌ BAD GENESIS FILE!"
+sha256sum config/genesis.json | grep __TBD__ && echo '✅ All good!' || echo "❌ BAD GENESIS FILE!"
 
 exit # ${USER_IOV}
 
