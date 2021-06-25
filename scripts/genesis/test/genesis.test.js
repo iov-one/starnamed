@@ -24,7 +24,8 @@ describe( "Tests ../genesis.js.", () => {
    };
 
 
-   it( `Should create stargatenet's genesis file.`, async () => {
+   // migrate.test.js effectively performs this test
+   it.skip( `Should create stargatenet's genesis file.`, async () => {
       const exported = JSON.parse( JSON.stringify( exported0 ) );
       const genesis = await createGenesis( exported, patchStargatenet );
 
