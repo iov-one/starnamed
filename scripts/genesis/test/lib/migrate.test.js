@@ -300,27 +300,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
 
-   it( `Should migrate.`, async () => {
-      const exported = JSON.parse( JSON.stringify( genesis0 ) );
-      const tmpobj = tmp.dirSync( { template: "migrate-test-migrate-XXXXXX", unsafeCleanup: true } );
-      const home = tmpobj.name;
-      const migrated = await migrate( { flammable, exported, home } );
-
-      expect( migrated.app_state.auth.accounts.length ).toBe( genesis0.app_state.auth.accounts.length - flammable.length - 1 ); // - 1 for _star1Custodian
-      expect( migrated.consensus_params.evidence.max_bytes ).toBe( "50000" );
-      expect( migrated.consensus_params.evidence.max_age_duration ).toBe( "172800000000000" );
-      expect( migrated.consensus_params.evidence.max_age_num_blocks ).toBe( "1000000" );
-
-      verifyIBC( migrated );
-      verifyCustody( migrated );
-      verifyInflation( migrated );
-      verifyConfiguration( migrated );
-      verifyWasm( migrated );
-
-      tmpobj.removeCallback();
-   } );
-
-
    it( `Should launch stargatenet locally.`, async () => {
       await launchLocally( patchStargatenet );
    } );
