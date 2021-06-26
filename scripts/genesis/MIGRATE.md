@@ -33,7 +33,7 @@ exit
 
 ## Step 2 of 3: Setting up your `iov-mainnet-ibc` validator.
 
-On your validator node, follow the procedure [here](README.md).  Expect `❌ BAD GENESIS FILE!` near the end of the procedure since the hash of the migrated genesis file is not yet known.
+On your validator node, follow the procedure [here](README.md).  Expect `❌ BAD GENESIS FILE!` near the end of the procedure since the hash of the migrated genesis file is not yet known.  Don't bother starting starnamed.service.
 
 **Make sure the private key of your validator for `iov-mainnet-2` matches your key for `iov-mainnet-ibc`.  If you use an HSM you know how to do that.  If you don't use an HSM then simply execute the following on your validator node**
 
@@ -87,7 +87,7 @@ yarn
 export PORT_P2P=tcp://127.0.0.1:16656
 export PORT_RPC=tcp://127.0.0.1:16657
 export PORT_GRPC=tcp://127.0.0.1:16090
-yarn test # takes 3 minutes on my laptop
+yarn test # takes 3 minutes on my laptop; if the tests fail then change
 node -r esm genesis.js iov-mainnet-ibc # takes 2 minutes
 cd data/iov-mainnet-ibc/config
 git diff && cp -av genesis.json ${DIR_WORK}/config && echo '✅ All good!' || echo '❌ BAD genesis file!'
@@ -110,9 +110,18 @@ sudo systemctl restart starnamed.service
 
 ## Get Ease Of Mind Prior To Block 4,294,679.
 
-You can test your validator's setup even before block 4,294,679 by doing the following
+You can test your new validator's setup even before block 4,294,679 by doing the following
 
 ```sh
+# become ${USER_IOV}
+su - ${USER_IOV}
+
+# pick-up iov-mainnet-ibc env vars
+set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport # iov-mainnet-ibc
+
+# use the pre-block 4,294,679 sample iov-mainnet-ibc genesis file
+cd starnamed/scripts/genesis/data/iov-mainnet-ibc/config && cp -av genesis.json ${DIR_WORK}/config
+
 # become root
 sudo su -c bash
 
@@ -124,17 +133,12 @@ systemctl stop starnamed.service
 # determine if your node is a validator
 journalctl -u starnamed.service --no-pager | grep 'This node is a validator' && echo '✅ You are golden!' || echo '❌ BAD validator private key!'
 
-# become ${USER_IOV}
-su - ${USER_IOV}
-
-# pick-up iov-mainnet-ibc env vars
-set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport # iov-mainnet-ibc
+exit # root
 
 # reset all
 starnamed unsafe-reset-all --home ${DIR_WORK} # *** THIS IS CRUCIAL ***
 
 exit # ${USER_IOV}
-exit # root
 ```
 
 ## Audit The Migration Process. ##
