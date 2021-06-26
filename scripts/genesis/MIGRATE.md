@@ -83,6 +83,12 @@ cd starnamed
 git submodule foreach git checkout master
 cd scripts/genesis
 yarn
+# export available ports for starnamed for `yarn test` (customize them if necessary)
+export PORT_P2P=tcp://127.0.0.1:16656
+export PORT_RPC=tcp://127.0.0.1:16657
+export PORT_GRPC=127.0.0.1:16090
+export PORT_PPROF=127.0.0.1:16060
+yarn test # takes 3 minutes on my laptop; if the tests fail it's likely due to port collisions; change the PORT_*s above and re-try
 node -r esm genesis.js iov-mainnet-ibc # takes 2 minutes
 cd data/iov-mainnet-ibc/config
 git diff && cp -av genesis.json ${DIR_WORK}/config && echo '✅ All good!' || echo '❌ BAD genesis file!'
