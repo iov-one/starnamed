@@ -554,8 +554,9 @@ export const migrate = async args => {
       };
       const p2p = process.env.PORT_P2P   || "tcp://127.0.0.1:16656";
       const rpc = process.env.PORT_RPC   || "tcp://127.0.0.1:16657";
-      const grpc = process.env.PORT_GRPC || "tcp://127.0.0.1:16090";
-      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", halt, "--log_format", "json", "--p2p.laddr", p2p, "--rpc.laddr", rpc, "--rpc.grpc_laddr", grpc ] );
+      const grpc = process.env.PORT_GRPC || "127.0.0.1:16090";
+      const pprof = process.env.PORT_PPROF || "127.0.0.1:16060";
+      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", halt, "--log_format", "json", "--p2p.laddr", p2p, "--rpc.laddr", rpc, "--grpc.address", grpc, "--rpc.pprof_laddr", pprof ] );
       let err = "", out = "";
 
       starnamed.stderr.on( "data", data => {
