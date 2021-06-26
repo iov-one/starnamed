@@ -102,6 +102,8 @@ rm -rf ${DIR_WORK} && mkdir -p ${DIR_WORK} && cd ${DIR_WORK}
 # initialize starnamed
 starnamed init ${MONIKER} --chain-id ${CHAIN_ID} --home ${DIR_WORK} 2>&1 | jq -r .chain_id
 
+# customize ${DIR_WORK}/{app.toml,config.toml} if you want
+
 # get the genesis file
 curl --fail https://gist.githubusercontent.com/davepuchyr/6bea7bf369064d118195e9b15ea08a0f/raw/genesis.json > config/genesis.json
 sha256sum config/genesis.json | grep __TBD__ && echo '✅ All good!' || echo "❌ BAD GENESIS FILE!"
