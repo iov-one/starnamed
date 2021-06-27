@@ -121,7 +121,8 @@ su - ${USER_IOV}
 set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport # iov-mainnet-ibc
 
 # use the pre-block 4,294,679 sample iov-mainnet-ibc genesis file
-cd starnamed/scripts/genesis/data/iov-mainnet-ibc/config && cp -av genesis.json ${DIR_WORK}/config
+git clone --recursive https://github.com/iov-one/starnamed.git
+( cd starnamed/scripts/genesis/data/iov-mainnet-ibc/config && cp -av genesis.json ${DIR_WORK}/config )
 
 # become root
 sudo su -c bash
@@ -138,6 +139,7 @@ exit # root
 
 # reset all
 starnamed unsafe-reset-all --home ${DIR_WORK} # *** THIS IS CRUCIAL ***
+rm -rf starnamed
 
 exit # ${USER_IOV}
 ```
