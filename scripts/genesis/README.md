@@ -30,7 +30,7 @@ SIGNER=${SIGNER}
 USER_IOV=${USER_IOV}
 
 # directories (without spaces to ease pain)
-DIR_STARNAMED=/opt/iovns/bin
+DIR_STARNAMED=${DIR_STARNAMED}
 DIR_WORK=/home/${USER_IOV}/${CHAIN_ID}
 
 # paths for starnamed and it's required libwasmvm.so
