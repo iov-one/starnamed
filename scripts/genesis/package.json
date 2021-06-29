@@ -3,7 +3,7 @@
    "version": "1.0.0",
    "description": "Generate genesis files for stargatenet and/or iov-mainnet-ibc",
    "scripts": {
-      "test": "node -r esm jestesm.js --testEnvironment node --runInBand --testTimeout 90000"
+      "test": "node -r esm jestesm.js --testEnvironment node --runInBand --testTimeout 20000"
    },
    "repository": "https://github.com/iov-one/starnamed",
    "author": "dave@iov.one",

@@ -9,7 +9,7 @@ describe( "Tests ../../lib/readExportedState.js.", () => {
 
       expect( state.chain_id ).toEqual( "iov-mainnet-2" );
       expect( state.app_state.staking.last_validator_powers.length ).toEqual( 16 );
-      expect( state.app_state.staking.last_validator_powers[3].Address ).toEqual( "starvaloper18pk70ynegvzqy7hw74uqq9xs9jz5s5a6mwu3ac" );
+      expect( state.app_state.staking.last_validator_powers[3].Address ).toEqual( "starvaloper19cx56quwsd03s4xfzkx39je4ag9c5lcvkhn3rv" );
 
       const daveiov = state.app_state.starname.accounts.find( account => account.domain == "iov" && account.name == "dave" );
 
