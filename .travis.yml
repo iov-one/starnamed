@@ -53,29 +53,12 @@ script:
   - set -eo pipefail
   # avoid failed builds due to rate limiting, see https://stackoverflow.com/a/25683955/5887599
   - curl https://api.github.com/?access_token=$GITHUB_API_KEY
-  # Check linting and formatting of starname and configuration modules
-  - |
-    function checkEmpty() {
-      if [[ "$1" =~ ".go" ]]
-      then
-        echo -e "\nFiles with syntax or formatting errors ($1)\n"
-        return 1
-      fi
-    }
-  # If a syntax error occurs, the following command fails
-  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir gofmt -l -s '{}' \+`
-  # Then check formatting errors
-  - checkEmpty "$ERR_FILES"
-  # Check advanced files formatting, including imports
-  # WTF: ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+ | grep -v .pb.`
-  # WTF: this fails on protobuf generated files checkEmpty "$ERR_FILES"
   # TODO enable dangerbot
   - echo TODO docker run -it --rm -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
   # test
   - make test-unit test-race test-cover
   - make install
   # perform more tests before...
-  - ( cd scripts/genesis && yarn install && yarn test && rm -rf ~/.starnamed )
   - ( cd scripts/integration && yarn install && node -r dotenv/config setup.js && ./setup.sh )
   - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall starnamed )
