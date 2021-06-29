@@ -17,7 +17,7 @@ service Msg {
     // UpdateEscrow defines a method for updating an escrow
     rpc UpdateEscrow(MsgUpdateEscrow) returns (MsgUpdateEscrowResponse);
 
-    // TransferToEscrow defines a method for the buyer to transfer funds to the escrow
+    // TransferToEscrow defines a method for a buyer to transfer funds to the escrow
     rpc TransferToEscrow(MsgTransferToEscrow) returns (MsgTransferToEscrowResponse);
 
     // RefundEscrow defines a method for the seller to return the assets locked in the escrow

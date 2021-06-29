@@ -1733,7 +1733,7 @@ Msg defines the escrow Msg service
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `CreateEscrow` | [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow) | [MsgCreateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse) | CreateEscrow defines a method for creating an escrow | |
 | `UpdateEscrow` | [MsgUpdateEscrow](#starnamed.x.escrow.v1beta1.MsgUpdateEscrow) | [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse) | UpdateEscrow defines a method for updating an escrow | |
-| `TransferToEscrow` | [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow) | [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse) | TransferToEscrow defines a method for the buyer to transfer funds to the escrow | |
+| `TransferToEscrow` | [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow) | [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse) | TransferToEscrow defines a method for a buyer to transfer funds to the escrow | |
 | `RefundEscrow` | [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow) | [MsgRefundEscrowResponse](#starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse) | RefundEscrow defines a method for the seller to return the assets locked in the escrow | |
 
  <!-- end services -->

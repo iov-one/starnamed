@@ -35,10 +35,9 @@ func NewTxCmd() *cobra.Command {
 // GetCmdUpdateEscrow implements updating an escrow command
 func GetCmdUpdateEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update [id]",
-		Short: "Updates an escrow",
-		Long: "Updates the fields of an escrow. Object is not modifiable, buyer address is modifiable by the buyer" +
-			" and all the other fields are modifiable by the seller.",
+		Use:     "update [id]",
+		Short:   "Updates an escrow",
+		Long:    "Updates the fields of an escrow. Object is not modifiable and all the other fields are modifiable by the seller.",
 		Example: fmt.Sprintf("$ %s tx escrow update <id> --price 5atom", version.AppName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

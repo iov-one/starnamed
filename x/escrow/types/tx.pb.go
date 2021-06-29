@@ -409,7 +409,7 @@ type MsgClient interface {
 	CreateEscrow(ctx context.Context, in *MsgCreateEscrow, opts ...grpc.CallOption) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(ctx context.Context, in *MsgUpdateEscrow, opts ...grpc.CallOption) (*MsgUpdateEscrowResponse, error)
-	// TransferToEscrow defines a method for the buyer to transfer funds to the escrow
+	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
 	TransferToEscrow(ctx context.Context, in *MsgTransferToEscrow, opts ...grpc.CallOption) (*MsgTransferToEscrowResponse, error)
 	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
 	RefundEscrow(ctx context.Context, in *MsgRefundEscrow, opts ...grpc.CallOption) (*MsgRefundEscrowResponse, error)
@@ -465,7 +465,7 @@ type MsgServer interface {
 	CreateEscrow(context.Context, *MsgCreateEscrow) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(context.Context, *MsgUpdateEscrow) (*MsgUpdateEscrowResponse, error)
-	// TransferToEscrow defines a method for the buyer to transfer funds to the escrow
+	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
 	TransferToEscrow(context.Context, *MsgTransferToEscrow) (*MsgTransferToEscrowResponse, error)
 	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
 	RefundEscrow(context.Context, *MsgRefundEscrow) (*MsgRefundEscrowResponse, error)

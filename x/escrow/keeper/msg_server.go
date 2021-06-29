@@ -24,7 +24,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow) (*types.MsgCreateEscrowResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	// Extract and check seller and buyer addresses
+	// Extract and check seller address
 	seller, err := sdk.AccAddressFromBech32(msg.Seller)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "Invalid seller address : %v", msg.Seller)
@@ -46,7 +46,7 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 
 func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow) (*types.MsgUpdateEscrowResponse, error) {
 
-	// Extract and check updater, seller and buyer address
+	// Extract and check updater and seller addresses
 	updater, err := sdk.AccAddressFromBech32(msg.Updater)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "Invalid updater address : %v", msg.Updater)
