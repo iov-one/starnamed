@@ -106,7 +106,7 @@ starnamed init ${MONIKER} --chain-id ${CHAIN_ID} --home ${DIR_WORK} 2>&1 | jq -r
 
 # get the genesis file
 curl --fail https://gist.githubusercontent.com/davepuchyr/6bea7bf369064d118195e9b15ea08a0f/raw/genesis.json > config/genesis.json
-sha256sum config/genesis.json | grep __TBD__ && echo '✅ All good!' || echo "❌ BAD GENESIS FILE!"
+sha256sum config/genesis.json | grep e20eb984b3a85eb3d2c76b94d1a30c4b3cfa47397d5da2ec60dca8bef6d40b17 && echo '✅ All good!' || echo "❌ BAD GENESIS FILE!"
 
 exit # ${USER_IOV}
 
