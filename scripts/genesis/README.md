@@ -84,7 +84,7 @@ exec starnamed start \\
   --minimum-gas-prices='1.0uiov' \\
   --moniker='${MONIKER}' \\
   --p2p.laddr='tcp://0.0.0.0:16656' \\
-  --p2p.seeds='0a550a22b027e05206436831a4ec74ccb80feca5@167.99.194.126:16656' \\
+  --p2p.persistent_peers='0a550a22b027e05206436831a4ec74ccb80feca5@167.99.194.126:16656' \\
   --rpc.laddr='tcp://127.0.0.1:16657' \\
   --rpc.unsafe=true \\
 
