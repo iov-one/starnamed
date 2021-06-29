@@ -37,13 +37,13 @@ func (s *QueryTestSuite) TestQueryEscrow() {
 	resp, err := s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: existingEscrowId})
 
 	s.Assert().Nil(err)
-	s.Assert().Equal(existingEscrow, resp.Escrow)
+	s.Assert().Equal(existingEscrow, *resp.Escrow)
 
 	// Expired
 	resp, err = s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: expiredEscrowId})
 
 	s.Assert().Nil(err)
-	s.Assert().Equal(expiredEscrow, resp.Escrow)
+	s.Assert().Equal(expiredEscrow, *resp.Escrow)
 
 	// Does not exist
 	resp, err = s.keeper.Escrow(sdk.WrapSDKContext(s.ctx), &types.QueryEscrowRequest{Id: nonExistingEscrowId})

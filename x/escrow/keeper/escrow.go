@@ -83,7 +83,7 @@ func (k Keeper) UpdateEscrow(
 		return sdkerrors.Wrap(types.ErrEscrowExpired, id)
 	}
 
-	//TODO: check no-op update
+	// Check if there is an actual update
 	if seller == nil && price == nil && deadline == 0 {
 		return types.ErrEmptyUpdate
 	}
@@ -94,35 +94,35 @@ func (k Keeper) UpdateEscrow(
 		panic(sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller))
 	}
 
-	// If the updater is the seller, he can update the seller, price and deadline
-	if updater.Equals(oldSeller) {
-		// Update seller, price and deadline if provided
-		if seller != nil {
-			escrow.Seller = seller.String()
-		}
-		if price != nil {
-			if err := types.ValidatePrice(price); err != nil {
-				return err
-			}
-			escrow.Price = price
-		}
-		if deadline != 0 {
-			if err := types.ValidateDeadline(deadline, k.GetLastBlockTime(ctx)); err != nil {
-				return err
-			}
-			//TODO: is that the behavior we want ?
+	// If the updater is not the seller he cannot update the escrow
+	if !updater.Equals(oldSeller) {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the seller can update an escrow")
+	}
 
-			// We can only delay the deadline
-			if deadline < escrow.Deadline {
-				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The new deadline cannot be before the old one")
-			}
-			// We are modifying the deadline, get rid of old deadline indexing
-			k.deleteEscrowFromDeadlineStore(ctx, escrow)
-			// The new deadline indexing will be added when we save the escrow
-			escrow.Deadline = deadline
+	// Update seller, price and deadline if provided
+	if seller != nil {
+		escrow.Seller = seller.String()
+	}
+	if price != nil {
+		if err := types.ValidatePrice(price); err != nil {
+			return err
 		}
-	} else {
-		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Only the buyer or the seller can update an escrow")
+		escrow.Price = price
+	}
+	if deadline != 0 {
+		if err := types.ValidateDeadline(deadline, k.GetLastBlockTime(ctx)); err != nil {
+			return err
+		}
+		//TODO: is that the behavior we want ?
+
+		// We can only delay the deadline
+		if deadline < escrow.Deadline {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The new deadline cannot be before the old one")
+		}
+		// We are modifying the deadline, get rid of old deadline indexing
+		k.deleteEscrowFromDeadlineStore(ctx, escrow)
+		// The new deadline indexing will be added when we save the escrow
+		escrow.Deadline = deadline
 	}
 
 	k.SaveEscrow(ctx, escrow)
@@ -288,15 +288,17 @@ func (k Keeper) deleteEscrowFromDeadlineStore(ctx sdk.Context, escrow types.Escr
 	k.getDeadlineStore(ctx).Delete(types.GetDeadlineKey(escrow.Deadline, escrow.Id))
 }
 
+//FIXME: this function syncs the object with the version in store but does not check anything
 func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
 	var objInStore = object.GetObject()
-	//TODO: cleanup this mess
-	err := objectStore.Read(object.GetObject().PrimaryKey(), objInStore)
+
+	err := objectStore.Read(objInStore.PrimaryKey(), objInStore)
 	if err != nil {
 		return types.ErrUnknownObject
 	}
 
-	if !reflect.DeepEqual(objInStore, object) {
+	//FIXME: this will be always true
+	if !reflect.DeepEqual(objInStore, object.GetObject()) {
 		return sdkerrors.Wrap(types.ErrUnknownObject, "The object and his stored version does not match")
 	}
 
@@ -343,7 +345,7 @@ func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow
 	return escrow, true
 }
 
-func (k Keeper) IterateExpiringEscrows(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
+func (k Keeper) IterateEscrowsWithPassedDeadline(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
 	store := k.getDeadlineStore(ctx)
 	// TODO : check if that's actually valid
 	end := sdk.Uint64ToBigEndian(date + 1)
@@ -362,10 +364,11 @@ func (k Keeper) IterateExpiringEscrows(ctx sdk.Context, date uint64, op func(typ
 
 }
 func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
-	k.IterateExpiringEscrows(ctx, date,
+	k.IterateEscrowsWithPassedDeadline(ctx, date,
 		func(e types.Escrow) (stop bool) {
 			if e.State == types.EscrowState_Open {
 				e.State = types.EscrowState_Expired
+				k.SaveEscrow(ctx, e)
 			}
 			return false
 		})

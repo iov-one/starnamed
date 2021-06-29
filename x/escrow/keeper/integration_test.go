@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/gogo/protobuf/proto"
 	crud "github.com/iov-one/cosmos-sdk-crud"
@@ -39,7 +38,7 @@ type TestObject struct {
 }
 
 func (m *TestObject) PrimaryKey() []byte {
-	return m.Owner
+	return sdk.Uint64ToBigEndian(m.Id)
 }
 
 func (m *TestObject) SecondaryKeys() []crud.SecondaryKey {
@@ -80,9 +79,14 @@ func (m *NotPossessedTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error 
 
 type ErroredTestObject struct {
 	NotPossessedTestObject
+	nbTransferAllowed int64
 }
 
 func (m *ErroredTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error {
+	if m.nbTransferAllowed > 0 {
+		m.nbTransferAllowed--
+		return nil
+	}
 	return fmt.Errorf("this test object cannot be transfered")
 }
 
@@ -111,16 +115,17 @@ func (gen *EscrowGenerator) NextObjectID() uint64 {
 func (gen *EscrowGenerator) NewTestObject(seller sdk.AccAddress) *TestObject {
 	return &TestObject{types.TestObject{
 		Id:    gen.NextObjectID(),
-		Owner: seller,
+		Owner: append([]byte(nil), seller...),
 	}}
 }
 
 func (gen *EscrowGenerator) NewNotPossessedTestObject() *NotPossessedTestObject {
-	return &NotPossessedTestObject{*gen.NewTestObject(nil)}
+	// this seller address does not matter and is required for the crud store to work properly
+	return &NotPossessedTestObject{*gen.NewTestObject(gen.NewAccAddress())}
 }
 
-func (gen *EscrowGenerator) NewErroredTestObject() *ErroredTestObject {
-	return &ErroredTestObject{*gen.NewNotPossessedTestObject()}
+func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *ErroredTestObject {
+	return &ErroredTestObject{*gen.NewNotPossessedTestObject(), nbTransferAllowed}
 }
 
 func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *TestObject) {
@@ -175,14 +180,14 @@ func (gen *EscrowGenerator) NowAfter(date uint64) uint64 {
 	return gen.now + date
 }
 
-var TestTimeNow = time.Unix(0, 0)
+var TestTimeNow = time.Unix(2000, 0)
 
 func NewTestCodec() *codec.ProtoCodec {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
 	types.RegisterInterfaces(interfaceRegistry)
-	//TODO: this should not be required
-	authtypes.RegisterInterfaces(interfaceRegistry)
-	banktypes.RegisterInterfaces(interfaceRegistry)
+	interfaceRegistry.RegisterImplementations((*types.TransferableObject)(nil),
+		&TestObject{},
+	)
 	//Register the test object implementation
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	return cdc
@@ -230,6 +235,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), blockedAddr)
 	k.AddStore(TypeID_TestObject, crudStore)
+	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 	return k, ctx, crudStore, balances
 }
 
@@ -249,7 +255,7 @@ func CheckError(t *testing.T, name string, shouldFail bool, err error) {
 		} else {
 			verb = "shouldn't"
 		}
-		t.Fatalf("The test %v %v have failed", name, verb)
+		t.Fatalf("The test %v %v have failed : %s", name, verb, err)
 	}
 }
 
@@ -263,9 +269,9 @@ func EvaluateTest(t *testing.T, name string, test func() error) {
 	}
 
 	if shouldPanic {
-		assert.Panics(t, testFuncWrapped)
+		assert.Panics(t, testFuncWrapped, name)
 	} else {
-		assert.NotPanics(t, testFuncWrapped)
+		assert.NotPanics(t, testFuncWrapped, name)
 	}
 }
 
@@ -280,6 +286,7 @@ type BaseKeeperSuite struct {
 
 func (s *BaseKeeperSuite) Setup() {
 	s.keeper, s.ctx, s.store, _ = NewTestKeeper(nil)
+	s.keeper.ImportNextID(s.ctx, 1)
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 	s.generator = NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
 }

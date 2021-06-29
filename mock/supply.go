@@ -42,11 +42,13 @@ func (s *SupplyKeeperMock) Mock() SupplyKeeper {
 
 func (s *SupplyKeeperMock) WithDefaultsBalances(balances map[string]sdk.Coins) *SupplyKeeperMock {
 	send := func(src, dest sdk.AccAddress, coins sdk.Coins) error {
-		if balances[src.String()].IsAllGTE(coins) {
+		if !balances[src.String()].IsAllGTE(coins) {
 			return sdkerrors.ErrInsufficientFunds
 		}
-		balances[src.String()].Sub(coins)
-		balances[dest.String()].Add(coins...)
+		balanceSrc := balances[src.String()].Sub(coins)
+		balances[src.String()] = balanceSrc
+		balanceDest := balances[dest.String()].Add(coins...)
+		balances[dest.String()] = balanceDest
 		return nil
 	}
 
@@ -62,7 +64,6 @@ func (s *SupplyKeeperMock) WithDefaultsBalances(balances map[string]sdk.Coins) *
 }
 
 func NewSupplyKeeper() *SupplyKeeperMock {
-	balances := make(map[string]sdk.Coins)
 	mock := &SupplyKeeperMock{s: &supplyKeeper{}}
 	// set no-ops
 	mock.SetSendCoinsFromAccountToModule(func(_ sdk.Context, addr sdk.AccAddress, moduleName string, coins sdk.Coins) error {
@@ -72,5 +73,5 @@ func NewSupplyKeeper() *SupplyKeeperMock {
 	mock.SetSendCoinsFromModuleToAccount(func(_ sdk.Context, moduleName string, addr sdk.AccAddress, coins sdk.Coins) error {
 		return nil
 	})
-	return mock.WithDefaultsBalances(balances)
+	return mock
 }
