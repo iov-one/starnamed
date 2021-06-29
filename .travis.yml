@@ -59,7 +59,6 @@ script:
   - make test-unit test-race test-cover
   - make install
   # perform more tests before...
-  - ( cd scripts/genesis && yarn install && yarn test && rm -rf ~/.starnamed )
   - ( cd scripts/integration && yarn install && node -r dotenv/config setup.js && ./setup.sh )
   - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall starnamed )
