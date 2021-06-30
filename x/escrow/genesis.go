@@ -6,7 +6,6 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
 // InitGenesis stores the genesis state
@@ -28,7 +27,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	var escrows []types.Escrow
 	k.IterateEscrows(
 		ctx,
-		func(_ tmbytes.HexBytes, e types.Escrow) (stop bool) {
+		func(_ string, e types.Escrow) (stop bool) {
 			escrows = append(escrows, e)
 			return false
 		},

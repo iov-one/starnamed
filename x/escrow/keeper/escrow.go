@@ -1,13 +1,14 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"reflect"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/pkg/errors"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
@@ -314,6 +315,7 @@ func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
 func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	escrow.SyncObject()
 	bz := k.cdc.MustMarshalBinaryBare(&escrow)
+
 	k.getStore(ctx).Set(types.GetEscrowKey(escrow.Id), bz)
 	k.addEscrowToDeadlineStore(ctx, escrow)
 }
@@ -376,7 +378,7 @@ func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
 
 func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 	k.IterateEscrows(ctx,
-		func(id tmbytes.HexBytes, e types.Escrow) (stop bool) {
+		func(id string, e types.Escrow) (stop bool) {
 			//TODO: check if allowed because we modify expired store (refund -> delete escrow -> delete escrow from expired store)
 			// while iterating over it
 
@@ -400,15 +402,20 @@ func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 // IterateEscrows iterates through the escrows
 func (k Keeper) IterateEscrows(
 	ctx sdk.Context,
-	op func(tmbytes.HexBytes, types.Escrow) bool,
+	op func(string, types.Escrow) bool,
 ) {
 	store := k.getStore(ctx)
 
 	iterator := store.Iterator(nil, nil)
-	defer iterator.Close()
+	defer func(iterator storetypes.Iterator) {
+		err := iterator.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
-		id := tmbytes.HexBytes(iterator.Key()[1:])
+		id := hex.EncodeToString(iterator.Key())
 
 		var escrow types.Escrow
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &escrow)
