@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/x/escrow/test"
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
@@ -23,13 +24,12 @@ func (s *MsgServerTestSuite) SetupTest() {
 
 func (s *MsgServerTestSuite) TestAll() {
 
-	t := s.T()
 	validAddress := s.generator.NewAccAddress()
 
 	type testCase struct {
 		name   string
 		seller string
-		obj    proto.Message
+		obj    interface{}
 	}
 
 	commonTestCases := []testCase{
@@ -56,65 +56,83 @@ func (s *MsgServerTestSuite) TestAll() {
 		{
 			name:   "invalid object: not a transferable object",
 			seller: authtypes.NewModuleAddress(types.ModuleName).String(),
-			obj:    new(types.TestObject),
+			obj:    new(types.GenesisState),
 		},
 	}
 
 	createTestCase := []testCase{
-		{
-			name:   "invalid object: not a transferable object",
-			seller: authtypes.NewModuleAddress(types.ModuleName).String(),
-			obj:    new(types.TestObject),
-		},
+		commonTestCases[len(commonTestCases)-1],
 	}
 
-	createAndCheck := func(test testCase) string {
-		shouldFail := strings.Contains(test.name, "invalid")
+	createAndCheck := func(t testCase) string {
+		copiedObj := t.obj.(proto.Message)
+		shouldFail := strings.Contains(t.name, "invalid")
+		switch obj := t.obj.(type) {
+		case *types.TestObject:
+			// Make a copy of the object, to avoid to alter the original one
+			cpy := &types.TestObject{
+				Id:    obj.Id,
+				Owner: append([]byte{}, obj.Owner...),
+			}
+			// returns ErrAlreadyExists if the object already exists and no other possible error
+			err := s.store.Create(cpy)
+			if err != nil {
+				if err := s.store.Delete(cpy.PrimaryKey()); err != nil {
+					panic(err)
+				}
+				_ = s.store.Create(cpy)
+			}
+			copiedObj = cpy
+		}
 		resp, err := s.msgServer.CreateEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgCreateEscrow{
-			Seller:   test.seller,
-			Object:   MustPackToAny(test.obj),
+			Seller:   t.seller,
+			Object:   test.MustPackToAny(copiedObj),
 			Price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50))),
 			Deadline: s.generator.NowAfter(100),
 		})
-		CheckError(t, test.name, shouldFail, err)
-		return resp.Id
+		test.CheckError(s.T(), t.name+" creation", shouldFail, err)
+		if resp == nil {
+			return ""
+		} else {
+			return resp.Id
+		}
 	}
 
-	for _, test := range createTestCase {
-		createAndCheck(test)
+	for _, t := range createTestCase {
+		createAndCheck(t)
 	}
 
-	for _, test := range commonTestCases {
-		shouldFail := strings.Contains(test.name, "invalid")
+	for _, t := range commonTestCases {
+		shouldFail := strings.Contains(t.name, "invalid")
 
 		// check creation
-		id := createAndCheck(test)
+		id := createAndCheck(t)
 
 		// check updating
 		_, err := s.msgServer.UpdateEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgUpdateEscrow{
 			Id:       id,
-			Updater:  test.seller,
-			Seller:   test.seller,
-			Price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(80))),
+			Updater:  t.seller,
+			Seller:   t.seller,
+			Price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(20))),
 			Deadline: s.generator.NowAfter(100),
 		})
-		CheckError(t, test.name, shouldFail, err)
+		test.CheckError(s.T(), t.name+" update", shouldFail, err)
 
 		// check transfering
 		_, err = s.msgServer.TransferToEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgTransferToEscrow{
 			Id:     id,
 			Sender: s.generator.NewAccAddress().String(),
-			Amount: sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(80))),
+			Amount: sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(20))),
 		})
-		CheckError(t, test.name, shouldFail, err)
+		test.CheckError(s.T(), t.name+" transfer", shouldFail, err)
 
 		// check refunding (after creating a new one)
-		id = createAndCheck(test)
+		id = createAndCheck(t)
 		_, err = s.msgServer.RefundEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgRefundEscrow{
 			Id:     id,
-			Sender: s.generator.NewAccAddress().String(),
+			Sender: t.seller,
 		})
-		CheckError(t, test.name, shouldFail, err)
+		test.CheckError(s.T(), t.name+" refund", shouldFail, err)
 	}
 }
 

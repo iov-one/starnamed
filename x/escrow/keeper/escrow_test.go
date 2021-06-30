@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/iov-one/starnamed/x/escrow/keeper"
+	"github.com/iov-one/starnamed/x/escrow/test"
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
@@ -44,10 +45,10 @@ func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, 
 	if !escrowFound {
 		owner = nil
 	} else {
-		var obj TestObject
+		var obj types.TestObject
 		// Refresh object value with store if possible
-		if err := s.store.Read(escrow.GetObject().(*TestObject).PrimaryKey(), &obj); err != nil {
-			owner = escrow.GetObject().(*TestObject).Owner
+		if err := s.store.Read(escrow.GetObject().(*types.TestObject).PrimaryKey(), &obj); err != nil {
+			owner = escrow.GetObject().(*types.TestObject).Owner
 		} else {
 			owner = obj.Owner
 		}
@@ -61,7 +62,7 @@ func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, 
 
 }
 
-func newSavedObject(generator *EscrowGenerator, seller sdk.AccAddress, store crud.Store) *TestObject {
+func newSavedObject(generator *test.EscrowGenerator, seller sdk.AccAddress, store crud.Store) *types.TestObject {
 	obj := generator.NewTestObject(seller)
 	if err := store.Create(obj); err != nil {
 		panic(err)
@@ -91,10 +92,10 @@ func (s *EscrowTestSuite) createErroredObject(price sdk.Coins) string {
 }
 
 func (s *EscrowTestSuite) SetupTest() {
-	s.generator = NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
+	s.generator = test.NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
 	s.seller = s.generator.NewAccAddress()
 	s.buyer = s.generator.NewAccAddress()
-	s.keeper, s.ctx, s.store, s.balances = NewTestKeeper([]sdk.AccAddress{s.buyer})
+	s.keeper, s.ctx, s.store, s.balances, _ = test.NewTestKeeper([]sdk.AccAddress{s.buyer})
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
@@ -114,7 +115,7 @@ func (s *EscrowTestSuite) SetupTest() {
 	s.completedEscrowId = escrow.Id
 	s.keeper.SaveEscrow(s.ctx, escrow)
 
-	s.keeper.ImportNextID(s.ctx, s.generator.nextId)
+	s.keeper.ImportNextID(s.ctx, s.generator.GetNextId())
 }
 
 func (s *EscrowTestSuite) TestCreate() {
@@ -143,7 +144,7 @@ func (s *EscrowTestSuite) TestCreate() {
 	modifiedOwnerObj.Owner = append([]byte(nil), invalidAddr...)
 
 	negativePrice := sdk.NewCoin("tiov2", sdk.NewInt(5))
-	negativePrice.Amount.SubRaw(10)
+	negativePrice.Amount = negativePrice.Amount.SubRaw(10)
 
 	testCases := []struct {
 		name     string
@@ -177,10 +178,10 @@ func (s *EscrowTestSuite) TestCreate() {
 			name:   "invalid price: negative",
 			seller: validAddress,
 			obj:    obj,
-			price: sdk.NewCoins(
+			price: sdk.Coins{
 				sdk.NewCoin("tiov", sdk.NewInt(50)),
 				negativePrice,
-			),
+			},
 			deadline: defaultDeadline,
 		},
 		{
@@ -214,7 +215,7 @@ func (s *EscrowTestSuite) TestCreate() {
 	}
 
 	for _, t := range testCases {
-		create := func() error {
+		create := func(*testing.T) error {
 			_, err := s.keeper.CreateEscrow(
 				s.ctx,
 				t.seller,
@@ -225,7 +226,7 @@ func (s *EscrowTestSuite) TestCreate() {
 			return err
 		}
 
-		EvaluateTest(s.T(), t.name, create)
+		test.EvaluateTest(s.T(), t.name, create)
 	}
 }
 
@@ -327,11 +328,11 @@ func (s *EscrowTestSuite) TestUpdate() {
 			id = escrowID
 		}
 
-		update := func() error {
+		update := func(*testing.T) error {
 			return s.keeper.UpdateEscrow(s.ctx, id, t.updater, t.seller, t.price, t.deadline)
 		}
 
-		EvaluateTest(s.T(), t.name, update)
+		test.EvaluateTest(s.T(), t.name, update)
 	}
 
 	//TODO: check deadline store consistency
@@ -485,7 +486,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 			check = func(before, after assetState, name string) {}
 		}
 
-		transfer := func() error {
+		transfer := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, id)
 			before := s.getState(s.seller, t.buyer, escrow, found)
 			err := s.keeper.TransferToEscrow(s.ctx, t.buyer, id, t.amount)
@@ -493,7 +494,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 			return err
 		}
 
-		EvaluateTest(s.T(), t.name, transfer)
+		test.EvaluateTest(s.T(), t.name, transfer)
 	}
 
 }
@@ -604,7 +605,7 @@ func (s *EscrowTestSuite) TestRefund() {
 	for _, t := range testCases {
 		check := func(before, after assetState) {}
 
-		refund := func() error {
+		refund := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, t.id)
 			before := s.getState(s.seller, nil, escrow, found)
 			err := s.keeper.RefundEscrow(s.ctx, t.sender, t.id)
@@ -612,11 +613,11 @@ func (s *EscrowTestSuite) TestRefund() {
 			return err
 		}
 
-		EvaluateTest(s.T(), t.name, refund)
+		test.EvaluateTest(s.T(), t.name, refund)
 	}
 }
 
-func generateExpiringEscrows(generator *EscrowGenerator) []types.Escrow {
+func generateExpiringEscrows(generator *test.EscrowGenerator) []types.Escrow {
 	deriveEscrow := func(e types.Escrow, state types.EscrowState) types.Escrow {
 		e.State = state
 		e.Id = generator.NextID()

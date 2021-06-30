@@ -1,202 +1,233 @@
 package types_test
 
 import (
-	"fmt"
-	"strings"
+	"encoding/hex"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
-	"github.com/irisnet/irismod/modules/htlc/types"
+	"github.com/iov-one/starnamed/x/escrow/test"
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-var (
-	emptyAddr            = ""
-	sender               = sdk.AccAddress(tmhash.SumTruncated([]byte("sender")))
-	senderStr            = sender.String()
-	recipient            = sdk.AccAddress(tmhash.SumTruncated([]byte("recipient")))
-	recipientStr         = recipient.String()
-	receiverOnOtherChain = "receiverOnOtherChain"
-	senderOnOtherChain   = "senderOnOtherChain"
-	amount               = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10)))
-	secret               = tmbytes.HexBytes(tmhash.Sum([]byte("secret")))
-	secretStr            = secret.String()
-	timestamp            = uint64(1580000000)
-	hashLock             = tmbytes.HexBytes(tmhash.Sum(append(secret, sdk.Uint64ToBigEndian(timestamp)...)))
-	hashLockStr          = hashLock.String()
-	id                   = tmbytes.HexBytes(tmhash.Sum(append(append(append(hashLock, sender...), recipient...), []byte(amount.String())...)))
-	idStr                = id.String()
-	timeLock             = uint64(50)
-	transfer             = true
-	notTransfer          = false
-)
-
-// TestNewMsgCreateHTLC tests constructor for MsgCreateHTLC
-func TestNewMsgCreateHTLC(t *testing.T) {
-	msg := types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer)
-
-	require.Equal(t, senderStr, msg.Sender)
-	require.Equal(t, recipientStr, msg.To)
-	require.Equal(t, receiverOnOtherChain, msg.ReceiverOnOtherChain)
-	require.Equal(t, amount, msg.Amount)
-	require.Equal(t, hashLockStr, msg.HashLock)
-	require.Equal(t, timestamp, msg.Timestamp)
-	require.Equal(t, timeLock, msg.TimeLock)
-	require.Equal(t, notTransfer, msg.Transfer)
+type MsgTestSuite struct {
+	suite.Suite
+	msgCreate   types.MsgCreateEscrow
+	msgRefund   types.MsgRefundEscrow
+	msgTransfer types.MsgTransferToEscrow
+	msgUpdate   types.MsgUpdateEscrow
+	sender      sdk.AccAddress
+	gen         *test.EscrowGenerator
 }
 
-// TestMsgCreateHTLCRoute tests Route for MsgCreateHTLC
-func TestMsgCreateHTLCRoute(t *testing.T) {
-	msg := types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer)
-	require.Equal(t, "htlc", msg.Route())
+func (suite *MsgTestSuite) SetupTest() {
+	suite.gen = test.NewEscrowGenerator(200)
+
+	suite.sender = suite.gen.NewAccAddress()
+	validId := hex.EncodeToString(sdk.Uint64ToBigEndian(42))
+	validPrice := sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(50)))
+	validObject := suite.gen.NewTestObject(suite.sender)
+
+	suite.msgCreate = types.NewMsgCreateEscrow(suite.sender.String(), validObject, validPrice, suite.gen.NowAfter(0))
+	suite.msgRefund = types.MsgRefundEscrow{
+		Id:     validId,
+		Sender: suite.sender.String(),
+	}
+	suite.msgUpdate = types.MsgUpdateEscrow{
+		Id:       validId,
+		Updater:  suite.sender.String(),
+		Seller:   "",
+		Price:    validPrice,
+		Deadline: suite.gen.NowAfter(0),
+	}
+	suite.msgTransfer = types.MsgTransferToEscrow{
+		Id:     validId,
+		Sender: suite.sender.String(),
+		Amount: validPrice,
+	}
 }
 
-// TestMsgCreateHTLCType tests Type for MsgCreateHTLC
-func TestMsgCreateHTLCType(t *testing.T) {
-	msg := types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer)
-	require.Equal(t, "create_htlc", msg.Type())
-}
+func (suite *MsgTestSuite) TestMsgValidate() {
+	invalidBech32Addr := "star15d5e8f5544f5e5fe654"
+	invalidPrefixAddr := "cosmos1cqfse93m6r7fr3vx07du5yfmsltca60gyadygf"
+	negativePrice := sdk.Coins{sdk.Coin{Denom: "tiov", Amount: sdk.NewInt(-10)}}
+	invalidIDHexa := "123456789abcdefg"
+	invalidIDLength := "123456789abcdef0123"
+	randomOwnerObj := test.MustPackToAny(suite.gen.NewTestObject(suite.gen.NewAccAddress()))
+	invalidInterfaceObj := test.MustPackToAny(&suite.msgUpdate)
 
-// TestMsgCreateHTLCValidation tests ValidateBasic for MsgCreateHTLC
-func TestMsgCreateHTLCValidation(t *testing.T) {
-	invalidReceiverOnOtherChain := strings.Repeat("r", 129)
-	invalidSenderOnOtherChain := strings.Repeat("r", 129)
-	invalidAmount := sdk.Coins{}
-	invalidHashLock := "0x"
-	invalidSmallTimeLock := uint64(49)
-	invalidLargeTimeLock := uint64(34561)
-
-	testMsgs := []types.MsgCreateHTLC{
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer),             // valid htlc msg
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, transfer),                // valid htlt msg
-		types.NewMsgCreateHTLC(emptyAddr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer),             // missing sender
-		types.NewMsgCreateHTLC(senderStr, emptyAddr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer),                // missing recipient
-		types.NewMsgCreateHTLC(senderStr, recipientStr, invalidReceiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer),      // too long receiver on other chain
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, invalidSenderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer),      // too long sender on other chain
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, invalidAmount, hashLockStr, timestamp, timeLock, notTransfer),      // invalid amount
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, invalidHashLock, timestamp, timeLock, notTransfer),         // invalid hash lock
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, invalidSmallTimeLock, notTransfer), // too small time lock
-		types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, invalidLargeTimeLock, notTransfer), // too large time lock
+	completeMsgCreate := func(msg types.MsgCreateEscrow) *types.MsgCreateEscrow {
+		if msg.Price == nil {
+			msg.Price = suite.msgCreate.Price
+		}
+		if msg.Deadline == 0 {
+			msg.Deadline = suite.msgCreate.Deadline
+		}
+		if len(msg.Seller) == 0 {
+			msg.Seller = suite.msgCreate.Seller
+		}
+		if msg.Object == nil {
+			msg.Object = suite.msgCreate.Object
+		}
+		return &msg
+	}
+	completeMsgUpdate := func(msg types.MsgUpdateEscrow) *types.MsgUpdateEscrow {
+		if len(msg.Id) == 0 {
+			msg.Id = suite.msgUpdate.Id
+		}
+		if len(msg.Updater) == 0 {
+			msg.Updater = suite.msgUpdate.Updater
+		}
+		return &msg
+	}
+	completeMsgTransfer := func(msg types.MsgTransferToEscrow) *types.MsgTransferToEscrow {
+		if len(msg.Id) == 0 {
+			msg.Id = suite.msgTransfer.Id
+		}
+		if len(msg.Sender) == 0 {
+			msg.Sender = suite.msgTransfer.Sender
+		}
+		if msg.Amount == nil {
+			msg.Amount = suite.msgTransfer.Amount
+		}
+		return &msg
+	}
+	completeMsgRefund := func(msg types.MsgRefundEscrow) *types.MsgRefundEscrow {
+		if len(msg.Id) == 0 {
+			msg.Id = suite.msgRefund.Id
+		}
+		if len(msg.Sender) == 0 {
+			msg.Sender = suite.msgRefund.Sender
+		}
+		return &msg
 	}
 
 	testCases := []struct {
-		msg     types.MsgCreateHTLC
-		expPass bool
-		errMsg  string
+		name string
+		msg  sdk.Msg
 	}{
-		{testMsgs[0], true, "valid htlc"},
-		{testMsgs[1], true, "valid htlt"},
-		{testMsgs[2], false, "missing sender"},
-		{testMsgs[3], false, "missing recipient"},
-		{testMsgs[4], false, "too long receiver on other chain"},
-		{testMsgs[5], false, "too long sender on other chain"},
-		{testMsgs[6], false, "invalid amount"},
-		{testMsgs[7], false, "invalid hash lock"},
-		{testMsgs[8], false, "too small time lock"},
-		{testMsgs[9], false, "too large time lock"},
+		{
+			name: "create: valid",
+			msg:  &suite.msgCreate,
+		},
+		{
+			name: "create: invalid seller address: invalid bech32",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{Seller: invalidBech32Addr}),
+		},
+		{
+			name: "create: invalid seller address: invalid prefix",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{Seller: invalidPrefixAddr}),
+		},
+		{
+			name: "create: invalid price: negative",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{Price: negativePrice}),
+		},
+		{
+			name: "create: invalid object: does not belong to seller",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{Object: randomOwnerObj}),
+		},
+		{
+			name: "create: invalid object: not a TransferableObject",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{Object: invalidInterfaceObj}),
+		},
+		{
+			name: "update: valid",
+			msg:  &suite.msgUpdate,
+		},
+		{
+			name: "update: invalid empty update",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{}),
+		},
+		{
+			name: "update: invalid seller address: invalid bech32",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Seller: invalidBech32Addr}),
+		},
+		{
+			name: "update: invalid seller address: invalid prefix",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Seller: invalidPrefixAddr}),
+		},
+		{
+			name: "update: invalid updater address: invalid bech32",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Updater: invalidBech32Addr}),
+		},
+		{
+			name: "update: invalid updater address: invalid prefix",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Updater: invalidPrefixAddr}),
+		},
+		{
+			name: "update: invalid price: negative",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Price: negativePrice}),
+		},
+		{
+			name: "update: invalid escrow ID: not hexadecimal",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Id: invalidIDHexa}),
+		},
+		{
+			name: "update: invalid escrow ID: invalid length",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Id: invalidIDLength}),
+		},
+		{
+			name: "transfer: valid",
+			msg:  &suite.msgTransfer,
+		},
+		{
+			name: "transfer: invalid sender: invalid bech32",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Sender: invalidBech32Addr}),
+		},
+		{
+			name: "transfer: invalid sender: invalid prefix",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Sender: invalidPrefixAddr}),
+		},
+		{
+			name: "transfer: invalid amount: negative",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Amount: negativePrice}),
+		},
+		{
+			name: "transfer: invalid escrow ID: not hexadecimal",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Id: invalidIDHexa}),
+		},
+		{
+			name: "transfer: invalid escrow ID: invalid length",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Id: invalidIDLength}),
+		},
+		{
+			name: "refund: valid",
+			msg:  &suite.msgRefund,
+		},
+		{
+			name: "refund: invalid seller: not bech32",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{Sender: invalidBech32Addr}),
+		},
+		{
+			name: "refund: invalid seller: invalid prefix",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{Sender: invalidPrefixAddr}),
+		},
+		{
+			name: "refund: invalid escrow ID: not hexadecimal",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{Id: invalidIDHexa}),
+		},
+		{
+			name: "refund: invalid escrow ID: invalid length",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{Id: invalidIDLength}),
+		},
 	}
 
-	for i, tc := range testCases {
-		err := tc.msg.ValidateBasic()
-		if tc.expPass {
-			require.NoError(t, err, "Msg %d failed: %v", i, err)
-		} else {
-			require.Error(t, err, "Invalid Msg %d passed: %s", i, tc.errMsg)
-		}
+	for _, tc := range testCases {
+		test.EvaluateTest(suite.T(), tc.name, func(*testing.T) error { return tc.msg.ValidateBasic() })
 	}
 }
 
-// TestMsgCreateHTLCGetSignBytes tests GetSignBytes for MsgCreateHTLC
-func TestMsgCreateHTLCGetSignBytes(t *testing.T) {
-	msg := types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer)
-	res := msg.GetSignBytes()
-
-	expected := `{"type":"irismod/htlc/MsgCreateHTLC","value":{"amount":[{"amount":"10","denom":"stake"}],"hash_lock":"6F4ECE9B22CFC1CF39C9C73DD2D35867A8EC97C48A9C2F664FE5287865A18C2E","receiver_on_other_chain":"receiverOnOtherChain","sender":"cosmos1pgm8hyk0pvphmlvfjc8wsvk4daluz5tgmr4lac","sender_on_other_chain":"senderOnOtherChain","time_lock":"50","timestamp":"1580000000","to":"cosmos1vewsdxxmeraett7ztsaym88jsrv85kzm8ekjsg"}}`
-	require.Equal(t, expected, string(res))
+func (suite *MsgTestSuite) TestMsgGetSigners() {
+	senderInArray := []sdk.AccAddress{suite.sender}
+	t := suite.T()
+	require.Equal(t, senderInArray, suite.msgRefund.GetSigners(), "Invalid refund message signers")
+	require.Equal(t, senderInArray, suite.msgTransfer.GetSigners(), "Invalid transfer message signers")
+	require.Equal(t, senderInArray, suite.msgCreate.GetSigners(), "Invalid create message signers")
+	require.Equal(t, senderInArray, suite.msgUpdate.GetSigners(), "Invalid update message signers")
 }
 
-// TestMsgCreateHTLCGetSigners tests GetSigners for MsgCreateHTLC
-func TestMsgCreateHTLCGetSigners(t *testing.T) {
-	msg := types.NewMsgCreateHTLC(senderStr, recipientStr, receiverOnOtherChain, senderOnOtherChain, amount, hashLockStr, timestamp, timeLock, notTransfer)
-	res := msg.GetSigners()
-
-	expected := "[0A367B92CF0B037DFD89960EE832D56F7FC15168]"
-	require.Equal(t, expected, fmt.Sprintf("%v", res))
-}
-
-// TestNewMsgClaimHTLC tests constructor for MsgClaimHTLC
-func TestNewMsgClaimHTLC(t *testing.T) {
-	msg := types.NewMsgClaimHTLC(senderStr, idStr, secretStr)
-
-	require.Equal(t, senderStr, msg.Sender)
-	require.Equal(t, secretStr, msg.Secret)
-	require.Equal(t, idStr, msg.Id)
-}
-
-// TestMsgClaimHTLCRoute tests Route for MsgClaimHTLC
-func TestMsgClaimHTLCRoute(t *testing.T) {
-	msg := types.NewMsgClaimHTLC(senderStr, idStr, secretStr)
-	require.Equal(t, "htlc", msg.Route())
-}
-
-// TestMsgClaimHTLCType tests Type for MsgClaimHTLC
-func TestMsgClaimHTLCType(t *testing.T) {
-	msg := types.NewMsgClaimHTLC(senderStr, idStr, secret.String())
-	require.Equal(t, "claim_htlc", msg.Type())
-}
-
-// TestMsgClaimHTLCValidation tests ValidateBasic for MsgClaimHTLC
-func TestMsgClaimHTLCValidation(t *testing.T) {
-	invalidID := "0x"
-	invalidSecret := "0x"
-
-	testMsgs := []types.MsgClaimHTLC{
-		types.NewMsgClaimHTLC(senderStr, idStr, secret.String()),     // valid msg
-		types.NewMsgClaimHTLC(emptyAddr, idStr, secret.String()),     // missing sender
-		types.NewMsgClaimHTLC(senderStr, invalidID, secret.String()), // invalid id
-		types.NewMsgClaimHTLC(senderStr, idStr, invalidSecret),       // invalid secret
-	}
-
-	testCases := []struct {
-		msg     types.MsgClaimHTLC
-		expPass bool
-		errMsg  string
-	}{
-		{testMsgs[0], true, "valid msg"},
-		{testMsgs[1], false, "missing sender"},
-		{testMsgs[2], false, "invalid id"},
-		{testMsgs[3], false, "invalid secret"},
-	}
-
-	for i, tc := range testCases {
-		err := tc.msg.ValidateBasic()
-		if tc.expPass {
-			require.NoError(t, err, "Msg %d failed: %v", i, err)
-		} else {
-			require.Error(t, err, "Invalid Msg %d passed: %s", i, tc.errMsg)
-		}
-	}
-}
-
-// TestMsgClaimHTLCGetSignBytes tests GetSignBytes for MsgClaimHTLC
-func TestMsgClaimHTLCGetSignBytes(t *testing.T) {
-	msg := types.NewMsgClaimHTLC(senderStr, idStr, secretStr)
-	res := msg.GetSignBytes()
-
-	expected := `{"type":"irismod/htlc/MsgClaimHTLC","value":{"id":"B94EFE2C859EDADE7F3F6CAF5D7A1CE388D65B9E63CB6CE0B824117F117695A7","secret":"2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B","sender":"cosmos1pgm8hyk0pvphmlvfjc8wsvk4daluz5tgmr4lac"}}`
-	require.Equal(t, expected, string(res))
-}
-
-// TestMsgClaimHTLCGetSigners tests GetSigners for MsgClaimHTLC
-func TestMsgClaimHTLCGetSigners(t *testing.T) {
-	msg := types.NewMsgClaimHTLC(senderStr, idStr, secretStr)
-	res := msg.GetSigners()
-
-	expected := "[0A367B92CF0B037DFD89960EE832D56F7FC15168]"
-	require.Equal(t, expected, fmt.Sprintf("%v", res))
+func TestMsgSuite(t *testing.T) {
+	suite.Run(t, new(MsgTestSuite))
 }

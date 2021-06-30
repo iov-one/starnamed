@@ -1,8 +1,7 @@
-package keeper_test
+package test
 
 import (
 	"encoding/hex"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -10,89 +9,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/gogo/protobuf/proto"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
+	"github.com/iov-one/starnamed/app"
 	"github.com/iov-one/starnamed/mock"
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
-
-// Assert that TestObject is a TransferableObject
-var _ types.TransferableObject = &TestObject{}
-
-const TypeID_TestObject = 1
-
-type TestObject struct {
-	types.TestObject
-}
-
-func (m *TestObject) PrimaryKey() []byte {
-	return sdk.Uint64ToBigEndian(m.Id)
-}
-
-func (m *TestObject) SecondaryKeys() []crud.SecondaryKey {
-	return make([]crud.SecondaryKey, 0)
-}
-
-func (m *TestObject) GetType() types.TypeID {
-	return TypeID_TestObject
-}
-
-func (m *TestObject) GetObject() crud.Object {
-	return m
-}
-
-func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
-	return m.Owner.Equals(account), nil
-}
-
-func (m *TestObject) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
-	if !m.Owner.Equals(from) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "the object %v does not belong to %v", m.Id, from.String())
-	}
-	m.Owner = to
-	return nil
-}
-
-type NotPossessedTestObject struct {
-	TestObject
-}
-
-func (m *NotPossessedTestObject) IsOwnedBy(sdk.AccAddress) (bool, error) {
-	return true, nil
-}
-
-func (m *NotPossessedTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error {
-	return nil
-}
-
-type ErroredTestObject struct {
-	NotPossessedTestObject
-	nbTransferAllowed int64
-}
-
-func (m *ErroredTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error {
-	if m.nbTransferAllowed > 0 {
-		m.nbTransferAllowed--
-		return nil
-	}
-	return fmt.Errorf("this test object cannot be transfered")
-}
-
-func NewEscrowGenerator(now uint64) *EscrowGenerator {
-	return &EscrowGenerator{now: now}
-}
 
 type EscrowGenerator struct {
 	nextId       uint64
@@ -112,23 +46,23 @@ func (gen *EscrowGenerator) NextObjectID() uint64 {
 	return id
 }
 
-func (gen *EscrowGenerator) NewTestObject(seller sdk.AccAddress) *TestObject {
-	return &TestObject{types.TestObject{
+func (gen *EscrowGenerator) NewTestObject(seller sdk.AccAddress) *types.TestObject {
+	return &types.TestObject{
 		Id:    gen.NextObjectID(),
 		Owner: append([]byte(nil), seller...),
-	}}
+	}
 }
 
-func (gen *EscrowGenerator) NewNotPossessedTestObject() *NotPossessedTestObject {
+func (gen *EscrowGenerator) NewNotPossessedTestObject() *types.NotPossessedTestObject {
 	// this seller address does not matter and is required for the crud store to work properly
-	return &NotPossessedTestObject{*gen.NewTestObject(gen.NewAccAddress())}
+	return &types.NotPossessedTestObject{TestObject: *gen.NewTestObject(gen.NewAccAddress())}
 }
 
-func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *ErroredTestObject {
-	return &ErroredTestObject{*gen.NewNotPossessedTestObject(), nbTransferAllowed}
+func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *types.ErroredTestObject {
+	return &types.ErroredTestObject{NotPossessedTestObject: *gen.NewNotPossessedTestObject(), NbTransferAllowed: nbTransferAllowed}
 }
 
-func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *TestObject) {
+func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *types.TestObject) {
 	obj := gen.NewTestObject(seller)
 	packedObj, err := cdctypes.NewAnyWithValue(obj)
 	if err != nil {
@@ -143,9 +77,9 @@ func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins
 	}, obj
 }
 
-func (gen *EscrowGenerator) NewRandomTestEscrow() (types.Escrow, *TestObject) {
+func (gen *EscrowGenerator) NewRandomTestEscrow() (types.Escrow, *types.TestObject) {
 	seller := gen.NewAccAddress()
-	coins := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(rand.Int64()+1)))
+	coins := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(int64(rand.Uint64()>>1)+1)))
 	return gen.NewTestEscrow(seller, coins, gen.now+1+uint64(rand.Uint32()%5000))
 }
 func (gen *EscrowGenerator) NewAccAddress() sdk.AccAddress {
@@ -172,12 +106,16 @@ func (gen *EscrowGenerator) NewEscrowGenesis(numEscrows int) *types.GenesisState
 	return &types.GenesisState{
 		Escrows:       escrows,
 		LastBlockTime: now,
-		NextEscrowId:  0,
+		NextEscrowId:  gen.GetNextId(),
 	}
 }
 
 func (gen *EscrowGenerator) NowAfter(date uint64) uint64 {
 	return gen.now + date
+}
+
+func (gen *EscrowGenerator) GetNextId() uint64 {
+	return gen.nextId
 }
 
 var TestTimeNow = time.Unix(2000, 0)
@@ -186,14 +124,25 @@ func NewTestCodec() *codec.ProtoCodec {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
 	types.RegisterInterfaces(interfaceRegistry)
 	interfaceRegistry.RegisterImplementations((*types.TransferableObject)(nil),
-		&TestObject{},
+		&types.TestObject{},
+		//TODO: figure out this
+		//&NotPossessedTestObject{},
+		//&ErroredTestObject{},
 	)
 	//Register the test object implementation
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	return cdc
 }
 
-func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins) {
+func SetConfig() {
+
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
+}
+
+func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins, sdk.StoreKey) {
 	cdc := NewTestCodec()
 	// generate store
 	mdb := db.NewMemDB()
@@ -208,7 +157,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 		panic(err)
 	}
 	// create a crud store for the crud objects
-	crudStore := crud.NewStore(cdc, ms.GetKVStore(escrowStoreKey), []byte{1})
+	crudStore := crud.NewStore(cdc, ms.GetKVStore(escrowStoreKey), []byte{4})
 
 	// create mock supply keeper with money on accounts
 	bankMocker := mock.NewSupplyKeeper()
@@ -234,15 +183,15 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	blockedAddr[authtypes.NewModuleAddress(types.ModuleName).String()] = true
 
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), blockedAddr)
-	k.AddStore(TypeID_TestObject, crudStore)
+	k.AddStore(types.TypeIDTestObject, crudStore)
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
-	return k, ctx, crudStore, balances
+	return k, ctx, crudStore, balances, escrowStoreKey
 }
 
 func MustPackToAny(val proto.Message) *cdctypes.Any {
 	any, err := cdctypes.NewAnyWithValue(val)
 	if err != nil {
-		panic(sdkerrors.Wrap(err, "error while converting a value to an any"))
+		panic(errors.Wrap(err, "error while converting a value to an any"))
 	}
 	return any
 }
@@ -259,34 +208,32 @@ func CheckError(t *testing.T, name string, shouldFail bool, err error) {
 	}
 }
 
-func EvaluateTest(t *testing.T, name string, test func() error) {
+func EvaluateTest(t *testing.T, name string, test func(t *testing.T) error) {
 	shouldPanic := strings.Contains(name, "panic")
 	shouldFail := strings.Contains(name, "invalid")
 
-	testFuncWrapped := func() {
-		err := test()
-		CheckError(t, name, shouldFail, err)
+	getWrappedTestFunc := func(t *testing.T) func() {
+		return func() {
+			err := test(t)
+			CheckError(t, name, shouldFail, err)
+		}
 	}
 
-	if shouldPanic {
-		assert.Panics(t, testFuncWrapped, name)
-	} else {
-		assert.NotPanics(t, testFuncWrapped, name)
-	}
+	t.Run(name, func(t *testing.T) {
+		if shouldPanic {
+			assert.Panics(t, getWrappedTestFunc(t), name)
+		} else {
+			assert.NotPanics(t, getWrappedTestFunc(t), name)
+		}
+	})
 }
 
-type BaseKeeperSuite struct {
-	suite.Suite
-	keeper    keeper.Keeper
-	msgServer types.MsgServer
-	ctx       sdk.Context
-	generator *EscrowGenerator
-	store     crud.Store
+func NewEscrowGenerator(now uint64) *EscrowGenerator {
+	return &EscrowGenerator{now: now}
 }
 
-func (s *BaseKeeperSuite) Setup() {
-	s.keeper, s.ctx, s.store, _ = NewTestKeeper(nil)
-	s.keeper.ImportNextID(s.ctx, 1)
-	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
-	s.generator = NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
+func DeleteEscrow(ctx sdk.Context, storeKey sdk.StoreKey, id string) {
+	str := prefix.NewStore(ctx.KVStore(storeKey), keeper.EscrowStoreKey)
+	str.Delete(types.GetEscrowKey(id))
+
 }
