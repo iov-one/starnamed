@@ -70,6 +70,16 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 		return err
 	}
 
+	switch msg.Object.GetCachedValue().(type) {
+	case TransferableObject:
+		break
+	default:
+		return sdkerrors.Wrapf(
+			ErrUnknownObject,
+			"The object should be of type TransferableObject but is of type %T",
+			msg.Object.GetCachedValue(),
+		)
+	}
 	return ValidateObject(msg.Object.GetCachedValue().(TransferableObject), seller)
 }
 
