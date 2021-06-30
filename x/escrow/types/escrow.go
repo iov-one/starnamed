@@ -39,21 +39,17 @@ func (msg *Escrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return nil
 }
 
-// ValidateWithoutDeadline validates the escrow without validating the deadline
-func (e Escrow) ValidateWithoutDeadline() error {
+// ValidateWithoutDeadlineAndObject validates the escrow without validating the deadline and the object
+func (e Escrow) ValidateWithoutDeadlineAndObject() error {
 	if err := ValidateID(e.Id); err != nil {
 		return err
 	}
 	// Validate seller address
-	seller, err := sdk.AccAddressFromBech32(e.Seller)
+	_, err := sdk.AccAddressFromBech32(e.Seller)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
 	}
 
-	// Validate object valid and possessed by the seller
-	if err := ValidateObject(e.GetObject(), seller); err != nil {
-		return err
-	}
 	// Validate price
 	if err := ValidatePrice(e.Price); err != nil {
 		return err
@@ -64,10 +60,18 @@ func (e Escrow) ValidateWithoutDeadline() error {
 
 // Validate validates the escrow
 func (e Escrow) Validate(lastBlockTime uint64) error {
-	// Validate all fields espect dedaline
-	if err := e.ValidateWithoutDeadline(); err != nil {
+	// Validate all fields expect deadline and object
+	if err := e.ValidateWithoutDeadlineAndObject(); err != nil {
 		return err
 	}
+
+	// Validate object valid and possessed by the seller
+	// The seller address is already validated
+	seller, _ := sdk.AccAddressFromBech32(e.Seller)
+	if err := ValidateObject(e.GetObject(), seller); err != nil {
+		return err
+	}
+
 	// Validate deadline
 	return ValidateDeadline(e.Deadline, lastBlockTime)
 }

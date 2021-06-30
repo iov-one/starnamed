@@ -41,12 +41,15 @@ func ValidateGenesis(data GenesisState) error {
 			return fmt.Errorf("found escrow ID greater than next escrow ID : %v", escrow.Id)
 		}
 
-		if escrow.Deadline <= data.LastBlockTime && escrow.State != EscrowState_Expired {
-			return sdkerrors.Wrap(ErrEscrowExpired, escrow.Id)
+		// The escrow state must be in sync with the deadline
+		if (escrow.Deadline <= data.LastBlockTime) != (escrow.State == EscrowState_Expired) {
+			return sdkerrors.Wrapf(ErrEscrowExpired, "found an escrow with inconsistent state and deadline: %v", escrow.Id)
 		}
 
+		//TODO: find a way to validate object ownership ?
+
 		// Validate the escrow fields
-		if err := escrow.ValidateWithoutDeadline(); err != nil {
+		if err := escrow.ValidateWithoutDeadlineAndObject(); err != nil {
 			return err
 		}
 
