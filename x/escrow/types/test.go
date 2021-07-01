@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
@@ -30,38 +28,25 @@ func (m *TestObject) GetObject() crud.Object {
 }
 
 func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
+	// If Owner is nil, then this tests object belongs to anyone
+	if m.Owner == nil {
+		return true, nil
+	}
 	return m.Owner.Equals(account), nil
 }
 
 func (m *TestObject) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
-	if !m.Owner.Equals(from) {
+	if m.NumAllowedTransfers == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "this test object cannot be transferred")
+	} else if m.NumAllowedTransfers > 0 {
+		m.NumAllowedTransfers--
+	}
+
+	if owned, err := m.IsOwnedBy(from); !owned || err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "the object %v does not belong to %v", m.Id, from.String())
 	}
-	m.Owner = to
-	return nil
-}
-
-type NotPossessedTestObject struct {
-	TestObject
-}
-
-func (m *NotPossessedTestObject) IsOwnedBy(sdk.AccAddress) (bool, error) {
-	return true, nil
-}
-
-func (m *NotPossessedTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error {
-	return nil
-}
-
-type ErroredTestObject struct {
-	NotPossessedTestObject
-	NbTransferAllowed int64
-}
-
-func (m *ErroredTestObject) Transfer(sdk.AccAddress, sdk.AccAddress) error {
-	if m.NbTransferAllowed > 0 {
-		m.NbTransferAllowed--
-		return nil
+	if m.Owner != nil {
+		m.Owner = to
 	}
-	return fmt.Errorf("this test object cannot be transfered")
+	return nil
 }

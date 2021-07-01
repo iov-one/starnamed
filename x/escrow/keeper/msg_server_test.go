@@ -71,8 +71,9 @@ func (s *MsgServerTestSuite) TestAll() {
 		case *types.TestObject:
 			// Make a copy of the object, to avoid to alter the original one
 			cpy := &types.TestObject{
-				Id:    obj.Id,
-				Owner: append([]byte{}, obj.Owner...),
+				Id:                  obj.Id,
+				Owner:               append([]byte{}, obj.Owner...),
+				NumAllowedTransfers: obj.NumAllowedTransfers,
 			}
 			// returns ErrAlreadyExists if the object already exists and no other possible error
 			err := s.store.Create(cpy)

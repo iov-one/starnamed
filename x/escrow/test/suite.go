@@ -48,18 +48,20 @@ func (gen *EscrowGenerator) NextObjectID() uint64 {
 
 func (gen *EscrowGenerator) NewTestObject(seller sdk.AccAddress) *types.TestObject {
 	return &types.TestObject{
-		Id:    gen.NextObjectID(),
-		Owner: append([]byte(nil), seller...),
+		Id:                  gen.NextObjectID(),
+		Owner:               append([]byte(nil), seller...),
+		NumAllowedTransfers: -1,
 	}
 }
 
-func (gen *EscrowGenerator) NewNotPossessedTestObject() *types.NotPossessedTestObject {
-	// this seller address does not matter and is required for the crud store to work properly
-	return &types.NotPossessedTestObject{TestObject: *gen.NewTestObject(gen.NewAccAddress())}
+func (gen *EscrowGenerator) NewNotPossessedTestObject() *types.TestObject {
+	return gen.NewTestObject(nil)
 }
 
-func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *types.ErroredTestObject {
-	return &types.ErroredTestObject{NotPossessedTestObject: *gen.NewNotPossessedTestObject(), NbTransferAllowed: nbTransferAllowed}
+func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *types.TestObject {
+	testObj := gen.NewNotPossessedTestObject()
+	testObj.NumAllowedTransfers = nbTransferAllowed
+	return testObj
 }
 
 func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *types.TestObject) {
@@ -118,16 +120,13 @@ func (gen *EscrowGenerator) GetNextId() uint64 {
 	return gen.nextId
 }
 
-var TestTimeNow = time.Unix(2000, 0)
+var TimeNow = time.Unix(2000, 0)
 
 func NewTestCodec() *codec.ProtoCodec {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
 	types.RegisterInterfaces(interfaceRegistry)
 	interfaceRegistry.RegisterImplementations((*types.TransferableObject)(nil),
 		&types.TestObject{},
-		//TODO: figure out this
-		//&NotPossessedTestObject{},
-		//&ErroredTestObject{},
 	)
 	//Register the test object implementation
 	cdc := codec.NewProtoCodec(interfaceRegistry)
@@ -174,7 +173,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	// Create mock auth keeper
 	authMocker := mock.NewAccountKeeper()
 	// create context
-	ctx := sdk.NewContext(ms, tmproto.Header{Time: TestTimeNow}, true, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, tmproto.Header{Time: TimeNow}, true, log.NewNopLogger())
 	// Create param subspace
 	paramsSubspace := paramstypes.NewSubspace(cdc, nil, escrowStoreKey, sdk.NewKVStoreKey("t"+types.StoreKey), types.ModuleName)
 

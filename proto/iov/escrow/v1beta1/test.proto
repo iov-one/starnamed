@@ -11,4 +11,5 @@ option (gogoproto.goproto_getters_all) = false;
 message TestObject {
     uint64 id = 1;
     bytes owner = 2 [ (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress" ];
+    int64 numAllowedTransfers = 3;
 }

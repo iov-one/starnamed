@@ -1581,6 +1581,7 @@ Escrow defines the struct of an escrow
 | ----- | ---- | ----- | ----------- |
 | `id` | [uint64](#uint64) |  |  |
 | `owner` | [bytes](#bytes) |  |  |
+| `numAllowedTransfers` | [int64](#int64) |  |  |
 
 
 
