@@ -1269,6 +1269,11 @@ Fees contains different type of fees to calculate coins to detract when processi
 | `transfer_domain_closed` | [string](#string) |  | transfer_domain_closed is the fee to be paid to transfer a closed domain |
 | `transfer_domain_open` | [string](#string) |  | transfer_domain_open is the fee to be paid to transfer open domains |
 | `renew_domain_open` | [string](#string) |  | renew_domain_open is the fee to be paid to renew an open domain |
+| `create_account_escrow` | [string](#string) |  | create_account_escrow is the fee to be paid to create an escrow for an account |
+| `create_domain_escrow` | [string](#string) |  | create_domain_escrow is the fee to be paid to create an escrow for a domain |
+| `update_escrow` | [string](#string) |  | update_escrow is the fee to be paid to update an escrow |
+| `transfer_to_escrow` | [string](#string) |  | transfer_to_escrow is the fee to be paid to transfer coins to an escrow |
+| `refund_escrow` | [string](#string) |  | refund_escrow is the fee to be paid to refund the account or domain placed in an escrow |
 
 
 
