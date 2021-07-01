@@ -37,7 +37,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	app := app.Setup(false)
 	//suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{Height: 1, Time: tmtime.Now()})
 
-	suite.cdc = app.AppCodec()
+	suite.cdc = test.NewTestCodec()
 	suite.app = app
 	suite.gen = test.NewEscrowGenerator(uint64(suite.ctx.BlockTime().Unix()))
 }

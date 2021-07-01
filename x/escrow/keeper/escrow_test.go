@@ -71,7 +71,7 @@ func newSavedObject(generator *test.EscrowGenerator, seller sdk.AccAddress, stor
 	return obj
 }
 
-func (s *EscrowTestSuite) createErroredObject(price sdk.Coins) string {
+func (s *EscrowTestSuite) createErroredObjectEscrow(price sdk.Coins) string {
 	// Create an object whose second transfer would fail
 	obj := s.generator.NewErroredTestObject(1)
 	if err := s.store.Create(obj); err != nil {
@@ -363,7 +363,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 		testEscrows[name] = id
 	}
 
-	invalidObjectEscrowId := s.createErroredObject(defaultPrice)
+	invalidObjectEscrowId := s.createErroredObjectEscrow(defaultPrice)
 
 	checkDefaultValidTransfer := func(before, after assetState, name string) {
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance.Add(defaultPrice...), "Buyer balance on test %s", name)
@@ -533,7 +533,7 @@ func (s *EscrowTestSuite) TestRefund() {
 
 	s.keeper.SetLastBlockTime(s.ctx, lastBlockTime)
 
-	invalidObjectEscrowId := s.createErroredObject(price)
+	invalidObjectEscrowId := s.createErroredObjectEscrow(price)
 
 	validRefund := func(before, after assetState) {
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance)
