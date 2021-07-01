@@ -6,6 +6,11 @@ import (
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
 
+type MsgWithFeePayer interface {
+	sdk.Msg
+	GetFeePayer() sdk.AccAddress
+}
+
 type TypeID uint64
 
 type TransferableObject interface {

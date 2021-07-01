@@ -76,13 +76,6 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/escrow"
-	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
-	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
-	"github.com/iov-one/starnamed/x/starname"
-	"github.com/iov-one/starnamed/x/wasm"
-	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -91,6 +84,14 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/escrow"
+	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/iov-one/starnamed/x/starname"
+	"github.com/iov-one/starnamed/x/wasm"
+	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -400,6 +401,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.getSubspace(escrowtypes.ModuleName),
 		app.accountKeeper,
 		app.bankKeeper,
+		app.configKeeper,
 		app.ModuleAccountAddrs(),
 	)
 	// starname keeper

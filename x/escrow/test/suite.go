@@ -24,6 +24,7 @@ import (
 
 	"github.com/iov-one/starnamed/app"
 	"github.com/iov-one/starnamed/mock"
+	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
@@ -148,9 +149,13 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	// generate multistore
 	ms := store.NewCommitMultiStore(mdb)
 	// generate store keys
-	escrowStoreKey := sdk.NewKVStoreKey(types.StoreKey) // domain module store key
+	escrowStoreKey := sdk.NewKVStoreKey(types.StoreKey)                // domain module store key
+	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
+
 	// generate sub store for each module referenced by the keeper
-	ms.MountStoreWithDB(escrowStoreKey, sdk.StoreTypeIAVL, mdb) // mount domain module
+	ms.MountStoreWithDB(escrowStoreKey, sdk.StoreTypeIAVL, mdb)        // mount domain module
+	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount config module
+
 	// test no errors
 	if err := ms.LoadLatestVersion(); err != nil {
 		panic(err)
@@ -172,16 +177,23 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	}
 	// Create mock auth keeper
 	authMocker := mock.NewAccountKeeper()
+	// Create config keeper
+	configKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
 	// create context
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: TimeNow}, true, log.NewNopLogger())
 	// Create param subspace
 	paramsSubspace := paramstypes.NewSubspace(cdc, nil, escrowStoreKey, sdk.NewKVStoreKey("t"+types.StoreKey), types.ModuleName)
 
+	// Set default fees
+	defaultFees := configuration.NewFees()
+	defaultFees.SetDefaults("tiov")
+	configKeeper.SetFees(ctx, defaultFees)
+
 	// register blocked addresses
 	blockedAddr := make(map[string]bool)
 	blockedAddr[authtypes.NewModuleAddress(types.ModuleName).String()] = true
 
-	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), blockedAddr)
+	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), configKeeper, blockedAddr)
 	k.AddStore(types.TypeIDTestObject, crudStore)
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 	return k, ctx, crudStore, balances, escrowStoreKey

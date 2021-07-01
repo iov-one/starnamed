@@ -31,13 +31,14 @@ var (
 
 // Keeper defines the escrow keeper
 type Keeper struct {
-	storeKey      sdk.StoreKey
-	cdc           codec.Marshaler
-	paramSpace    paramstypes.Subspace
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	storeHolders  map[types.TypeID]types.StoreHolder
-	blockedAddrs  map[string]bool
+	storeKey            sdk.StoreKey
+	cdc                 codec.Marshaler
+	paramSpace          paramstypes.Subspace
+	accountKeeper       types.AccountKeeper
+	bankKeeper          types.BankKeeper
+	configurationKeeper types.ConfigurationKeeper
+	storeHolders        map[types.TypeID]types.StoreHolder
+	blockedAddrs        map[string]bool
 }
 
 // NewKeeper creates a new escrow Keeper instance
@@ -47,6 +48,7 @@ func NewKeeper(
 	paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	configurationKeeper types.ConfigurationKeeper,
 	blockedAddrs map[string]bool,
 ) Keeper {
 	// ensure the escrow module account is set
@@ -55,13 +57,14 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:      key,
-		cdc:           cdc,
-		paramSpace:    paramSpace,
-		accountKeeper: accountKeeper,
-		bankKeeper:    bankKeeper,
-		storeHolders:  make(map[types.TypeID]types.StoreHolder),
-		blockedAddrs:  blockedAddrs,
+		storeKey:            key,
+		cdc:                 cdc,
+		paramSpace:          paramSpace,
+		accountKeeper:       accountKeeper,
+		bankKeeper:          bankKeeper,
+		configurationKeeper: configurationKeeper,
+		storeHolders:        make(map[types.TypeID]types.StoreHolder),
+		blockedAddrs:        blockedAddrs,
 	}
 }
 

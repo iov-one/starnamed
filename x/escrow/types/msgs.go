@@ -24,9 +24,50 @@ var (
 	_ sdk.Msg = &MsgTransferToEscrow{}
 )
 
+func validateFeePayer(feePayer string) error {
+	if len(feePayer) == 0 {
+		return nil
+	}
+	_, err := sdk.AccAddressFromBech32(feePayer)
+	if err != nil {
+		return sdkerrors.Wrap(err, "invalid fee payer address")
+	}
+	return err
+}
+
+func getSigners(sender, feePayer string) []sdk.AccAddress {
+	senderAddr, err := sdk.AccAddressFromBech32(sender)
+	if err != nil {
+		panic(err)
+	}
+	if len(feePayer) == 0 {
+		return []sdk.AccAddress{senderAddr}
+	}
+	feePayerAddr, err := sdk.AccAddressFromBech32(feePayer)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{senderAddr, feePayerAddr}
+}
+
+func getFeePayer(sender, feePayer string) sdk.AccAddress {
+	var err error
+	var feePayerAddr sdk.AccAddress
+	if len(feePayer) == 0 {
+		feePayerAddr, err = sdk.AccAddressFromBech32(sender)
+	} else {
+		feePayerAddr, err = sdk.AccAddressFromBech32(feePayer)
+	}
+	if err != nil {
+		panic(err)
+	}
+	return feePayerAddr
+}
+
 // NewMsgCreateEscrow creates a new MsgCreateEscrow instance
 func NewMsgCreateEscrow(
 	seller string,
+	feePayer string,
 	object TransferableObject,
 	price sdk.Coins,
 	deadline uint64,
@@ -37,6 +78,7 @@ func NewMsgCreateEscrow(
 	}
 	return MsgCreateEscrow{
 		Seller:   seller,
+		FeePayer: feePayer,
 		Object:   packedObj,
 		Price:    price,
 		Deadline: deadline,
@@ -66,6 +108,10 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
 	}
 
+	if err := validateFeePayer(msg.FeePayer); err != nil {
+		return err
+	}
+
 	if err := ValidatePrice(msg.Price); err != nil {
 		return err
 	}
@@ -89,13 +135,14 @@ func (msg MsgCreateEscrow) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// GetFeePayer implements MsgWithFeePayer
+func (msg MsgCreateEscrow) GetFeePayer() sdk.AccAddress {
+	return getFeePayer(msg.Seller, msg.FeePayer)
+}
+
 // GetSigners implements Msg
 func (msg MsgCreateEscrow) GetSigners() []sdk.AccAddress {
-	seller, err := sdk.AccAddressFromBech32(msg.Seller)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{seller}
+	return getSigners(msg.Seller, msg.FeePayer)
 }
 
 // -----------------------------------------------------------------------------
@@ -113,6 +160,10 @@ func (msg MsgRefundEscrow) ValidateBasic() error {
 		return err
 	}
 
+	if err := validateFeePayer(msg.FeePayer); err != nil {
+		return err
+	}
+
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
@@ -126,13 +177,14 @@ func (msg MsgRefundEscrow) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// GetFeePayer implements MsgWithFeePayer
+func (msg MsgRefundEscrow) GetFeePayer() sdk.AccAddress {
+	return getFeePayer(msg.Sender, msg.FeePayer)
+}
+
 // GetSigners implements Msg
 func (msg MsgRefundEscrow) GetSigners() []sdk.AccAddress {
-	seller, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{seller}
+	return getSigners(msg.Sender, msg.FeePayer)
 }
 
 // -----------------------------------------------------------------------------
@@ -152,6 +204,10 @@ func (msg MsgUpdateEscrow) ValidateBasic() error {
 
 	if _, err := sdk.AccAddressFromBech32(msg.Updater); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid updater address (%s)", err)
+	}
+
+	if err := validateFeePayer(msg.FeePayer); err != nil {
+		return err
 	}
 
 	var hasUpdate = false
@@ -187,13 +243,14 @@ func (msg MsgUpdateEscrow) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// GetFeePayer implements MsgWithFeePayer
+func (msg MsgUpdateEscrow) GetFeePayer() sdk.AccAddress {
+	return getFeePayer(msg.Updater, msg.FeePayer)
+}
+
 // GetSigners implements Msg
 func (msg MsgUpdateEscrow) GetSigners() []sdk.AccAddress {
-	updater, err := sdk.AccAddressFromBech32(msg.Updater)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{updater}
+	return getSigners(msg.Updater, msg.FeePayer)
 }
 
 // -----------------------------------------------------------------------------
@@ -207,6 +264,10 @@ func (msg MsgTransferToEscrow) Type() string { return TypeMsgTransferToEscrow }
 // ValidateBasic implements Msg
 func (msg MsgTransferToEscrow) ValidateBasic() error {
 	if err := ValidateID(msg.Id); err != nil {
+		return err
+	}
+
+	if err := validateFeePayer(msg.FeePayer); err != nil {
 		return err
 	}
 
@@ -224,11 +285,12 @@ func (msg MsgTransferToEscrow) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// GetFeePayer implements MsgWithFeePayer
+func (msg MsgTransferToEscrow) GetFeePayer() sdk.AccAddress {
+	return getFeePayer(msg.Sender, msg.FeePayer)
+}
+
 // GetSigners implements Msg
 func (msg MsgTransferToEscrow) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
+	return getSigners(msg.Sender, msg.FeePayer)
 }

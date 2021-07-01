@@ -27,9 +27,10 @@ service Msg {
 // MsgCreateEscrow defines a message to create an escrow
 message MsgCreateEscrow {
     string seller = 1;
-    google.protobuf.Any object = 2 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
-    repeated cosmos.base.v1beta1.Coin price = 3 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
-    uint64 deadline = 4;
+    string fee_payer = 2;
+    google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
+    repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    uint64 deadline = 5;
 }
 
 // MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
@@ -41,10 +42,10 @@ message MsgCreateEscrowResponse {
 message MsgUpdateEscrow {
     string id = 1;
     string updater = 2;
-    string seller = 3;
-    //FIXME: this generates invalid go code that needs to be patched after each code generation
-    repeated cosmos.base.v1beta1.Coin price = 4[ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
-    uint64 deadline = 5;
+    string fee_payer = 3;
+    string seller = 4;
+    repeated cosmos.base.v1beta1.Coin price = 5[ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    uint64 deadline = 6;
 }
 
 // MsgUpdateEscrowResponse defines the Msg/UpdateEscrow response type
@@ -53,7 +54,8 @@ message MsgUpdateEscrowResponse {}
 message MsgTransferToEscrow {
     string id = 1;
     string sender = 2;
-    repeated cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    string fee_payer = 3;
+    repeated cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
 }
 
 message MsgTransferToEscrowResponse {
@@ -62,6 +64,7 @@ message MsgTransferToEscrowResponse {
 message MsgRefundEscrow {
     string id = 1;
     string sender = 2;
+    string fee_payer = 3;
 }
 
 message MsgRefundEscrowResponse {}

@@ -9,8 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/spf13/cobra"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -51,6 +52,11 @@ func GetCmdUpdateEscrow() *cobra.Command {
 				return fmt.Errorf("a sender address must be provided with the --from flag")
 			}
 
+			feePayer, err := cmd.Flags().GetString(FlagFeePayer)
+			if err != nil {
+				return err
+			}
+
 			seller, err := cmd.Flags().GetString(FlagSeller)
 			if err != nil {
 				return err
@@ -84,6 +90,7 @@ func GetCmdUpdateEscrow() *cobra.Command {
 			msg := types.MsgUpdateEscrow{
 				Id:       args[0],
 				Updater:  updater,
+				FeePayer: feePayer,
 				Seller:   seller,
 				Price:    priceCoins,
 				Deadline: deadline,
@@ -121,15 +128,21 @@ func GetCmdTransferToEscrow() *cobra.Command {
 				return fmt.Errorf("a sender address must be provided with the --from flag")
 			}
 
+			feePayer, err := cmd.Flags().GetString(FlagFeePayer)
+			if err != nil {
+				return err
+			}
+
 			amount, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return sdkerrors.Wrap(err, "Invalid amount format")
 			}
 
 			msg := types.MsgTransferToEscrow{
-				Id:     args[0],
-				Sender: sender,
-				Amount: amount,
+				Id:       args[0],
+				Sender:   sender,
+				FeePayer: feePayer,
+				Amount:   amount,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -139,6 +152,7 @@ func GetCmdTransferToEscrow() *cobra.Command {
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
+	addCommonFlags(cmd.Flags())
 
 	return cmd
 }
@@ -161,9 +175,15 @@ func GetCmdRefundEscrow() *cobra.Command {
 				return fmt.Errorf("a sender address must be provided with the --from flag")
 			}
 
+			feePayer, err := cmd.Flags().GetString(FlagFeePayer)
+			if err != nil {
+				return err
+			}
+
 			msg := types.MsgRefundEscrow{
-				Id:     args[0],
-				Sender: sender,
+				Id:       args[0],
+				Sender:   sender,
+				FeePayer: feePayer,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -173,6 +193,7 @@ func GetCmdRefundEscrow() *cobra.Command {
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
+	addCommonFlags(cmd.Flags())
 
 	return cmd
 }

@@ -13,6 +13,10 @@ import (
 
 func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.TransferableObject) (*types.MsgCreateEscrow, error) {
 	seller := ctx.GetFromAddress().String()
+	feePayer, err := verifyErrAndNonEmpty(cmd, FlagFeePayer)
+	if err != nil {
+		return nil, err
+	}
 
 	priceStr, err := verifyErrAndNonEmpty(cmd, FlagPrice)
 	if err != nil {
@@ -33,7 +37,7 @@ func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.Transf
 		return nil, err
 	}
 
-	msg := types.NewMsgCreateEscrow(seller, obj, price, deadline)
+	msg := types.NewMsgCreateEscrow(seller, feePayer, obj, price, deadline)
 	return &msg, nil
 }
 

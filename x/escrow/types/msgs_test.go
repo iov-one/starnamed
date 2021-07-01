@@ -30,7 +30,7 @@ func (suite *MsgTestSuite) SetupTest() {
 	validPrice := sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(50)))
 	validObject := suite.gen.NewTestObject(suite.sender)
 
-	suite.msgCreate = types.NewMsgCreateEscrow(suite.sender.String(), validObject, validPrice, suite.gen.NowAfter(0))
+	suite.msgCreate = types.NewMsgCreateEscrow(suite.sender.String(), "", validObject, validPrice, suite.gen.NowAfter(0))
 	suite.msgRefund = types.MsgRefundEscrow{
 		Id:     validId,
 		Sender: suite.sender.String(),
@@ -113,12 +113,24 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 			msg:  &suite.msgCreate,
 		},
 		{
+			name: "create: valid with fee payer",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{FeePayer: suite.sender.String()}),
+		},
+		{
 			name: "create: invalid seller address: invalid bech32",
 			msg:  completeMsgCreate(types.MsgCreateEscrow{Seller: invalidBech32Addr}),
 		},
 		{
 			name: "create: invalid seller address: invalid prefix",
 			msg:  completeMsgCreate(types.MsgCreateEscrow{Seller: invalidPrefixAddr}),
+		},
+		{
+			name: "create: invalid fee payer: invalid bech32",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{FeePayer: invalidBech32Addr}),
+		},
+		{
+			name: "create: invalid fee payer: invalid prefix",
+			msg:  completeMsgCreate(types.MsgCreateEscrow{FeePayer: invalidPrefixAddr}),
 		},
 		{
 			name: "create: invalid price: negative",
@@ -135,6 +147,10 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 		{
 			name: "update: valid",
 			msg:  &suite.msgUpdate,
+		},
+		{
+			name: "update: valid with fee payer",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{FeePayer: suite.sender.String(), Seller: suite.sender.String()}),
 		},
 		{
 			name: "update: invalid empty update",
@@ -157,6 +173,14 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Updater: invalidPrefixAddr}),
 		},
 		{
+			name: "update: invalid fee payer: invalid bech32",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{FeePayer: invalidBech32Addr}),
+		},
+		{
+			name: "update: invalid fee payer: invalid prefix",
+			msg:  completeMsgUpdate(types.MsgUpdateEscrow{FeePayer: invalidPrefixAddr}),
+		},
+		{
 			name: "update: invalid price: negative",
 			msg:  completeMsgUpdate(types.MsgUpdateEscrow{Price: negativePrice}),
 		},
@@ -173,12 +197,24 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 			msg:  &suite.msgTransfer,
 		},
 		{
+			name: "transfer: valid with fee payer",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{FeePayer: suite.sender.String()}),
+		},
+		{
 			name: "transfer: invalid sender: invalid bech32",
 			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Sender: invalidBech32Addr}),
 		},
 		{
 			name: "transfer: invalid sender: invalid prefix",
 			msg:  completeMsgTransfer(types.MsgTransferToEscrow{Sender: invalidPrefixAddr}),
+		},
+		{
+			name: "transfer: invalid fee payer: invalid bech32",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{FeePayer: invalidBech32Addr}),
+		},
+		{
+			name: "transfer: invalid fee payer: invalid prefix",
+			msg:  completeMsgTransfer(types.MsgTransferToEscrow{FeePayer: invalidPrefixAddr}),
 		},
 		{
 			name: "transfer: invalid amount: negative",
@@ -197,12 +233,24 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 			msg:  &suite.msgRefund,
 		},
 		{
+			name: "refund: valid with fee payer",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{FeePayer: suite.sender.String()}),
+		},
+		{
 			name: "refund: invalid seller: not bech32",
 			msg:  completeMsgRefund(types.MsgRefundEscrow{Sender: invalidBech32Addr}),
 		},
 		{
 			name: "refund: invalid seller: invalid prefix",
 			msg:  completeMsgRefund(types.MsgRefundEscrow{Sender: invalidPrefixAddr}),
+		},
+		{
+			name: "refund: invalid fee payer: invalid bech32",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{FeePayer: invalidBech32Addr}),
+		},
+		{
+			name: "refund: invalid fee payer: invalid prefix",
+			msg:  completeMsgRefund(types.MsgRefundEscrow{FeePayer: invalidPrefixAddr}),
 		},
 		{
 			name: "refund: invalid escrow ID: not hexadecimal",
@@ -219,13 +267,39 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 	}
 }
 
-func (suite *MsgTestSuite) TestMsgGetSigners() {
+func (suite *MsgTestSuite) TestMsgGetSignersAndGetFeePayer() {
 	senderInArray := []sdk.AccAddress{suite.sender}
 	t := suite.T()
 	require.Equal(t, senderInArray, suite.msgRefund.GetSigners(), "Invalid refund message signers")
 	require.Equal(t, senderInArray, suite.msgTransfer.GetSigners(), "Invalid transfer message signers")
 	require.Equal(t, senderInArray, suite.msgCreate.GetSigners(), "Invalid create message signers")
 	require.Equal(t, senderInArray, suite.msgUpdate.GetSigners(), "Invalid update message signers")
+	require.Equal(t, suite.sender, suite.msgRefund.GetFeePayer(), "Invalid refund message fee payer")
+	require.Equal(t, suite.sender, suite.msgTransfer.GetFeePayer(), "Invalid transfer message fee payer")
+	require.Equal(t, suite.sender, suite.msgCreate.GetFeePayer(), "Invalid create message fee payer")
+	require.Equal(t, suite.sender, suite.msgUpdate.GetFeePayer(), "Invalid update message fee payer")
+
+	feePayer := suite.gen.NewAccAddress()
+	senderWithFeePayer := []sdk.AccAddress{suite.sender, feePayer}
+
+	msgRefundWithFeePayer := suite.msgRefund
+	msgRefundWithFeePayer.FeePayer = feePayer.String()
+	msgCreateWithFeePayer := suite.msgCreate
+	msgCreateWithFeePayer.FeePayer = feePayer.String()
+	msgUpdateWithFeePayer := suite.msgUpdate
+	msgUpdateWithFeePayer.FeePayer = feePayer.String()
+	msgTransferWithFeePayer := suite.msgTransfer
+	msgTransferWithFeePayer.FeePayer = feePayer.String()
+
+	require.Equal(t, senderWithFeePayer, msgRefundWithFeePayer.GetSigners(), "Invalid refund message signers with fee payer")
+	require.Equal(t, senderWithFeePayer, msgTransferWithFeePayer.GetSigners(), "Invalid transfer message signers with fee payer")
+	require.Equal(t, senderWithFeePayer, msgCreateWithFeePayer.GetSigners(), "Invalid create message signers with fee payer")
+	require.Equal(t, senderWithFeePayer, msgUpdateWithFeePayer.GetSigners(), "Invalid update message signers with fee payer")
+	require.Equal(t, feePayer, msgRefundWithFeePayer.GetFeePayer(), "Invalid refund message fee payer with fee payer")
+	require.Equal(t, feePayer, msgTransferWithFeePayer.GetFeePayer(), "Invalid transfer message fee payer with fee payer")
+	require.Equal(t, feePayer, msgCreateWithFeePayer.GetFeePayer(), "Invalid create message fee payer with fee payer")
+	require.Equal(t, feePayer, msgUpdateWithFeePayer.GetFeePayer(), "Invalid update message fee payer with fee payer")
+
 }
 
 func TestMsgSuite(t *testing.T) {

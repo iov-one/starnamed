@@ -48,6 +48,7 @@ func updateEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		msg := types.MsgUpdateEscrow{
 			Id:       id,
 			Updater:  req.Updater,
+			FeePayer: req.FeePayer,
 			Seller:   req.Seller,
 			Price:    req.Price,
 			Deadline: req.Deadline,
@@ -79,9 +80,10 @@ func transferToEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := types.MsgTransferToEscrow{
-			Id:     id,
-			Sender: req.Sender,
-			Amount: req.Amount,
+			Id:       id,
+			Sender:   req.Sender,
+			FeePayer: req.FeePayer,
+			Amount:   req.Amount,
 		}
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -110,8 +112,9 @@ func refundEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := types.MsgRefundEscrow{
-			Id:     id,
-			Sender: req.Sender,
+			Id:       id,
+			Sender:   req.Sender,
+			FeePayer: req.FeePayer,
 		}
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -134,7 +137,7 @@ func createEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewMsgCreateEscrow(req.Seller, req.Object, req.Price, req.Deadline)
+		msg := types.NewMsgCreateEscrow(req.Seller, req.FeePayer, req.Object, req.Price, req.Deadline)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 			return

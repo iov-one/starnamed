@@ -2,15 +2,14 @@ package cli
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/spf13/cobra"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
 // GetQueryCmd returns the cli query commands for the module.
@@ -28,13 +27,10 @@ func GetQueryCmd() *cobra.Command {
 				return err
 			}
 
-			id, err := hex.DecodeString(args[0])
-			if err != nil {
-				return err
-			}
+			id := args[0]
 
 			queryClient := types.NewQueryClient(clientCtx)
-			param := types.QueryEscrowRequest{Id: tmbytes.HexBytes(id).String()}
+			param := types.QueryEscrowRequest{Id: id}
 			response, err := queryClient.Escrow(context.Background(), &param)
 			if err != nil {
 				return err

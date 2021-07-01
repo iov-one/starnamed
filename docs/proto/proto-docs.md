@@ -1618,6 +1618,7 @@ MsgCreateEscrow defines a message to create an escrow
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `seller` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
@@ -1652,6 +1653,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
 | `sender` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
 
 
 
@@ -1678,6 +1680,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
 | `sender` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
 | `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 
 
@@ -1705,8 +1708,9 @@ MsgUpdateEscrow defines a message to update an escrow
 | ----- | ---- | ----- | ----------- |
 | `id` | [string](#string) |  |  |
 | `updater` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
-| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | FIXME: this generates invalid go code that needs to be patched after each code generation |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
 
 
