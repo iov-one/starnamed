@@ -35,8 +35,7 @@ func (k *Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer) error {
 func getFee(feesConfig *configuration.Fees, msg sdk.Msg) sdk.Dec {
 	switch msg.(type) {
 	case *types.MsgCreateEscrow:
-		// TODO: delegate this
-		return feesConfig.FeeDefault
+		return feesConfig.CreateEscrow
 	case *types.MsgUpdateEscrow:
 		return feesConfig.UpdateEscrow
 	case *types.MsgTransferToEscrow:

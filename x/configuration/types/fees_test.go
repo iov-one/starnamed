@@ -33,8 +33,7 @@ func TestFees_Validate(t *testing.T) {
 		TransferDomainClosed         types.Dec
 		TransferDomainOpen           types.Dec
 		RenewDomainOpen              types.Dec
-		CreateAccountEscrow          types.Dec
-		CreateDomainEscrow           types.Dec
+		CreateEscrow                 types.Dec
 		UpdateEscrow                 types.Dec
 		TransferToEscrow             types.Dec
 		RefundEscrow                 types.Dec
@@ -83,8 +82,7 @@ func TestFees_Validate(t *testing.T) {
 				TransferDomainClosed:         tt.fields.TransferDomainClosed,
 				TransferDomainOpen:           tt.fields.TransferDomainOpen,
 				RenewDomainOpen:              tt.fields.RenewDomainOpen,
-				CreateAccountEscrow:          tt.fields.CreateAccountEscrow,
-				CreateDomainEscrow:           tt.fields.CreateDomainEscrow,
+				CreateEscrow:                 tt.fields.CreateEscrow,
 				UpdateEscrow:                 tt.fields.UpdateEscrow,
 				TransferToEscrow:             tt.fields.TransferToEscrow,
 				RefundEscrow:                 tt.fields.RefundEscrow,
@@ -124,8 +122,7 @@ func TestFees_UnmarshalJson(t *testing.T) {
 				"transfer_domain_closed": "10.000000000000000000",
 				"transfer_domain_open": "10.000000000000000000",
 				"renew_domain_open": "10.000000000000000000",
-				"create_account_escrow": "10.000000000000000000",
-				"create_domain_escrow": "10.000000000000000000",
+				"create_escrow": "10.000000000000000000",
 				"update_escrow": "10.000000000000000000",
 				"transfer_to_escrow": "10.000000000000000000",
 				"refund_escrow": "10.000000000000000000"

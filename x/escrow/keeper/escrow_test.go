@@ -334,8 +334,6 @@ func (s *EscrowTestSuite) TestUpdate() {
 
 		test.EvaluateTest(s.T(), t.name, update)
 	}
-
-	//TODO: check deadline store consistency
 }
 
 func (s *EscrowTestSuite) TestTransferTo() {
