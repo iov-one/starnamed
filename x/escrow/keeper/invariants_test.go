@@ -61,7 +61,7 @@ func (s *InvariantsSuite) reinitEscrows() {
 }
 
 func (s *InvariantsSuite) SetupTest() {
-	s.Setup()
+	s.Setup(nil)
 	s.reinitEscrows()
 }
 
@@ -102,6 +102,13 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	s.saveObject(obj)
 
 	s.expects(invariant, true, "Escrow with open state but with expired deadline")
+	s.reinitEscrows()
+
+	// Escrow should be just expired
+	escrow.Deadline = s.generator.NowAfter(0)
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with open state but with just expired deadline")
 	s.reinitEscrows()
 
 	// Test completed and refunded escrows
@@ -157,7 +164,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 
 	// Test invalid price
 	escrow, obj = s.generator.NewRandomTestEscrow()
-	price := sdk.NewCoin("tiov", sdk.NewInt(1))
+	price := sdk.NewCoin(test.Denom, sdk.NewInt(1))
 	price.Amount = price.Amount.SubRaw(10)
 	escrow.Price = sdk.Coins{price}
 	s.addEscrow(escrow)

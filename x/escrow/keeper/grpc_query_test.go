@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/iov-one/starnamed/x/escrow/test"
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
@@ -14,7 +15,7 @@ type QueryTestSuite struct {
 }
 
 func (s *QueryTestSuite) SetupTest() {
-	s.Setup()
+	s.Setup(nil)
 }
 
 func TestQueryTestSuite(t *testing.T) {
@@ -22,7 +23,7 @@ func TestQueryTestSuite(t *testing.T) {
 }
 
 func (s *QueryTestSuite) TestQueryEscrow() {
-	price := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	existingEscrow, _ := s.generator.NewTestEscrow(s.generator.NewAccAddress(), price, s.generator.NowAfter(10))
 	expiredEscrow, _ := s.generator.NewTestEscrow(s.generator.NewAccAddress(), price, s.generator.NowAfter(0)-10)
 

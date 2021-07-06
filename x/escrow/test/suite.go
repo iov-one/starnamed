@@ -82,7 +82,7 @@ func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins
 
 func (gen *EscrowGenerator) NewRandomTestEscrow() (types.Escrow, *types.TestObject) {
 	seller := gen.NewAccAddress()
-	coins := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(int64(rand.Uint64()>>1)+1)))
+	coins := sdk.NewCoins(sdk.NewCoin(Denom, sdk.NewInt(int64(rand.Uint64()>>1)+1)))
 	return gen.NewTestEscrow(seller, coins, gen.now+1+uint64(rand.Uint32()%5000))
 }
 func (gen *EscrowGenerator) NewAccAddress() sdk.AccAddress {
@@ -122,6 +122,8 @@ func (gen *EscrowGenerator) GetNextId() uint64 {
 }
 
 var TimeNow = time.Unix(2000, 0)
+var Denom = "tiov"
+var DenomAux = "tiov2"
 
 func NewTestCodec() *codec.ProtoCodec {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
@@ -169,8 +171,8 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	if coinHolders != nil {
 		for _, holder := range coinHolders {
 			balances[holder.String()] = sdk.NewCoins(
-				sdk.NewCoin("tiov", sdk.NewInt(1000000)),
-				sdk.NewCoin("tiov2", sdk.NewInt(1000000)),
+				sdk.NewCoin(Denom, sdk.NewInt(1000000)),
+				sdk.NewCoin(DenomAux, sdk.NewInt(1000000)),
 			)
 		}
 		bankMocker.WithDefaultsBalances(balances)
@@ -186,7 +188,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 
 	// Set default fees
 	defaultFees := configuration.NewFees()
-	defaultFees.SetDefaults("tiov")
+	defaultFees.SetDefaults(Denom)
 	configKeeper.SetFees(ctx, defaultFees)
 
 	// register blocked addresses

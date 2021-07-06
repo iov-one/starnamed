@@ -52,7 +52,7 @@ func (suite *MsgTestSuite) SetupTest() {
 func (suite *MsgTestSuite) TestMsgValidate() {
 	invalidBech32Addr := "star15d5e8f5544f5e5fe654"
 	invalidPrefixAddr := "cosmos1cqfse93m6r7fr3vx07du5yfmsltca60gyadygf"
-	negativePrice := sdk.Coins{sdk.Coin{Denom: "tiov", Amount: sdk.NewInt(-10)}}
+	negativePrice := sdk.Coins{sdk.Coin{Denom: test.Denom, Amount: sdk.NewInt(-10)}}
 	invalidIDHexa := "123456789abcdefg"
 	invalidIDLength := "123456789abcdef0123"
 	randomOwnerObj := test.MustPackToAny(suite.gen.NewTestObject(suite.gen.NewAccAddress()))

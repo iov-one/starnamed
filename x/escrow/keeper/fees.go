@@ -12,6 +12,16 @@ import (
 
 //CollectFees collect the fees for the given message
 func (k *Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer) error {
+	fees := k.ComputeFees(ctx, msg)
+	return k.bankKeeper.SendCoinsFromAccountToModule(
+		ctx,
+		msg.GetFeePayer(),
+		authtypes.FeeCollectorName,
+		fees,
+	)
+}
+
+func (k *Keeper) ComputeFees(ctx sdk.Context, msg sdk.Msg) sdk.Coins {
 	feesConfiguration := k.configurationKeeper.GetFees(ctx)
 
 	defaultFee := feesConfiguration.FeeDefault
@@ -23,13 +33,7 @@ func (k *Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer) error {
 	}
 
 	finalFeeAmount := specificFee.Quo(feesConfiguration.FeeCoinPrice).TruncateInt()
-	finalFee := sdk.NewCoins(sdk.NewCoin(feesConfiguration.FeeCoinDenom, finalFeeAmount))
-	return k.bankKeeper.SendCoinsFromAccountToModule(
-		ctx,
-		msg.GetFeePayer(),
-		authtypes.FeeCollectorName,
-		finalFee,
-	)
+	return sdk.NewCoins(sdk.NewCoin(feesConfiguration.FeeCoinDenom, finalFeeAmount))
 }
 
 func getFee(feesConfig *configuration.Fees, msg sdk.Msg) sdk.Dec {

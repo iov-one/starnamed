@@ -13,7 +13,7 @@ type KeeperSuite struct {
 }
 
 func (s *KeeperSuite) SetupTest() {
-	s.Setup()
+	s.Setup(nil)
 }
 
 func TestKeeper(t *testing.T) {

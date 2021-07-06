@@ -16,20 +16,51 @@ import (
 
 type MsgServerTestSuite struct {
 	BaseKeeperSuite
+	sender, buyer, feePayer sdk.AccAddress
 }
 
 func (s *MsgServerTestSuite) SetupTest() {
-	s.Setup()
+	s.generator = test.NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
+	s.sender = s.generator.NewAccAddress()
+	s.feePayer = s.generator.NewAccAddress()
+	s.buyer = s.generator.NewAccAddress()
+	s.Setup([]sdk.AccAddress{s.sender, s.feePayer, s.buyer})
 }
 
 func (s *MsgServerTestSuite) TestAll() {
 
-	validAddress := s.generator.NewAccAddress()
+	validAddress := s.sender
 
 	type testCase struct {
-		name   string
-		seller string
-		obj    interface{}
+		name     string
+		seller   string
+		feePayer string
+		obj      interface{}
+	}
+
+	msgs := map[string]sdk.Msg{
+		"creation": &types.MsgCreateEscrow{},
+		"transfer": &types.MsgTransferToEscrow{},
+		"update":   &types.MsgUpdateEscrow{},
+		"refund":   &types.MsgRefundEscrow{},
+	}
+
+	getFeePayerBalance := func(tc testCase) sdk.Coins {
+		payer := tc.feePayer
+		if len(payer) == 0 {
+			payer = tc.seller
+		}
+		return s.balances[payer]
+	}
+	checkFees := func(tc testCase, operation string, oldBalance sdk.Coins) {
+		expectedDelta := s.keeper.ComputeFees(s.ctx, msgs[operation])
+
+		newBalance := getFeePayerBalance(tc)
+		s.Assert().Equal(
+			expectedDelta[0].Amount.Int64(),                                     // Only one denom for the fee
+			oldBalance.Sub(newBalance).AmountOf(expectedDelta[0].Denom).Int64(), // Only one denom for the fee
+			"Invalid fee payed for test "+tc.name+"/"+operation)
+
 	}
 
 	commonTestCases := []testCase{
@@ -37,6 +68,17 @@ func (s *MsgServerTestSuite) TestAll() {
 			name:   "normal scenario",
 			seller: validAddress.String(),
 			obj:    s.generator.NewTestObject(validAddress),
+		},
+		{
+			name:     "normal scenario with fee payer",
+			seller:   validAddress.String(),
+			feePayer: s.feePayer.String(),
+			obj:      s.generator.NewTestObject(validAddress),
+		},
+		{
+			name:     "invalid seller : fee payer but no seller",
+			feePayer: validAddress.String(),
+			obj:      s.generator.NewNotPossessedTestObject(),
 		},
 		{
 			name:   "invalid seller : invalid bech32",
@@ -85,13 +127,20 @@ func (s *MsgServerTestSuite) TestAll() {
 			}
 			copiedObj = cpy
 		}
+		oldFeePayerBalance := getFeePayerBalance(t)
 		resp, err := s.msgServer.CreateEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgCreateEscrow{
 			Seller:   t.seller,
+			FeePayer: t.feePayer,
 			Object:   test.MustPackToAny(copiedObj),
-			Price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50))),
+			Price:    sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50))),
 			Deadline: s.generator.NowAfter(100),
 		})
 		test.CheckError(s.T(), t.name+" creation", shouldFail, err)
+
+		if !shouldFail {
+			checkFees(t, "creation", oldFeePayerBalance)
+		}
+
 		if resp == nil {
 			return ""
 		} else {
@@ -110,30 +159,52 @@ func (s *MsgServerTestSuite) TestAll() {
 		id := createAndCheck(t)
 
 		// check updating
+		oldFeePayerBalance := getFeePayerBalance(t)
+		updatedPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(20)))
 		_, err := s.msgServer.UpdateEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgUpdateEscrow{
 			Id:       id,
 			Updater:  t.seller,
+			FeePayer: t.feePayer,
 			Seller:   t.seller,
-			Price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(20))),
+			Price:    updatedPrice,
 			Deadline: s.generator.NowAfter(100),
 		})
 		test.CheckError(s.T(), t.name+" update", shouldFail, err)
+		if !shouldFail {
+			checkFees(t, "update", oldFeePayerBalance)
+		}
 
 		// check transfering
+		tCopy := t
+		tCopy.seller = s.buyer.String()
+		oldFeePayerBalance = getFeePayerBalance(tCopy)
 		_, err = s.msgServer.TransferToEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgTransferToEscrow{
-			Id:     id,
-			Sender: s.generator.NewAccAddress().String(),
-			Amount: sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(20))),
+			Id:       id,
+			Sender:   tCopy.seller,
+			FeePayer: t.feePayer,
+			Amount:   updatedPrice,
 		})
 		test.CheckError(s.T(), t.name+" transfer", shouldFail, err)
+		if !shouldFail {
+			if len(t.feePayer) == 0 {
+				oldFeePayerBalance = oldFeePayerBalance.Sub(updatedPrice)
+			}
+			checkFees(tCopy, "transfer", oldFeePayerBalance)
+		}
 
 		// check refunding (after creating a new one)
 		id = createAndCheck(t)
+		oldFeePayerBalance = getFeePayerBalance(t)
 		_, err = s.msgServer.RefundEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgRefundEscrow{
-			Id:     id,
-			Sender: t.seller,
+			Id:       id,
+			Sender:   t.seller,
+			FeePayer: t.feePayer,
 		})
 		test.CheckError(s.T(), t.name+" refund", shouldFail, err)
+		if !shouldFail {
+			checkFees(t, "refund", oldFeePayerBalance)
+		}
+
 	}
 }
 

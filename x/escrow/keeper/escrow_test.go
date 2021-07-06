@@ -19,7 +19,6 @@ type EscrowTestSuite struct {
 	expiredEscrowId   string
 	refundedEscrowId  string
 	completedEscrowId string
-	balances          map[string]sdk.Coins
 }
 
 type assetState struct {
@@ -99,7 +98,7 @@ func (s *EscrowTestSuite) SetupTest() {
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
-	price := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	escrow, _ := s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(), price, s.generator.NowAfter(0)-10)
 	escrow.State = types.EscrowState_Expired
 	s.expiredEscrowId = escrow.Id
@@ -121,7 +120,7 @@ func (s *EscrowTestSuite) SetupTest() {
 func (s *EscrowTestSuite) TestCreate() {
 
 	validAddress := s.seller
-	defaultPrice := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(100)))
+	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100)))
 	defaultDeadline := s.generator.NowAfter(1)
 
 	obj := s.generator.NewTestObject(s.seller)
@@ -143,7 +142,7 @@ func (s *EscrowTestSuite) TestCreate() {
 	invalidAddr := s.generator.NewAccAddress()
 	modifiedOwnerObj.Owner = append([]byte(nil), invalidAddr...)
 
-	negativePrice := sdk.NewCoin("tiov2", sdk.NewInt(5))
+	negativePrice := sdk.NewCoin(test.DenomAux, sdk.NewInt(5))
 	negativePrice.Amount = negativePrice.Amount.SubRaw(10)
 
 	testCases := []struct {
@@ -179,7 +178,7 @@ func (s *EscrowTestSuite) TestCreate() {
 			seller: validAddress,
 			obj:    obj,
 			price: sdk.Coins{
-				sdk.NewCoin("tiov", sdk.NewInt(50)),
+				sdk.NewCoin(test.Denom, sdk.NewInt(50)),
 				negativePrice,
 			},
 			deadline: defaultDeadline,
@@ -233,7 +232,7 @@ func (s *EscrowTestSuite) TestCreate() {
 func (s *EscrowTestSuite) TestUpdate() {
 	newSeller := s.generator.NewAccAddress()
 	escrowDeadline := s.generator.NowAfter(10)
-	price := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	id, err := s.keeper.CreateEscrow(
 		s.ctx,
 		s.seller,
@@ -256,7 +255,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 		{
 			name:    "price update",
 			updater: s.seller,
-			price:   sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(10))),
+			price:   sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(10))),
 		},
 		{
 			name:     "deadline update",
@@ -266,7 +265,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 		{
 			name:     "multiple fields update",
 			updater:  s.seller,
-			price:    sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(100))),
+			price:    sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100))),
 			deadline: s.generator.NowAfter(1000000),
 		},
 		{
@@ -338,14 +337,14 @@ func (s *EscrowTestSuite) TestUpdate() {
 
 func (s *EscrowTestSuite) TestTransferTo() {
 	var testEscrows = make(map[string]string)
-	defaultPrice := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	prices := map[string]sdk.Coins{
 		"default":   defaultPrice,
 		"default1":  defaultPrice,
 		"default2":  defaultPrice,
 		"default3":  defaultPrice,
-		"expensive": sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(100000000000))),
-		"multi":     sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)), sdk.NewCoin("tiov2", sdk.NewInt(50))),
+		"expensive": sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100000000000))),
+		"multi":     sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)), sdk.NewCoin(test.DenomAux, sdk.NewInt(50))),
 	}
 	for name, price := range prices {
 		id, err := s.keeper.CreateEscrow(
@@ -399,27 +398,27 @@ func (s *EscrowTestSuite) TestTransferTo() {
 		{
 			name:   "valid transfer: too much coin",
 			buyer:  s.buyer,
-			amount: defaultPrice.Add(sdk.NewCoin("tiov", sdk.NewInt(20))),
+			amount: defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(20))),
 			check:  checkDefaultValidTransfer,
 			id:     testEscrows["default2"],
 		},
 		{
 			name:   "valid transfer: too much coins",
 			buyer:  s.buyer,
-			amount: defaultPrice.Add(sdk.NewCoin("tiov2", sdk.NewInt(30))),
+			amount: defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(30))),
 			check:  checkDefaultValidTransfer,
 			id:     testEscrows["default3"],
 		},
 		{
 			name:   "invalid transfer: not enough coin",
 			buyer:  s.buyer,
-			amount: defaultPrice.Sub(sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(1)))),
+			amount: defaultPrice.Sub(sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(1)))),
 			check:  checkInvalidTransfer,
 		},
 		{
 			name:   "invalid transfer: not enough coin on one coin",
 			buyer:  s.buyer,
-			amount: prices["multi"].Sub(sdk.NewCoins(sdk.NewCoin("tiov2", sdk.NewInt(10)))),
+			amount: prices["multi"].Sub(sdk.NewCoins(sdk.NewCoin(test.DenomAux, sdk.NewInt(10)))),
 			id:     testEscrows["multi"],
 			check:  checkInvalidTransfer,
 		},
@@ -498,7 +497,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 }
 
 func (s *EscrowTestSuite) TestRefund() {
-	price := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	lastBlockTime := s.keeper.GetLastBlockTime(s.ctx)
 
 	states := []types.EscrowState{types.EscrowState_Open, types.EscrowState_Expired}
@@ -624,7 +623,7 @@ func generateExpiringEscrows(generator *test.EscrowGenerator) []types.Escrow {
 
 	expiredEscrow, _ := generator.NewTestEscrow(
 		generator.NewAccAddress(),
-		sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(10))),
+		sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(10))),
 		generator.NowAfter(0)-5,
 	)
 	nonExpiredEscrow := expiredEscrow

@@ -20,10 +20,10 @@ func TestValidate(t *testing.T) {
 	defaultSeller := defaultSellerBytes.String()
 	defaultObj := gen.NewTestObject(defaultSellerBytes)
 	defaultDeadline := gen.NowAfter(10)
-	defaultPrice := sdk.NewCoins(sdk.NewCoin("tiov", sdk.NewInt(50)))
+	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
 	negativePrice := sdk.Coins{
 		sdk.Coin{
-			Denom:  "tiov",
+			Denom:  test.Denom,
 			Amount: sdk.NewInt(-20),
 		},
 	}
@@ -42,7 +42,7 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			name:  "valid escrow: composed price",
-			price: defaultPrice.Add(sdk.NewCoin("tiov2", sdk.NewInt(20))),
+			price: defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(20))),
 		},
 		{
 			name:  "invalid escrow: negative price",

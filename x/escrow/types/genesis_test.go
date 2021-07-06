@@ -117,7 +117,7 @@ func (s *GenesisTestSuite) TestValidate() {
 			name: "invalid genesis: Escrow with negative price",
 			mutateGenesis: func(state *types.GenesisState) {
 				escrow, _ := s.generator.NewRandomTestEscrow()
-				escrow.Price = sdk.Coins{sdk.Coin{Denom: "tiov", Amount: sdk.NewInt(-10)}}
+				escrow.Price = sdk.Coins{sdk.Coin{Denom: test.Denom, Amount: sdk.NewInt(-10)}}
 				state.Escrows = append(state.Escrows, escrow)
 			},
 		},

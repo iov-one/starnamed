@@ -18,11 +18,12 @@ type BaseKeeperSuite struct {
 	generator *test.EscrowGenerator
 	store     crud.Store
 	storeKey  sdk.StoreKey
+	balances  map[string]sdk.Coins
 }
 
-func (s *BaseKeeperSuite) Setup() {
+func (s *BaseKeeperSuite) Setup(coinHolders []sdk.AccAddress) {
 	test.SetConfig()
-	s.keeper, s.ctx, s.store, _, s.storeKey = test.NewTestKeeper(nil)
+	s.keeper, s.ctx, s.store, s.balances, s.storeKey = test.NewTestKeeper(coinHolders)
 	s.keeper.ImportNextID(s.ctx, 1)
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 	s.generator = test.NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
