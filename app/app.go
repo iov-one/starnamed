@@ -1,10 +1,12 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -95,6 +97,7 @@ import (
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
+	_ "github.com/iov-one/starnamed/client/docs/statik"
 )
 
 const appName = "WasmApp"
@@ -103,6 +106,7 @@ const appName = "WasmApp"
 var (
 	NodeDir      = ".starnamed"
 	Bech32Prefix = "star"
+	CoinTypeStr  = "234"
 
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
@@ -112,6 +116,14 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 )
+
+func parseCoinType() uint32 {
+	if parsed, err := strconv.ParseInt(CoinTypeStr, 10, 32); err != nil {
+		panic(err)
+	} else {
+		return uint32(parsed)
+	}
+}
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
@@ -149,6 +161,10 @@ var (
 	Bech32PrefixConsAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
+	// CoinType is the type as defined in SLIP44 (https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
+	CoinType = parseCoinType()
+	// FullFundraiserPath is the parts of the BIP44 HD path
+	FullFundraiserPath = fmt.Sprintf("m/44'/%d'/0'/0/0", CoinType)
 )
 
 var (

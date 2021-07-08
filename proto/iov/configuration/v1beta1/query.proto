@@ -1,5 +1,6 @@
 syntax = "proto3";
-package wasmd.x.configuration.v1beta1;
+package starnamed.x.configuration.v1beta1;
+
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -37,10 +38,10 @@ message QueryFeesResponse {
 service Query {
    // Config gets starname configuration.
    rpc Config (QueryConfigRequest) returns (QueryConfigResponse) {
-       option (google.api.http).get = "/wasm/v1beta1/configuration/config";
+       option (google.api.http).get = "/starname/v1beta1/configuration/params";
    }
    // Fees gets starname product fees.
    rpc Fees (QueryFeesRequest) returns (QueryFeesResponse) {
-       option (google.api.http).get = "/wasm/v1beta1/configuration/fees";
+       option (google.api.http).get = "/starname/v1beta1/configuration/fees";
    }
 }

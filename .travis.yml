@@ -11,7 +11,7 @@ os:
 dist: xenial
 
 go:
-  - "1.16.x"
+  - 1.16.5
   - stable
 
 addons:
@@ -32,80 +32,79 @@ cache:
     - $HOME/gopath/pkg/mod
     - $TRAVIS_BUILD_DIR/.gitian-builder-cache
     - /var/cache/apt-cacher-ng
+    - scripts/genesis/node_modules
+    - scripts/integration/node_modules
 
 env:
   global:
     - GO111MODULE=on
     - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
     - GORACE="halt_on_error=1"
-    - MAIN_GO_VERSION=1.15.5
+    - MAIN_GO_VERSION=1.16.5
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
-    - IMAGE_NAME="iov1/starnamed:${BUILD_VERSION}"
-
+    - IMAGE_APP="iov1/starnamed"
+    - IMAGE_FAUCET="iov1/faucet"
 
 before_script:
   - go install golang.org/x/tools/cmd/goimports@latest
 
 script:
   - set -eo pipefail
-  # Check linting and formatting of starname and configuration modules
-  - |
-    function checkEmpty() {
-      if [ -n "$1" ]
-      then
-        echo -e "\nFiles with syntax or formatting errors ($ERR_FILES)\n"
-        return 1
-      fi
-    }
-  # If a syntax error occurs, the following command fails
-  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir gofmt -l -s '{}' \+`
-  # Then check formatting errors
-  - checkEmpty "$ERR_FILES"
-  # Check advanced files formatting, including imports
-  - ERR_FILES=`find x/configuration x/starname -name "*.go" -execdir goimports -l '{}' \+`
-  - checkEmpty "$ERR_FILES"
-
+  # avoid failed builds due to rate limiting, see https://stackoverflow.com/a/25683955/5887599
+  - curl https://api.github.com/?access_token=$GITHUB_API_KEY
+  # TODO enable dangerbot
+  - echo TODO docker run -it --rm -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
+  # test
   - make test-unit test-race test-cover
   - make install
+  # perform more tests before...
+  - ( cd scripts/integration && yarn install && node -r dotenv/config setup.js && ./setup.sh )
+  - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
+  - ( cd scripts/integration && yarn install && yarn test && killall starnamed )
+  # ...potential docker pushes
   - printenv TRAVIS_COMMIT_MESSAGE > commit.msg
   - unset TRAVIS_COMMIT_MESSAGE && printenv | grep -Ev "PATH|path|GEM" > env.list
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
-  - echo TODO docker run -it --rm -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
   - if [[ "$TRAVIS_GO_VERSION" == "$MAIN_GO_VERSION" && "$TRAVIS_OS_NAME" == "linux" ]]; then
       release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-      echo TODO docker;
+      if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" ;
+
+        ./contrib/gitian-build.sh linux ;
+        mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
+        docker build --pull --tag "${IMAGE_APP}:${BUILD_VERSION}" . ;
+        ( cd cmd/faucet && IMAGE_FAUCET="${IMAGE_FAUCET}:${BUILD_VERSION}" make docker ) ;
+
+        docker logout ;
+      fi;
+
+      if [[ $release_latest == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+
+        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "${IMAGE_APP}:latest" ;
+        docker push "${IMAGE_APP}:latest" ;
+
+        docker tag  "${IMAGE_FAUCET}:${BUILD_VERSION}" "${IMAGE_FAUCET}:latest" ;
+        docker push "${IMAGE_FAUCET}:latest" ;
+
+        docker logout ;
+      fi;
+
+      if [[ $release_tag == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+
+        docker tag  "${IMAGE_APP}:${BUILD_VERSION}" "${IMAGE_APP}:$TRAVIS_TAG" ;
+        docker push "${IMAGE_APP}:$TRAVIS_TAG" ;
+
+        docker tag  "${IMAGE_FAUCET}:${BUILD_VERSION}" "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
+        docker push "${IMAGE_FAUCET}:$TRAVIS_TAG" ;
+
+        docker logout ;
+      fi;
     fi;
-      #if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-      #  ./contrib/gitian-build.sh linux ;
-      #  mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/starnamed-build-linux/build/out/starnamed-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-      #  docker build --pull --tag ${IMAGE_NAME} . ;
-      #fi;
-
-      #if [[ $release_latest == "yes" ]]; then
-      #  docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";#
-      #
-      #  docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:latest" ;
-      #  docker push "iov1/starnamed:latest";
-      #
-      #  docker logout;
-      #fi;
-
-      #if [[ $release_tag == "yes" ]]; then
-      #  docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-      #
-      #  docker tag  "iov1/starnamed:${BUILD_VERSION}" "iov1/starnamed:$TRAVIS_TAG" ;
-      #  docker push "iov1/starnamed:$TRAVIS_TAG";
-      #
-      #  docker logout;
-      #fi;
-    #fi;
-  - ( cd scripts/genesis && yarn install && yarn test && rm -rf ~/.starnamed )
-  - ( cd scripts/integration && yarn install && node -r dotenv/config setup.js && ./setup.sh )
-  - starnamed start --minimum-gas-prices='1.0tiov' --log_level error > /dev/null &
-  - ( cd scripts/integration && yarn install && yarn test && killall starnamed )
 
 notifications:
   email: false
@@ -128,4 +127,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ && $TRAVIS_GO_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$

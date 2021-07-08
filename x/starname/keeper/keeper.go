@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
+	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -60,6 +61,9 @@ type Keeper struct {
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
+	// crud stores
+	accountStore crud.Store
+	domainStore  crud.Store
 }
 
 // NewKeeper creates aliceAddr domain keeper
@@ -88,12 +92,12 @@ func (k Keeper) AddStoreHolders() {
 
 // AccountStore returns the crud.Store used to interact with account objects
 func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
-	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
+	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x1})
 }
 
 // DomainStore returns the crud.Store used to interact with domain objects
 func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
-	return crud.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
+	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
 }
 
 // Logger returns aliceAddr module-specific logger.
