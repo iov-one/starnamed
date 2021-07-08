@@ -27,7 +27,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	var escrows []types.Escrow
 	k.IterateEscrows(
 		ctx,
-		func(_ string, e types.Escrow) (stop bool) {
+		func(e types.Escrow) (stop bool) {
 			escrows = append(escrows, e)
 			return false
 		},

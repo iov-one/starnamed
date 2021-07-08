@@ -34,7 +34,7 @@ func StateInvariant(k Keeper) sdk.Invariant {
 		invalidSellerEscrows := 0
 		invalidDeadlineEscrows := 0
 
-		k.IterateEscrows(ctx, func(id string, escrow types.Escrow) bool {
+		k.IterateEscrows(ctx, func(escrow types.Escrow) bool {
 
 			date := uint64(ctx.BlockTime().Unix())
 

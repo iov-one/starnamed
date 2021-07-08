@@ -1,10 +1,8 @@
 package keeper
 
 import (
-	"encoding/hex"
 	"reflect"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
@@ -333,15 +331,23 @@ func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.Transf
 
 // HasEscrow checks if the given escrow exists
 func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
-	return k.getStore(ctx).Has(types.GetEscrowKey(id))
+	var escrow types.Escrow
+	err := k.getEscrowStore(ctx).Read(types.GetEscrowKey(id), &escrow)
+	return err == nil
 }
 
 // SaveEscrow sets the given escrow
 func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	escrow.SyncObject()
-	bz := k.cdc.MustMarshalBinaryBare(&escrow)
-
-	k.getStore(ctx).Set(types.GetEscrowKey(escrow.Id), bz)
+	if k.HasEscrow(ctx, escrow.Id) {
+		if err := k.getEscrowStore(ctx).Update(&escrow); err != nil {
+			panic(err)
+		}
+	} else {
+		if err := k.getEscrowStore(ctx).Create(&escrow); err != nil {
+			panic(err)
+		}
+	}
 	k.addEscrowToDeadlineStore(ctx, escrow)
 }
 
@@ -353,7 +359,9 @@ func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 		panic("Attempted to delete an expired escrow without refunding it")
 	}
 
-	k.getStore(ctx).Delete(types.GetEscrowKey(escrow.Id))
+	if err := k.getEscrowStore(ctx).Delete(escrow.PrimaryKey()); err != nil {
+		panic(err)
+	}
 	k.deleteEscrowFromDeadlineStore(ctx, escrow)
 }
 
@@ -362,13 +370,63 @@ func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, foun
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 
+func consumeEscrowCursor(cursor crud.Cursor) ([]types.Escrow, error) {
+	var escrows []types.Escrow
+	for ; cursor.Valid(); cursor.Valid() {
+		var escrow types.Escrow
+		if err := cursor.Read(&escrow); err != nil {
+			return nil, err
+		}
+		escrows = append(escrows, escrow)
+	}
+	return escrows, nil
+}
+
+func (k Keeper) QueryEscrows(ctx sdk.Context, filter func(crud.QueryStatement) crud.ValidQuery) ([]types.Escrow, error) {
+	cursor, err := filter(k.getEscrowStore(ctx).Query()).Do()
+	if err != nil {
+		return nil, err
+	}
+	return consumeEscrowCursor(cursor)
+}
+
+func (k Keeper) QueryEscrowsWithRange(ctx sdk.Context, filter func(crud.QueryStatement) crud.ValidQuery, start, end uint64) ([]types.Escrow, error) {
+	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
+		return filter(query).WithRange().Start(start).End(end)
+	})
+}
+
+func (k Keeper) GetEscrowsBySeller(ctx sdk.Context, seller string, start, end uint64) ([]types.Escrow, error) {
+	sellerAddr, err := sdk.AccAddressFromBech32(seller)
+	if err != nil {
+		return nil, err
+	}
+	return k.QueryEscrowsWithRange(ctx, func(query crud.QueryStatement) crud.ValidQuery {
+		return query.Where().Index(types.SellerIndex).Equals(sellerAddr)
+	}, start, end)
+
+}
+
+func (k Keeper) GetEscrowsByState(ctx sdk.Context, state types.EscrowState, start, end uint64) ([]types.Escrow, error) {
+	return k.QueryEscrowsWithRange(ctx, func(query crud.QueryStatement) crud.ValidQuery {
+		return query.Where().Index(types.StateIndex).Equals(sdk.Uint64ToBigEndian(uint64(state)))
+	}, start, end)
+}
+
+func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObject) ([]types.Escrow, error) {
+	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
+		return query.Where().Index(types.ObjectIndex).Equals(object.GetObject().PrimaryKey())
+	})
+}
+
 // getEscrowByKey retrieves the specified escrow with its key
 func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow, found bool) {
-	bz := k.getStore(ctx).Get(key)
-	if bz == nil {
+	err := k.getEscrowStore(ctx).Read(key, &escrow)
+	if errors.Is(err, crud.ErrNotFound) {
 		return escrow, false
+	} else if err != nil {
+		panic(err)
 	}
-	k.cdc.MustUnmarshalBinaryBare(bz, &escrow)
 	return escrow, true
 }
 
@@ -403,7 +461,7 @@ func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
 
 func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 	k.IterateEscrows(ctx,
-		func(id string, e types.Escrow) (stop bool) {
+		func(e types.Escrow) (stop bool) {
 			//TODO: check if allowed because we modify expired store (refund -> delete escrow -> delete escrow from expired store)
 			// while iterating over it
 
@@ -427,25 +485,22 @@ func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 // IterateEscrows iterates through the escrows
 func (k Keeper) IterateEscrows(
 	ctx sdk.Context,
-	op func(string, types.Escrow) bool,
+	op func(types.Escrow) bool,
 ) {
-	store := k.getStore(ctx)
+	store := k.getEscrowStore(ctx)
+	cursor, err := store.Query().Do()
+	if err != nil {
+		panic(err)
+	}
 
-	iterator := store.Iterator(nil, nil)
-	defer func(iterator storetypes.Iterator) {
-		err := iterator.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(iterator)
-
-	for ; iterator.Valid(); iterator.Next() {
-		id := hex.EncodeToString(iterator.Key())
+	for ; cursor.Valid(); cursor.Next() {
 
 		var escrow types.Escrow
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &escrow)
+		if err := cursor.Read(&escrow); err != nil {
+			panic(err)
+		}
 
-		if stop := op(id, escrow); stop {
+		if stop := op(escrow); stop {
 			break
 		}
 	}

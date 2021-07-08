@@ -9,13 +9,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/gogo/protobuf/proto"
 	crud "github.com/iov-one/cosmos-sdk-crud"
+	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/rand"
@@ -165,7 +165,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 		panic(err)
 	}
 	// create a crud store for the crud objects
-	crudStore := crud.NewStore(cdc, ms.GetKVStore(escrowStoreKey), []byte{4})
+	crudStore := crudtypes.NewStore(cdc, ms.GetKVStore(escrowStoreKey), []byte{4})
 
 	// create mock supply keeper with money on accounts
 	bankMocker := mock.NewSupplyKeeper()
@@ -251,7 +251,9 @@ func NewEscrowGenerator(now uint64) *EscrowGenerator {
 }
 
 func DeleteEscrow(ctx sdk.Context, storeKey sdk.StoreKey, id string) {
-	str := prefix.NewStore(ctx.KVStore(storeKey), keeper.EscrowStoreKey)
-	str.Delete(types.GetEscrowKey(id))
+	str := crudtypes.NewStore(NewTestCodec(), ctx.KVStore(storeKey), keeper.EscrowStoreKey)
+	if err := str.Delete(types.GetEscrowKey(id)); err != nil {
+		panic(errors.Wrap(err, "error while deleting an escrow in a test"))
+	}
 
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
 
 	crud "github.com/iov-one/cosmos-sdk-crud"
 
@@ -117,8 +118,8 @@ func (k Keeper) getStoreForID(ctx sdk.Context, id types.TypeID) (crud.Store, err
 	return store.GetCRUDStore(ctx), nil
 }
 
-func (k Keeper) getStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), EscrowStoreKey)
+func (k Keeper) getEscrowStore(ctx sdk.Context) crud.Store {
+	return crudtypes.NewStore(k.cdc, ctx.KVStore(k.storeKey), EscrowStoreKey)
 }
 
 func (k Keeper) getDeadlineStore(ctx sdk.Context) sdk.KVStore {
