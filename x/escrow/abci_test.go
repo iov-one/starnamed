@@ -10,7 +10,7 @@ import (
 )
 
 func TestBeginBlocker(t *testing.T) {
-	keeper, ctx, _, _, _ := test.NewTestKeeper(nil)
+	keeper, ctx, _, _, _, _ := test.NewTestKeeper(nil)
 	gen := test.NewEscrowGenerator(uint64(ctx.BlockTime().Unix()))
 
 	normalEscrow, _ := gen.NewRandomTestEscrow()

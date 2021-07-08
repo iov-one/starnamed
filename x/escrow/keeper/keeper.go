@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -134,6 +135,16 @@ func (k Keeper) SetLastBlockTime(ctx sdk.Context, date uint64) {
 
 func (k Keeper) GetLastBlockTime(ctx sdk.Context) uint64 {
 	return sdk.BigEndianToUint64(k.getParamStore(ctx).Get(paramsStoreLastBlockTime))
+}
+
+// GetMaximumEscrowDuration returns the maximum allowed duration of an escrow
+func (k Keeper) GetMaximumEscrowDuration(ctx sdk.Context) time.Duration {
+	return k.configurationKeeper.GetConfiguration(ctx).EscrowMaxPeriod
+}
+
+// GetEscrowPriceDenom returns the denomination of the allowed token for the price fo an escrow
+func (k Keeper) GetEscrowPriceDenom(ctx sdk.Context) string {
+	return k.configurationKeeper.GetFees(ctx).FeeCoinDenom
 }
 
 func (k Keeper) isBlockedAddr(address string) bool {

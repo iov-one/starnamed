@@ -14,18 +14,22 @@ func NewEscrow(
 	price sdk.Coins,
 	object TransferableObject,
 	deadline uint64,
+	brokerAddress string,
+	brokerCommission sdk.Dec,
 ) Escrow {
 	objectAny, err := codectypes.NewAnyWithValue(object)
 	if err != nil {
 		panic(err)
 	}
 	return Escrow{
-		Id:       id,
-		Seller:   seller.String(),
-		Object:   objectAny,
-		Price:    price,
-		State:    EscrowState_Open,
-		Deadline: deadline,
+		Id:               id,
+		Seller:           seller.String(),
+		Object:           objectAny,
+		Price:            price,
+		State:            EscrowState_Open,
+		Deadline:         deadline,
+		BrokerAddress:    brokerAddress,
+		BrokerCommission: brokerCommission,
 	}
 }
 
@@ -40,28 +44,41 @@ func (msg *Escrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 }
 
 // ValidateWithoutDeadlineAndObject validates the escrow without validating the deadline and the object
-func (e Escrow) ValidateWithoutDeadlineAndObject() error {
+// If priceDenom is empty, does not validate the price denomination
+func (e Escrow) ValidateWithoutDeadlineAndObject(priceDenom string) error {
 	if err := ValidateID(e.Id); err != nil {
 		return err
 	}
 	// Validate seller address
-	_, err := sdk.AccAddressFromBech32(e.Seller)
+	err := ValidateAddress(e.Seller)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid seller address (%s)", err)
 	}
 
 	// Validate price
-	if err := ValidatePrice(e.Price); err != nil {
+	if err := ValidatePrice(e.Price, priceDenom); err != nil {
 		return err
 	}
+
+	// Validate broker address
+	err = ValidateAddress(e.BrokerAddress)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid broker address (%s)", err)
+	}
+
+	// Validate broker commission
+	if err := ValidateCommission(e.BrokerCommission); err != nil {
+		return err
+	}
+
 	// Validate state
 	return ValidateState(e.State)
 }
 
-// Validate validates the escrow
-func (e Escrow) Validate(lastBlockTime uint64) error {
+// Validate validates the escrow, if priceDenom is empty, does not validate the price denomination
+func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
 	// Validate all fields expect deadline and object
-	if err := e.ValidateWithoutDeadlineAndObject(); err != nil {
+	if err := e.ValidateWithoutDeadlineAndObject(priceDenom); err != nil {
 		return err
 	}
 

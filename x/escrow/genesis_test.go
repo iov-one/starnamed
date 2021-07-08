@@ -32,7 +32,7 @@ type GenesisTestSuite struct {
 func (suite *GenesisTestSuite) SetupTest() {
 	test.SetConfig()
 
-	suite.keeper, suite.ctx, suite.crudStore, _, suite.storeKey = test.NewTestKeeper(nil)
+	suite.keeper, suite.ctx, suite.crudStore, _, suite.storeKey, _ = test.NewTestKeeper(nil)
 	suite.keeper.ImportNextID(suite.ctx, 1)
 	app := app.Setup(false)
 	//suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{Height: 1, Time: tmtime.Now()})

@@ -88,15 +88,6 @@ func (s *GenesisTestSuite) TestValidate() {
 				state.Escrows = append(state.Escrows, escrow)
 			},
 		},
-		//TODO: find a way to be able to test this (or drop this test, anyways this is checked by the invariant)
-		/*{
-			name: "invalid genesis: Escrow with object not owned by module",
-			mutateGenesis: func(state *types.GenesisState) {
-				escrow, obj := s.generator.NewRandomTestEscrow()
-				obj.Owner = s.generator.NewAccAddress()
-				state.Escrows = append(state.Escrows, escrow)
-			},
-		},*/
 		{
 			name: "Invalid genesis: Escrow with invalid ID: not enough characters",
 			mutateGenesis: func(state *types.GenesisState) {
@@ -122,10 +113,50 @@ func (s *GenesisTestSuite) TestValidate() {
 			},
 		},
 		{
+			name: "invalid genesis: Escrow with empty price",
+			mutateGenesis: func(state *types.GenesisState) {
+				escrow, _ := s.generator.NewRandomTestEscrow()
+				escrow.Price = sdk.Coins{}
+				state.Escrows = append(state.Escrows, escrow)
+			},
+		},
+		{
 			name: "invalid genesis: Escrow with invalid ID: this ID will be generated for future escrows",
 			mutateGenesis: func(state *types.GenesisState) {
 				escrow, _ := s.generator.NewRandomTestEscrow()
 				escrow.Id = hex.EncodeToString(sdk.Uint64ToBigEndian(s.generator.GetNextId() + 500))
+				state.Escrows = append(state.Escrows, escrow)
+			},
+		},
+		{
+			name: "invalid genesis: Escrow with invalid seller",
+			mutateGenesis: func(state *types.GenesisState) {
+				escrow, _ := s.generator.NewRandomTestEscrow()
+				escrow.Seller = "star15555f8e8f7e4"
+				state.Escrows = append(state.Escrows, escrow)
+			},
+		},
+		{
+			name: "invalid genesis: Escrow with invalid broker",
+			mutateGenesis: func(state *types.GenesisState) {
+				escrow, _ := s.generator.NewRandomTestEscrow()
+				escrow.BrokerAddress = "star1455e5f4e5fe"
+				state.Escrows = append(state.Escrows, escrow)
+			},
+		},
+		{
+			name: "invalid genesis: Escrow with commission too low",
+			mutateGenesis: func(state *types.GenesisState) {
+				escrow, _ := s.generator.NewRandomTestEscrow()
+				escrow.BrokerCommission = sdk.NewDec(-1)
+				state.Escrows = append(state.Escrows, escrow)
+			},
+		},
+		{
+			name: "invalid genesis: Escrow with commission too high",
+			mutateGenesis: func(state *types.GenesisState) {
+				escrow, _ := s.generator.NewRandomTestEscrow()
+				escrow.BrokerCommission = sdk.NewDec(2)
 				state.Escrows = append(state.Escrows, escrow)
 			},
 		},

@@ -24,10 +24,11 @@ type EscrowTestSuite struct {
 type assetState struct {
 	sellerBalance sdk.Coins
 	buyerBalance  sdk.Coins
+	brokerBalance sdk.Coins
 	objectOwner   sdk.AccAddress
 }
 
-func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, escrow types.Escrow, escrowFound bool) assetState {
+func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, broker sdk.AccAddress, escrow types.Escrow, escrowFound bool) assetState {
 	balance := func(address sdk.AccAddress) sdk.Coins {
 		if address == nil {
 			return sdk.NewCoins()
@@ -40,6 +41,7 @@ func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, 
 	}
 	sellerBalance := balance(seller)
 	buyerBalance := balance(buyer)
+	brokerBalance := balance(broker)
 	var owner sdk.AccAddress
 	if !escrowFound {
 		owner = nil
@@ -56,6 +58,7 @@ func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, 
 	return assetState{
 		sellerBalance: sellerBalance,
 		buyerBalance:  buyerBalance,
+		brokerBalance: brokerBalance,
 		objectOwner:   owner,
 	}
 
@@ -91,10 +94,11 @@ func (s *EscrowTestSuite) createErroredObjectEscrow(price sdk.Coins) string {
 }
 
 func (s *EscrowTestSuite) SetupTest() {
-	s.generator = test.NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))
+	test.SetConfig()
+	s.generator = test.NewEscrowGenerator(uint64(test.TimeNow.Unix()))
 	s.seller = s.generator.NewAccAddress()
 	s.buyer = s.generator.NewAccAddress()
-	s.keeper, s.ctx, s.store, s.balances, _ = test.NewTestKeeper([]sdk.AccAddress{s.buyer})
+	s.keeper, s.ctx, s.store, s.balances, _, s.configKeeper = test.NewTestKeeper([]sdk.AccAddress{s.buyer})
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
@@ -123,9 +127,12 @@ func (s *EscrowTestSuite) TestCreate() {
 	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100)))
 	defaultDeadline := s.generator.NowAfter(1)
 
-	obj := s.generator.NewTestObject(s.seller)
-	if err := s.store.Create(obj); err != nil {
-		panic(err)
+	createAndSaveObject := func() *types.TestObject {
+		obj := s.generator.NewTestObject(s.seller)
+		if err := s.store.Create(obj); err != nil {
+			panic(err)
+		}
+		return obj
 	}
 	invalidObj := s.generator.NewTestObject(s.generator.NewAccAddress())
 	if err := s.store.Create(invalidObj); err != nil {
@@ -136,11 +143,13 @@ func (s *EscrowTestSuite) TestCreate() {
 		panic(err)
 	}
 
+	obj := createAndSaveObject()
 	modifiedIdObj := *obj
 	modifiedIdObj.Id += 10
 	modifiedOwnerObj := *obj
 	invalidAddr := s.generator.NewAccAddress()
 	modifiedOwnerObj.Owner = append([]byte(nil), invalidAddr...)
+	maxDuration := s.keeper.GetMaximumEscrowDuration(s.ctx)
 
 	negativePrice := sdk.NewCoin(test.DenomAux, sdk.NewInt(5))
 	negativePrice.Amount = negativePrice.Amount.SubRaw(10)
@@ -155,9 +164,23 @@ func (s *EscrowTestSuite) TestCreate() {
 		{
 			name:     "valid scenario",
 			seller:   validAddress,
-			obj:      obj,
+			obj:      createAndSaveObject(),
 			price:    defaultPrice,
 			deadline: defaultDeadline,
+		},
+		{
+			name:     "valid scenario with max duration",
+			seller:   validAddress,
+			obj:      createAndSaveObject(),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(uint64(maxDuration.Seconds())),
+		},
+		{
+			name:     "invalid price: zero",
+			seller:   validAddress,
+			obj:      createAndSaveObject(),
+			price:    sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.ZeroInt())),
+			deadline: s.generator.NowAfter(uint64(maxDuration.Seconds())),
 		},
 		{
 			name:     "invalid deadline: zero",
@@ -174,6 +197,13 @@ func (s *EscrowTestSuite) TestCreate() {
 			deadline: s.generator.NowAfter(0) - 1,
 		},
 		{
+			name:     "invalid deadline: maximum duration exceeded",
+			seller:   validAddress,
+			obj:      obj,
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(uint64(maxDuration.Seconds()) + 1),
+		},
+		{
 			name:   "invalid price: negative",
 			seller: validAddress,
 			obj:    obj,
@@ -181,6 +211,30 @@ func (s *EscrowTestSuite) TestCreate() {
 				sdk.NewCoin(test.Denom, sdk.NewInt(50)),
 				negativePrice,
 			},
+			deadline: defaultDeadline,
+		},
+		{
+			name:     "invalid price: empty",
+			seller:   validAddress,
+			obj:      obj,
+			price:    sdk.Coins{},
+			deadline: defaultDeadline,
+		},
+		{
+			name:     "invalid price: not the correct token denomination",
+			seller:   validAddress,
+			obj:      obj,
+			price:    sdk.NewCoins(sdk.NewCoin("abcd", sdk.OneInt())),
+			deadline: defaultDeadline,
+		},
+		{
+			name:   "invalid price: not the correct token denomination with multiple coin types",
+			seller: validAddress,
+			obj:    obj,
+			price: sdk.NewCoins(
+				sdk.NewCoin(test.Denom, sdk.OneInt()),
+				sdk.NewCoin("abcd", sdk.OneInt()),
+			),
 			deadline: defaultDeadline,
 		},
 		{
@@ -279,6 +333,11 @@ func (s *EscrowTestSuite) TestUpdate() {
 			deadline: 1,
 		},
 		{
+			name:     "invalid deadline: more than maximum duration",
+			updater:  s.seller,
+			deadline: s.generator.NowAfter(10 + uint64(s.keeper.GetMaximumEscrowDuration(s.ctx).Seconds())),
+		},
+		{
 			name:    "invalid update: empty",
 			updater: s.seller,
 		},
@@ -313,6 +372,31 @@ func (s *EscrowTestSuite) TestUpdate() {
 			updater: s.seller,
 			id:      s.refundedEscrowId,
 		},
+		{
+			name:    "invalid price: negative",
+			updater: s.seller,
+			price: sdk.Coins{
+				sdk.Coin{Denom: test.Denom, Amount: sdk.NewInt(-10)},
+			},
+		},
+		{
+			name:    "invalid price: empty",
+			updater: s.seller,
+			price:   sdk.Coins{},
+		},
+		{
+			name:    "invalid price: not the correct token denomination",
+			updater: s.seller,
+			price:   sdk.NewCoins(sdk.NewCoin("abcd", sdk.OneInt())),
+		},
+		{
+			name:    "invalid price: not the correct token denomination with multiple coin types",
+			updater: s.seller,
+			price: sdk.NewCoins(
+				sdk.NewCoin(test.Denom, sdk.OneInt()),
+				sdk.NewCoin("abcd", sdk.OneInt()),
+			),
+		},
 		// Put this test at the end so it does not mess with the other tests
 		{
 			name:    "seller update",
@@ -336,90 +420,131 @@ func (s *EscrowTestSuite) TestUpdate() {
 }
 
 func (s *EscrowTestSuite) TestTransferTo() {
+	defaultConfig := s.configKeeper.GetConfiguration(s.ctx)
+
 	var testEscrows = make(map[string]string)
-	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
+	defaultPriceAmt := int64(50)
+	defaultPrice := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt)))
+	brokerAddr := s.generator.NewAccAddress()
 	prices := map[string]sdk.Coins{
 		"default":   defaultPrice,
-		"default1":  defaultPrice,
-		"default2":  defaultPrice,
-		"default3":  defaultPrice,
 		"expensive": sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100000000000))),
-		"multi":     sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)), sdk.NewCoin(test.DenomAux, sdk.NewInt(50))),
 	}
-	for name, price := range prices {
+
+	createAndSaveEscrow := func(seller sdk.AccAddress, price sdk.Coins) string {
 		id, err := s.keeper.CreateEscrow(
 			s.ctx,
-			s.seller,
+			seller,
 			price,
-			newSavedObject(s.generator, s.seller, s.store),
+			newSavedObject(s.generator, seller, s.store),
 			s.generator.NowAfter(10),
 		)
 		if err != nil {
 			panic(err)
 		}
-		testEscrows[name] = id
+		return id
+	}
+
+	createAndSaveEscrowWithBroker := func(seller sdk.AccAddress, price sdk.Coins, commission sdk.Dec) string {
+		config := defaultConfig
+		config.EscrowBroker = brokerAddr.String()
+		config.EscrowCommission = commission
+		s.configKeeper.SetConfig(s.ctx, config)
+		id := createAndSaveEscrow(seller, price)
+		s.configKeeper.SetConfig(s.ctx, defaultConfig)
+		return id
+	}
+
+	for name, price := range prices {
+		testEscrows[name] = createAndSaveEscrow(s.seller, price)
 	}
 
 	invalidObjectEscrowId := s.createErroredObjectEscrow(defaultPrice)
 
-	checkDefaultValidTransfer := func(before, after assetState, name string) {
+	checkDefaultValidTransfer := func(before, after assetState, name string, expectedCommission sdk.Coins) {
+		price := defaultPrice.Sub(expectedCommission)
+		expectedBrokerBalance := sdk.NewCoins(before.brokerBalance.Add(expectedCommission...)...)
+
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance.Add(defaultPrice...), "Buyer balance on test %s", name)
-		s.Assert().Equal(before.sellerBalance.Add(defaultPrice...), after.sellerBalance, "Seller balance on test %s", name)
+		s.Assert().Equal(before.sellerBalance.Add(price...), after.sellerBalance, "Seller balance on test %s", name)
+		s.Assert().Equal(expectedBrokerBalance, after.brokerBalance, "Broker balance on test %s", name)
 		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
 		s.Assert().Equal(after.objectOwner, s.buyer, "Object owner on test %s", name)
 	}
 
-	checkInvalidTransferWithoutObject := func(before, after assetState, name string) {
+	checkInvalidTransferWithoutObject := func(before, after assetState, name string, _ sdk.Coins) {
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance, "Buyer balance on test %s", name)
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance, "Seller balance on test %s", name)
-
+		s.Assert().Equal(before.brokerBalance, after.brokerBalance, "Broker balance on test %s", name)
 	}
 
-	checkInvalidTransfer := func(before, after assetState, name string) {
-		checkInvalidTransferWithoutObject(before, after, name)
+	checkInvalidTransfer := func(before, after assetState, name string, _ sdk.Coins) {
+		checkInvalidTransferWithoutObject(before, after, name, nil)
 		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
 		s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
 	}
 
 	testCases := []struct {
-		name   string
-		buyer  sdk.AccAddress
-		amount sdk.Coins
-		id     string
-		check  func(before, after assetState, name string)
+		name               string
+		buyer              sdk.AccAddress
+		amount             sdk.Coins
+		id                 string
+		expectedCommission sdk.Coins
+		broker             sdk.AccAddress
+		check              func(before, after assetState, name string, expectedCommision sdk.Coins)
 	}{
 		{
 			name:   "valid transfer: exact coins",
 			buyer:  s.buyer,
 			amount: defaultPrice,
 			check:  checkDefaultValidTransfer,
-			id:     testEscrows["default1"],
+			id:     createAndSaveEscrow(s.seller, defaultPrice),
 		},
 		{
 			name:   "valid transfer: too much coin",
 			buyer:  s.buyer,
 			amount: defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(20))),
 			check:  checkDefaultValidTransfer,
-			id:     testEscrows["default2"],
+			id:     createAndSaveEscrow(s.seller, defaultPrice),
 		},
 		{
-			name:   "valid transfer: too much coins",
+			name:   "valid transfer: multiple coins",
 			buyer:  s.buyer,
 			amount: defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(30))),
 			check:  checkDefaultValidTransfer,
-			id:     testEscrows["default3"],
+			id:     createAndSaveEscrow(s.seller, defaultPrice),
+		},
+		{
+			name:               "valid transfer with broker",
+			buyer:              s.buyer,
+			amount:             defaultPrice,
+			check:              checkDefaultValidTransfer,
+			broker:             brokerAddr,
+			id:                 createAndSaveEscrowWithBroker(s.seller, defaultPrice, sdk.NewDec(1).Quo(sdk.NewDec(10))),
+			expectedCommission: sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt/10))),
+		},
+		{
+			name:               "valid transfer with broker and a composite price",
+			buyer:              s.buyer,
+			amount:             defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(30))),
+			check:              checkDefaultValidTransfer,
+			broker:             brokerAddr,
+			id:                 createAndSaveEscrowWithBroker(s.seller, defaultPrice, sdk.NewDec(1).Quo(sdk.NewDec(5))),
+			expectedCommission: sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt/5))),
+		},
+		{
+			name:               "valid transfer with broker and decimal escrow commission",
+			buyer:              s.buyer,
+			amount:             defaultPrice,
+			check:              checkDefaultValidTransfer,
+			broker:             brokerAddr,
+			id:                 createAndSaveEscrowWithBroker(s.seller, defaultPrice, sdk.NewDec(1).Quo(sdk.NewDec(3))),
+			expectedCommission: sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt/3))),
 		},
 		{
 			name:   "invalid transfer: not enough coin",
 			buyer:  s.buyer,
 			amount: defaultPrice.Sub(sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(1)))),
-			check:  checkInvalidTransfer,
-		},
-		{
-			name:   "invalid transfer: not enough coin on one coin",
-			buyer:  s.buyer,
-			amount: prices["multi"].Sub(sdk.NewCoins(sdk.NewCoin(test.DenomAux, sdk.NewInt(10)))),
-			id:     testEscrows["multi"],
 			check:  checkInvalidTransfer,
 		},
 		{
@@ -480,20 +605,19 @@ func (s *EscrowTestSuite) TestTransferTo() {
 
 		check := t.check
 		if check == nil {
-			check = func(before, after assetState, name string) {}
+			check = func(_, _ assetState, _ string, _ sdk.Coins) {}
 		}
 
 		transfer := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, id)
-			before := s.getState(s.seller, t.buyer, escrow, found)
+			before := s.getState(s.seller, t.buyer, t.broker, escrow, found)
 			err := s.keeper.TransferToEscrow(s.ctx, t.buyer, id, t.amount)
-			check(before, s.getState(s.seller, t.buyer, escrow, found), t.name)
+			check(before, s.getState(s.seller, t.buyer, t.broker, escrow, found), t.name, t.expectedCommission)
 			return err
 		}
 
 		test.EvaluateTest(s.T(), t.name, transfer)
 	}
-
 }
 
 func (s *EscrowTestSuite) TestRefund() {
@@ -604,9 +728,9 @@ func (s *EscrowTestSuite) TestRefund() {
 
 		refund := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, t.id)
-			before := s.getState(s.seller, nil, escrow, found)
+			before := s.getState(s.seller, nil, nil, escrow, found)
 			err := s.keeper.RefundEscrow(s.ctx, t.sender, t.id)
-			check(before, s.getState(s.seller, nil, escrow, found))
+			check(before, s.getState(s.seller, nil, nil, escrow, found))
 			return err
 		}
 

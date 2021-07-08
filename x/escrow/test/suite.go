@@ -72,11 +72,13 @@ func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins
 		panic(err)
 	}
 	return types.Escrow{
-		Id:       gen.NextID(),
-		Seller:   seller.String(),
-		Object:   packedObj,
-		Price:    price,
-		Deadline: deadline,
+		Id:               gen.NextID(),
+		Seller:           seller.String(),
+		Object:           packedObj,
+		Price:            price,
+		Deadline:         deadline,
+		BrokerCommission: sdk.ZeroDec(),
+		BrokerAddress:    gen.NewAccAddress().String(),
 	}, obj
 }
 
@@ -144,7 +146,7 @@ func SetConfig() {
 	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 }
 
-func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins, sdk.StoreKey) {
+func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins, sdk.StoreKey, types.ConfigurationKeeper) {
 	cdc := NewTestCodec()
 	// generate store
 	mdb := db.NewMemDB()
@@ -191,6 +193,9 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	defaultFees.SetDefaults(Denom)
 	configKeeper.SetFees(ctx, defaultFees)
 
+	defaultConfig := configuration.DefaultGenesisState().Config
+	configKeeper.SetConfig(ctx, defaultConfig)
+
 	// register blocked addresses
 	blockedAddr := make(map[string]bool)
 	blockedAddr[authtypes.NewModuleAddress(types.ModuleName).String()] = true
@@ -198,7 +203,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), configKeeper, blockedAddr)
 	k.AddStore(types.TypeIDTestObject, crudStore)
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
-	return k, ctx, crudStore, balances, escrowStoreKey
+	return k, ctx, crudStore, balances, escrowStoreKey, configKeeper
 }
 
 func MustPackToAny(val proto.Message) *cdctypes.Any {

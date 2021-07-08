@@ -46,10 +46,8 @@ func ValidateGenesis(data GenesisState) error {
 			return sdkerrors.Wrapf(ErrEscrowExpired, "found an escrow with inconsistent state and deadline: %v", escrow.Id)
 		}
 
-		//TODO: find a way to validate object ownership ?
-
 		// Validate the escrow fields
-		if err := escrow.ValidateWithoutDeadlineAndObject(); err != nil {
+		if err := escrow.ValidateWithoutDeadlineAndObject(""); err != nil {
 			return err
 		}
 

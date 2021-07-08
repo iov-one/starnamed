@@ -42,11 +42,21 @@ func (k Keeper) CreateEscrow(
 		return "", err
 	}
 
+	// Check the deadline validity
+	if deadline > uint64(ctx.BlockTime().Unix())+uint64(k.GetMaximumEscrowDuration(ctx).Seconds()) {
+		return "", sdkerrors.Wrap(types.ErrInvalidDeadline, "The deadline exceeds the maximum escrow duration")
+	}
+
+	//TODO: use cosmos-sdk params instead of the configuration
+
+	// Get the configuration
+	config := k.configurationKeeper.GetConfiguration(ctx)
+
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
-		id, seller, price, object, deadline,
+		id, seller, price, object, deadline, config.EscrowBroker, config.EscrowCommission,
 	)
-	err = escrow.Validate(k.GetLastBlockTime(ctx))
+	err = escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
 	if err != nil {
 		return "", err
 	}
@@ -105,7 +115,7 @@ func (k Keeper) UpdateEscrow(
 		escrow.Seller = seller.String()
 	}
 	if price != nil {
-		if err := types.ValidatePrice(price); err != nil {
+		if err := types.ValidatePrice(price, k.GetEscrowPriceDenom(ctx)); err != nil {
 			return err
 		}
 		escrow.Price = price
@@ -116,9 +126,11 @@ func (k Keeper) UpdateEscrow(
 		}
 		//TODO: is that the behavior we want ?
 
-		// We can only delay the deadline
+		// We can only delay the deadline and no more than the maximum duration from now
 		if deadline < escrow.Deadline {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The new deadline cannot be before the old one")
+			return sdkerrors.Wrap(types.ErrInvalidDeadline, "The new deadline cannot be before the old one")
+		} else if deadline > uint64(ctx.BlockTime().Unix())+uint64(k.GetMaximumEscrowDuration(ctx).Seconds()) {
+			return sdkerrors.Wrap(types.ErrInvalidDeadline, "The new deadline exceeds the maximum escrow duration")
 		}
 		// We are modifying the deadline, get rid of old deadline indexing
 		k.deleteEscrowFromDeadlineStore(ctx, escrow)
@@ -151,8 +163,14 @@ func (k Keeper) TransferToEscrow(
 
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
 	if err != nil {
-		//this should be always valid because escrow is guaranteed to be in a valid state when created/updated
+		//this should be always valid because the escrow is guaranteed to be in a valid state when created/updated
 		panic(sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller))
+	}
+
+	broker, err := sdk.AccAddressFromBech32(escrow.BrokerAddress)
+	if err != nil {
+		//this should be always valid because the escrow is guaranteed to be in a valid state when created
+		panic(sdkerrors.Wrapf(err, "Invalid broker address : %v", escrow.BrokerAddress))
 	}
 
 	// Ensure that the buyer is not the seller of this escrow
@@ -177,7 +195,7 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	// Do the exchange
-	err = k.doSwap(ctx, escrow, buyer, seller)
+	err = k.doSwap(ctx, escrow, buyer, seller, broker)
 	// If an error occurs here, the buyer have sent the coins and :
 	// - The buyer can have received the object or not
 	// - The seller has not received the coins
@@ -195,7 +213,7 @@ func (k Keeper) TransferToEscrow(
 	return nil
 }
 
-func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress) error {
+func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress, broker sdk.AccAddress) error {
 
 	// Transfer the object from the module to the buyer
 	err := k.doObjectTransfer(ctx, k.GetEscrowAddress(), buyer, escrow.GetObject())
@@ -203,8 +221,15 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 		return sdkerrors.Wrap(err, "Cannot send the object to the buyer")
 	}
 
-	// Transfer the coins
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, seller, escrow.Price)
+	// Transfer the coins, making sure that brokerCoins + sellerCoins = escrow.Price
+	brokerCoins, _ := sdk.NewDecCoinsFromCoins(escrow.Price...).MulDec(escrow.BrokerCommission).TruncateDecimal()
+	sellerCoins := escrow.Price.Sub(brokerCoins)
+
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, broker, brokerCoins)
+	if err != nil {
+		return sdkerrors.Wrap(err, "Cannot send the coins to the broker")
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, seller, sellerCoins)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the seller")
 	}

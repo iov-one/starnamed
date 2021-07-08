@@ -13,10 +13,14 @@ const (
 	EscrowIDLength = 16
 )
 
-// ValidatePrice verifies whether the given amount is legal
-func ValidatePrice(price sdk.Coins) error {
+// ValidatePrice verifies whether the given amount is valid and has the correct denomination
+// If denom is empty, does not validate the denomination
+func ValidatePrice(price sdk.Coins, denom string) error {
 	if !(price.IsValid() && price.IsAllPositive()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "the price must be valid and positive")
+	}
+	if len(denom) != 0 && (price.Len() != 1 || price[0].Denom != denom) {
+		return sdkerrors.Wrap(ErrInvalidPrice, "the price must be in "+denom+", price: "+price.String())
 	}
 	return nil
 }
@@ -53,6 +57,18 @@ func ValidateState(state EscrowState) error {
 func ValidateDeadline(deadline uint64, lastBlockTime uint64) error {
 	if deadline < lastBlockTime {
 		return ErrPastDeadline
+	}
+	return nil
+}
+
+func ValidateAddress(addr string) error {
+	_, err := sdk.AccAddressFromBech32(addr)
+	return err
+}
+
+func ValidateCommission(commission sdk.Dec) error {
+	if commission.LT(sdk.ZeroDec()) || commission.GT(sdk.OneDec()) {
+		return ErrInvalidCommissionRate
 	}
 	return nil
 }

@@ -1452,7 +1452,9 @@ Escrow defines the struct of an escrow
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
-| `deadline` | [uint64](#uint64) |  | string escrow_broker = 7; string escrow_commission = 8 [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false ]; |
+| `deadline` | [uint64](#uint64) |  |  |
+| `broker_address` | [string](#string) |  |  |
+| `broker_commission` | [string](#string) |  |  |
 
 
 

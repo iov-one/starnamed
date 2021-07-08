@@ -173,6 +173,26 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	s.expects(invariant, true, "Escrow with negative price")
 	s.reinitEscrows()
 
+	// Invalid price denomination
+	escrow.Price = sdk.NewCoins(sdk.NewCoin("abc", sdk.NewInt(1)))
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid price denomination")
+	s.reinitEscrows()
+
+	escrow.Price = sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(1)), sdk.NewCoin("abc", sdk.NewInt(1)))
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid price denomination with multiple coins")
+	s.reinitEscrows()
+
+	// Empty price
+	escrow.Price = sdk.Coins{}
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with empty price")
+	s.reinitEscrows()
+
 	// Test id on the future
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.Id = hex.EncodeToString(sdk.Uint64ToBigEndian(s.generator.GetNextId() + 500))
@@ -180,4 +200,58 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	s.saveObject(obj)
 
 	s.expects(invariant, true, "Escrow with invalid ID: this ID will be generated for future escrows")
+	s.reinitEscrows()
+
+	// Test invalid seller address
+	escrow, obj = s.generator.NewRandomTestEscrow()
+	escrow.Seller = "star15d4e5d4e54d5e4d"
+	s.addEscrow(escrow)
+	s.saveObject(obj)
+
+	s.expects(invariant, true, "Escrow with invalid seller: invalid bech32 address")
+	s.reinitEscrows()
+
+	escrow.Seller = "cosmos1veah54c394fk9y9ed95dka8npz6m77ncg5luhs"
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid seller: invalid prefix in the bech32 address")
+	s.reinitEscrows()
+
+	// Test invalid broker address
+	escrow.Seller = s.generator.NewAccAddress().String()
+	escrow.BrokerAddress = "star15d4e5d4e54d5e4d"
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid broker: invalid bech32 address")
+	s.reinitEscrows()
+
+	escrow.BrokerAddress = "cosmos1veah54c394fk9y9ed95dka8npz6m77ncg5luhs"
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid broker: invalid prefix in the bech32 address")
+	s.reinitEscrows()
+
+	// Test invalid broker commission
+	escrow, obj = s.generator.NewRandomTestEscrow()
+	escrow.BrokerCommission = sdk.NewDec(-1)
+	s.addEscrow(escrow)
+	s.saveObject(obj)
+
+	s.expects(invariant, true, "Escrow with invalid commission: negative commission")
+	s.reinitEscrows()
+
+	escrow.BrokerCommission = sdk.NewDec(2)
+	s.addEscrow(escrow)
+
+	s.expects(invariant, true, "Escrow with invalid commission: commission over 100%")
+	s.reinitEscrows()
+
+	// Deadline is exceeding the maximum allowed duration for an escrow
+	escrow, obj = s.generator.NewRandomTestEscrow()
+	escrow.Deadline = s.generator.NowAfter(1 + uint64(s.keeper.GetMaximumEscrowDuration(s.ctx).Seconds()))
+	s.addEscrow(escrow)
+	s.saveObject(obj)
+
+	s.expects(invariant, true, "Escrow with invalid deadline: exceeds the maximum allowed duration for an escrow")
+	s.reinitEscrows()
 }

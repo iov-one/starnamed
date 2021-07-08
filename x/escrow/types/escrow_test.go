@@ -15,6 +15,8 @@ func TestValidate(t *testing.T) {
 	test.SetConfig()
 	gen := test.NewEscrowGenerator(100)
 
+	defaultBroker := gen.NewAccAddress().String()
+	defaultCommission := sdk.ZeroDec()
 	defaultId := "0123456789abcdef"
 	defaultSellerBytes := gen.NewAccAddress()
 	defaultSeller := defaultSellerBytes.String()
@@ -27,26 +29,37 @@ func TestValidate(t *testing.T) {
 			Amount: sdk.NewInt(-20),
 		},
 	}
+	denom := test.Denom
 
 	testCases := []struct {
-		name     string
-		id       string
-		seller   string
-		state    types.EscrowState
-		price    sdk.Coins
-		obj      types.TransferableObject
-		deadline uint64
+		name       string
+		id         string
+		seller     string
+		state      types.EscrowState
+		price      sdk.Coins
+		obj        types.TransferableObject
+		deadline   uint64
+		commission sdk.Dec
+		broker     string
 	}{
 		{
 			name: "valid escrow: simple price",
 		},
 		{
-			name:  "valid escrow: composed price",
+			name:  "invalid escrow: composed price",
 			price: defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(20))),
 		},
 		{
 			name:  "invalid escrow: negative price",
 			price: negativePrice,
+		},
+		{
+			name:  "invalid escrow: empty price",
+			price: sdk.Coins{},
+		},
+		{
+			name:  "invalid escrow: invalid denom price",
+			price: sdk.NewCoins(sdk.NewCoin("abcde", sdk.OneInt())),
 		},
 		{
 			name: "invalid escrow: non-hexadecimal id",
@@ -61,14 +74,30 @@ func TestValidate(t *testing.T) {
 			id:   "0123456789abcdefedcba",
 		},
 		{
-			name:   "invalid escrow: invalid bech32",
+			name:   "invalid seller: invalid bech32",
 			seller: "star14894684ded56f",
 			obj:    gen.NewNotPossessedTestObject(),
 		},
 		{
-			name:   "invalid escrow: bech32 of another network",
+			name:   "invalid seller: bech32 of another network",
 			seller: "cosmos1cqfse93m6r7fr3vx07du5yfmsltca60gyadygf",
 			obj:    gen.NewNotPossessedTestObject(),
+		},
+		{
+			name:   "invalid broker: invalid bech32",
+			broker: "star14894684ded56f",
+		},
+		{
+			name:   "invalid broker: bech32 of another network",
+			broker: "cosmos1cqfse93m6r7fr3vx07du5yfmsltca60gyadygf",
+		},
+		{
+			name:       "invalid commission: negative",
+			commission: sdk.NewDec(-1),
+		},
+		{
+			name:       "invalid commission: over 1",
+			commission: sdk.NewDec(2),
 		},
 	}
 
@@ -94,18 +123,28 @@ func TestValidate(t *testing.T) {
 			deadline = defaultDeadline
 		}
 		state := tc.state
+		broker := tc.broker
+		if len(broker) == 0 {
+			broker = defaultBroker
+		}
+		commission := tc.commission
+		if commission.IsNil() {
+			commission = defaultCommission
+		}
 
 		test.EvaluateTest(t, tc.name, func(t *testing.T) error {
 			escrow := types.Escrow{
-				Id:       id,
-				Seller:   seller,
-				Object:   test.MustPackToAny(obj),
-				Price:    price,
-				State:    state,
-				Deadline: deadline,
+				Id:               id,
+				Seller:           seller,
+				Object:           test.MustPackToAny(obj),
+				Price:            price,
+				State:            state,
+				Deadline:         deadline,
+				BrokerAddress:    broker,
+				BrokerCommission: commission,
 			}
-			err1 := escrow.Validate(gen.NowAfter(0))
-			err2 := escrow.ValidateWithoutDeadlineAndObject()
+			err1 := escrow.Validate(denom, gen.NowAfter(0))
+			err2 := escrow.ValidateWithoutDeadlineAndObject(denom)
 			if !errors.Is(err1, err2) {
 				t.Fatalf("Error, mismatch of validation error between Validate and ValidateWithoutDeadlineAndObject : %v and %v",
 					err1,
@@ -124,7 +163,7 @@ func TestValidate(t *testing.T) {
 			Object:   test.MustPackToAny(defaultObj),
 			Price:    defaultPrice,
 			Deadline: defaultDeadline,
-		}.Validate(gen.NowAfter(0))
+		}.Validate(denom, gen.NowAfter(0))
 	})
 	test.EvaluateTest(t, "invalid escrow: passed deadline", func(*testing.T) error {
 		return types.Escrow{
@@ -133,6 +172,6 @@ func TestValidate(t *testing.T) {
 			Object:   test.MustPackToAny(defaultObj),
 			Price:    defaultPrice,
 			Deadline: gen.NowAfter(0) - 20,
-		}.Validate(gen.NowAfter(0))
+		}.Validate(denom, gen.NowAfter(0))
 	})
 }

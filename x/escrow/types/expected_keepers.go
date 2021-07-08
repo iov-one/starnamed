@@ -25,4 +25,6 @@ type ConfigurationKeeper interface {
 	GetFees(ctx sdk.Context) *configuration.Fees
 	// GetConfiguration returns the configuration
 	GetConfiguration(ctx sdk.Context) configuration.Config
+
+	SetConfig(ctx sdk.Context, conf configuration.Config)
 }

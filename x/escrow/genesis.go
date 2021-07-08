@@ -39,7 +39,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return types.NewGenesisState(escrows, lastBlockTime, nextID)
 }
 
-//PrepForZeroHeightGenesis TODO: figure out is this is actually needed or if it is legacy (and if it is, does anything needs to be done in replacement)
+//PrepForZeroHeightGenesis TODO: figure out is this is actually needed or if it is legacy (and if it is, if anything needs to be done in replacement)
 func PrepForZeroHeightGenesis(ctx sdk.Context, k keeper.Keeper) {
 	//TODO: check how to do this init
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
