@@ -1234,6 +1234,9 @@ Config is the configuration of the network
 | `certificate_size_max` | [uint64](#uint64) |  | CertificateSizeMax defines maximum size of a certificate that could be saved under an account |
 | `certificate_count_max` | [uint32](#uint32) |  | CertificateCountMax defines maximum number of certificates that could be saved under an account |
 | `metadata_size_max` | [uint64](#uint64) |  | MetadataSizeMax defines maximum size of metadata that could be saved under an account |
+| `escrow_broker` | [string](#string) |  | EscrowBroker defines an address that will receive a commission for completed escrows |
+| `escrow_commission` | [string](#string) |  | EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and 1 (100% commission) |
+| `escrow_max_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | EscrowPeriod defines the maximum duration of an escrow in seconds |
 
 
 
@@ -1449,7 +1452,7 @@ Escrow defines the struct of an escrow
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
-| `deadline` | [uint64](#uint64) |  |  |
+| `deadline` | [uint64](#uint64) |  | string escrow_broker = 7; string escrow_commission = 8 [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false ]; |
 
 
 
