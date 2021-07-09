@@ -1,8 +1,11 @@
 package keeper
 
 import (
-	"github.com/iov-one/starnamed/x/escrow/types"
+	"fmt"
+
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/iov-one/starnamed/x/escrow/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +18,9 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case types.QueryEscrow:
 			return queryEscrow(ctx, req, k, legacyQuerierCdc)
+		case types.QueryEscrows:
+			//FIXME: find a way to implement this in a factorized way with grpc_query
+			return nil, fmt.Errorf("this route is not implemented for the legacy querier")
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query path: %s", types.ModuleName, path[0])
 		}

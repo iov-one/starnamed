@@ -102,6 +102,8 @@
 - [iov/escrow/v1beta1/query.proto](#iov/escrow/v1beta1/query.proto)
     - [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest)
     - [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse)
+    - [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest)
+    - [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse)
   
     - [Query](#starnamed.x.escrow.v1beta1.Query)
   
@@ -1450,7 +1452,7 @@ Escrow defines the struct of an escrow
 | `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
-| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | TODO: refactor this to use sdk.Coin instead of sdk.Coins Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only one coin type in a valid escrow |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
 | `broker_address` | [string](#string) |  |  |
@@ -1542,12 +1544,46 @@ QueryEscrowRequest is the request type for the Query/Escrow RPC method
 <a name="starnamed.x.escrow.v1beta1.QueryEscrowResponse"></a>
 
 ### QueryEscrowResponse
-QueryBalanceResponse is the response type for the Query/Escrow RPC method
+QueryEscrowResponse is the response type for the Query/Escrow RPC method
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `escrow` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowsRequest"></a>
+
+### QueryEscrowsRequest
+QueryEscrowsRequest is the request type for the Query/Escrows RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `seller` | [string](#string) |  |  |
+| `state` | [string](#string) |  |  |
+| `object_key` | [string](#string) |  |  |
+| `pagination_start` | [uint64](#uint64) |  |  |
+| `pagination_length` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowsResponse"></a>
+
+### QueryEscrowsResponse
+QueryEscrowsResponse is the response type for the Query/Escrows RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
 
 
 
@@ -1567,7 +1603,8 @@ Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the Escrow by the specified hash lock | GET|/starnamed/x/escrow/{id}|
+| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/starnamed/x/escrow/{id}|
+| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/starnamed/x/escrows|
 
  <!-- end services -->
 

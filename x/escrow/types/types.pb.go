@@ -65,9 +65,12 @@ func (EscrowState) EnumDescriptor() ([]byte, []int) {
 
 // Escrow defines the struct of an escrow
 type Escrow struct {
-	Id               string                                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Seller           string                                   `protobuf:"bytes,2,opt,name=seller,proto3" json:"seller,omitempty"`
-	Object           *types.Any                               `protobuf:"bytes,3,opt,name=object,proto3" json:"object,omitempty"`
+	Id     string     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Seller string     `protobuf:"bytes,2,opt,name=seller,proto3" json:"seller,omitempty"`
+	Object *types.Any `protobuf:"bytes,3,opt,name=object,proto3" json:"object,omitempty"`
+	//TODO: refactor this to use sdk.Coin instead of sdk.Coins
+	// Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only
+	// one coin type in a valid escrow
 	Price            github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=price,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"price"`
 	State            EscrowState                              `protobuf:"varint,5,opt,name=state,proto3,enum=starnamed.x.escrow.v1beta1.EscrowState" json:"state,omitempty"`
 	Deadline         uint64                                   `protobuf:"varint,6,opt,name=deadline,proto3" json:"deadline,omitempty"`
