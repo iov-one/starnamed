@@ -9,10 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -22,15 +18,15 @@ type upgradeData struct {
 }
 
 func (app *WasmApp) RegisterUpgradeHandlers() {
-	upgrades := []upgradeData{GetIOVMainnetIBC2UpgradeHandler()}
+	upgrades := []upgradeData{getIOVMainnetIBC2UpgradeHandler(app)}
 
 	for _, upgrade := range upgrades {
 		app.upgradeKeeper.SetUpgradeHandler(upgrade.name, upgrade.handler)
 	}
 }
 
-func GetIOVMainnetIBC2UpgradeHandler() upgradeData {
-	const planName = "iov-mainnet-ibc-2"
+func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
+	const planName = "fix-cosmos-sdk-migrate-bug"
 	multisigAccounts := []struct {
 		address string
 		pubkeys []string
@@ -107,24 +103,6 @@ func GetIOVMainnetIBC2UpgradeHandler() upgradeData {
 			panic(fmt.Errorf("the %s upgrade handler has been called when it should not have been", planName))
 		}
 
-		encodingConfig := MakeEncodingConfig()
-		appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
-
-		var paramKeeper = paramskeeper.NewKeeper(
-			appCodec,
-			legacyAmino,
-			sdk.NewKVStoreKey(paramstypes.StoreKey),
-			sdk.NewTransientStoreKey(paramstypes.TStoreKey),
-		)
-
-		var keeper = authkeeper.NewAccountKeeper(
-			appCodec,
-			sdk.NewKVStoreKey(authtypes.StoreKey),
-			paramKeeper.Subspace(authtypes.ModuleName),
-			authtypes.ProtoBaseAccount,
-			maccPerms,
-		)
-
 		for _, accountData := range multisigAccounts {
 			address, err := sdk.AccAddressFromBech32(accountData.address)
 			if err != nil {
@@ -132,7 +110,7 @@ func GetIOVMainnetIBC2UpgradeHandler() upgradeData {
 			}
 
 			// Get the account
-			account := keeper.GetAccount(ctx, address)
+			account := app.accountKeeper.GetAccount(ctx, address)
 
 			// Ensure that the account is a multisig account
 			multisigPubkey, match := account.GetPubKey().(*multisig.LegacyAminoPubKey)
@@ -162,7 +140,7 @@ func GetIOVMainnetIBC2UpgradeHandler() upgradeData {
 			}
 
 			// Write back the account to the store
-			keeper.SetAccount(ctx, account)
+			app.accountKeeper.SetAccount(ctx, account)
 		}
 	}
 	return upgradeData{name: planName, handler: handler}
