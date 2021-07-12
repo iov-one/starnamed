@@ -300,6 +300,37 @@ export const injectValidator = genesis => {
 }
 
 /**
+ * Adds the missing pubkeys in the migrated state
+ * @param {Object} genesis - the exported genesis object
+ * @param {Object} genesis - the migrated genesis object
+ */
+export const addMissingMultisigs = (exported_genesis, migrated_genesis) => {
+   for (let account of exported_genesis.app_state.auth.accounts) {
+      if (account.value.public_key && account.value.public_key.type === "tendermint/PubKeyMultisigThreshold")
+      {
+         let pubkeys = account.value.public_key.value.pubkeys
+         let migrated_acc = migrated_genesis.app_state.auth.accounts.find(acc => acc.address === account.value.address)
+         if (!migrated_acc) {
+            console.log("No account " + account.value.address + " in migrated file")
+            continue
+         }
+         migrated_acc.pub_key.public_keys = []
+         console.log("{\"" + account.value.address + "\", []string{")
+         for (let pubkey of pubkeys) {
+            let type = ""
+            if (pubkey.type === "tendermint/PubKeySecp256k1")
+               type = "/cosmos.crypto.secp256k1.PubKey"
+            else
+               console.err("Unknown type " + pubkey.type)
+            migrated_acc.pub_key.public_keys.push({"@type": type, "key": pubkey.value})
+            console.log("\"" + pubkey.value + "\",")
+         }
+         console.log("}},")
+      }
+   }
+}
+
+/**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
  */
