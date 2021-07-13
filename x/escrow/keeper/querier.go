@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/iov-one/starnamed/x/escrow/types"
@@ -19,8 +17,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryEscrow:
 			return queryEscrow(ctx, req, k, legacyQuerierCdc)
 		case types.QueryEscrows:
-			//FIXME: find a way to implement this in a factorized way with grpc_query
-			return nil, fmt.Errorf("this route is not implemented for the legacy querier")
+			return queryEscrows(ctx, req, k, legacyQuerierCdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query path: %s", types.ModuleName, path[0])
 		}
@@ -33,14 +30,43 @@ func queryEscrow(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerier
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
+	if err := types.ValidateID(params.Id); err != nil {
+		return nil, sdkerrors.Wrap(err, "Invalid provided ID")
+	}
+
 	escrow, found := k.GetEscrow(ctx, params.Id)
 	if !found {
 		return nil, sdkerrors.Wrap(types.ErrEscrowNotFound, params.Id)
 	}
 
-	bz, err := legacyQuerierCdc.MarshalJSON(&escrow)
+	bz, err := legacyQuerierCdc.MarshalJSON(&types.QueryEscrowResponse{Escrow: &escrow})
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Cannot marshall the queried escrow")
+	}
+	return bz, nil
+}
+
+func queryEscrows(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	var params types.QueryEscrowsParams
+	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	escrows, err := k.queryEscrowsByAttributes(
+		ctx,
+		params.Seller,
+		params.State,
+		params.ObjectKey,
+		params.PaginationStart,
+		params.PaginationLength,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	bz, err := legacyQuerierCdc.MarshalJSON(&types.QueryEscrowsResponse{Escrows: escrows})
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "Cannot marshall the queried escrows")
 	}
 	return bz, nil
 }

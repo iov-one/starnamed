@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"reflect"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -417,6 +419,87 @@ func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObj
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
 		return query.Where().Index(types.ObjectIndex).Equals(object.GetObject().PrimaryKey())
 	})
+}
+
+func (k Keeper) queryEscrowsByAttributes(
+	ctx sdk.Context,
+	sellerStr string,
+	stateStr string,
+	objectKeyStr string,
+	start uint64,
+	length uint64,
+) ([]types.Escrow, error) {
+	var seller sdk.AccAddress
+	if len(sellerStr) != 0 {
+		var err error
+		seller, err = sdk.AccAddressFromBech32(sellerStr)
+		if err != nil {
+			return nil, sdkerrors.Wrap(err, "Invalid seller address")
+		}
+	}
+
+	var state types.EscrowState
+	var hasState bool
+	if len(stateStr) != 0 {
+		hasState = true
+		switch strings.ToLower(stateStr) {
+		case "open":
+			state = types.EscrowState_Open
+		case "expired":
+			state = types.EscrowState_Expired
+		default:
+			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The state is invalid, can be open or expired")
+		}
+	}
+
+	var objectKey []byte
+	if len(objectKeyStr) != 0 {
+		var err error
+		objectKey, err = hex.DecodeString(objectKeyStr)
+		if err != nil {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Object key must be an hex-encoded byte array : "+err.Error())
+		}
+	}
+
+	var end uint64
+	if length == 0 {
+		end = 0
+	} else {
+		end = start + length
+	}
+
+	filter := func(query crud.QueryStatement) crud.ValidQuery {
+		getStatement := func(query crud.QueryStatement, previous crud.FinalizedIndexStatement) crud.WhereStatement {
+			if previous == nil {
+				return query.Where()
+			} else {
+				return previous.And()
+			}
+		}
+
+		previousStatement := crud.FinalizedIndexStatement(nil)
+		//TODO: maybe optimize by filtering first by object if there is an object filter
+		if seller != nil {
+			previousStatement = getStatement(query, previousStatement).
+				Index(types.SellerIndex).Equals(seller)
+		}
+		if hasState {
+			previousStatement = getStatement(query, previousStatement).
+				Index(types.StateIndex).Equals(sdk.Uint64ToBigEndian(uint64(state)))
+		}
+		if objectKey != nil {
+			previousStatement = getStatement(query, previousStatement).
+				Index(types.ObjectIndex).Equals(objectKey)
+		}
+
+		if previousStatement == nil {
+			return query
+		} else {
+			return previousStatement
+		}
+	}
+
+	return k.QueryEscrowsWithRange(ctx, filter, start, end)
 }
 
 // getEscrowByKey retrieves the specified escrow with its key
