@@ -43,7 +43,6 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 	}
 
 	// Collect fees
-	// FIXME: shouldn't we collect fees even if the escrow is
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
 		return nil, err
 	}
@@ -82,7 +81,6 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 	}
 
 	// Collect fees
-	// FIXME: shouldn't we collect fees even if the escrow is
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
 		return nil, err
 	}
@@ -109,7 +107,6 @@ func (m msgServer) TransferToEscrow(ctx context.Context, msg *types.MsgTransferT
 	}
 
 	// Collect fees
-	// FIXME: shouldn't we collect fees even if the escrow is
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
 		return nil, err
 	}
@@ -136,7 +133,6 @@ func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow)
 	}
 
 	// Collect fees
-	// FIXME: shouldn't we collect fees even if the escrow is
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
 		return nil, err
 	}

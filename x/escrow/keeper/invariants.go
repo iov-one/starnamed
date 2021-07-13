@@ -18,6 +18,8 @@ func AllInvariants(k Keeper) sdk.Invariant {
 	return StateInvariant(k)
 }
 
+//TODO split this between different invariants
+
 // StateInvariant checks that all escrows are in a valid state
 func StateInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {

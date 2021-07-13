@@ -516,6 +516,7 @@ func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow
 func (k Keeper) IterateEscrowsWithPassedDeadline(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
 	store := k.getDeadlineStore(ctx)
 	// TODO : check if that's actually valid
+	//TODO: iterate from (past) last block time
 	end := sdk.Uint64ToBigEndian(date + 1)
 	iterator := store.Iterator(nil, end)
 	defer iterator.Close()
