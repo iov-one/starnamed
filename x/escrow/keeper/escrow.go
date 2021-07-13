@@ -372,7 +372,7 @@ func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, foun
 
 func consumeEscrowCursor(cursor crud.Cursor) ([]types.Escrow, error) {
 	var escrows []types.Escrow
-	for ; cursor.Valid(); cursor.Valid() {
+	for ; cursor.Valid(); cursor.Next() {
 		var escrow types.Escrow
 		if err := cursor.Read(&escrow); err != nil {
 			return nil, err
