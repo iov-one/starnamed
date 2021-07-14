@@ -123,13 +123,13 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 
 				pubkeyBytes, err := base64.StdEncoding.DecodeString(pubkeyData)
 				if err != nil {
-					panic(fmt.Errorf("error while decdoding the pubkey number %n of account %s", n, accountData.address))
+					panic(fmt.Errorf("error while decdoding the pubkey number %d of account %s", n, accountData.address))
 				}
 				pubkey := &secp256k1.PubKey{Key: pubkeyBytes}
 
 				wrappedPubkey, err := cdctypes.NewAnyWithValue(pubkey)
 				if err != nil {
-					panic(fmt.Errorf("error while packing the pubkey number %n of account %s", n, accountData.address))
+					panic(fmt.Errorf("error while packing the pubkey number %d of account %s", n, accountData.address))
 				}
 				multisigPubkey.PubKeys = append(multisigPubkey.PubKeys, wrappedPubkey)
 			}
