@@ -63,6 +63,15 @@ func (s *MsgServerTestSuite) TestAll() {
 
 	}
 
+	checkNoFees := func(tc testCase, operation string, oldBalance sdk.Coins) {
+		newBalance := getFeePayerBalance(tc)
+		s.Assert().Equal(
+			int64(0),
+			oldBalance.Sub(newBalance).AmountOf(test.Denom).Int64(), // Only one denom for the fee
+			"Invalid fee payed for test "+tc.name+"/"+operation)
+
+	}
+
 	commonTestCases := []testCase{
 		{
 			name:   "normal scenario",
@@ -139,6 +148,8 @@ func (s *MsgServerTestSuite) TestAll() {
 
 		if !shouldFail {
 			checkFees(t, "creation", oldFeePayerBalance)
+		} else {
+			checkNoFees(t, "creation", oldFeePayerBalance)
 		}
 
 		if resp == nil {
@@ -172,6 +183,8 @@ func (s *MsgServerTestSuite) TestAll() {
 		test.CheckError(s.T(), t.name+" update", shouldFail, err)
 		if !shouldFail {
 			checkFees(t, "update", oldFeePayerBalance)
+		} else {
+			checkNoFees(t, "update", oldFeePayerBalance)
 		}
 
 		// check transfering
@@ -190,6 +203,8 @@ func (s *MsgServerTestSuite) TestAll() {
 				oldFeePayerBalance = oldFeePayerBalance.Sub(updatedPrice)
 			}
 			checkFees(tCopy, "transfer", oldFeePayerBalance)
+		} else {
+			checkNoFees(tCopy, "transfer", oldFeePayerBalance)
 		}
 
 		// check refunding (after creating a new one)
@@ -203,6 +218,8 @@ func (s *MsgServerTestSuite) TestAll() {
 		test.CheckError(s.T(), t.name+" refund", shouldFail, err)
 		if !shouldFail {
 			checkFees(t, "refund", oldFeePayerBalance)
+		} else {
+			checkNoFees(t, "refund", oldFeePayerBalance)
 		}
 
 	}
