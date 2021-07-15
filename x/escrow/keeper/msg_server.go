@@ -46,6 +46,22 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
 		return nil, err
 	}
+
+	// Emit event
+	if err := sdkCtx.EventManager().EmitTypedEvent(&types.EventCreatedEscrow{
+		Id:               id,
+		Seller:           msg.Seller,
+		FeePayer:         msg.FeePayer,
+		BrokerAddress:    m.Keeper.GetBrokerAddress(sdkCtx),
+		BrokerCommission: m.Keeper.GetBrokerCommission(sdkCtx),
+		Price:            msg.Price,
+		Object:           msg.Object,
+		Deadline:         msg.Deadline,
+		Fees:             m.Keeper.ComputeFees(sdkCtx, msg),
+	}); err != nil {
+		return nil, err
+	}
+
 	return &types.MsgCreateEscrowResponse{Id: id}, nil
 }
 
@@ -85,6 +101,19 @@ func (m msgServer) UpdateEscrow(ctx context.Context, msg *types.MsgUpdateEscrow)
 		return nil, err
 	}
 
+	// Emit event
+	if err := sdkCtx.EventManager().EmitTypedEvent(&types.EventUpdatedEscrow{
+		Id:          msg.Id,
+		Updater:     msg.Updater,
+		FeePayer:    msg.FeePayer,
+		NewPrice:    msg.Price,
+		NewSeller:   msg.Seller,
+		NewDeadline: msg.Deadline,
+		Fees:        m.Keeper.ComputeFees(sdkCtx, msg),
+	}); err != nil {
+		return nil, err
+	}
+
 	return &types.MsgUpdateEscrowResponse{}, nil
 }
 
@@ -111,6 +140,16 @@ func (m msgServer) TransferToEscrow(ctx context.Context, msg *types.MsgTransferT
 		return nil, err
 	}
 
+	// Emit event
+	if err := sdkCtx.EventManager().EmitTypedEvent(&types.EventCompletedEscrow{
+		Id:       msg.Id,
+		FeePayer: msg.FeePayer,
+		Buyer:    msg.Sender,
+		Fees:     m.Keeper.ComputeFees(sdkCtx, msg),
+	}); err != nil {
+		return nil, err
+	}
+
 	return &types.MsgTransferToEscrowResponse{}, nil
 }
 
@@ -134,6 +173,16 @@ func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow)
 
 	// Collect fees
 	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
+		return nil, err
+	}
+
+	// Emit event
+	if err := sdkCtx.EventManager().EmitTypedEvent(&types.EventRefundedEscrow{
+		Id:       msg.Id,
+		FeePayer: msg.FeePayer,
+		Sender:   msg.Sender,
+		Fees:     m.Keeper.ComputeFees(sdkCtx, msg),
+	}); err != nil {
 		return nil, err
 	}
 

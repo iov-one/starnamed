@@ -52,7 +52,6 @@ func getFee(feesConfig *configuration.Fees, msg sdk.Msg) sdk.Dec {
 	case *types.MsgRefundEscrow:
 		return feesConfig.RefundEscrow
 	default:
-		// TODO: should this be an error ?
 		return feesConfig.FeeDefault
 	}
 }

@@ -148,6 +148,17 @@ func (k Keeper) GetEscrowPriceDenom(ctx sdk.Context) string {
 	return k.configurationKeeper.GetFees(ctx).FeeCoinDenom
 }
 
+// GetBrokerAddress returns the escrow broker address
+func (k Keeper) GetBrokerAddress(ctx sdk.Context) string {
+	return k.configurationKeeper.GetConfiguration(ctx).EscrowBroker
+}
+
+// GetBrokerCommission returns the escrow broker commission
+func (k Keeper) GetBrokerCommission(ctx sdk.Context) sdk.Dec {
+	return k.configurationKeeper.GetConfiguration(ctx).EscrowCommission
+
+}
+
 func (k Keeper) isBlockedAddr(address string) bool {
 	return k.blockedAddrs[address]
 }

@@ -46,14 +46,9 @@ func (k Keeper) CreateEscrow(
 		return "", sdkerrors.Wrap(types.ErrInvalidDeadline, "The deadline exceeds the maximum escrow duration")
 	}
 
-	//TODO: use cosmos-sdk params instead of the configuration
-
-	// Get the configuration
-	config := k.configurationKeeper.GetConfiguration(ctx)
-
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
-		id, seller, price, object, deadline, config.EscrowBroker, config.EscrowCommission,
+		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
 	)
 	err = escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
 	if err != nil {
@@ -69,7 +64,6 @@ func (k Keeper) CreateEscrow(
 	// save the escrow
 	k.SaveEscrow(ctx, escrow)
 	k.NextId(ctx)
-	//TODO: Emit event
 
 	return id, nil
 }
@@ -209,8 +203,6 @@ func (k Keeper) TransferToEscrow(
 
 	escrow.State = types.EscrowState_Completed
 	k.deleteEscrow(ctx, escrow)
-	//TODO: Emit event
-
 	return nil
 }
 
@@ -264,8 +256,6 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 	if err := k.refundEscrow(ctx, escrow, seller); err != nil {
 		return err
 	}
-
-	//TODO: Emit event
 
 	return nil
 }

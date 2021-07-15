@@ -1,0 +1,74 @@
+syntax = "proto3";
+package starnamed.x.escrow.v1beta1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/escrow/types";
+option (gogoproto.goproto_getters_all) = false;
+
+// EventCreatedEscrow is emitted when an escrow is created
+message EventCreatedEscrow {
+    string id = 1;
+    string seller = 2;
+    string fee_payer= 3;
+    string broker_address= 4;
+    string broker_commission= 5 [
+        (gogoproto.nullable) = false,
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    ];
+    repeated cosmos.base.v1beta1.Coin price = 6 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+    google.protobuf.Any object = 7 [
+        (cosmos_proto.accepts_interface) = "TransferableObject"
+    ];
+    uint64 deadline= 8;
+    repeated cosmos.base.v1beta1.Coin fees = 9 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+
+}
+
+// EventUpdatedEscrow is emitted when an escrow is updated
+message EventUpdatedEscrow {
+    string id= 1;
+    string updater= 2;
+    string fee_payer= 3;
+    string new_seller= 4;
+    repeated cosmos.base.v1beta1.Coin new_price = 5 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+    uint64 new_deadline = 6;
+    repeated cosmos.base.v1beta1.Coin fees = 7 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+}
+
+// EventCompletedEscrow is emitted when an escrow is completed
+message EventCompletedEscrow {
+    string id= 1;
+    string fee_payer= 2;
+    string buyer= 3;
+    repeated cosmos.base.v1beta1.Coin fees = 4 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+}
+
+// EventRefundedEscrow is emitted when an escrow is refunded
+message EventRefundedEscrow  {
+    string id= 1;
+    string fee_payer= 2;
+    string sender= 3;
+    repeated cosmos.base.v1beta1.Coin fees = 4 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+    ];
+}

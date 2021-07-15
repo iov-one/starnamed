@@ -91,6 +91,12 @@
   
     - [Query](#starnamed.x.configuration.v1beta1.Query)
   
+- [iov/escrow/v1beta1/events.proto](#iov/escrow/v1beta1/events.proto)
+    - [EventCompletedEscrow](#starnamed.x.escrow.v1beta1.EventCompletedEscrow)
+    - [EventCreatedEscrow](#starnamed.x.escrow.v1beta1.EventCreatedEscrow)
+    - [EventRefundedEscrow](#starnamed.x.escrow.v1beta1.EventRefundedEscrow)
+    - [EventUpdatedEscrow](#starnamed.x.escrow.v1beta1.EventUpdatedEscrow)
+  
 - [iov/escrow/v1beta1/types.proto](#iov/escrow/v1beta1/types.proto)
     - [Escrow](#starnamed.x.escrow.v1beta1.Escrow)
   
@@ -1430,6 +1436,102 @@ Query provides defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Config` | [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/starname/v1beta1/configuration/params|
 | `Fees` | [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/starname/v1beta1/configuration/fees|
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/events.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/events.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventCompletedEscrow"></a>
+
+### EventCompletedEscrow
+EventCompletedEscrow is emitted when an escrow is completed
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `buyer` | [string](#string) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventCreatedEscrow"></a>
+
+### EventCreatedEscrow
+EventCreatedEscrow is emitted when an escrow is created
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `seller` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `broker_address` | [string](#string) |  |  |
+| `broker_commission` | [string](#string) |  |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `deadline` | [uint64](#uint64) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventRefundedEscrow"></a>
+
+### EventRefundedEscrow
+EventRefundedEscrow is emitted when an escrow is refunded
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventUpdatedEscrow"></a>
+
+### EventUpdatedEscrow
+EventUpdatedEscrow is emitted when an escrow is updated
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `updater` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `new_seller` | [string](#string) |  |  |
+| `new_price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `new_deadline` | [uint64](#uint64) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 
