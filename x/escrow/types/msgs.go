@@ -126,7 +126,13 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 			msg.Object.GetCachedValue(),
 		)
 	}
-	return ValidateObject(msg.Object.GetCachedValue().(TransferableObject), seller)
+
+	obj := msg.Object.GetCachedValue().(TransferableObject)
+	if err := ValidateObjectDeadline(obj, msg.Deadline); err != nil {
+		return err
+	}
+
+	return ValidateObject(obj, seller)
 }
 
 // GetSignBytes implements Msg

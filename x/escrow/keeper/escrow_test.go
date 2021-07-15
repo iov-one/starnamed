@@ -128,7 +128,10 @@ func (s *EscrowTestSuite) TestCreate() {
 	defaultDeadline := s.generator.NowAfter(1)
 
 	createAndSaveObject := func() *types.TestObject {
-		obj := s.generator.NewTestObject(s.seller)
+		return newSavedObject(s.generator, s.seller, s.store)
+	}
+	createAndSaveTimeConstrainedObject := func() *types.TestTimeConstrainedObject {
+		obj := s.generator.NewTimeConstrainedObject(s.seller, s.generator.NowAfter(10))
 		if err := s.store.Create(obj); err != nil {
 			panic(err)
 		}
@@ -176,6 +179,13 @@ func (s *EscrowTestSuite) TestCreate() {
 			deadline: s.generator.NowAfter(uint64(maxDuration.Seconds())),
 		},
 		{
+			name:     "valid scenario with time constrained object",
+			seller:   validAddress,
+			obj:      createAndSaveTimeConstrainedObject(),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(5),
+		},
+		{
 			name:     "invalid price: zero",
 			seller:   validAddress,
 			obj:      createAndSaveObject(),
@@ -202,6 +212,13 @@ func (s *EscrowTestSuite) TestCreate() {
 			obj:      obj,
 			price:    defaultPrice,
 			deadline: s.generator.NowAfter(uint64(maxDuration.Seconds()) + 1),
+		},
+		{
+			name:     "invalid deadline: not validated by object",
+			seller:   validAddress,
+			obj:      createAndSaveTimeConstrainedObject(),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(15),
 		},
 		{
 			name:   "invalid price: negative",
@@ -287,7 +304,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 	newSeller := s.generator.NewAccAddress()
 	escrowDeadline := s.generator.NowAfter(10)
 	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
-	id, err := s.keeper.CreateEscrow(
+	escrowID, err := s.keeper.CreateEscrow(
 		s.ctx,
 		s.seller,
 		price,
@@ -297,7 +314,15 @@ func (s *EscrowTestSuite) TestUpdate() {
 	if err != nil {
 		panic(err)
 	}
-	escrowID := id
+
+	timeConstrainedObj := s.generator.NewTimeConstrainedObject(s.seller, s.generator.NowAfter(10))
+	if err := s.store.Create(timeConstrainedObj); err != nil {
+		panic(err)
+	}
+	escrowWithTimeConstrainedObjectID, err := s.keeper.CreateEscrow(
+		s.ctx, s.seller, price, timeConstrainedObj, s.generator.NowAfter(5),
+	)
+
 	testCases := []struct {
 		name     string
 		id       string
@@ -315,6 +340,12 @@ func (s *EscrowTestSuite) TestUpdate() {
 			name:     "deadline update",
 			updater:  s.seller,
 			deadline: s.generator.NowAfter(100000),
+		},
+		{
+			name:     "deadline update with time constrained object",
+			updater:  s.seller,
+			deadline: s.generator.NowAfter(8),
+			id:       escrowWithTimeConstrainedObjectID,
 		},
 		{
 			name:     "multiple fields update",
@@ -336,6 +367,12 @@ func (s *EscrowTestSuite) TestUpdate() {
 			name:     "invalid deadline: more than maximum duration",
 			updater:  s.seller,
 			deadline: s.generator.NowAfter(10 + uint64(s.keeper.GetMaximumEscrowDuration(s.ctx).Seconds())),
+		},
+		{
+			name:     "invalid deadline: not validated by the object",
+			updater:  s.seller,
+			deadline: s.generator.NowAfter(100),
+			id:       escrowWithTimeConstrainedObjectID,
 		},
 		{
 			name:    "invalid update: empty",

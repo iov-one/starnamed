@@ -65,6 +65,14 @@ func (gen *EscrowGenerator) NewErroredTestObject(nbTransferAllowed int64) *types
 	return testObj
 }
 
+func (gen *EscrowGenerator) NewTimeConstrainedObject(seller sdk.AccAddress, expiration uint64) *types.TestTimeConstrainedObject {
+	return &types.TestTimeConstrainedObject{
+		Id:         gen.NextObjectID(),
+		Owner:      seller,
+		Expiration: expiration,
+	}
+}
+
 func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins, deadline uint64) (types.Escrow, *types.TestObject) {
 	obj := gen.NewTestObject(seller)
 	packedObj, err := cdctypes.NewAnyWithValue(obj)
@@ -132,6 +140,7 @@ func NewTestCodec() *codec.ProtoCodec {
 	types.RegisterInterfaces(interfaceRegistry)
 	interfaceRegistry.RegisterImplementations((*types.TransferableObject)(nil),
 		&types.TestObject{},
+		&types.TestTimeConstrainedObject{},
 	)
 	//Register the test object implementation
 	cdc := codec.NewProtoCodec(interfaceRegistry)
@@ -202,6 +211,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), configKeeper, blockedAddr)
 	k.AddStore(types.TypeIDTestObject, crudStore)
+	k.AddStore(types.TypeIDTestTimeConstrainedObject, crudStore)
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 	return k, ctx, crudStore, balances, escrowStoreKey, configKeeper
 }

@@ -124,7 +124,9 @@ func (k Keeper) UpdateEscrow(
 		if err := types.ValidateDeadline(deadline, k.GetLastBlockTime(ctx)); err != nil {
 			return err
 		}
-		//TODO: is that the behavior we want ?
+		if err := types.ValidateObjectDeadline(escrow.GetObject(), deadline); err != nil {
+			return err
+		}
 
 		// We can only delay the deadline and no more than the maximum duration from now
 		if deadline < escrow.Deadline {
