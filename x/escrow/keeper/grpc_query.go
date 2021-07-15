@@ -15,6 +15,10 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) Escrow(c context.Context, request *types.QueryEscrowRequest) (*types.QueryEscrowResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if err := types.ValidateID(request.Id); err != nil {
+		return nil, err
+	}
+
 	escrow, found := k.GetEscrow(ctx, request.Id)
 
 	if !found {
