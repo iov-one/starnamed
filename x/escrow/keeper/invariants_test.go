@@ -83,7 +83,7 @@ func (s *InvariantsSuite) expects(invariant sdk.Invariant, shouldBeBroken bool, 
 }
 
 func (s *InvariantsSuite) TestStateInvariant() {
-	invariant := keeper.StateInvariant(s.keeper)
+	invariant := keeper.AllInvariants(s.keeper)
 
 	// Test invalid expired escrows
 	escrow, obj := s.generator.NewRandomTestEscrow()
