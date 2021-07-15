@@ -25,6 +25,13 @@ const (
 	AccountTypeID escrowtypes.TypeID = 0x2
 )
 
+// Ensure that Account and Domain implement crud.Object and escrow.TransferableObject
+var _ escrowtypes.TransferableObject = &Account{}
+var _ escrowtypes.TransferableObject = &Domain{}
+
+var _ crud.Object = &Account{}
+var _ crud.Object = &Domain{}
+
 // Delimit the uri and resource in GetResourceKey() with an ineligible
 // character since, technically, it'd be possible to have uri "d" and
 // resource "ave" collide with uri "da" and resource "ve" without a
@@ -60,6 +67,32 @@ func (m *Domain) SecondaryKeys() []crud.SecondaryKey {
 		sks = append(sks, idx)
 	}
 	return sks
+}
+
+// Make Domain implement escrowtypes.TransferableObject
+
+// GetObjectTypeID implements escrowtypes.TransferableObject
+func (m *Domain) GetObjectTypeID() escrowtypes.TypeID {
+	return DomainTypeID
+}
+
+// GetCRUDObject implements escrowtypes.TransferableObject
+func (m *Domain) GetCRUDObject() crud.Object {
+	return m
+}
+
+// IsOwnedBy implements escrowtypes.TransferableObject
+func (m *Domain) IsOwnedBy(account sdk.AccAddress) (bool, error) {
+	return m.Admin.Equals(account), nil
+}
+
+// Transfer implements escrowtypes.TransferableObject
+func (m *Domain) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
+	if isOwned, _ := m.IsOwnedBy(from); !isOwned {
+		return fmt.Errorf("the domain %s is not owned by %s", m.Name, from)
+	}
+	m.Admin = to
+	return nil
 }
 
 // DomainType defines the type of the domain

@@ -43,7 +43,8 @@ func GetTxCmd() *cobra.Command {
 		getCmdDeleteAccountCertificate(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
-		getCmdCreateEscrow(),
+		getCmdCreateAccountEscrow(),
+		getCmdCreateDomainEscrow(),
 	)
 	return domainTxCmd
 }
@@ -830,12 +831,12 @@ func getCmdSetAccountMetadata() *cobra.Command {
 	return cmd
 }
 
-func getCmdCreateEscrow() *cobra.Command {
+func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-escrow",
-		Aliases: []string{"ce", "escrow-create", "ec"},
-		Short:   "creates an escrow for a domain or an account",
-		Long:    "Creates an escrow to sell a domain or an account at a fixed price",
+		Use:     "create-account-escrow",
+		Aliases: []string{"cae", "escrow-create-account", "eca", "create-escrow-account", "cea", "account-escrow-create", "aec"},
+		Short:   "creates an escrow for an account",
+		Long:    "Creates an escrow to sell an account at a fixed price",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -881,6 +882,56 @@ func getCmdCreateEscrow() *cobra.Command {
 	escrowcli.AddCreateEscrowFlags(cmd)
 	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
 	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func getCmdCreateDomainEscrow() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "create-domain-escrow",
+		Aliases: []string{"cde", "escrow-create-domain", "ecd", "create-escrow-domain", "ced", "domain-escrow-create", "dec"},
+		Short:   "creates an escrow for a domain",
+		Long:    "Creates an escrow to sell a domain at a fixed price",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			// get flags
+			domain, err := cmd.Flags().GetString("domain")
+			if err != nil {
+				return err
+			}
+
+			if len(clientCtx.FromAddress) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
+			}
+
+			res, err := types.NewQueryClient(clientCtx).Domain(
+				context.Background(),
+				&types.QueryDomainRequest{
+					Name: domain,
+				},
+			)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "Error while querying the domain")
+			}
+
+			msg, err := escrowcli.NewMsgCreateEscrow(clientCtx, cmd, res.Domain)
+			if err != nil {
+				return err
+			}
+			// check if valid
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+			// broadcast request
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	// add flags
+	escrowcli.AddCreateEscrowFlags(cmd)
+	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

@@ -47,8 +47,9 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations(
 		(*escrowtypes.TransferableObject)(nil),
-		// Register the account object as a TransferableObject implementation to send it in a MsgCreateEscrow
+		// Register the account and domain objects as TransferableObject implementations to send them in a MsgCreateEscrow
 		&Account{},
+		&Domain{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
