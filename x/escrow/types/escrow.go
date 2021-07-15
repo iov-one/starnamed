@@ -134,6 +134,11 @@ func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
 		return err
 	}
 
+	// Validate that the object has no conflict with the escrow deadline
+	if err := ValidateObjectDeadline(e.GetObject(), e.Deadline); err != nil {
+		return err
+	}
+
 	// Validate deadline
 	return ValidateDeadline(e.Deadline, lastBlockTime)
 }

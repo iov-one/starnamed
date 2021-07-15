@@ -47,6 +47,13 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 	return nil
 }
 
+func ValidateObjectDeadline(transferableObj TransferableObject, deadline uint64) error {
+	if obj, hasCustomCheck := transferableObj.(ObjectWithTimeConstraint); hasCustomCheck {
+		return sdkerrors.Wrap(obj.ValidateDeadline(deadline), "the deadline has not been validated by the object")
+	}
+	return nil
+}
+
 func ValidateState(state EscrowState) error {
 	if state != EscrowState_Open && state != EscrowState_Expired {
 		return sdkerrors.Wrap(ErrEscrowNotOpen, strconv.FormatUint(uint64(state), 10))

@@ -17,6 +17,10 @@ type ObjectWithCustomFees interface {
 	GetCreationFees() sdk.Dec
 }
 
+type ObjectWithTimeConstraint interface {
+	ValidateDeadline(deadline uint64) error
+}
+
 type TransferableObject interface {
 	codec.ProtoMarshaler
 

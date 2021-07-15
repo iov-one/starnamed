@@ -25,12 +25,15 @@ const (
 	AccountTypeID escrowtypes.TypeID = 0x2
 )
 
-// Ensure that Account and Domain implement crud.Object and escrow.TransferableObject
+// Ensure that Account and Domain implement crud.Object, escrowtypes.TransferableObject and escrowtypes.ObjectWithTimeConstraint
 var _ escrowtypes.TransferableObject = &Account{}
 var _ escrowtypes.TransferableObject = &Domain{}
 
 var _ crud.Object = &Account{}
 var _ crud.Object = &Domain{}
+
+var _ escrowtypes.ObjectWithTimeConstraint = &Account{}
+var _ escrowtypes.ObjectWithTimeConstraint = &Domain{}
 
 // Delimit the uri and resource in GetResourceKey() with an ineligible
 // character since, technically, it'd be possible to have uri "d" and
@@ -92,6 +95,16 @@ func (m *Domain) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
 		return fmt.Errorf("the domain %s is not owned by %s", m.Name, from)
 	}
 	m.Admin = to
+	return nil
+}
+
+// Make Domain implement escrowtypes.ObjectWithTimeConstraint
+
+// ValidateDeadline implements escrowtypes.TransferableObject
+func (m *Domain) ValidateDeadline(time uint64) error {
+	if uint64(m.ValidUntil) <= time {
+		return ErrDomainExpired
+	}
 	return nil
 }
 
@@ -183,6 +196,16 @@ func (m *Account) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
 		return fmt.Errorf("%s is not owned by %s", m.GetStarname(), from)
 	}
 	m.Owner = to
+	return nil
+}
+
+// Make Account implement escrowtypes.ObjectWithTimeConstraint
+
+// ValidateDeadline implements escrowtypes.TransferableObject
+func (m *Account) ValidateDeadline(time uint64) error {
+	if uint64(m.ValidUntil) <= time {
+		return ErrAccountExpired
+	}
 	return nil
 }
 

@@ -109,6 +109,7 @@
   
 - [iov/escrow/v1beta1/test.proto](#iov/escrow/v1beta1/test.proto)
     - [TestObject](#starnamed.x.escrow.v1beta1.TestObject)
+    - [TestTimeConstrainedObject](#starnamed.x.escrow.v1beta1.TestTimeConstrainedObject)
   
 - [iov/escrow/v1beta1/tx.proto](#iov/escrow/v1beta1/tx.proto)
     - [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow)
@@ -1620,14 +1621,31 @@ Query provides defines the gRPC querier service
 <a name="starnamed.x.escrow.v1beta1.TestObject"></a>
 
 ### TestObject
-Escrow defines the struct of an escrow
+TestObject defines a transferable object used for testing
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `id` | [uint64](#uint64) |  |  |
 | `owner` | [bytes](#bytes) |  |  |
-| `numAllowedTransfers` | [int64](#int64) |  |  |
+| `num_allowed_transfers` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.TestTimeConstrainedObject"></a>
+
+### TestTimeConstrainedObject
+TestTimeConstrainedObject defines a transferable object with a time constrain used for testing
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [uint64](#uint64) |  |  |
+| `owner` | [bytes](#bytes) |  |  |
+| `expiration` | [uint64](#uint64) |  |  |
 
 
 
