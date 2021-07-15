@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/hex"
-	"reflect"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,7 +36,7 @@ func (k Keeper) CreateEscrow(
 		return "", err
 	}
 	// Check the object is in the store and is equal to the store's version
-	err = k.checkObjectWithStore(objectStore, object)
+	err = k.syncObjectWithStore(objectStore, object)
 	if err != nil {
 		return "", err
 	}
@@ -316,18 +315,12 @@ func (k Keeper) deleteEscrowFromDeadlineStore(ctx sdk.Context, escrow types.Escr
 	k.getDeadlineStore(ctx).Delete(types.GetDeadlineKey(escrow.Deadline, escrow.Id))
 }
 
-//FIXME: this function syncs the object with the version in store but does not check anything
-func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
+func (k Keeper) syncObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
 	var objInStore = object.GetCRUDObject()
 
 	err := objectStore.Read(objInStore.PrimaryKey(), objInStore)
 	if err != nil {
 		return types.ErrUnknownObject
-	}
-
-	//FIXME: this will be always true
-	if !reflect.DeepEqual(objInStore, object.GetCRUDObject()) {
-		return sdkerrors.Wrap(types.ErrUnknownObject, "The object and his stored version does not match")
 	}
 
 	return nil
@@ -480,7 +473,6 @@ func (k Keeper) queryEscrowsByAttributes(
 		}
 
 		previousStatement := crud.FinalizedIndexStatement(nil)
-		//TODO: maybe optimize by filtering first by object if there is an object filter
 		if seller != nil {
 			previousStatement = getStatement(query, previousStatement).
 				Index(types.SellerIndex).Equals(seller)
@@ -517,7 +509,6 @@ func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow
 
 func (k Keeper) IterateEscrowsWithPassedDeadline(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
 	store := k.getDeadlineStore(ctx)
-	// TODO : check if that's actually valid
 	//TODO: iterate from (past) last block time
 	end := sdk.Uint64ToBigEndian(date + 1)
 	iterator := store.Iterator(nil, end)

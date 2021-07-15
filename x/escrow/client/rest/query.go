@@ -12,8 +12,6 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-//TODO : this package implements legacy REST routes
-
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query an escrow
 	r.HandleFunc(fmt.Sprintf("/%s/escrow/{%s}", types.ModuleName, IDParam), queryEscrowHandlerFn(cliCtx)).Methods("GET")
