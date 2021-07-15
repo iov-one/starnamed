@@ -49,7 +49,7 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 
 func ValidateObjectDeadline(transferableObj TransferableObject, deadline uint64) error {
 	if obj, hasCustomCheck := transferableObj.(ObjectWithTimeConstraint); hasCustomCheck {
-		return obj.ValidateDeadline(deadline)
+		return sdkerrors.Wrap(obj.ValidateDeadline(deadline), "the deadline has not been validated by the object")
 	}
 	return nil
 }
