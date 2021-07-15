@@ -39,8 +39,10 @@ func (k *Keeper) ComputeFees(ctx sdk.Context, msg sdk.Msg) sdk.Coins {
 func getFee(feesConfig *configuration.Fees, msg sdk.Msg) sdk.Dec {
 	switch m := msg.(type) {
 	case *types.MsgCreateEscrow:
-		if obj, hasCustomFees := m.Object.GetCachedValue().(types.ObjectWithCustomFees); hasCustomFees {
-			return obj.GetCreationFees()
+		if m.Object != nil {
+			if obj, hasCustomFees := m.Object.GetCachedValue().(types.ObjectWithCustomFees); hasCustomFees {
+				return obj.GetCreationFees()
+			}
 		}
 		return feesConfig.CreateEscrow
 	case *types.MsgUpdateEscrow:
