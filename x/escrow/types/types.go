@@ -13,11 +13,14 @@ type MsgWithFeePayer interface {
 
 type TypeID uint64
 
+type ObjectWithCustomFees interface {
+	GetCreationFees() sdk.Dec
+}
+
 type TransferableObject interface {
 	codec.ProtoMarshaler
 
 	GetObjectTypeID() TypeID
-	//TODO: simplify this to transfer only the used data (getPk, load(store), update(store))
 	GetCRUDObject() crud.Object
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)
