@@ -32,7 +32,7 @@ func (q *QueryEscrowResponse) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 // UnpackInterfaces make sure the Anys included in the QueryEscrowsResponse are unpacked (e.g the object field)
 func (q *QueryEscrowsResponse) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	if q.Escrows != nil {
-		for i, _ := range q.Escrows {
+		for i := range q.Escrows {
 			if err := q.Escrows[i].UnpackInterfaces(unpacker); err != nil {
 				return err
 			}
