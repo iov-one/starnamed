@@ -32,7 +32,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// Retrieve the store for this object
-	objectStore, err := k.getStoreForID(ctx, object.GetType())
+	objectStore, err := k.getStoreForID(ctx, object.GetObjectTypeID())
 	if err != nil {
 		return "", err
 	}
@@ -287,7 +287,7 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Retrieve the object store
-	objectStore, err := k.getStoreForID(ctx, object.GetType())
+	objectStore, err := k.getStoreForID(ctx, object.GetObjectTypeID())
 	if err != nil {
 		return err
 	} // Retrieve the store for this object
@@ -303,7 +303,7 @@ func (k Keeper) doObjectTransferWithStore(from, to sdk.AccAddress, object types.
 	}
 
 	// Save the object in its store
-	return objectStore.Update(object.GetObject())
+	return objectStore.Update(object.GetCRUDObject())
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
@@ -316,7 +316,7 @@ func (k Keeper) deleteEscrowFromDeadlineStore(ctx sdk.Context, escrow types.Escr
 
 //FIXME: this function syncs the object with the version in store but does not check anything
 func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
-	var objInStore = object.GetObject()
+	var objInStore = object.GetCRUDObject()
 
 	err := objectStore.Read(objInStore.PrimaryKey(), objInStore)
 	if err != nil {
@@ -324,7 +324,7 @@ func (k Keeper) checkObjectWithStore(objectStore crud.Store, object types.Transf
 	}
 
 	//FIXME: this will be always true
-	if !reflect.DeepEqual(objInStore, object.GetObject()) {
+	if !reflect.DeepEqual(objInStore, object.GetCRUDObject()) {
 		return sdkerrors.Wrap(types.ErrUnknownObject, "The object and his stored version does not match")
 	}
 
@@ -417,7 +417,7 @@ func (k Keeper) GetEscrowsByState(ctx sdk.Context, state types.EscrowState, star
 
 func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObject) ([]types.Escrow, error) {
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
-		return query.Where().Index(types.ObjectIndex).Equals(object.GetObject().PrimaryKey())
+		return query.Where().Index(types.ObjectIndex).Equals(object.GetCRUDObject().PrimaryKey())
 	})
 }
 

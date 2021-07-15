@@ -16,9 +16,9 @@ type TypeID uint64
 type TransferableObject interface {
 	codec.ProtoMarshaler
 
-	GetType() TypeID
+	GetObjectTypeID() TypeID
 	//TODO: simplify this to transfer only the used data (getPk, load(store), update(store))
-	GetObject() crud.Object
+	GetCRUDObject() crud.Object
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)
 	Transfer(from sdk.AccAddress, to sdk.AccAddress) error

@@ -19,11 +19,11 @@ func (m *TestObject) SecondaryKeys() []crud.SecondaryKey {
 	return make([]crud.SecondaryKey, 0)
 }
 
-func (m *TestObject) GetType() TypeID {
+func (m *TestObject) GetObjectTypeID() TypeID {
 	return TypeIDTestObject
 }
 
-func (m *TestObject) GetObject() crud.Object {
+func (m *TestObject) GetCRUDObject() crud.Object {
 	return m
 }
 

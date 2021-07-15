@@ -128,18 +128,23 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 }
 
 // Make Account implement escrowtypes.TransferableObject
-func (m *Account) GetType() escrowtypes.TypeID {
+
+// GetType implements escrowtypes.TransferableObject
+func (m *Account) GetObjectTypeID() escrowtypes.TypeID {
 	return AccountTypeID
 }
 
-func (m *Account) GetObject() crud.Object {
+// GetCRUDObject implements escrowtypes.TransferableObject
+func (m *Account) GetCRUDObject() crud.Object {
 	return m
 }
 
+// IsOwnedBy implements escrowtypes.TransferableObject
 func (m *Account) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 	return m.Owner.Equals(account), nil
 }
 
+// Transfer implements escrowtypes.TransferableObject
 func (m *Account) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
 	if isOwned, _ := m.IsOwnedBy(from); !isOwned {
 		return fmt.Errorf("%s is not owned by %s", m.GetStarname(), from)

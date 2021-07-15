@@ -73,7 +73,7 @@ func (e Escrow) SecondaryKeys() []crud.SecondaryKey {
 	}
 	sks[2] = crud.SecondaryKey{
 		ID:    ObjectIndex,
-		Value: e.GetObject().GetObject().PrimaryKey(),
+		Value: e.GetObject().GetCRUDObject().PrimaryKey(),
 	}
 	return sks
 }
