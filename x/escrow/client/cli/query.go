@@ -54,7 +54,7 @@ func getCmdQueryEscrow() *cobra.Command {
 				return err
 			}
 
-			return clientCtx.PrintProto(response.Escrow)
+			return clientCtx.PrintProto(response)
 		},
 	}
 
@@ -114,15 +114,7 @@ func getCmdQueryEscrows() *cobra.Command {
 				return err
 			}
 
-			if err := clientCtx.PrintString("escrows :\n"); err != nil {
-				return err
-			}
-			for _, escrow := range response.Escrows {
-				if err := clientCtx.PrintProto(&escrow); err != nil {
-					return err
-				}
-			}
-			return nil
+			return clientCtx.PrintProto(response)
 		},
 	}
 
