@@ -12,7 +12,7 @@ $ starnamed query gov proposal 9 --chain-id iov-mainnet-ibc --output json | jq .
 }
 ```
 
-Note that the intentional panic will occur at block 4598000 at approximately 10am on July 20, 2021.
+Note that the intentional panic will occur at block 4598000 at approximately 8am UTC on July 20, 2021.
 
 **Validators and node operators must upgrade their `starnamed` binary to `v0.10.13` and restart it.**
 
