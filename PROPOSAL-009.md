@@ -54,4 +54,4 @@ If you want to practice doing an upgrade then try [this](UPGRADING.md).
 
 ## An important note about systemd and its Restart option ##
 
-As Simone from AC Validator [noted](https://t.me/c/1204652258/2759), be careful if you have `Restart=always` in your `starnamed.service` file.  It will corrupt the chain data as it tries to continually restart after the intentional panic caused by the software upgrade proposal.  Either remove the `Restart` action from the service file and do `systemctl daemon-reload` or at `halt-height = 4598000` to `app.toml`.
+As Simone from [AC Validator](https://github.com/AC-Validator) [noted](https://t.me/c/1204652258/2759), be careful if you have `Restart=always` in your `starnamed.service` file.  It will corrupt the chain data as it tries to continually restart after the intentional panic caused by the software upgrade proposal.  Either remove the `Restart` action from the service file and do `systemctl daemon-reload && systemctl restart starnamed.service` or add `halt-height = 4598000` to `app.toml`.
