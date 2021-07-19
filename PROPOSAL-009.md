@@ -48,3 +48,5 @@ exit # sudo su
 ## Upgrading if you didn't follow the "standard" procedure ##
 
 If you didn't follow the procedure [here](README.md) then you're on your own.  I don't know if `cosmvisor` will work, though, in theory, it should.  If you're a validator for the Cosmos Hub then what we're doing here is exactly the same procedure that introduced the Gravity DEX into the Cosmos Hub.
+
+If you want to practice doing an upgrade then try [this](UPGRADING.md).
