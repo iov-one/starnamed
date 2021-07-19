@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -364,33 +365,16 @@ func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcco
 
 // transferAccount transfers account to a new owner and may clear resources and certificates
 func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccountInternal) (*types.MsgTransferAccountResponse, error) {
-	// perform domain checks
-	domains := k.DomainStore(ctx)
-	domainCtrl := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
-	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
-		return nil, err
-	}
-
-	// check if account exists
-	accounts := k.AccountStore(ctx)
-	accountCtrl := NewAccountController(ctx, msg.Domain, msg.Name).WithAccounts(&accounts).WithDomainController(domainCtrl)
-	if err := accountCtrl.
-		MustExist().
-		NotExpired().
-		TransferableBy(msg.Owner).
-		ResettableBy(msg.Owner, msg.ToReset).
-		Validate(); err != nil {
+	// perform checks and transfer the account
+	_, domain, err := k.DoAccountTransfer(ctx, msg.Name, msg.Domain, msg.Owner, msg.NewOwner, msg.ToReset)
+	if err != nil {
 		return nil, err
 	}
 
 	// collect fees
-	if err := k.CollectProductFee(ctx, msg, domainCtrl.domain, k.AccountStore); err != nil {
+	if err := k.CollectProductFee(ctx, msg, domain, k.AccountStore); err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
-
-	// transfer account
-	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
-	ex.Transfer(msg.NewOwner, msg.ToReset)
 
 	// success
 	ctx.EventManager().EmitEvent(

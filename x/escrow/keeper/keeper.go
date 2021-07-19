@@ -40,6 +40,7 @@ type Keeper struct {
 	bankKeeper          types.BankKeeper
 	configurationKeeper types.ConfigurationKeeper
 	storeHolders        map[types.TypeID]types.StoreHolder
+	customData          map[types.TypeID]types.CustomData
 	blockedAddrs        map[string]bool
 }
 
@@ -66,8 +67,14 @@ func NewKeeper(
 		bankKeeper:          bankKeeper,
 		configurationKeeper: configurationKeeper,
 		storeHolders:        make(map[types.TypeID]types.StoreHolder),
+		customData:          make(map[types.TypeID]types.CustomData),
 		blockedAddrs:        blockedAddrs,
 	}
+}
+
+// RegisterCustomData registers custom data to be given to the Transfer function of a certain type of TransferableObject
+func (k Keeper) RegisterCustomData(id types.TypeID, data types.CustomData) {
+	k.customData[id] = data
 }
 
 // AddStore registers a simple store holder for the specified type id, which always retrieves the given store
@@ -110,12 +117,16 @@ func (k Keeper) NextId(ctx sdk.Context) {
 	k.getParamStore(ctx).Set(paramsStoreNextId, sdk.Uint64ToBigEndian(next))
 }
 
-func (k Keeper) getStoreForID(ctx sdk.Context, id types.TypeID) (crud.Store, error) {
+func (k Keeper) getStoreForType(ctx sdk.Context, id types.TypeID) (crud.Store, error) {
 	store, ok := k.storeHolders[id]
 	if !ok {
 		return nil, types.ErrUnknownTypeID
 	}
 	return store.GetCRUDStore(ctx), nil
+}
+
+func (k Keeper) getCustomDataForType(id types.TypeID) types.CustomData {
+	return k.customData[id]
 }
 
 func (k Keeper) getEscrowStore(ctx sdk.Context) crud.Store {

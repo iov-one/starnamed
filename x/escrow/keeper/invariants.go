@@ -107,7 +107,7 @@ func ObjectStateInvariant(k Keeper) sdk.Invariant {
 		k.IterateEscrows(ctx, func(escrow types.Escrow) bool {
 			// Check that the object belongs to the module
 			obj := escrow.GetObject()
-			store, err := k.getStoreForID(ctx, obj.GetObjectTypeID())
+			store, err := k.getStoreForType(ctx, obj.GetObjectTypeID())
 			if err != nil {
 				objNotExistingEscrows++
 				return false

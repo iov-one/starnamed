@@ -10,9 +10,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 // ParamSubspace is a placeholder
@@ -46,8 +47,10 @@ type ConfigurationKeeper interface {
 }
 
 // EscrowKeeper defines the behaviour of the escrow keeper, used to add stores to the module
+// and register custom data for transfer handlers
 type EscrowKeeper interface {
 	AddStoreHolder(id escrowtypes.TypeID, storeHolder escrowtypes.StoreHolder)
+	RegisterCustomData(id escrowtypes.TypeID, data escrowtypes.CustomData)
 }
 
 // Keeper of the domain store
@@ -76,18 +79,23 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 		EscrowKeeper:        escrow,
 		paramspace:          paramspace,
 	}
-	keeper.AddStoreHolders()
+	keeper.ConfigureEscrowModule()
 	return keeper
 }
 
-// AddStoreHolders adds the starname objects (domains and accounts) store holders to the escrow module
-func (k Keeper) AddStoreHolders() {
+// ConfigureEscrowModule adds the starname objects (domains and accounts) store holders to the escrow module and wrap
+// this keepers reference in custom data, used by the transfer handlers
+func (k Keeper) ConfigureEscrowModule() {
 	domainRetriever := func(ctx sdk.Context) crud.Store { return k.DomainStore(ctx) }
 	accountRetriever := func(ctx sdk.Context) crud.Store { return k.AccountStore(ctx) }
 
 	// Register the store holders
 	k.EscrowKeeper.AddStoreHolder(types.DomainTypeID, escrowtypes.NewSimpleStoreHolder(domainRetriever))
 	k.EscrowKeeper.AddStoreHolder(types.AccountTypeID, escrowtypes.NewSimpleStoreHolder(accountRetriever))
+
+	// Add custom data
+	k.EscrowKeeper.RegisterCustomData(types.DomainTypeID, k)
+	k.EscrowKeeper.RegisterCustomData(types.AccountTypeID, k)
 }
 
 // AccountStore returns the crud.Store used to interact with account objects
@@ -103,4 +111,65 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 // Logger returns aliceAddr module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// DoAccountTransfer checks if the account transfer request is valid and then transfer the account and resets the
+// associated data if toReset is true
+func (k Keeper) DoAccountTransfer(
+	ctx sdk.Context,
+	name string,
+	domain string,
+	currentOwner sdk.AccAddress,
+	newOwner sdk.AccAddress,
+	toReset bool) (*types.Account, *types.Domain, error) {
+	// perform domain checks
+	domains := k.DomainStore(ctx)
+	domainCtrl := NewDomainController(ctx, domain).WithDomains(&domains)
+	if err := domainCtrl.MustExist().NotExpired().Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	// check if account exists
+	accounts := k.AccountStore(ctx)
+	accountCtrl := NewAccountController(ctx, domain, name).WithAccounts(&accounts).WithDomainController(domainCtrl)
+	if err := accountCtrl.
+		MustExist().
+		NotExpired().
+		TransferableBy(currentOwner).
+		ResettableBy(currentOwner, toReset).
+		Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	// transfer account
+	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
+	ex.Transfer(newOwner, toReset)
+	return accountCtrl.account, domainCtrl.domain, nil
+}
+
+// DoDomainTransfer checks if the domain transfer request is valid and then transfer the domain according to the requested
+// transferFlag
+func (k Keeper) DoDomainTransfer(
+	ctx sdk.Context,
+	domain string,
+	currentOwner sdk.AccAddress,
+	newOwner sdk.AccAddress,
+	transferFlag types.TransferFlag) error {
+	// do precondition and authorization checks
+	domains := k.DomainStore(ctx)
+	c := NewDomainController(ctx, domain).WithDomains(&domains)
+	err := c.
+		MustExist().
+		Admin(currentOwner).
+		NotExpired().
+		Transferable(transferFlag).
+		Validate()
+	if err != nil {
+		return err
+	}
+	// transfer
+	accounts := k.AccountStore(ctx)
+	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
+	ex.Transfer(transferFlag, newOwner)
+	return nil
 }

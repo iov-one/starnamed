@@ -12,6 +12,7 @@ type MsgWithFeePayer interface {
 }
 
 type TypeID uint64
+type CustomData interface{}
 
 type ObjectWithCustomFees interface {
 	GetCreationFees() sdk.Dec
@@ -28,7 +29,7 @@ type TransferableObject interface {
 	GetCRUDObject() crud.Object
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)
-	Transfer(from sdk.AccAddress, to sdk.AccAddress) error
+	Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data CustomData) error
 }
 
 type StoreHolder interface {

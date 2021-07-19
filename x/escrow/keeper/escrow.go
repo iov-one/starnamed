@@ -31,7 +31,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// Retrieve the store for this object
-	objectStore, err := k.getStoreForID(ctx, object.GetObjectTypeID())
+	objectStore, err := k.getStoreForType(ctx, object.GetObjectTypeID())
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// transfer ownership of the object to the escrow account
-	err = k.doObjectTransferWithStore(seller, k.GetEscrowAddress(), object, objectStore)
+	err = k.doObjectTransferWithStore(ctx, seller, k.GetEscrowAddress(), object, objectStore)
 	if err != nil {
 		return "", errors.Wrap(err, "Cannot transfer the object to the module account")
 	}
@@ -278,17 +278,17 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Retrieve the object store
-	objectStore, err := k.getStoreForID(ctx, object.GetObjectTypeID())
+	objectStore, err := k.getStoreForType(ctx, object.GetObjectTypeID())
 	if err != nil {
 		return err
 	} // Retrieve the store for this object
 
-	return k.doObjectTransferWithStore(from, to, object, objectStore)
+	return k.doObjectTransferWithStore(ctx, from, to, object, objectStore)
 }
 
-func (k Keeper) doObjectTransferWithStore(from, to sdk.AccAddress, object types.TransferableObject, objectStore crud.Store) error {
+func (k Keeper) doObjectTransferWithStore(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject, objectStore crud.Store) error {
 	// Transfer the object
-	err := object.Transfer(from, to)
+	err := object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
 		return err
 	}

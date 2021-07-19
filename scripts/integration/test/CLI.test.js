@@ -637,10 +637,12 @@ describe( "Tests the CLI.", () => {
 
       unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
+      expect(broadcasted.logs).toBeDefined()
       expect( idDomainEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
       unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
+      expect(broadcasted.logs).toBeDefined()
       expect( idAccountEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
       // Verify escrows exists

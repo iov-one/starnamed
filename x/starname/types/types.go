@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,6 +48,16 @@ func GetResourceKey(uri, resource string) []byte {
 // StarnameSeparator defines the starname separator identifier
 const StarnameSeparator = "*"
 
+// expectedTransferKeeper is the expected interface for accounts and domains transfer.
+// It is used in the Transfer method of those objects, to cast the provided custom data
+type expectedTransferKeeper interface {
+	DoAccountTransfer(ctx sdk.Context, name string, domain string, currentOwner sdk.AccAddress, newOwner sdk.AccAddress, toReset bool) (*Account, *Domain, error)
+	DoDomainTransfer(ctx sdk.Context, domain string, currentOwner sdk.AccAddress, newOwner sdk.AccAddress, transferFlag TransferFlag) error
+
+	AccountStore(ctx sdk.Context) crud.Store
+	DomainStore(ctx sdk.Context) crud.Store
+}
+
 // PrimaryKey fulfills part of the crud.Object interface
 func (m *Domain) PrimaryKey() []byte {
 	if m.Name == "" {
@@ -90,12 +99,18 @@ func (m *Domain) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 }
 
 // Transfer implements escrowtypes.TransferableObject
-func (m *Domain) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
-	if isOwned, _ := m.IsOwnedBy(from); !isOwned {
-		return fmt.Errorf("the domain %s is not owned by %s", m.Name, from)
+func (m *Domain) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data escrowtypes.CustomData) error {
+	// Extract the custom data (which is the starname keeper)
+	k, correct := data.(expectedTransferKeeper)
+	if !correct {
+		panic("Corrupted custom data for Domain : the data should be a starname keeper")
 	}
-	m.Admin = to
-	return nil
+
+	// Should the transfer remove the accounts associated with this domain
+	// TODO: choose this wisely
+	const transferType = TransferFlush
+
+	return k.DoDomainTransfer(ctx, m.Name, from, to, transferType)
 }
 
 // Make Domain implement escrowtypes.ObjectWithTimeConstraint
@@ -191,12 +206,19 @@ func (m *Account) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 }
 
 // Transfer implements escrowtypes.TransferableObject
-func (m *Account) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
-	if isOwned, _ := m.IsOwnedBy(from); !isOwned {
-		return fmt.Errorf("%s is not owned by %s", m.GetStarname(), from)
+func (m *Account) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data escrowtypes.CustomData) error {
+	// Extract the custom data (which is the starname keeper)
+	k, correct := data.(expectedTransferKeeper)
+	if !correct {
+		panic("Corrupted custom data for Account : the data should be a starname keeper")
 	}
-	m.Owner = to
-	return nil
+
+	// Should the transfer reset the account metadata, resources and certificates
+	const shouldReset = false
+
+	_, _, err := k.DoAccountTransfer(ctx, *m.Name, m.Domain, from, to, shouldReset)
+
+	return err
 }
 
 // Make Account implement escrowtypes.ObjectWithTimeConstraint

@@ -42,7 +42,7 @@ func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 	return m.Owner.Equals(account), nil
 }
 
-func (m *TestObject) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
+func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, _ CustomData) error {
 	if m.NumAllowedTransfers == 0 {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "this test object cannot be transferred")
 	} else if m.NumAllowedTransfers > 0 {
@@ -85,7 +85,7 @@ func (m *TestTimeConstrainedObject) IsOwnedBy(account sdk.AccAddress) (bool, err
 	return m.Owner.Equals(account), nil
 }
 
-func (m *TestTimeConstrainedObject) Transfer(from sdk.AccAddress, to sdk.AccAddress) error {
+func (m *TestTimeConstrainedObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, _ CustomData) error {
 	if owned, err := m.IsOwnedBy(from); !owned || err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "the object %v does not belong to %v", m.Id, from.String())
 	}
