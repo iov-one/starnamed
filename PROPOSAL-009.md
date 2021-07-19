@@ -1,4 +1,4 @@
-# Software Upgrade Proposal 9 #
+# Software Upgrade Proposal 9 At Block 4598000 #
 
 The public keys for multisig accounts were not migrated from the exported state of `iov-mainnet-2` into `iov-mainnet-ibc`. In order for multisig accounts to work on `iov-mainnet-ibc` the multisig public keys need to be injected into the app state.  https://big-dipper.iov-mainnet-ibc.iov.one/proposals/9 aims to do that.  It will use the cosmos-sdk `upgrade` module to intentionally cause the `starnamed` binary to panic according to the proposal's plan:
 
