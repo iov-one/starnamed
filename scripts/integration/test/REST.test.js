@@ -39,6 +39,9 @@ describe( "Tests the REST API.", () => {
          "certificate_size_max",
          "certificate_count_max",
          "metadata_size_max",
+         "escrow_broker",
+         "escrow_commission",
+         "escrow_max_period"
       ];
 
       keys.forEach( key => expect( fetched.result.configuration.hasOwnProperty( key ) ).toEqual( true ) );
@@ -519,7 +522,6 @@ describe( "Tests the REST API.", () => {
       expect( newDomainInfo.result.domain.valid_until ).toBeGreaterThanOrEqual( domainInfo.result.domain.valid_until + configuration.result.configuration.domain_renewal_period / 1e9 );
    } );
 
-
    it.skip( `Should renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
@@ -709,4 +711,5 @@ describe( "Tests the REST API.", () => {
 
       expect( unverified.error ).toEqual( "Did you sign with --chain-id 'signed-message-v1', --account-number 0, and --sequence 0?" );
    } );
+
 } );
