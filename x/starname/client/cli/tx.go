@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -43,7 +42,8 @@ func GetTxCmd() *cobra.Command {
 		getCmdDeleteAccountCertificate(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
-		getCmdCreateAccountEscrow(),
+		// TODO: when creator domain type is created, let accounts be TransferableObjects
+		// getCmdCreateAccountEscrow(),
 		getCmdCreateDomainEscrow(),
 	)
 	return domainTxCmd
@@ -831,6 +831,7 @@ func getCmdSetAccountMetadata() *cobra.Command {
 	return cmd
 }
 
+/*
 func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create-account-escrow",
@@ -884,7 +885,7 @@ func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
-}
+}*/
 
 func getCmdCreateDomainEscrow() *cobra.Command {
 	cmd := &cobra.Command{

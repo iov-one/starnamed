@@ -13,6 +13,7 @@ type accountKeeper struct {
 }
 
 func (a accountKeeper) GetModuleAddress(name string) sdk.AccAddress {
+
 	return authtypes.NewModuleAddress(name)
 }
 

@@ -15,6 +15,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateEscrow{}, fmt.Sprintf("%s/UpdateEscrow", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferToEscrow{}, fmt.Sprintf("%s/TransferToEscrow", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRefundEscrow{}, fmt.Sprintf("%s/RefundEscrow", ModuleName), nil)
+
+	cdc.RegisterInterface((*TransferableObject)(nil), nil)
 }
 
 // RegisterInterfaces registers implementations for the protobuf marshaler.

@@ -627,9 +627,10 @@ describe( "Tests the CLI.", () => {
       let broadcasted = signAndBroadcastTx( unsigned);
       expect( broadcasted.logs ).toBeDefined();
 
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
-      broadcasted = signAndBroadcastTx( unsigned);
-      expect( broadcasted.logs ).toBeDefined();
+      //TODO: uncomment when account implements TransferableObject again
+      /* unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+       broadcasted = signAndBroadcastTx( unsigned);
+       expect( broadcasted.logs ).toBeDefined();*/
 
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000);
@@ -640,26 +641,30 @@ describe( "Tests the CLI.", () => {
       expect(broadcasted.logs).toBeDefined()
       expect( idDomainEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
-      broadcasted = signAndBroadcastTx( unsigned );
-      expect(broadcasted.logs).toBeDefined()
-      expect( idAccountEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
-
+      //TODO: uncomment when account implements TransferableObject again
+      /* unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+       broadcasted = signAndBroadcastTx( unsigned );
+       expect(broadcasted.logs).toBeDefined()
+       expect( idAccountEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
+ */
       // Verify escrows exists
       let result = cli(["query", "escrow", "escrow", idDomainEscrow])
       expect(result.escrow).toBeDefined()
       expect(result.escrow.id).toEqual(idDomainEscrow)
+      //TODO: uncomment when account implements TransferableObject again
+/*
       result = cli(["query", "escrow", "escrow", idAccountEscrow])
       expect(result.escrow).toBeDefined()
-      expect(result.escrow.id).toEqual(idAccountEscrow)
+      expect(result.escrow.id).toEqual(idAccountEscrow)*/
       // Verify domain belongs to module
       result = cli(["query", "starname", "resolve-domain", "--domain", domain])
       expect(result.domain).toBeDefined()
       expect(result.domain.admin).toEqual(escrowModuleAddress)
       //Verify account belongs to module
-      result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
-      expect(result.account).toBeDefined()
-      expect(result.account.owner).toEqual(escrowModuleAddress)
+      //TODO: uncomment when account implements TransferableObject again
+      /* result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
+       expect(result.account).toBeDefined()
+       expect(result.account.owner).toEqual(escrowModuleAddress)*/
 
       // transfer domain
       unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
@@ -675,35 +680,33 @@ describe( "Tests the CLI.", () => {
       expect(result.domain.admin).toEqual(w1)
 
       // transfer account
-      unsigned = cli(["tx", "escrow", "transfer", idAccountEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
-      broadcasted = signAndBroadcastTx( unsigned , "w1");
-      expect(broadcasted.logs).toBeDefined()
+      //TODO: uncomment when account implements TransferableObject again
+      /* unsigned = cli(["tx", "escrow", "transfer", idAccountEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+       broadcasted = signAndBroadcastTx( unsigned , "w1");
+       expect(broadcasted.logs).toBeDefined()
       // Check escrow does not exist
       result = cli(["query", "escrow", "escrow", idAccountEscrow], true)
       expect(result.escrow).toBeUndefined()
 
       // Check account belongs to buyer
       result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
-      expect(result.account).toBeDefined()
-      expect(result.account.owner).toEqual(w1)
+      expect(result.domain).toBeDefined()
+      expect(result.domain.owner).toEqual(w1)*/
 
    })
    it("Should update and refund an escrow", async () => {
-      // Create account
+      // Create domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
       let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
-      broadcasted = signAndBroadcastTx( unsigned );
-      expect( broadcasted.logs ).toBeDefined();
       // Create escrow
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000)
       let escrowId;
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
@@ -721,9 +724,9 @@ describe( "Tests the CLI.", () => {
       expect(result.escrow.price[0].amount + result.escrow.price[0].denom).toEqual(modifiedPrice)
       expect(JSON.parse(result.escrow.deadline)).toEqual(parseInt(modifiedExpiration.valueOf() / 1000))
       // Check belongs to module
-      result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
-      expect(result.account).toBeDefined()
-      expect(result.account.owner).toEqual(escrowModuleAddress)
+      result = cli(["query", "starname", "resolve-domain", "--domain", domain])
+      expect(result.domain).toBeDefined()
+      expect(result.domain.admin).toEqual(escrowModuleAddress)
 
       // Refund
       unsigned = cli(["tx", "escrow", "refund", escrowId, "--yes","--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
@@ -735,26 +738,24 @@ describe( "Tests the CLI.", () => {
       expect(result.escrow).toBeUndefined()
 
       // Check account belongs to user
-      result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
-      expect(result.account).toBeDefined()
-      expect(result.account.owner).toEqual(signer)
+      result = cli(["query", "starname", "resolve-domain", "--domain", domain])
+      expect(result.domain).toBeDefined()
+      expect(result.domain.admin).toEqual(signer)
    })
    it("Should limit the escrow deadline", async () => {
-      // Create account
+      // Create domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
       let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
-      broadcasted = signAndBroadcastTx( unsigned );
-      expect( broadcasted.logs ).toBeDefined();
+
       // Create escrow too far away
       const price = "100" + denomFee;
       const expirationTooFar = "5025-01-01T00:00:00Z";
       let escrowId;
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
       expect( unsigned.length).toBe(0);
 
 
@@ -764,7 +765,7 @@ describe( "Tests the CLI.", () => {
 
       // Create escrow
       let expiration = new Date(Date.now() + 1000000)
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
@@ -841,9 +842,11 @@ describe( "Tests the CLI.", () => {
           unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
           expect( unsigned.length).toBe(0);
 
-          expirationTooFar = new Date((accountExpiration + 10) * 1000).toISOString()
+          //TODO: uncomment when account implements TransferableObject again
+       /*
+        expirationTooFar = new Date((accountExpiration + 10) * 1000).toISOString()
           unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
-          expect( unsigned.length).toBe(0);
+          expect( unsigned.length).toBe(0);*/
 
           // Check does not exist
           result = cli([ "query", "escrow", "escrows", "--seller", signer, "--state", "open" ])
@@ -851,5 +854,8 @@ describe( "Tests the CLI.", () => {
           expect(result.escrows.find(e => e.object.domain === domain || e.object.name == domain)).toBeUndefined()
 
        })
+   it("Should reject the creation of an escrow with a closed-domain account ", async () => {
+      //TODO
+   })
 
 } );

@@ -49,7 +49,6 @@ type ConfigurationKeeper interface {
 // EscrowKeeper defines the behaviour of the escrow keeper, used to add stores to the module
 // and register custom data for transfer handlers
 type EscrowKeeper interface {
-	AddStoreHolder(id escrowtypes.TypeID, storeHolder escrowtypes.StoreHolder)
 	RegisterCustomData(id escrowtypes.TypeID, data escrowtypes.CustomData)
 }
 
@@ -83,16 +82,8 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 	return keeper
 }
 
-// ConfigureEscrowModule adds the starname objects (domains and accounts) store holders to the escrow module and wrap
-// this keepers reference in custom data, used by the transfer handlers
+// ConfigureEscrowModule wraps this keepers reference in custom data, which is needed by the transfer handlers
 func (k Keeper) ConfigureEscrowModule() {
-	domainRetriever := func(ctx sdk.Context) crud.Store { return k.DomainStore(ctx) }
-	accountRetriever := func(ctx sdk.Context) crud.Store { return k.AccountStore(ctx) }
-
-	// Register the store holders
-	k.EscrowKeeper.AddStoreHolder(types.DomainTypeID, escrowtypes.NewSimpleStoreHolder(domainRetriever))
-	k.EscrowKeeper.AddStoreHolder(types.AccountTypeID, escrowtypes.NewSimpleStoreHolder(accountRetriever))
-
 	// Add custom data
 	k.EscrowKeeper.RegisterCustomData(types.DomainTypeID, k)
 	k.EscrowKeeper.RegisterCustomData(types.AccountTypeID, k)

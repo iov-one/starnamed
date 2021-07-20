@@ -25,7 +25,9 @@ const (
 )
 
 // Ensure that Account and Domain implement crud.Object, escrowtypes.TransferableObject and escrowtypes.ObjectWithTimeConstraint
-var _ escrowtypes.TransferableObject = &Account{}
+
+// TODO: when creator domain type is created, let accounts be TransferableObjects
+//var _ escrowtypes.TransferableObject = &Account{}
 var _ escrowtypes.TransferableObject = &Domain{}
 
 var _ crud.Object = &Account{}
@@ -189,7 +191,8 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 }
 
 // Make Account implement escrowtypes.TransferableObject
-
+// TODO: when creator domain type is created, let accounts be TransferableObjects
+/*
 // GetType implements escrowtypes.TransferableObject
 func (m *Account) GetObjectTypeID() escrowtypes.TypeID {
 	return AccountTypeID
@@ -220,7 +223,7 @@ func (m *Account) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddre
 
 	return err
 }
-
+*/
 // Make Account implement escrowtypes.ObjectWithTimeConstraint
 
 // ValidateDeadline implements escrowtypes.TransferableObject

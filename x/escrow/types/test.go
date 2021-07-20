@@ -42,8 +42,14 @@ func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 	return m.Owner.Equals(account), nil
 }
 
-func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, _ CustomData) error {
+func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data CustomData) error {
+	store := data.(crud.Store)
+	if err := store.Read(m.PrimaryKey(), m); err != nil {
+		return sdkerrors.Wrap(err, "The object is not synchronized with the store")
+	}
+
 	if m.NumAllowedTransfers == 0 {
+		fmt.Printf("denied!\n")
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "this test object cannot be transferred")
 	} else if m.NumAllowedTransfers > 0 {
 		m.NumAllowedTransfers--
@@ -54,6 +60,9 @@ func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddr
 	}
 	if m.Owner != nil {
 		m.Owner = to
+	}
+	if err := store.Update(m); err != nil {
+		return sdkerrors.Wrap(err, "Cannot update the object after transfer")
 	}
 	return nil
 }
@@ -85,10 +94,19 @@ func (m *TestTimeConstrainedObject) IsOwnedBy(account sdk.AccAddress) (bool, err
 	return m.Owner.Equals(account), nil
 }
 
-func (m *TestTimeConstrainedObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, _ CustomData) error {
+func (m *TestTimeConstrainedObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data CustomData) error {
+	store := data.(crud.Store)
+	if err := store.Read(m.PrimaryKey(), m); err != nil {
+		panic(err)
+	}
+
 	if owned, err := m.IsOwnedBy(from); !owned || err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "the object %v does not belong to %v", m.Id, from.String())
 	}
 	m.Owner = to
+
+	if err := store.Update(m); err != nil {
+		panic(err)
+	}
 	return nil
 }

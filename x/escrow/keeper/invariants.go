@@ -100,25 +100,11 @@ func AttributeInvariant(k Keeper) sdk.Invariant {
 // ObjectStateInvariant checks that all the object of the escrows are in a valid state
 func ObjectStateInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		objNotExistingEscrows := 0
-		syncErrWithStoreEscrows := 0
 		objNotOwnedByModuleEscrows := 0
 
 		k.IterateEscrows(ctx, func(escrow types.Escrow) bool {
 			// Check that the object belongs to the module
 			obj := escrow.GetObject()
-			store, err := k.getStoreForType(ctx, obj.GetObjectTypeID())
-			if err != nil {
-				objNotExistingEscrows++
-				return false
-			}
-
-			err = k.syncObjectWithStore(store, obj)
-			if err != nil {
-				syncErrWithStoreEscrows++
-				return false
-			}
-
 			if ownedByModule, err := obj.IsOwnedBy(k.GetEscrowAddress()); err != nil || !ownedByModule {
 				objNotOwnedByModuleEscrows++
 			}
@@ -126,19 +112,14 @@ func ObjectStateInvariant(k Keeper) sdk.Invariant {
 			return false
 		})
 
-		broken :=
-			objNotExistingEscrows+
-				syncErrWithStoreEscrows+
-				objNotOwnedByModuleEscrows != 0
+		broken := objNotOwnedByModuleEscrows != 0
 
 		return sdk.FormatInvariant(
 				types.ModuleName,
 				"escrows object",
 				fmt.Sprintf(
-					"Number of escrows with non-existing objects: %v\n"+
-						"Number of escrows with objects not in sync with store : %v\n"+
-						"Number of escrows with objects not owned by module: %v",
-					objNotExistingEscrows, syncErrWithStoreEscrows, objNotOwnedByModuleEscrows),
+					"Number of escrows with non-existing objects: %v",
+					objNotOwnedByModuleEscrows),
 			),
 			broken
 	}

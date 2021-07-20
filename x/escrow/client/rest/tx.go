@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	ModuleRouteName = "escrows"
 	CreateRoute     = "create"
 	UpdateRoute     = "update"
 	TransferToRoute = "transfer"
@@ -21,8 +20,8 @@ const (
 )
 
 func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
-	escrowRouteTpl := fmt.Sprintf("/%s/{%s}/", ModuleRouteName, IDParam)
-	r.HandleFunc(escrowRouteTpl+CreateRoute, createEscrowHandlerFn(cliCtx)).Methods("POST")
+	escrowRouteTpl := fmt.Sprintf("/%s/{%s}/", types.ModuleName, IDParam)
+	r.HandleFunc(fmt.Sprintf("/%s/%s", types.ModuleName, CreateRoute), createEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+UpdateRoute, updateEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+TransferToRoute, transferToEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+RefundRoute, refundEscrowHandlerFn(cliCtx)).Methods("POST")

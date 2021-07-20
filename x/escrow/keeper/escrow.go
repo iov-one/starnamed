@@ -30,17 +30,6 @@ func (k Keeper) CreateEscrow(
 		return "", sdkerrors.Wrap(types.ErrIdNotUnique, id)
 	}
 
-	// Retrieve the store for this object
-	objectStore, err := k.getStoreForType(ctx, object.GetObjectTypeID())
-	if err != nil {
-		return "", err
-	}
-	// Check the object is in the store and is equal to the store's version
-	err = k.syncObjectWithStore(objectStore, object)
-	if err != nil {
-		return "", err
-	}
-
 	// Check the deadline validity
 	if deadline > uint64(ctx.BlockTime().Unix())+uint64(k.GetMaximumEscrowDuration(ctx).Seconds()) {
 		return "", sdkerrors.Wrap(types.ErrInvalidDeadline, "The deadline exceeds the maximum escrow duration")
@@ -50,13 +39,13 @@ func (k Keeper) CreateEscrow(
 	escrow := types.NewEscrow(
 		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
 	)
-	err = escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
+	err := escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
 	if err != nil {
 		return "", err
 	}
 
 	// transfer ownership of the object to the escrow account
-	err = k.doObjectTransferWithStore(ctx, seller, k.GetEscrowAddress(), object, objectStore)
+	err = k.doObjectTransfer(ctx, seller, k.GetEscrowAddress(), object)
 	if err != nil {
 		return "", errors.Wrap(err, "Cannot transfer the object to the module account")
 	}
@@ -277,24 +266,8 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 }
 
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
-	// Retrieve the object store
-	objectStore, err := k.getStoreForType(ctx, object.GetObjectTypeID())
-	if err != nil {
-		return err
-	} // Retrieve the store for this object
-
-	return k.doObjectTransferWithStore(ctx, from, to, object, objectStore)
-}
-
-func (k Keeper) doObjectTransferWithStore(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject, objectStore crud.Store) error {
 	// Transfer the object
-	err := object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
-	if err != nil {
-		return err
-	}
-
-	// Save the object in its store
-	return objectStore.Update(object.GetCRUDObject())
+	return object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
@@ -303,17 +276,6 @@ func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
 
 func (k Keeper) deleteEscrowFromDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
 	k.getDeadlineStore(ctx).Delete(types.GetDeadlineKey(escrow.Deadline, escrow.Id))
-}
-
-func (k Keeper) syncObjectWithStore(objectStore crud.Store, object types.TransferableObject) error {
-	var objInStore = object.GetCRUDObject()
-
-	err := objectStore.Read(objInStore.PrimaryKey(), objInStore)
-	if err != nil {
-		return types.ErrUnknownObject
-	}
-
-	return nil
 }
 
 // HasEscrow checks if the given escrow exists

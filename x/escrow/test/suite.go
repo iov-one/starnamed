@@ -210,8 +210,8 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	blockedAddr[authtypes.NewModuleAddress(types.ModuleName).String()] = true
 
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), configKeeper, blockedAddr)
-	k.AddStore(types.TypeIDTestObject, crudStore)
-	k.AddStore(types.TypeIDTestTimeConstrainedObject, crudStore)
+	k.RegisterCustomData(types.TypeIDTestObject, crudStore)
+	k.RegisterCustomData(types.TypeIDTestTimeConstrainedObject, crudStore)
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 	return k, ctx, crudStore, balances, escrowStoreKey, configKeeper
 }

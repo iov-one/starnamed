@@ -39,7 +39,6 @@ type Keeper struct {
 	accountKeeper       types.AccountKeeper
 	bankKeeper          types.BankKeeper
 	configurationKeeper types.ConfigurationKeeper
-	storeHolders        map[types.TypeID]types.StoreHolder
 	customData          map[types.TypeID]types.CustomData
 	blockedAddrs        map[string]bool
 }
@@ -66,7 +65,6 @@ func NewKeeper(
 		accountKeeper:       accountKeeper,
 		bankKeeper:          bankKeeper,
 		configurationKeeper: configurationKeeper,
-		storeHolders:        make(map[types.TypeID]types.StoreHolder),
 		customData:          make(map[types.TypeID]types.CustomData),
 		blockedAddrs:        blockedAddrs,
 	}
@@ -75,19 +73,6 @@ func NewKeeper(
 // RegisterCustomData registers custom data to be given to the Transfer function of a certain type of TransferableObject
 func (k Keeper) RegisterCustomData(id types.TypeID, data types.CustomData) {
 	k.customData[id] = data
-}
-
-// AddStore registers a simple store holder for the specified type id, which always retrieves the given store
-func (k Keeper) AddStore(id types.TypeID, store crud.Store) {
-	k.AddStoreHolder(id, types.NewSimpleStoreHolder(func(sdk.Context) crud.Store { return store }))
-}
-
-// AddStoreHolder registers a store holder for the specified type id
-func (k Keeper) AddStoreHolder(id types.TypeID, store types.StoreHolder) {
-	if _, alreadyPresent := k.storeHolders[id]; alreadyPresent {
-		panic(fmt.Errorf("cannot register a store holder for type id %v because it is already registered", id))
-	}
-	k.storeHolders[id] = store
 }
 
 // Logger returns a module-specific logger
@@ -115,14 +100,6 @@ func (k Keeper) GetNextIDForExport(ctx sdk.Context) uint64 {
 func (k Keeper) NextId(ctx sdk.Context) {
 	next := k.GetNextIDForExport(ctx) + 1
 	k.getParamStore(ctx).Set(paramsStoreNextId, sdk.Uint64ToBigEndian(next))
-}
-
-func (k Keeper) getStoreForType(ctx sdk.Context, id types.TypeID) (crud.Store, error) {
-	store, ok := k.storeHolders[id]
-	if !ok {
-		return nil, types.ErrUnknownTypeID
-	}
-	return store.GetCRUDStore(ctx), nil
 }
 
 func (k Keeper) getCustomDataForType(id types.TypeID) types.CustomData {
