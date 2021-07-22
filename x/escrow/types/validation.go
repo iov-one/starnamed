@@ -62,7 +62,7 @@ func ValidateState(state EscrowState) error {
 }
 
 func ValidateDeadline(deadline uint64, lastBlockTime uint64) error {
-	if deadline < lastBlockTime {
+	if deadline <= lastBlockTime {
 		return ErrPastDeadline
 	}
 	return nil

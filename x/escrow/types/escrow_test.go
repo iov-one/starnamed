@@ -165,6 +165,15 @@ func TestValidate(t *testing.T) {
 			Deadline: defaultDeadline,
 		}.Validate(denom, gen.NowAfter(0))
 	})
+	test.EvaluateTest(t, "invalid escrow: just passed deadline", func(*testing.T) error {
+		return types.Escrow{
+			Id:       defaultId,
+			Seller:   defaultSeller,
+			Object:   test.MustPackToAny(defaultObj),
+			Price:    defaultPrice,
+			Deadline: gen.NowAfter(0),
+		}.Validate(denom, gen.NowAfter(0))
+	})
 	test.EvaluateTest(t, "invalid escrow: passed deadline", func(*testing.T) error {
 		return types.Escrow{
 			Id:       defaultId,
