@@ -12,6 +12,9 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
+// NewMsgCreateEscrow creates a types.MsgCreateEscrow including the seller, the fee payer, the price, the deadline
+// and the given object. This method calls ValidateBasic on the created message.
+// The AddCreateEscrowFlags function has to be called on the same cmd object before.
 func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.TransferableObject) (*types.MsgCreateEscrow, error) {
 	seller := ctx.GetFromAddress().String()
 	feePayer, err := cmd.Flags().GetString(FlagFeePayer)
@@ -39,9 +42,16 @@ func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.Transf
 	}
 
 	msg := types.NewMsgCreateEscrow(seller, feePayer, obj, price, deadline)
+
+	// check if valid
+	if err = msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
 	return &msg, nil
 }
 
+// AddCreateEscrowFlags adds the flags used by NewMsgCreateEscrow to the given cmd.Flag() flag set
 func AddCreateEscrowFlags(cmd *cobra.Command) {
 	addCommonFlags(cmd.Flags())
 	cmd.Flags().String(FlagPrice, "", "Price of the object")

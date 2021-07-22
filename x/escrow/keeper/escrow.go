@@ -12,7 +12,12 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-// CreateEscrow creates an escrow
+// CreateEscrow creates an escrow and transfer the object to the escrow account.
+// The deadline must be included in the interval ]now, now + escrow_max_period].
+// The price must be in fee_coin_denom denomination.
+// The escrow is created with the predefined escrow_broker broker address and
+// escrow_commission commission.
+// The returned string is the 16 character escrow ID
 func (k Keeper) CreateEscrow(
 	ctx sdk.Context,
 	seller sdk.AccAddress,
@@ -57,13 +62,18 @@ func (k Keeper) CreateEscrow(
 	return id, nil
 }
 
+// UpdateEscrow perform an escrow update, the updater must be the current escrow owner (seller)
+// The escrow must be in the open state to be updated.
+// If no changes are to be made for a specific parameter, it must be a zero value.
+// An empty update (with all parameter being nil/zero) will fail and return an error.
+// The new deadline must be in the interval [oldDeadline; now + max_escrow_period].
 func (k Keeper) UpdateEscrow(
 	ctx sdk.Context,
 	id string,
 	updater sdk.AccAddress,
-	seller sdk.AccAddress,
-	price sdk.Coins,
-	deadline uint64,
+	newSeller sdk.AccAddress,
+	newPrice sdk.Coins,
+	newDeadline uint64,
 ) error {
 	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
@@ -77,7 +87,7 @@ func (k Keeper) UpdateEscrow(
 	}
 
 	// Check if there is an actual update
-	if seller == nil && price == nil && deadline == 0 {
+	if newSeller == nil && newPrice == nil && newDeadline == 0 {
 		return types.ErrEmptyUpdate
 	}
 
@@ -93,46 +103,51 @@ func (k Keeper) UpdateEscrow(
 	}
 
 	// Update seller, price and deadline if provided
-	if seller != nil {
-		escrow.Seller = seller.String()
+	if newSeller != nil {
+		escrow.Seller = newSeller.String()
 	}
-	if price != nil {
-		if err := types.ValidatePrice(price, k.GetEscrowPriceDenom(ctx)); err != nil {
+	if newPrice != nil {
+		if err := types.ValidatePrice(newPrice, k.GetEscrowPriceDenom(ctx)); err != nil {
 			return err
 		}
-		escrow.Price = price
+		escrow.Price = newPrice
 	}
-	if deadline != 0 {
-		if err := types.ValidateDeadline(deadline, k.GetLastBlockTime(ctx)); err != nil {
+	if newDeadline != 0 {
+		if err := types.ValidateDeadline(newDeadline, k.GetLastBlockTime(ctx)); err != nil {
 			return err
 		}
-		if err := types.ValidateObjectDeadline(escrow.GetObject(), deadline); err != nil {
+		if err := types.ValidateObjectDeadline(escrow.GetObject(), newDeadline); err != nil {
 			return err
 		}
 
 		// We can only delay the deadline and no more than the maximum duration from now
-		if deadline < escrow.Deadline {
+		if newDeadline < escrow.Deadline {
 			return sdkerrors.Wrap(types.ErrInvalidDeadline, "The new deadline cannot be before the old one")
-		} else if deadline > uint64(ctx.BlockTime().Unix())+uint64(k.GetMaximumEscrowDuration(ctx).Seconds()) {
+		} else if newDeadline > uint64(ctx.BlockTime().Unix())+uint64(k.GetMaximumEscrowDuration(ctx).Seconds()) {
 			return sdkerrors.Wrap(types.ErrInvalidDeadline, "The new deadline exceeds the maximum escrow duration")
 		}
 		// We are modifying the deadline, get rid of old deadline indexing
 		k.deleteEscrowFromDeadlineStore(ctx, escrow)
 		// The new deadline indexing will be added when we save the escrow
-		escrow.Deadline = deadline
+		escrow.Deadline = newDeadline
 	}
 
 	k.SaveEscrow(ctx, escrow)
 	return nil
 }
 
-// TransferToEscrow transfers coins from the buyer to the escrow account
+// TransferToEscrow transfers coins from the buyer to the escrow account.
+// The specified amount must be greater than or equal to the escrow price.
+// The actual transferred coins match the price of the escrow, the amount provided there is just a security to limit
+// the coins the buyer accepts to spend.
+// The coins will be transferred to the escrow account and then the object is transferred to the buyer and the coins
+// are sent to the seller. The escrow is then marked as completed and removed.
+// If the object or the coin transfer from the escrow account fail, this function panics.
 func (k Keeper) TransferToEscrow(
 	ctx sdk.Context,
 	buyer sdk.AccAddress,
 	id string,
 	amount sdk.Coins,
-
 ) error {
 	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
@@ -195,6 +210,7 @@ func (k Keeper) TransferToEscrow(
 	return nil
 }
 
+// doSwap perform the actual swap between the object and the coins, which need to belong to the escrow account
 func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress, broker sdk.AccAddress) error {
 
 	// Transfer the object from the module to the buyer
@@ -218,7 +234,8 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 	return nil
 }
 
-// RefundEscrow refunds the specified escrow
+// RefundEscrow refunds the specified escrow, returning the object to the seller and removing the escrow.
+// An escrow can only be refunded by its owner (the seller) or by anybody when it is expired
 func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) error {
 
 	// check if the escrow exists
@@ -249,6 +266,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 	return nil
 }
 
+// refundEscrow perform the actual refund logic
 func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.AccAddress) error {
 
 	// Transfer the object back to the seller
@@ -265,6 +283,7 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 	return nil
 }
 
+// doObjectTransfer transfers the given object
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Transfer the object
 	return object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
@@ -285,7 +304,7 @@ func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
 	return err == nil
 }
 
-// SaveEscrow sets the given escrow
+// SaveEscrow sets the given escrow in the escrow store and adds it to the deadline store
 func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	escrow.SyncObject()
 	if k.HasEscrow(ctx, escrow.Id) {
@@ -300,6 +319,7 @@ func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
 	k.addEscrowToDeadlineStore(ctx, escrow)
 }
 
+// deleteEscrow deletes an escrow and its associated deadline store entry, if the escrow is refunded or completed
 func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 	if escrow.State == types.EscrowState_Open {
 		panic("Attempted to delete an open escrow")
@@ -319,6 +339,7 @@ func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, foun
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 
+// consumeEscrowCursor fully consumes an escrow crud.Cursor and returns an array of all escrows
 func consumeEscrowCursor(cursor crud.Cursor) ([]types.Escrow, error) {
 	var escrows []types.Escrow
 	for ; cursor.Valid(); cursor.Next() {
@@ -331,6 +352,7 @@ func consumeEscrowCursor(cursor crud.Cursor) ([]types.Escrow, error) {
 	return escrows, nil
 }
 
+// QueryEscrows perform a query over escrows, providing a custom filter that manipulates the crud.QueryStatement.
 func (k Keeper) QueryEscrows(ctx sdk.Context, filter func(crud.QueryStatement) crud.ValidQuery) ([]types.Escrow, error) {
 	cursor, err := filter(k.getEscrowStore(ctx).Query()).Do()
 	if err != nil {
@@ -339,6 +361,7 @@ func (k Keeper) QueryEscrows(ctx sdk.Context, filter func(crud.QueryStatement) c
 	return consumeEscrowCursor(cursor)
 }
 
+// QueryEscrowsWithRange perform a query in the same way as QueryEscrows but with pagination information
 func (k Keeper) QueryEscrowsWithRange(ctx sdk.Context, filter func(crud.QueryStatement) crud.ValidQuery, start, end uint64) ([]types.Escrow, error) {
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
 		return filter(query).WithRange().Start(start).End(end)
@@ -364,10 +387,12 @@ func (k Keeper) GetEscrowsByState(ctx sdk.Context, state types.EscrowState, star
 
 func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObject) ([]types.Escrow, error) {
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
-		return query.Where().Index(types.ObjectIndex).Equals(object.GetCRUDObject().PrimaryKey())
+		return query.Where().Index(types.ObjectIndex).Equals(types.GetEscrowObjectKey(object))
 	})
 }
 
+// queryEscrowsByAttributes query escrows by specified attributes (only filters if attribute is non-zero), starting
+// at escrow with index `start` and returns a maximum of `length` escrows
 func (k Keeper) queryEscrowsByAttributes(
 	ctx sdk.Context,
 	sellerStr string,
@@ -459,9 +484,9 @@ func (k Keeper) getEscrowByKey(ctx sdk.Context, key []byte) (escrow types.Escrow
 	return escrow, true
 }
 
+// IterateEscrowsWithPassedDeadline iterates over all escrows that have an expired deadline at the specified date.
 func (k Keeper) IterateEscrowsWithPassedDeadline(ctx sdk.Context, date uint64, op func(types.Escrow) bool) {
 	store := k.getDeadlineStore(ctx)
-	//TODO: iterate from (past) last block time
 	end := sdk.Uint64ToBigEndian(date + 1)
 	iterator := store.Iterator(nil, end)
 	defer iterator.Close()
@@ -477,6 +502,9 @@ func (k Keeper) IterateEscrowsWithPassedDeadline(ctx sdk.Context, date uint64, o
 	}
 
 }
+
+// MarkExpiredEscrows syncs the state of the escrows that are effectively expired.
+// It iterates over all escrows that have a passed deadline at the specified date and mark them as expired if they are not already
 func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
 	k.IterateEscrowsWithPassedDeadline(ctx, date,
 		func(e types.Escrow) (stop bool) {
@@ -488,6 +516,7 @@ func (k Keeper) MarkExpiredEscrows(ctx sdk.Context, date uint64) {
 		})
 }
 
+// RefundExpiredEscrows refunds all escrows that have an expired state.
 func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 	k.IterateEscrows(ctx,
 		func(e types.Escrow) (stop bool) {
@@ -511,7 +540,7 @@ func (k Keeper) RefundExpiredEscrows(ctx sdk.Context) {
 		})
 }
 
-// IterateEscrows iterates through the escrows
+// IterateEscrows iterates through all the escrows.
 func (k Keeper) IterateEscrows(
 	ctx sdk.Context,
 	op func(types.Escrow) bool,

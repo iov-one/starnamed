@@ -21,6 +21,7 @@ const (
 	RouterKey string = ModuleName
 )
 
+// GetEscrowKey returns a byte array that can be used as a unique key from an escrow id, used in the escrow store
 func GetEscrowKey(id string) []byte {
 	key, err := hex.DecodeString(id)
 	if err != nil {
@@ -29,6 +30,8 @@ func GetEscrowKey(id string) []byte {
 	return key
 }
 
+// GetDeadlineKey returns a byte array that can be used as a unique key from an escrow id and its deadline,
+// prefixing the deadline so it can be used to iterate through escrows by deadline
 func GetDeadlineKey(deadline uint64, id string) []byte {
 	return append(sdk.Uint64ToBigEndian(deadline), GetEscrowKey(id)...)
 }

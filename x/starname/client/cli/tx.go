@@ -922,10 +922,6 @@ func getCmdCreateDomainEscrow() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
 			// broadcast request
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

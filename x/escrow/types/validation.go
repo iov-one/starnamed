@@ -36,6 +36,7 @@ func ValidateID(id string) error {
 	return nil
 }
 
+// ValidateObject checks that the given object belongs to the seller
 func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 	ownedBySeller, err := object.IsOwnedBy(seller)
 	if err != nil {
@@ -47,6 +48,8 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 	return nil
 }
 
+// ValidateObjectDeadline checks, if the object is an ObjectWithTimeConstraint, that the given deadline is validated
+// by the object.
 func ValidateObjectDeadline(transferableObj TransferableObject, deadline uint64) error {
 	if obj, hasCustomCheck := transferableObj.(ObjectWithTimeConstraint); hasCustomCheck {
 		return sdkerrors.Wrap(obj.ValidateDeadline(deadline), "the deadline has not been validated by the object")
@@ -54,6 +57,7 @@ func ValidateObjectDeadline(transferableObj TransferableObject, deadline uint64)
 	return nil
 }
 
+// ValidateState checks that the escrow is a valid state, e.g. open or expired
 func ValidateState(state EscrowState) error {
 	if state != EscrowState_Open && state != EscrowState_Expired {
 		return sdkerrors.Wrap(ErrEscrowNotOpen, strconv.FormatUint(uint64(state), 10))
@@ -61,6 +65,7 @@ func ValidateState(state EscrowState) error {
 	return nil
 }
 
+// ValidateDeadline checks that the given deadline is ahead of the last block time
 func ValidateDeadline(deadline uint64, lastBlockTime uint64) error {
 	if deadline <= lastBlockTime {
 		return ErrPastDeadline
@@ -68,6 +73,7 @@ func ValidateDeadline(deadline uint64, lastBlockTime uint64) error {
 	return nil
 }
 
+// ValidateAddress validates that the given address is a valid starname account bech32 address
 func ValidateAddress(addr string) error {
 	_, err := sdk.AccAddressFromBech32(addr)
 	return err
