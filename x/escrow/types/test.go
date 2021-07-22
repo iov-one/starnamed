@@ -30,8 +30,8 @@ func (m *TestObject) GetObjectTypeID() TypeID {
 	return TypeIDTestObject
 }
 
-func (m *TestObject) GetCRUDObject() crud.Object {
-	return m
+func (m *TestObject) GetUniqueKey() []byte {
+	return m.PrimaryKey()
 }
 
 func (m *TestObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {
@@ -86,8 +86,8 @@ func (m *TestTimeConstrainedObject) GetObjectTypeID() TypeID {
 	return TypeIDTestTimeConstrainedObject
 }
 
-func (m *TestTimeConstrainedObject) GetCRUDObject() crud.Object {
-	return m
+func (m *TestTimeConstrainedObject) GetUniqueKey() []byte {
+	return m.PrimaryKey()
 }
 
 func (m *TestTimeConstrainedObject) IsOwnedBy(account sdk.AccAddress) (bool, error) {

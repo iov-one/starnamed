@@ -26,7 +26,8 @@ type TransferableObject interface {
 	codec.ProtoMarshaler
 
 	GetObjectTypeID() TypeID
-	GetCRUDObject() crud.Object
+	// GetUniqueKey returns a byte array that is unique for this type of object
+	GetUniqueKey() []byte
 
 	IsOwnedBy(account sdk.AccAddress) (bool, error)
 	Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data CustomData) error

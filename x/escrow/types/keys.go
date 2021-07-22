@@ -32,3 +32,8 @@ func GetEscrowKey(id string) []byte {
 func GetDeadlineKey(deadline uint64, id string) []byte {
 	return append(sdk.Uint64ToBigEndian(deadline), GetEscrowKey(id)...)
 }
+
+// GetEscrowObjectKey returns a byte array that can be used as a unique key from a TransferableObject
+func GetEscrowObjectKey(obj TransferableObject) []byte {
+	return append(sdk.Uint64ToBigEndian(uint64(obj.GetObjectTypeID())), obj.GetUniqueKey()...)
+}

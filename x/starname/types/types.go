@@ -90,9 +90,9 @@ func (m *Domain) GetObjectTypeID() escrowtypes.TypeID {
 	return DomainTypeID
 }
 
-// GetCRUDObject implements escrowtypes.TransferableObject
-func (m *Domain) GetCRUDObject() crud.Object {
-	return m
+// GetUniqueKey implements escrowtypes.TransferableObject
+func (m *Domain) GetUniqueKey() []byte {
+	return m.PrimaryKey()
 }
 
 // IsOwnedBy implements escrowtypes.TransferableObject
@@ -198,9 +198,9 @@ func (m *Account) GetObjectTypeID() escrowtypes.TypeID {
 	return AccountTypeID
 }
 
-// GetCRUDObject implements escrowtypes.TransferableObject
-func (m *Account) GetCRUDObject() crud.Object {
-	return m
+// GetUniqueKey implements escrowtypes.TransferableObject
+func (m *Account) GetUniqueKey() []byte {
+	return m.PrimaryKey()
 }
 
 // IsOwnedBy implements escrowtypes.TransferableObject
