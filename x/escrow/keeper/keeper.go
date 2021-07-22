@@ -80,9 +80,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("irismod/%s", types.ModuleName))
 }
 
-// GetEscrowAddress returns the escrow module address
-func (k Keeper) GetEscrowAddress() sdk.AccAddress {
+// GetEscrowAddress returns the address of the escrow account
+func (k Keeper) GetEscrowAddress(id string) sdk.AccAddress {
+	//TODO: use the changes introduced by https://github.com/cosmos/cosmos-sdk/pull/9088 in v0.43 to effectively have one account per escrow
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
+	// We could use this instead, but it is not optimal and increases probability of collision
+	// return k.accountKeeper.GetModuleAddress(types.ModuleName + id)
 }
 
 func (k Keeper) ImportNextID(ctx sdk.Context, nextID uint64) {

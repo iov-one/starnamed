@@ -100,9 +100,6 @@ func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper) AppModule {
 	}
 }
 
-// Name returns the escrow module's name.
-func (AppModule) Name() string { return types.ModuleName }
-
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))

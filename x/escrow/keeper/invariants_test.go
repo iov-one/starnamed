@@ -18,9 +18,9 @@ type InvariantsSuite struct {
 	escrows []types.Escrow
 }
 
-func (s *InvariantsSuite) saveObject(obj *types.TestObject) {
+func (s *InvariantsSuite) saveObject(obj *types.TestObject, escrowId string) {
 	// Escrows are already created, so all your objects are belong to us
-	obj.Owner = s.keeper.GetEscrowAddress()
+	obj.Owner = s.keeper.GetEscrowAddress(escrowId)
 	// Save the object to the store
 	s.Assert().Nil(s.store.Create(obj), "Error while saving a generated object")
 }
@@ -45,7 +45,7 @@ func (s *InvariantsSuite) reinitEscrows() {
 	for i := 0; i < 100; i++ {
 		escrow, obj := s.generator.NewRandomTestEscrow()
 		s.addEscrow(escrow)
-		s.saveObject(obj)
+		s.saveObject(obj, escrow.Id)
 	}
 	// Add 20 valid expired escrows
 	for i := 0; i < 20; i++ {
@@ -53,7 +53,7 @@ func (s *InvariantsSuite) reinitEscrows() {
 		escrow.State = types.EscrowState_Expired
 		escrow.Deadline = s.generator.NowAfter(0) - (rand.Uint64() % 5)
 		s.addEscrow(escrow)
-		s.saveObject(obj)
+		s.saveObject(obj, escrow.Id)
 	}
 
 	//Invariant should hold
@@ -90,7 +90,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	// Escrow is not actually expired
 	escrow.State = types.EscrowState_Expired
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with expired state but with future deadline")
 	s.reinitEscrows()
@@ -99,7 +99,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	// Escrow should be expired
 	escrow.Deadline = s.generator.NowAfter(0) - 1
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with open state but with expired deadline")
 	s.reinitEscrows()
@@ -115,7 +115,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.State = types.EscrowState_Completed
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with completed state in store")
 	s.reinitEscrows()
@@ -143,7 +143,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	s.reinitEscrows()
 
 	// Object is valid but not his version in store
-	obj.Owner = s.keeper.GetEscrowAddress()
+	obj.Owner = s.keeper.GetEscrowAddress(escrow.Id)
 	s.addEscrow(escrow)
 
 	s.expects(invariant, true, "Escrow with object not owned by module in store version")
@@ -153,7 +153,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.Id = "0123456789"
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 	s.expects(invariant, true, "Escrow with invalid ID: not enough characters")
 	s.reinitEscrows()
 
@@ -168,7 +168,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	price.Amount = price.Amount.SubRaw(10)
 	escrow.Price = sdk.Coins{price}
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with negative price")
 	s.reinitEscrows()
@@ -197,7 +197,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.Id = hex.EncodeToString(sdk.Uint64ToBigEndian(s.generator.GetNextId() + 500))
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with invalid ID: this ID will be generated for future escrows")
 	s.reinitEscrows()
@@ -206,7 +206,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.Seller = "star15d4e5d4e54d5e4d"
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with invalid seller: invalid bech32 address")
 	s.reinitEscrows()
@@ -235,7 +235,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.BrokerCommission = sdk.NewDec(-1)
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with invalid commission: negative commission")
 	s.reinitEscrows()
@@ -250,7 +250,7 @@ func (s *InvariantsSuite) TestStateInvariant() {
 	escrow, obj = s.generator.NewRandomTestEscrow()
 	escrow.Deadline = s.generator.NowAfter(1 + uint64(s.keeper.GetMaximumEscrowDuration(s.ctx).Seconds()))
 	s.addEscrow(escrow)
-	s.saveObject(obj)
+	s.saveObject(obj, escrow.Id)
 
 	s.expects(invariant, true, "Escrow with invalid deadline: exceeds the maximum allowed duration for an escrow")
 	s.reinitEscrows()

@@ -50,7 +50,7 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// transfer ownership of the object to the escrow account
-	err = k.doObjectTransfer(ctx, seller, k.GetEscrowAddress(), object)
+	err = k.doObjectTransfer(ctx, seller, k.GetEscrowAddress(escrow.Id), object)
 	if err != nil {
 		return "", errors.Wrap(err, "Cannot transfer the object to the module account")
 	}
@@ -214,7 +214,7 @@ func (k Keeper) TransferToEscrow(
 func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.AccAddress, broker sdk.AccAddress) error {
 
 	// Transfer the object from the module to the buyer
-	err := k.doObjectTransfer(ctx, k.GetEscrowAddress(), buyer, escrow.GetObject())
+	err := k.doObjectTransfer(ctx, k.GetEscrowAddress(escrow.Id), buyer, escrow.GetObject())
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the object to the buyer")
 	}
@@ -270,7 +270,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.AccAddress) error {
 
 	// Transfer the object back to the seller
-	err := k.doObjectTransfer(ctx, k.GetEscrowAddress(), seller, escrow.GetObject())
+	err := k.doObjectTransfer(ctx, k.GetEscrowAddress(escrow.Id), seller, escrow.GetObject())
 	if err != nil {
 		return sdkerrors.Wrap(err, "Error while transferring the object back to the seller")
 

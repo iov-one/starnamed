@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -102,18 +103,22 @@ func (s *EscrowTestSuite) SetupTest() {
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
+	getNextID := func(gen *test.EscrowGenerator) string {
+		return hex.EncodeToString(sdk.Uint64ToBigEndian(gen.GetNextId()))
+	}
+
 	price := sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50)))
-	escrow, _ := s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(), price, s.generator.NowAfter(0)-10)
+	escrow, _ := s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(getNextID(s.generator)), price, s.generator.NowAfter(0)-10)
 	escrow.State = types.EscrowState_Expired
 	s.expiredEscrowId = escrow.Id
 	s.keeper.SaveEscrow(s.ctx, escrow)
 
-	escrow, _ = s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(), price, s.generator.NowAfter(10))
+	escrow, _ = s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(getNextID(s.generator)), price, s.generator.NowAfter(10))
 	escrow.State = types.EscrowState_Refunded
 	s.refundedEscrowId = escrow.Id
 	s.keeper.SaveEscrow(s.ctx, escrow)
 
-	escrow, _ = s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(), price, s.generator.NowAfter(10))
+	escrow, _ = s.generator.NewTestEscrow(s.keeper.GetEscrowAddress(getNextID(s.generator)), price, s.generator.NowAfter(10))
 	escrow.State = types.EscrowState_Completed
 	s.completedEscrowId = escrow.Id
 	s.keeper.SaveEscrow(s.ctx, escrow)
@@ -498,27 +503,27 @@ func (s *EscrowTestSuite) TestTransferTo() {
 
 	invalidObjectEscrowId := s.createErroredObjectEscrow(defaultPrice)
 
-	checkDefaultValidTransfer := func(before, after assetState, name string, expectedCommission sdk.Coins) {
+	checkDefaultValidTransfer := func(before, after assetState, name string, expectedCommission sdk.Coins, id string) {
 		price := defaultPrice.Sub(expectedCommission)
 		expectedBrokerBalance := sdk.NewCoins(before.brokerBalance.Add(expectedCommission...)...)
 
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance.Add(defaultPrice...), "Buyer balance on test %s", name)
 		s.Assert().Equal(before.sellerBalance.Add(price...), after.sellerBalance, "Seller balance on test %s", name)
 		s.Assert().Equal(expectedBrokerBalance, after.brokerBalance, "Broker balance on test %s", name)
-		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
+		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(id), "Object owner on test %s", name)
 		s.Assert().Equal(after.objectOwner, s.buyer, "Object owner on test %s", name)
 	}
 
-	checkInvalidTransferWithoutObject := func(before, after assetState, name string, _ sdk.Coins) {
+	checkInvalidTransferWithoutObject := func(before, after assetState, name string, _ sdk.Coins, id string) {
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance, "Buyer balance on test %s", name)
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance, "Seller balance on test %s", name)
 		s.Assert().Equal(before.brokerBalance, after.brokerBalance, "Broker balance on test %s", name)
 	}
 
-	checkInvalidTransfer := func(before, after assetState, name string, _ sdk.Coins) {
-		checkInvalidTransferWithoutObject(before, after, name, nil)
-		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
-		s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress(), "Object owner on test %s", name)
+	checkInvalidTransfer := func(before, after assetState, name string, _ sdk.Coins, id string) {
+		checkInvalidTransferWithoutObject(before, after, name, nil, id)
+		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(id), "Object owner on test %s", name)
+		s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress(id), "Object owner on test %s", name)
 	}
 
 	testCases := []struct {
@@ -528,7 +533,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 		id                 string
 		expectedCommission sdk.Coins
 		broker             sdk.AccAddress
-		check              func(before, after assetState, name string, expectedCommision sdk.Coins)
+		check              func(before, after assetState, name string, expectedCommision sdk.Coins, id string)
 	}{
 		{
 			name:   "valid transfer: exact coins",
@@ -642,14 +647,14 @@ func (s *EscrowTestSuite) TestTransferTo() {
 
 		check := t.check
 		if check == nil {
-			check = func(_, _ assetState, _ string, _ sdk.Coins) {}
+			check = func(_, _ assetState, _ string, _ sdk.Coins, _ string) {}
 		}
 
 		transfer := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, id)
 			before := s.getState(s.seller, t.buyer, t.broker, escrow, found)
 			err := s.keeper.TransferToEscrow(s.ctx, t.buyer, id, t.amount)
-			check(before, s.getState(s.seller, t.buyer, t.broker, escrow, found), t.name, t.expectedCommission)
+			check(before, s.getState(s.seller, t.buyer, t.broker, escrow, found), t.name, t.expectedCommission, id)
 			return err
 		}
 
@@ -693,23 +698,26 @@ func (s *EscrowTestSuite) TestRefund() {
 
 	invalidObjectEscrowId := s.createErroredObjectEscrow(price)
 
-	validRefund := func(before, after assetState) {
+	validRefund := func(before, after assetState, escrowId string) {
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance)
-		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress())
+		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(escrowId))
 		s.Assert().Equal(after.objectOwner, s.seller)
 	}
 
-	invalidRefund := func(before, after assetState) {
+	invalidRefund := func(before, after assetState, escrowId string) {
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance)
-		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress())
-		s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress())
+		// If this is has sense
+		if before.objectOwner != nil {
+			s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(escrowId))
+			s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress(escrowId))
+		}
 	}
 
 	testCases := []struct {
 		name   string
 		id     string
 		sender sdk.AccAddress
-		check  func(before, after assetState)
+		check  func(before, after assetState, escrowId string)
 	}{
 		{
 			name:   "valid refund: triggered by seller before expiration",
@@ -761,13 +769,16 @@ func (s *EscrowTestSuite) TestRefund() {
 	}
 
 	for _, t := range testCases {
-		check := func(before, after assetState) {}
+		check := func(before, after assetState, id string) {}
+		if t.check != nil {
+			check = t.check
+		}
 
 		refund := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, t.id)
 			before := s.getState(s.seller, nil, nil, escrow, found)
 			err := s.keeper.RefundEscrow(s.ctx, t.sender, t.id)
-			check(before, s.getState(s.seller, nil, nil, escrow, found))
+			check(before, s.getState(s.seller, nil, nil, escrow, found), t.id)
 			return err
 		}
 

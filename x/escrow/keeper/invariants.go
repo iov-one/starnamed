@@ -103,9 +103,9 @@ func ObjectStateInvariant(k Keeper) sdk.Invariant {
 		objNotOwnedByModuleEscrows := 0
 
 		k.IterateEscrows(ctx, func(escrow types.Escrow) bool {
-			// Check that the object belongs to the module
+			// Check that the object belongs to the escrow
 			obj := escrow.GetObject()
-			if ownedByModule, err := obj.IsOwnedBy(k.GetEscrowAddress()); err != nil || !ownedByModule {
+			if ownedByModule, err := obj.IsOwnedBy(k.GetEscrowAddress(escrow.Id)); err != nil || !ownedByModule {
 				objNotOwnedByModuleEscrows++
 			}
 

@@ -49,7 +49,6 @@ func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddr
 	}
 
 	if m.NumAllowedTransfers == 0 {
-		fmt.Printf("denied!\n")
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "this test object cannot be transferred")
 	} else if m.NumAllowedTransfers > 0 {
 		m.NumAllowedTransfers--
