@@ -26,5 +26,8 @@ swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger-st
 # clean swagger files
 rm -rf ./tmp-swagger-gen
 
+# Update the Cosmos SDK yaml file
+scripts/fetch-cosmos-swagger.sh
+
 # Update static assets
 statik -src client/docs/swagger-ui/ -dest client/docs/ -f -m
