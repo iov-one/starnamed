@@ -36,5 +36,5 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	lastBlockTime := k.GetLastBlockTime(ctx)
 	nextID := k.GetNextIDForExport(ctx)
 
-	return types.NewGenesisState(escrows, lastBlockTime, nextID)
+	return types.NewGenesisState(escrows, lastBlockTime, nextID, k.GetParams(ctx))
 }

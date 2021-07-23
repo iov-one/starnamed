@@ -10,11 +10,12 @@ import (
 )
 
 // NewGenesisState constructs a new GenesisState instance
-func NewGenesisState(escrows []Escrow, lastBlockTime, nextEscrowID uint64) *GenesisState {
+func NewGenesisState(escrows []Escrow, lastBlockTime, nextEscrowID uint64, params Params) *GenesisState {
 	return &GenesisState{
 		Escrows:       escrows,
 		LastBlockTime: lastBlockTime,
 		NextEscrowId:  nextEscrowID,
+		Params:        params,
 	}
 }
 
@@ -24,12 +25,18 @@ func DefaultGenesisState() *GenesisState {
 		Escrows:       []Escrow{},
 		LastBlockTime: 0,
 		NextEscrowId:  1,
+		Params:        DefaultParams(),
 	}
 }
 
 // ValidateGenesis validates the provided genesis state to ensure the expected invariants holds.
 func ValidateGenesis(data GenesisState) error {
 	ids := map[string]bool{}
+
+	if err := data.Params.Validate(); err != nil {
+		return err
+	}
+
 	for _, escrow := range data.Escrows {
 		// Escrow id must be unique
 		if ids[escrow.Id] {

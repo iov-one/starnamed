@@ -53,6 +53,10 @@ func NewKeeper(
 	configurationKeeper types.ConfigurationKeeper,
 	blockedAddrs map[string]bool,
 ) Keeper {
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	// ensure the escrow module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -147,9 +151,27 @@ func (k Keeper) GetBrokerAddress(ctx sdk.Context) string {
 // GetBrokerCommission returns the escrow broker commission
 func (k Keeper) GetBrokerCommission(ctx sdk.Context) sdk.Dec {
 	return k.configurationKeeper.GetConfiguration(ctx).EscrowCommission
+}
 
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	params = types.DefaultParams()
+	if k.paramSpace.Has(ctx, types.KeyModuleEnabled) {
+		k.paramSpace.Get(ctx, types.KeyModuleEnabled, &params.ModuleEnabled)
+	}
+	return
 }
 
 func (k Keeper) isBlockedAddr(address string) bool {
 	return k.blockedAddrs[address]
+}
+
+// checkThatModuleIsEnabled is a function that will panic if the escrow module is not enabled via the
+// escrow/module_enabled parameter. This is used to prevent the escrow being used before a parameter change
+// proposal is voted and accepted.
+func (k Keeper) checkThatModuleIsEnabled(ctx sdk.Context) {
+	var moduleEnabled bool
+	k.paramSpace.Get(ctx, types.KeyModuleEnabled, &moduleEnabled)
+	if !moduleEnabled {
+		panic("The escrow module is not enabled yet. The escrow/" + string(types.KeyModuleEnabled) + " parameter must be set to true")
+	}
 }

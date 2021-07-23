@@ -22,9 +22,9 @@ type BaseKeeperSuite struct {
 	configKeeper types.ConfigurationKeeper
 }
 
-func (s *BaseKeeperSuite) Setup(coinHolders []sdk.AccAddress) {
+func (s *BaseKeeperSuite) Setup(coinHolders []sdk.AccAddress, isModuleEnabled bool) {
 	test.SetConfig()
-	s.keeper, s.ctx, s.store, s.balances, s.storeKey, s.configKeeper = test.NewTestKeeper(coinHolders)
+	s.keeper, s.ctx, s.store, s.balances, s.storeKey, s.configKeeper = test.NewTestKeeper(coinHolders, isModuleEnabled)
 	s.keeper.ImportNextID(s.ctx, 1)
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 	s.generator = test.NewEscrowGenerator(uint64(s.ctx.BlockTime().Unix()))

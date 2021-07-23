@@ -15,7 +15,7 @@ type QueryTestSuite struct {
 }
 
 func (s *QueryTestSuite) SetupTest() {
-	s.Setup(nil)
+	s.Setup(nil, true)
 }
 
 func TestQueryTestSuite(t *testing.T) {

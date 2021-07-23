@@ -61,7 +61,7 @@ func (s *InvariantsSuite) reinitEscrows() {
 }
 
 func (s *InvariantsSuite) SetupTest() {
-	s.Setup(nil)
+	s.Setup(nil, true)
 	s.reinitEscrows()
 }
 

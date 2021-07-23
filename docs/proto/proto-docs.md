@@ -102,6 +102,9 @@
   
     - [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState)
   
+- [iov/escrow/v1beta1/params.proto](#iov/escrow/v1beta1/params.proto)
+    - [Params](#starnamed.x.escrow.v1beta1.Params)
+  
 - [iov/escrow/v1beta1/genesis.proto](#iov/escrow/v1beta1/genesis.proto)
     - [GenesisState](#starnamed.x.escrow.v1beta1.GenesisState)
   
@@ -1589,6 +1592,37 @@ EscrowState defines the state of an escrow
 
 
 
+<a name="iov/escrow/v1beta1/params.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/params.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.Params"></a>
+
+### Params
+Params defines the parameters of the escrow module
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `module_enabled` | [bool](#bool) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
 <a name="iov/escrow/v1beta1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1607,6 +1641,7 @@ GenesisState defines the Escrow module's genesis state
 | `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
 | `last_block_time` | [uint64](#uint64) |  |  |
 | `next_escrow_id` | [uint64](#uint64) |  |  |
+| `params` | [Params](#starnamed.x.escrow.v1beta1.Params) |  |  |
 
 
 

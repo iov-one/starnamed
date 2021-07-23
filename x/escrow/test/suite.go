@@ -135,7 +135,7 @@ var TimeNow = time.Unix(2000, 0)
 var Denom = "tiov"
 var DenomAux = "tiov2"
 
-func NewTestCodec() *codec.ProtoCodec {
+func NewTestCodec() (*codec.ProtoCodec, *codec.LegacyAmino) {
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
 	types.RegisterInterfaces(interfaceRegistry)
 	interfaceRegistry.RegisterImplementations((*types.TransferableObject)(nil),
@@ -144,7 +144,10 @@ func NewTestCodec() *codec.ProtoCodec {
 	)
 	//Register the test object implementation
 	cdc := codec.NewProtoCodec(interfaceRegistry)
-	return cdc
+
+	legacyCdc := codec.NewLegacyAmino()
+	types.RegisterLegacyAminoCodec(legacyCdc)
+	return cdc, legacyCdc
 }
 
 func SetConfig() {
@@ -155,8 +158,8 @@ func SetConfig() {
 	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
 }
 
-func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins, sdk.StoreKey, types.ConfigurationKeeper) {
-	cdc := NewTestCodec()
+func NewTestKeeper(coinHolders []sdk.AccAddress, isModuleEnabled bool) (keeper.Keeper, sdk.Context, crud.Store, map[string]sdk.Coins, sdk.StoreKey, types.ConfigurationKeeper) {
+	cdc, legacyCdc := NewTestCodec()
 	// generate store
 	mdb := db.NewMemDB()
 	// generate multistore
@@ -164,10 +167,14 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	// generate store keys
 	escrowStoreKey := sdk.NewKVStoreKey(types.StoreKey)                // domain module store key
 	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
+	paramStoreKey := sdk.NewKVStoreKey(paramstypes.StoreKey)           // SDK parameter store key
+	tParamStoreKey := sdk.NewKVStoreKey("t" + paramstypes.StoreKey)    // SDK parameter transient store key
 
 	// generate sub store for each module referenced by the keeper
 	ms.MountStoreWithDB(escrowStoreKey, sdk.StoreTypeIAVL, mdb)        // mount domain module
 	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount config module
+	ms.MountStoreWithDB(paramStoreKey, sdk.StoreTypeIAVL, mdb)         // mount params stores
+	ms.MountStoreWithDB(tParamStoreKey, sdk.StoreTypeIAVL, mdb)
 
 	// test no errors
 	if err := ms.LoadLatestVersion(); err != nil {
@@ -195,7 +202,11 @@ func NewTestKeeper(coinHolders []sdk.AccAddress) (keeper.Keeper, sdk.Context, cr
 	// create context
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: TimeNow}, true, log.NewNopLogger())
 	// Create param subspace
-	paramsSubspace := paramstypes.NewSubspace(cdc, nil, escrowStoreKey, sdk.NewKVStoreKey("t"+types.StoreKey), types.ModuleName)
+	paramsSubspace := paramstypes.NewSubspace(cdc, legacyCdc, paramStoreKey, tParamStoreKey, types.ModuleName)
+	if isModuleEnabled {
+		paramsSubspace = paramsSubspace.WithKeyTable(types.ParamKeyTable())
+		paramsSubspace.SetParamSet(ctx, &types.Params{ModuleEnabled: true})
+	}
 
 	// Set default fees
 	defaultFees := configuration.NewFees()
@@ -261,7 +272,8 @@ func NewEscrowGenerator(now uint64) *EscrowGenerator {
 }
 
 func DeleteEscrow(ctx sdk.Context, storeKey sdk.StoreKey, id string) {
-	str := crudtypes.NewStore(NewTestCodec(), ctx.KVStore(storeKey), keeper.EscrowStoreKey)
+	cdc, _ := NewTestCodec()
+	str := crudtypes.NewStore(cdc, ctx.KVStore(storeKey), keeper.EscrowStoreKey)
 	if err := str.Delete(types.GetEscrowKey(id)); err != nil {
 		panic(errors.Wrap(err, "error while deleting an escrow in a test"))
 	}

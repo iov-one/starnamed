@@ -28,6 +28,8 @@ func (k Keeper) CreateEscrow(
 	string,
 	error,
 ) {
+	k.checkThatModuleIsEnabled(ctx)
+
 	id := k.FetchNextId(ctx)
 
 	// check if the escrow already exists
@@ -75,6 +77,8 @@ func (k Keeper) UpdateEscrow(
 	newPrice sdk.Coins,
 	newDeadline uint64,
 ) error {
+	k.checkThatModuleIsEnabled(ctx)
+
 	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
 	if !found {
@@ -149,6 +153,8 @@ func (k Keeper) TransferToEscrow(
 	id string,
 	amount sdk.Coins,
 ) error {
+	k.checkThatModuleIsEnabled(ctx)
+
 	// check that the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
 	if !found {
@@ -237,6 +243,7 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 // RefundEscrow refunds the specified escrow, returning the object to the seller and removing the escrow.
 // An escrow can only be refunded by its owner (the seller) or by anybody when it is expired
 func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) error {
+	k.checkThatModuleIsEnabled(ctx)
 
 	// check if the escrow exists
 	escrow, found := k.GetEscrow(ctx, id)
@@ -306,6 +313,8 @@ func (k Keeper) HasEscrow(ctx sdk.Context, id string) bool {
 
 // SaveEscrow sets the given escrow in the escrow store and adds it to the deadline store
 func (k Keeper) SaveEscrow(ctx sdk.Context, escrow types.Escrow) {
+	k.checkThatModuleIsEnabled(ctx)
+
 	escrow.SyncObject()
 	if k.HasEscrow(ctx, escrow.Id) {
 		if err := k.getEscrowStore(ctx).Update(&escrow); err != nil {
@@ -336,6 +345,8 @@ func (k Keeper) deleteEscrow(ctx sdk.Context, escrow types.Escrow) {
 
 // GetEscrow retrieves the specified escrow
 func (k Keeper) GetEscrow(ctx sdk.Context, id string) (escrow types.Escrow, found bool) {
+	k.checkThatModuleIsEnabled(ctx)
+
 	return k.getEscrowByKey(ctx, types.GetEscrowKey(id))
 }
 
@@ -354,6 +365,8 @@ func consumeEscrowCursor(cursor crud.Cursor) ([]types.Escrow, error) {
 
 // QueryEscrows perform a query over escrows, providing a custom filter that manipulates the crud.QueryStatement.
 func (k Keeper) QueryEscrows(ctx sdk.Context, filter func(crud.QueryStatement) crud.ValidQuery) ([]types.Escrow, error) {
+	k.checkThatModuleIsEnabled(ctx)
+
 	cursor, err := filter(k.getEscrowStore(ctx).Query()).Do()
 	if err != nil {
 		return nil, err

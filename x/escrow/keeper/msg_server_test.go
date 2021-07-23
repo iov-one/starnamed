@@ -24,7 +24,7 @@ func (s *MsgServerTestSuite) SetupTest() {
 	s.sender = s.generator.NewAccAddress()
 	s.feePayer = s.generator.NewAccAddress()
 	s.buyer = s.generator.NewAccAddress()
-	s.Setup([]sdk.AccAddress{s.sender, s.feePayer, s.buyer})
+	s.Setup([]sdk.AccAddress{s.sender, s.feePayer, s.buyer}, true)
 }
 
 func (s *MsgServerTestSuite) TestAll() {

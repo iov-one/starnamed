@@ -99,7 +99,7 @@ func (s *EscrowTestSuite) SetupTest() {
 	s.generator = test.NewEscrowGenerator(uint64(test.TimeNow.Unix()))
 	s.seller = s.generator.NewAccAddress()
 	s.buyer = s.generator.NewAccAddress()
-	s.keeper, s.ctx, s.store, s.balances, _, s.configKeeper = test.NewTestKeeper([]sdk.AccAddress{s.buyer})
+	s.keeper, s.ctx, s.store, s.balances, _, s.configKeeper = test.NewTestKeeper([]sdk.AccAddress{s.buyer}, true)
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
