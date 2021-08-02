@@ -16,6 +16,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 
 	k.SetLastBlockTime(ctx, data.LastBlockTime)
 	k.ImportNextID(ctx, data.NextEscrowId)
+	k.SetParams(ctx, data.Params)
 
 	for _, escrow := range data.GetEscrows() {
 		k.SaveEscrow(ctx, escrow)

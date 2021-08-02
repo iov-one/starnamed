@@ -161,6 +161,10 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return
 }
 
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	k.paramSpace.SetParamSet(ctx, &params)
+}
+
 func (k Keeper) isBlockedAddr(address string) bool {
 	return k.blockedAddrs[address]
 }
@@ -170,7 +174,9 @@ func (k Keeper) isBlockedAddr(address string) bool {
 // proposal is voted and accepted.
 func (k Keeper) checkThatModuleIsEnabled(ctx sdk.Context) {
 	var moduleEnabled bool
-	k.paramSpace.Get(ctx, types.KeyModuleEnabled, &moduleEnabled)
+	if k.paramSpace.Has(ctx, types.KeyModuleEnabled) {
+		k.paramSpace.Get(ctx, types.KeyModuleEnabled, &moduleEnabled)
+	}
 	if !moduleEnabled {
 		panic("The escrow module is not enabled yet. The escrow/" + string(types.KeyModuleEnabled) + " parameter must be set to true")
 	}
