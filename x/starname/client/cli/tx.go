@@ -100,7 +100,7 @@ func getCmdTransferDomain() *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
 	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
@@ -174,7 +174,7 @@ func getCmdTransferAccount() *cobra.Command {
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
 	cmd.Flags().StringP("name", "n", "", "the name of the account you want to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
 	cmd.Flags().StringP("reset", "r", "false", "true: reset all data associated with the account, false: preserves the data")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
@@ -694,7 +694,7 @@ func getCmdRegisterAccount() *cobra.Command {
 	}
 	cmd.Flags().StringP("domain", "d", "", "the existing domain for your account")
 	cmd.Flags().StringP("name", "n", "", "the name of your account")
-	cmd.Flags().StringP("owner", "o", "", "the address of the owner, if no owner provided signer is the owner")
+	cmd.Flags().StringP("owner", "w", "", "the address of the owner, if no owner provided signer is the owner")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	cmd.Flags().StringP("broker", "r", "", "address of the broker, optional")
 	flags.AddTxFlagsToCmd(cmd)
