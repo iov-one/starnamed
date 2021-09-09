@@ -11,14 +11,15 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/mock"
-	"github.com/iov-one/starnamed/pkg/utils"
-	"github.com/iov-one/starnamed/x/configuration"
-	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
+
+	"github.com/iov-one/starnamed/mock"
+	"github.com/iov-one/starnamed/pkg/utils"
+	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 // TODO: FIXME clean-up all test drivers
@@ -97,15 +98,26 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// test no errors
 	require.Nil(t, ms.LoadLatestVersion())
 	// create Mocks
-	mocks := new(Mocks)
+	var mocks Mocks
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
+	// Create mock auth keeper
+	accountKeeper := mock.NewAccountKeeper().Mock()
+	// Create mock staking keeper
+	stakingKeeper := mock.NewStakingKeeper().Mock()
+	// Create mock distribution keeper
+	distributionKeeper := mock.NewDistributionKeeper().Mock()
 	// create config keeper
 	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
 	// create context
 	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+	return NewKeeper(cdc, domainStoreKey, confKeeper,
+		mocks.Supply.Mock(),
+		accountKeeper,
+		distributionKeeper,
+		stakingKeeper,
+		nil), ctx, &mocks
 }
 
 var _, testAddrs = utils.GeneratePrivKeyAddressPairs(3)

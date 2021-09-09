@@ -7,8 +7,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/iov-one/starnamed/x/starname/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 // GetQueryCmd builds the commands for queries in the domain module
@@ -27,6 +30,7 @@ func GetQueryCmd() *cobra.Command {
 		getQueryOwnerAccounts(),
 		getQueryOwnerDomains(),
 		getQueryResourceAccounts(),
+		getQueryYield(),
 	)
 	return domainQueryCmd
 }
@@ -273,6 +277,45 @@ func getQueryResourceAccounts() *cobra.Command {
 	// add flags
 	cmd.Flags().String("uri", "", "the resource uri")
 	cmd.Flags().String("resource", "", "resource")
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "resource accounts")
+	return cmd
+}
+
+func getQueryYield() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "apy",
+		Aliases: []string{"yield", "apr", "APY", "APR", "annualized-yield"},
+		Short:   "get an estimation of the apy based on the previous blocks",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			// get flags
+			commissionStr, err := cmd.Flags().GetString("validator-commission")
+			if err != nil {
+				return err
+			}
+			commission, err := sdk.NewDecFromStr(commissionStr)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "Invalid validator commission : %v", commissionStr)
+			}
+
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			res, err := types.NewQueryClient(clientCtx).Yield(
+				context.Background(),
+				&types.QueryYieldRequest{
+					ValidatorCommission: commission,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(res)
+		},
+	}
+	// add flags
+	cmd.Flags().String("validator-commission", "", "resource")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "resource accounts")
 	return cmd

@@ -51,6 +51,11 @@ service Query {
     rpc BrokerDomains (QueryBrokerDomainsRequest) returns (QueryBrokerDomainsResponse) {
         option (google.api.http).get = "/starname/v1beta1/domains/broker/{broker}";
     }
+
+    // Yield estimates and retrieves the annualized yield for delegators
+    rpc Yield (QueryYieldRequest) returns (QueryYieldResponse) {
+        option (google.api.http).get = "/starname/v1beta1/yield";
+    }
 }
 
  // QueryDomainRequest is the request type for the Query/Domain RPC method.
@@ -196,3 +201,20 @@ message QueryBrokerDomainsResponse {
     ];
     cosmos.base.query.v1beta1.PageResponse page = 2;
 }
+
+// QueryYieldRequest is the request type for the Query/Yield RPC method.
+message QueryYieldRequest {
+    string validator_commission = 1 [
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+}
+
+// QueryYieldResponse is the response type for the Query/Yield RPC method.
+message QueryYieldResponse {
+   string apy = 1 [
+       (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+       (gogoproto.nullable) = false
+   ];
+}
+
