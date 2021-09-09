@@ -65,12 +65,12 @@ func (c *TestChain) StoreCode(byteCode []byte) types.MsgStoreCodeResponse {
 
 func (c *TestChain) InstantiateContract(codeID uint64, initMsg []byte) sdk.AccAddress {
 	instantiateMsg := &types.MsgInstantiateContract{
-		Sender:  c.SenderAccount.GetAddress().String(),
-		Admin:   c.SenderAccount.GetAddress().String(),
-		CodeID:  codeID,
-		Label:   "ibc-test",
-		InitMsg: initMsg,
-		Funds:   sdk.Coins{TestCoin},
+		Sender: c.SenderAccount.GetAddress().String(),
+		Admin:  c.SenderAccount.GetAddress().String(),
+		CodeID: codeID,
+		Label:  "ibc-test",
+		Msg:    initMsg,
+		Funds:  sdk.Coins{TestCoin},
 	}
 
 	r, err := c.SendMsgs(instantiateMsg)
@@ -105,7 +105,7 @@ func (c *TestChain) SmartQuery(contractAddr string, queryMsg interface{}, respon
 
 	// TODO: what is the query?
 	res := c.App.Query(abci.RequestQuery{
-		Path: "/cosmwasm.wasm.v1beta1.Query/SmartContractState",
+		Path: "/cosmwasm.wasm.v1.Query/SmartContractState",
 		Data: reqBin,
 	})
 

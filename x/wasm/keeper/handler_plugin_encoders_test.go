@@ -147,7 +147,7 @@ func TestEncoding(t *testing.T) {
 					Execute: &wasmvmtypes.ExecuteMsg{
 						ContractAddr: addr2.String(),
 						Msg:          jsonMsg,
-						Send: []wasmvmtypes.Coin{
+						Funds: []wasmvmtypes.Coin{
 							wasmvmtypes.NewCoin(12, "eth"),
 						},
 					},
@@ -169,7 +169,7 @@ func TestEncoding(t *testing.T) {
 					Instantiate: &wasmvmtypes.InstantiateMsg{
 						CodeID: 7,
 						Msg:    jsonMsg,
-						Send: []wasmvmtypes.Coin{
+						Funds: []wasmvmtypes.Coin{
 							wasmvmtypes.NewCoin(123, "eth"),
 						},
 						Label: "myLabel",
@@ -179,12 +179,12 @@ func TestEncoding(t *testing.T) {
 			},
 			output: []sdk.Msg{
 				&types.MsgInstantiateContract{
-					Sender:  addr1.String(),
-					CodeID:  7,
-					Label:   "myLabel",
-					InitMsg: jsonMsg,
-					Funds:   sdk.NewCoins(sdk.NewInt64Coin("eth", 123)),
-					Admin:   addr2.String(),
+					Sender: addr1.String(),
+					CodeID: 7,
+					Label:  "myLabel",
+					Msg:    jsonMsg,
+					Funds:  sdk.NewCoins(sdk.NewInt64Coin("eth", 123)),
+					Admin:  addr2.String(),
 				},
 			},
 		},
@@ -201,10 +201,10 @@ func TestEncoding(t *testing.T) {
 			},
 			output: []sdk.Msg{
 				&types.MsgMigrateContract{
-					Sender:     addr2.String(),
-					Contract:   addr1.String(),
-					CodeID:     12,
-					MigrateMsg: jsonMsg,
+					Sender:   addr2.String(),
+					Contract: addr1.String(),
+					CodeID:   12,
+					Msg:      jsonMsg,
 				},
 			},
 		},
@@ -496,6 +496,70 @@ func TestEncoding(t *testing.T) {
 					PortId:    "wasm." + addr1.String(),
 					ChannelId: "channel-1",
 					Signer:    addr1.String(),
+				},
+			},
+		},
+		"Gov vote: yes": {
+			sender:             addr1,
+			srcContractIBCPort: "myIBCPort",
+			srcMsg: wasmvmtypes.CosmosMsg{
+				Gov: &wasmvmtypes.GovMsg{
+					Vote: &wasmvmtypes.VoteMsg{ProposalId: 1, Vote: wasmvmtypes.Yes},
+				},
+			},
+			output: []sdk.Msg{
+				&govtypes.MsgVote{
+					ProposalId: 1,
+					Voter:      addr1.String(),
+					Option:     govtypes.OptionYes,
+				},
+			},
+		},
+		"Gov vote: No": {
+			sender:             addr1,
+			srcContractIBCPort: "myIBCPort",
+			srcMsg: wasmvmtypes.CosmosMsg{
+				Gov: &wasmvmtypes.GovMsg{
+					Vote: &wasmvmtypes.VoteMsg{ProposalId: 1, Vote: wasmvmtypes.No},
+				},
+			},
+			output: []sdk.Msg{
+				&govtypes.MsgVote{
+					ProposalId: 1,
+					Voter:      addr1.String(),
+					Option:     govtypes.OptionNo,
+				},
+			},
+		},
+		"Gov vote: Abstain": {
+			sender:             addr1,
+			srcContractIBCPort: "myIBCPort",
+			srcMsg: wasmvmtypes.CosmosMsg{
+				Gov: &wasmvmtypes.GovMsg{
+					Vote: &wasmvmtypes.VoteMsg{ProposalId: 10, Vote: wasmvmtypes.Abstain},
+				},
+			},
+			output: []sdk.Msg{
+				&govtypes.MsgVote{
+					ProposalId: 10,
+					Voter:      addr1.String(),
+					Option:     govtypes.OptionAbstain,
+				},
+			},
+		},
+		"Gov vote: No with veto": {
+			sender:             addr1,
+			srcContractIBCPort: "myIBCPort",
+			srcMsg: wasmvmtypes.CosmosMsg{
+				Gov: &wasmvmtypes.GovMsg{
+					Vote: &wasmvmtypes.VoteMsg{ProposalId: 1, Vote: wasmvmtypes.NoWithVeto},
+				},
+			},
+			output: []sdk.Msg{
+				&govtypes.MsgVote{
+					ProposalId: 1,
+					Voter:      addr1.String(),
+					Option:     govtypes.OptionNoWithVeto,
 				},
 			},
 		},
