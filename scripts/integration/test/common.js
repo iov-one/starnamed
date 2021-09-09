@@ -213,7 +213,7 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       "./proto", // chdir() below
       "-proto",
-      "./proto/cosmwasm/wasm/v1beta1/query.proto",
+      "./proto/cosmwasm/wasm/v1/query.proto",
       "-proto",
       "./proto/iov/starname/v1beta1/query.proto",
       "-proto",
