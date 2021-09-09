@@ -2,7 +2,36 @@
 
 ## [Unreleased](https://github.com/CosmWasm/wasmd/tree/HEAD)
 
-[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.17.0...HEAD)
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.18.0...HEAD)
+
+
+## [v0.18.0](https://github.com/CosmWasm/wasmd/tree/v0.18.0) (2021-08-16)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.18.0...v0.17.0)
+
+**Api Breaking:**
+- Events documented and refactored [\#448](https://github.com/CosmWasm/wasmd/issues/448), [\#589](https://github.com/CosmWasm/wasmd/pull/589), [\#587](https://github.com/CosmWasm/wasmd/issues/587)
+- Add organisation to grpc gateway path [\#578](https://github.com/CosmWasm/wasmd/pull/578)
+- Move Proto version from `v1beta1` to `v1` for all cosmwasm.wasm.* types
+  [\#563](https://github.com/CosmWasm/wasmd/pull/563)
+- Renamed InitMsg and MigrateMsg fields to Msg. This applies to protobuf Msg
+  and Proposals, as well as REST and CLI [\#563](https://github.com/CosmWasm/wasmd/pull/563)
+- Removed source and builder fields from StoreCode and CodeInfo. They were rarely used.
+  [\#564](https://github.com/CosmWasm/wasmd/pull/564)
+- Changed contract address derivation function. If you hardcoded the first contract
+  addresses anywhere (in scripts?), please update them.
+  [\#565](https://github.com/CosmWasm/wasmd/pull/565)
+
+**Implemented Enhancements:**
+- Cosmos SDK 0.42.9, wasmvm 0.16.0 [\#582](https://github.com/CosmWasm/wasmd/pull/582)
+- Better ibc contract interface [\#570](https://github.com/CosmWasm/wasmd/pull/570) ([ethanfrey](https://github.com/ethanfrey))
+- Reject invalid events/attributes returned from contracts [\#560](https://github.com/CosmWasm/wasmd/pull/560)
+- IBC Query methods from Wasm contracts only return OPEN channels [\#568](https://github.com/CosmWasm/wasmd/pull/568)
+- Extendable gas costs [\#525](https://github.com/CosmWasm/wasmd/issues/525)
+- Limit init/migrate/execute payload message size [\#203](https://github.com/CosmWasm/wasmd/issues/203)
+- Add cli alias [\#496](https://github.com/CosmWasm/wasmd/issues/496)
+- Remove max gas limit [\#529](https://github.com/CosmWasm/wasmd/pull/529) ([alpe](https://github.com/alpe))
+- Add SECURITY.md [\#303](https://github.com/CosmWasm/wasmd/issues/303)
 
 ## [v0.17.0](https://github.com/CosmWasm/wasmd/tree/v0.17.0) (2021-05-26)
 

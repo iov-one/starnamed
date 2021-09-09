@@ -126,8 +126,6 @@ func queryCodeList(ctx sdk.Context, keeper types.ViewKeeper) ([]types.CodeInfoRe
 			CodeID:   i,
 			Creator:  res.Creator,
 			DataHash: res.CodeHash,
-			Source:   res.Source,
-			Builder:  res.Builder,
 		})
 		return false
 	})

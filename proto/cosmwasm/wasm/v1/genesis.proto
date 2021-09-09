@@ -2,8 +2,8 @@ syntax = "proto3";
 package starnamed.x.wasm.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "cosmwasm/wasm/v1beta1/types.proto";
-import "cosmwasm/wasm/v1beta1/tx.proto";
+import "cosmwasm/wasm/v1/types.proto";
+import "cosmwasm/wasm/v1/tx.proto";
 
 option go_package = "github.com/iov-one/starnamed/x/wasm/types";
 

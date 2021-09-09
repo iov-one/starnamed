@@ -15,18 +15,18 @@ import (
 )
 
 type QueryHandler struct {
-	Ctx           sdk.Context
-	Plugins       WasmVMQueryHandler
-	Caller        sdk.AccAddress
-	GasMultiplier uint64
+	Ctx         sdk.Context
+	Plugins     WasmVMQueryHandler
+	Caller      sdk.AccAddress
+	gasRegister GasRegister
 }
 
-func NewQueryHandler(ctx sdk.Context, vmQueryHandler WasmVMQueryHandler, caller sdk.AccAddress, gasMultiplier uint64) QueryHandler {
+func NewQueryHandler(ctx sdk.Context, vmQueryHandler WasmVMQueryHandler, caller sdk.AccAddress, gasRegister GasRegister) QueryHandler {
 	return QueryHandler{
-		Ctx:           ctx,
-		Plugins:       vmQueryHandler,
-		Caller:        caller,
-		GasMultiplier: gasMultiplier,
+		Ctx:         ctx,
+		Plugins:     vmQueryHandler,
+		Caller:      caller,
+		gasRegister: gasRegister,
 	}
 }
 
@@ -46,7 +46,7 @@ var _ wasmvmtypes.Querier = QueryHandler{}
 
 func (q QueryHandler) Query(request wasmvmtypes.QueryRequest, gasLimit uint64) ([]byte, error) {
 	// set a limit for a subctx
-	sdkGas := gasLimit / q.GasMultiplier
+	sdkGas := q.gasRegister.FromWasmVMGas(gasLimit)
 	subctx := q.Ctx.WithGasMeter(sdk.NewGasMeter(sdkGas))
 
 	// make sure we charge the higher level context even on panic
@@ -198,7 +198,8 @@ func IBCQuerier(wasm contractMetaDataSource, channelKeeper types.ChannelKeeper) 
 			portID := request.ListChannels.PortID
 			channels := make(wasmvmtypes.IBCChannels, 0)
 			channelKeeper.IterateChannels(ctx, func(ch channeltypes.IdentifiedChannel) bool {
-				if portID == "" || portID == ch.PortId {
+				// it must match the port and be in open state
+				if (portID == "" || portID == ch.PortId) && ch.State == channeltypes.OPEN {
 					newChan := wasmvmtypes.IBCChannel{
 						Endpoint: wasmvmtypes.IBCEndpoint{
 							PortID:    ch.PortId,
@@ -230,7 +231,8 @@ func IBCQuerier(wasm contractMetaDataSource, channelKeeper types.ChannelKeeper) 
 			}
 			got, found := channelKeeper.GetChannel(ctx, portID, channelID)
 			var channel *wasmvmtypes.IBCChannel
-			if found {
+			// it must be in open state
+			if found && got.State == channeltypes.OPEN {
 				channel = &wasmvmtypes.IBCChannel{
 					Endpoint: wasmvmtypes.IBCEndpoint{
 						PortID:    portID,
@@ -240,10 +242,9 @@ func IBCQuerier(wasm contractMetaDataSource, channelKeeper types.ChannelKeeper) 
 						PortID:    got.Counterparty.PortId,
 						ChannelID: got.Counterparty.ChannelId,
 					},
-					Order:               got.Ordering.String(),
-					Version:             got.Version,
-					CounterpartyVersion: "",
-					ConnectionID:        got.ConnectionHops[0],
+					Order:        got.Ordering.String(),
+					Version:      got.Version,
+					ConnectionID: got.ConnectionHops[0],
 				}
 			}
 			res := wasmvmtypes.ChannelResponse{
@@ -490,4 +491,14 @@ func convertSdkCoinToWasmCoin(coin sdk.Coin) wasmvmtypes.Coin {
 		Denom:  coin.Denom,
 		Amount: coin.Amount.String(),
 	}
+}
+
+var _ WasmVMQueryHandler = WasmVMQueryHandlerFn(nil)
+
+// WasmVMQueryHandlerFn is a helper to construct a function based query handler.
+type WasmVMQueryHandlerFn func(ctx sdk.Context, caller sdk.AccAddress, request wasmvmtypes.QueryRequest) ([]byte, error)
+
+// HandleQuery delegates call into wrapped WasmVMQueryHandlerFn
+func (w WasmVMQueryHandlerFn) HandleQuery(ctx sdk.Context, caller sdk.AccAddress, request wasmvmtypes.QueryRequest) ([]byte, error) {
+	return w(ctx, caller, request)
 }

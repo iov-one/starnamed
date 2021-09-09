@@ -1,7 +1,7 @@
 package types
 
 import (
-	types2 "github.com/CosmWasm/wasmvm/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -26,7 +26,7 @@ type ViewKeeper interface {
 // ContractOpsKeeper contains mutable operations on a contract.
 type ContractOpsKeeper interface {
 	// Create uploads and compiles a WASM contract, returning a short identifier for the contract
-	Create(ctx sdk.Context, creator sdk.AccAddress, wasmCode []byte, source string, builder string, instantiateAccess *AccessConfig) (codeID uint64, err error)
+	Create(ctx sdk.Context, creator sdk.AccAddress, wasmCode []byte, instantiateAccess *AccessConfig) (codeID uint64, err error)
 
 	// Instantiate creates an instance of a WASM contract
 	Instantiate(ctx sdk.Context, codeID uint64, creator, admin sdk.AccAddress, initMsg []byte, label string, deposit sdk.Coins) (sdk.AccAddress, []byte, error)
@@ -58,32 +58,32 @@ type IBCContractKeeper interface {
 	OnOpenChannel(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		channel types2.IBCChannel,
+		msg wasmvmtypes.IBCChannelOpenMsg,
 	) error
 	OnConnectChannel(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		channel types2.IBCChannel,
+		msg wasmvmtypes.IBCChannelConnectMsg,
 	) error
 	OnCloseChannel(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		channel types2.IBCChannel,
+		msg wasmvmtypes.IBCChannelCloseMsg,
 	) error
 	OnRecvPacket(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		packet types2.IBCPacket,
+		msg wasmvmtypes.IBCPacketReceiveMsg,
 	) ([]byte, error)
 	OnAckPacket(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		acknowledgement types2.IBCAcknowledgement,
+		acknowledgement wasmvmtypes.IBCPacketAckMsg,
 	) error
 	OnTimeoutPacket(
 		ctx sdk.Context,
 		contractAddr sdk.AccAddress,
-		packet types2.IBCPacket,
+		msg wasmvmtypes.IBCPacketTimeoutMsg,
 	) error
 	// ClaimCapability allows the transfer module to claim a capability
 	//that IBC module passes to it

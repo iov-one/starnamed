@@ -65,7 +65,7 @@ func TestGenesisExportImport(t *testing.T) {
 
 		creatorAddr, err := sdk.AccAddressFromBech32(codeInfo.Creator)
 		require.NoError(t, err)
-		codeID, err := contractKeeper.Create(srcCtx, creatorAddr, wasmCode, codeInfo.Source, codeInfo.Builder, &codeInfo.InstantiateConfig)
+		codeID, err := contractKeeper.Create(srcCtx, creatorAddr, wasmCode, &codeInfo.InstantiateConfig)
 		require.NoError(t, err)
 		if pinned {
 			contractKeeper.PinCode(srcCtx, codeID)
@@ -463,8 +463,6 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
       "code_info": {
         "code_hash": %q,
         "creator": "cosmos1qtu5n0cnhfkjj6l2rq97hmky9fd89gwca9yarx",
-        "source": "https://example.com",
-        "builder": "foo/bar:tag",
         "instantiate_config": {
           "permission": "OnlyAddress",
           "address": "cosmos1qtu5n0cnhfkjj6l2rq97hmky9fd89gwca9yarx"
@@ -475,7 +473,7 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
   ],
   "contracts": [
     {
-      "contract_address": "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5",
+      "contract_address": "cosmos14hj2tavq8fpesdwxxcu44rty3hh90vhuc53mp6",
       "contract_info": {
         "code_id": "1",
         "creator": "cosmos13x849jzd03vne42ynpj25hn8npjecxqrjghd8x",
@@ -524,8 +522,6 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
 	expCodeInfo := types.CodeInfo{
 		CodeHash: wasmCodeHash[:],
 		Creator:  codeCreatorAddr,
-		Source:   "https://example.com",
-		Builder:  "foo/bar:tag",
 		InstantiateConfig: wasmTypes.AccessConfig{
 			Permission: types.AccessTypeOnlyAddress,
 			Address:    codeCreatorAddr,
@@ -534,7 +530,7 @@ func TestImportContractWithCodeHistoryReset(t *testing.T) {
 	assert.Equal(t, expCodeInfo, *gotCodeInfo)
 
 	// verify contract
-	contractAddr, _ := sdk.AccAddressFromBech32("cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5")
+	contractAddr, _ := sdk.AccAddressFromBech32("cosmos14hj2tavq8fpesdwxxcu44rty3hh90vhuc53mp6")
 	gotContractInfo := keeper.GetContractInfo(ctx, contractAddr)
 	require.NotNil(t, gotContractInfo)
 	contractCreatorAddr := "cosmos13x849jzd03vne42ynpj25hn8npjecxqrjghd8x"
@@ -584,7 +580,7 @@ func TestSupportedGenMsgTypes(t *testing.T) {
 						Sender: myAddress.String(),
 						CodeID: 1,
 						Label:  "testing",
-						InitMsg: HackatomExampleInitMsg{
+						Msg: HackatomExampleInitMsg{
 							Verifier:    verifierAddress,
 							Beneficiary: beneficiaryAddress,
 						}.GetBytes(t),
