@@ -10,9 +10,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 // ParamSubspace is a placeholder
@@ -112,7 +113,6 @@ func (k Keeper) feesStore(ctx sdk.Context) sdk.KVStore {
 
 // StoreBlockFees stores the fees for the current block height
 func (k Keeper) StoreBlockFees(ctx sdk.Context, fees sdk.Coins) {
-	//TODO: duplicated code for key retrieval
 	key := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
 
 	bytes := sdk.Uint64ToBigEndian(uint64(len(fees)))
@@ -123,7 +123,7 @@ func (k Keeper) StoreBlockFees(ctx sdk.Context, fees sdk.Coins) {
 }
 
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {
-	key := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+	key := sdk.Uint64ToBigEndian(height)
 	bytes := k.feesStore(ctx).Get(key)
 	if bytes == nil {
 		return nil, fmt.Errorf("No fees were registered for block %v", height)

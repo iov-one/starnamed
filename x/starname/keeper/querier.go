@@ -320,8 +320,8 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 func (q grpcQuerier) Yield(ctx context.Context, req *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
 	var response types.QueryYieldResponse
 
-	if req.ValidatorCommission.LT(sdk.ZeroDec()) || req.ValidatorCommission.GT(sdk.NewDec(100)) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The validator commission must be a number between 0 and 100")
+	if req.ValidatorCommission.LT(sdk.ZeroDec()) || req.ValidatorCommission.GT(sdk.NewDec(1)) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The validator commission must be a number between 0 and 1")
 	}
 
 	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper, req.ValidatorCommission)
@@ -333,14 +333,17 @@ func (q grpcQuerier) Yield(ctx context.Context, req *types.QueryYieldRequest) (*
 }
 
 func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec) (sdk.Dec, error) {
-	const NumBlocks = 100000
+	// TODO: dont rely on an hardcoded estimate
 	const EstimatedBlockTime = 4
 
+	// TODO: dont rely on an hardcoded value
+	var numBlocks int64 = 100000
 	// Interval is ]currentHeight - numBlocks; currentHeight]
 	end := ctx.BlockHeight()
-	start := end - NumBlocks + 1
-	if start < 0 {
-		start = 0
+	start := end - numBlocks + 1
+	if start < 1 {
+		numBlocks = end
+		start = 1
 	}
 
 	totalFees := sdk.NewCoins()
@@ -360,7 +363,7 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 		MulDec(sdk.OneDec().Sub(validatorCommission))
 
 	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx)
-	// TODO: use a non harcoded parameter instead
+	// TODO: use a non hardcoded parameter instead
 	// Voting power is returned in tokens while fees in the sub-unit (iov vs uiov)
 	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(1000000))
 	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
@@ -374,7 +377,7 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 
 		// TODO: manage multiple tokens for fees
 		apy = yieldForPeriod.
-			QuoDec(sdk.NewDec(NumBlocks)).
+			QuoDec(sdk.NewDec(numBlocks)).
 			MulDec(sdk.NewDec(int64(numBlocksPerYear)))[0].Amount
 	}
 

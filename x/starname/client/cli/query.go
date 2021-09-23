@@ -317,6 +317,6 @@ func getQueryYield() *cobra.Command {
 	// add flags
 	cmd.Flags().String("validator-commission", "", "resource")
 	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "resource accounts")
+	flags.AddPaginationFlagsToCmd(cmd, "yield")
 	return cmd
 }
