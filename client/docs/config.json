@@ -13,7 +13,7 @@
       "url": "./tmp-swagger-gen/iov/starname/v1beta1/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/cosmwasm/wasm/v1beta1/query.swagger.json"
+      "url": "./tmp-swagger-gen/cosmwasm/wasm/v1/query.swagger.json"
     }
   ]
 }
