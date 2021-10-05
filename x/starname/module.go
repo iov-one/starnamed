@@ -120,7 +120,6 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // BeginBlock returns the begin blocker for the configuration module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	BeginBlocker(ctx, am.keeper)
 }
 
 // EndBlock returns the end blocker for the configuration module. It returns no validator updates.

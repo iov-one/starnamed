@@ -1,13 +1,12 @@
 package keeper
 
 import (
-	"encoding/binary"
 	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -76,8 +75,11 @@ type Keeper struct {
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
 	// crud stores
-	accountStore crud.Store
-	domainStore  crud.Store
+	accountStore       crud.Store
+	domainStore        crud.Store
+	feesSum            sdk.Coins
+	feesSumCount       uint64
+	lastComputedHeight uint64
 }
 
 // NewKeeper creates a domain keeper
@@ -105,45 +107,50 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
 }
 
-// TODO: move this in a separate module
-// feesStore return the store storing the fees for each block
-func (k Keeper) feesStore(ctx sdk.Context) sdk.KVStore {
-	return prefix.NewStore(ctx.KVStore(k.StoreKey), []byte{0x3})
-}
+// TODO: we should maybe move this in a separate module
 
-// StoreBlockFees stores the fees for the current block height
-func (k Keeper) StoreBlockFees(ctx sdk.Context, fees sdk.Coins) {
-	key := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+// GetBlockFeesSum retrieves the current value for the sum of the last n blocks
+func (k Keeper) GetBlockFeesSum(ctx sdk.Context) (sdk.Coins, uint64) {
+	// TODO: this shouldn't be an hardcoded value
+	const MaxBlocksInSum = 100000
 
-	bytes := sdk.Uint64ToBigEndian(uint64(len(fees)))
-	for _, fee := range fees {
-		bytes = append(bytes, k.Cdc.MustMarshalBinaryLengthPrefixed(&fee)...)
+	//TODO: should we offset this to take into account that fee collectors funds are transferred on block start ?
+	currentHeight := ctx.BlockHeight()
+
+	// If we need to, we update the value of the sliding sum
+	// lastComputedHeight is initialized at 0 (first block)
+	for ; k.lastComputedHeight < uint64(currentHeight); k.lastComputedHeight++ {
+		// We store the new value in the sliding sum
+		fees, err := k.GetBlockFees(ctx, uint64(currentHeight))
+		if err != nil {
+			panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", currentHeight))
+		}
+		k.feesSum = k.feesSum.Add(fees...)
+
+		// If we reached the maximum number of block, we remove the last block from the sliding sum
+		if k.feesSumCount == MaxBlocksInSum {
+			feesOutgoingBlock, err := k.GetBlockFees(ctx, k.lastComputedHeight-MaxBlocksInSum)
+			if err != nil {
+				panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", currentHeight))
+			}
+			k.feesSum = k.feesSum.Sub(feesOutgoingBlock)
+		} else { // Else we just increment the number of block included in the sliding sum
+			k.feesSumCount++
+		}
 	}
-	k.feesStore(ctx).Set(key, bytes)
+
+	return k.feesSum, k.feesSumCount
 }
 
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {
-	key := sdk.Uint64ToBigEndian(height)
-	bytes := k.feesStore(ctx).Get(key)
-	if bytes == nil {
-		return nil, fmt.Errorf("No fees were registered for block %v", height)
+	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(int64(height))
+	if err != nil {
+		return nil, err
 	}
+	ctxWithPrevHeight := ctx.WithMultiStore(cms)
 
-	feesLength := sdk.BigEndianToUint64(bytes[0:8])
-	//FIXME: this seems a bit hacky (using UVarInt is implementation specific) and maybe we could use a simple fee instead
-	// Or find a better way to serialize coins
-	var fees sdk.Coins
-	last := uint64(8)
-	for i := uint64(0); i < feesLength; i++ {
-		var fee sdk.Coin
-		bytesSize, lengthSize := binary.Uvarint(bytes[last:])
-		totalSize := bytesSize + uint64(lengthSize)
-		k.Cdc.MustUnmarshalBinaryLengthPrefixed(bytes[last:last+totalSize], &fee)
-		last += totalSize
-		fees = append(fees, fee)
-	}
-
-	return fees, nil
+	blockFees := k.SupplyKeeper.GetAllBalances(ctxWithPrevHeight, k.AuthKeeper.GetModuleAddress(authtypes.FeeCollectorName))
+	return blockFees, nil
 }
 
 // Logger returns aliceAddr module-specific logger.

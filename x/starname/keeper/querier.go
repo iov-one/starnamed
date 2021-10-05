@@ -336,26 +336,7 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 	// TODO: dont rely on an hardcoded estimate
 	const EstimatedBlockTime = 4
 
-	// TODO: dont rely on an hardcoded value
-	var numBlocks int64 = 100000
-	// Interval is ]currentHeight - numBlocks; currentHeight]
-	end := ctx.BlockHeight()
-	start := end - numBlocks + 1
-	if start < 1 {
-		numBlocks = end
-		start = 1
-	}
-
-	totalFees := sdk.NewCoins()
-
-	for b := start; b <= end; b++ {
-		blockFees, err := keeper.GetBlockFees(ctx, uint64(b))
-		if err != nil {
-			return sdk.ZeroDec(), sdkerrors.Wrapf(err, "Cannot retrieve the block fees for block %v", b)
-		}
-
-		totalFees = totalFees.Add(blockFees...)
-	}
+	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx)
 
 	communityTax := keeper.DistributionKeeper.GetCommunityTax(ctx)
 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...).
@@ -377,7 +358,7 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 
 		// TODO: manage multiple tokens for fees
 		apy = yieldForPeriod.
-			QuoDec(sdk.NewDec(numBlocks)).
+			QuoDec(sdk.NewDec(int64(numBlocks))).
 			MulDec(sdk.NewDec(int64(numBlocksPerYear)))[0].Amount
 	}
 
