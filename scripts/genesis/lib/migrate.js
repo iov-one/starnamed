@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import stringify from "json-stable-stringify";
@@ -79,6 +79,21 @@ export const enableIBC = genesis => {
    };
 };
 
+/**
+ * Injects the wasm parms
+ * @param {Object} genesis - the state
+ */
+export const injectWasm = genesis => {
+   genesis.app_state.wasm = {
+      "params": {
+         "code_upload_access": {
+            "permission": "Nobody"
+         },
+         "instantiate_default_permission": "Nobody",
+         "max_wasm_code_size": "614400"
+      }
+   };
+};
 
 /**
  * Transfers ownership of tokens and starnames from multisig _star1Custodian to custodian*iov.
@@ -108,7 +123,7 @@ export const adjustInflation = genesis => {
    genesis.app_state.mint.minter.inflation = "0.0";
 
    genesis.app_state.mint.params.blocks_per_year = "4360000";
-   genesis.app_state.mint.params.goal_bonded = "0.0";
+   genesis.app_state.mint.params.goal_bonded = "0.67"; // CONSENSUS FAILURE!!! err="division by zero" if 0.0
    genesis.app_state.mint.params.inflation_max = "0.0";
    genesis.app_state.mint.params.inflation_min = "0.0";
    genesis.app_state.mint.params.inflation_rate_change = "0.0";
@@ -133,6 +148,188 @@ export const fixConfiguration = genesis => {
    delete genesis.app_state.configuration.config.domain_renew_period;
 };
 
+
+// a testnet validator key
+const priv_validator_key = {
+   "address": "376CA61EB1F1D06E9C0D35DE7A20AD07C30A6FF0",
+   "pub_key": {
+      "type": "tendermint/PubKeyEd25519",
+      "value": "bCnsOFqyBBHiHMj3/8CI/hwiuUI9J86OnqCOrfJLHd0="
+   },
+   "priv_key": {
+      "type": "tendermint/PrivKeyEd25519",
+      "value": "Yl0FhSxIEn71UAJB1YEGYap3Hb73qoYmD905PPIU/7tsKew4WrIEEeIcyPf/wIj+HCK5Qj0nzo6eoI6t8ksd3Q=="
+   }
+};
+
+/**
+ * Add a 2/3+ validator to the genesis object.
+ * @param {Object} genesis - the state
+ */
+export const injectValidator = genesis => {
+   let power = genesis.validators.reduce( ( power, validator ) => {
+      power += +validator.power;
+      return power;
+   }, 0 );
+
+   // give the stargate validator more than 2/3+ of the voting power
+   power *= 4;
+   genesis.app_state.auth.accounts.push( {
+      "//name": "stargatenet",
+      "type": "cosmos-sdk/Account",
+      "value": {
+         "address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+         "coins": [
+            {
+               "denom": "uvoi",
+               "amount": "0"
+            }
+         ],
+         "public_key": null,
+         "account_number": "0",
+         "sequence": "0"
+      }
+   } );
+   genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + power * 1e6 );
+   const bonded_tokens_pool = genesis.app_state.auth.accounts.find( account => account.value.name == "bonded_tokens_pool" );
+   bonded_tokens_pool.value.coins[0].amount = String( +bonded_tokens_pool.value.coins[0].amount + power * 1e6 );
+
+   // add stargatenet validator
+   genesis.validators.push( {
+      "address": "",
+      "name": "stargatenet",
+      "power": String( power ),
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": priv_validator_key.pub_key.value
+      }
+   } );
+   genesis.app_state.distribution.delegator_starting_infos.push( {
+      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+      "starting_info": {
+         "creation_height": "0",
+         "previous_period": "1",
+         "stake": `${power}.000000000000000000`
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.outstanding_rewards.push( {
+      "outstanding_rewards": [
+         {
+            "amount": "0.000000000000000000",
+            "denom": "uvoi"
+         }
+      ],
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_accumulated_commissions.push( {
+      "accumulated": [
+         {
+            "amount": "0.000000000000000000",
+            "denom": "uvoi"
+         }
+      ],
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_current_rewards.push( {
+      "rewards": {
+         "period": "2",
+         "rewards": [
+            {
+               "amount": "0.000000000000000000",
+               "denom": "uvoi"
+            }
+         ]
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.distribution.validator_historical_rewards.push( {
+      "period": "1",
+      "rewards": {
+         "cumulative_reward_ratio": null,
+         "reference_count": 2
+      },
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.slashing.missed_blocks.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = [];
+   genesis.app_state.slashing.signing_infos.starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw = {
+      "address": "starvalcons1xak2v84378gxa8qdxh085g9dqlps5mlsp2nfsw",
+      "index_offset": "3723359",
+      "jailed_until": "1970-01-01T00:00:00Z",
+      "missed_blocks_counter": "0",
+      "start_height": "0",
+      "tombstoned": false
+   };
+   genesis.app_state.staking.delegations.push( {
+      "delegator_address": "star1td80vcdypt2pen58jhg46f0zxdhk2p9yakujmp",
+      "shares": `${power * 1e6}.000000000000000000`,
+      "validator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg"
+   } );
+   genesis.app_state.staking.last_total_power = String( +genesis.app_state.staking.last_total_power + power );
+   genesis.app_state.staking.last_validator_powers.push( {
+      "Address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
+      "Power": String( power )
+   } );
+   genesis.app_state.staking.validators.push( {
+      "commission": {
+         "commission_rates": {
+           "max_change_rate": "0.010000000000000000",
+           "max_rate": "0.200000000000000000",
+           "rate": "0.100000000000000000"
+         },
+         "update_time": "2021-05-28T12:16:39.214976662Z"
+       },
+       "consensus_pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g", // from priv_validator_key
+       "delegator_shares": `${power * 1e6}.000000000000000000`,
+       "description": {
+         "details": "stargatenet.mne.txt",
+         "identity": "",
+         "moniker": "stargatenet",
+         "security_contact": "",
+         "website": ""
+       },
+       "jailed": false,
+       "min_self_delegation": "1",
+       "operator_address": "starvaloper1td80vcdypt2pen58jhg46f0zxdhk2p9ycaczhg",
+       "status": 2,
+       "tokens": `${power * 1e6}`,
+       "unbonding_height": "0",
+       "unbonding_time": "1970-01-01T00:00:00Z"
+   } );
+   genesis.app_state.staking.params.max_validators = genesis.app_state.staking.last_validator_powers.length;
+}
+
+/**
+ * Adds the missing pubkeys in the migrated state
+ * @param {Object} genesis - the exported genesis object
+ * @param {Object} genesis - the migrated genesis object
+ */
+export const addMissingMultisigs = (exported_genesis, migrated_genesis) => {
+   for (let account of exported_genesis.app_state.auth.accounts) {
+      if (account.value.public_key && account.value.public_key.type === "tendermint/PubKeyMultisigThreshold")
+      {
+         let pubkeys = account.value.public_key.value.pubkeys
+         let migrated_acc = migrated_genesis.app_state.auth.accounts.find(acc => acc.address === account.value.address)
+         if (!migrated_acc) {
+            console.log("No account " + account.value.address + " in migrated file")
+            continue
+         }
+         migrated_acc.pub_key.public_keys = []
+         console.log("{\"" + account.value.address + "\", []string{")
+         for (let pubkey of pubkeys) {
+            let type = ""
+            if (pubkey.type === "tendermint/PubKeySecp256k1")
+               type = "/cosmos.crypto.secp256k1.PubKey"
+            else
+               console.err("Unknown type " + pubkey.type)
+            migrated_acc.pub_key.public_keys.push({"@type": type, "key": pubkey.value})
+            console.log("\"" + pubkey.value + "\",")
+         }
+         console.log("}},")
+      }
+   }
+}
+
 /**
  * Patches the jestnet genesis object.
  * @param {Object} genesis - the jestnet genesis object
@@ -147,7 +344,7 @@ export const patchJestnet = genesis => {
  * @param {Object} genesis - the stargatenet genesis object
  */
 export const patchStargatenet = genesis => {
-   genesis.chain_id != "stargatenet";
+   genesis.chain_id = "stargatenet";
 
    // add other test accounts
    const accounts = [
@@ -171,7 +368,7 @@ export const patchStargatenet = genesis => {
          "//name": "msig1",
          "type": "cosmos-sdk/Account",
          "value": {
-            "address": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
+            "address": "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv",
             "coins": [
                {
                   "denom": "uiov",
@@ -241,7 +438,7 @@ export const patchStargatenet = genesis => {
    genesis.app_state.supply.supply[0].amount = String( +genesis.app_state.supply.supply[0].amount + dsupply );
 
    // set the configuration owner
-   genesis.app_state.configuration.config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
+   genesis.app_state.configuration.config.configurer = "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv"; // intentionally not a mainnet multisig
 
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => { if ( account.value.coins[0] ) account.value.coins[0].denom = "uvoi" } );
@@ -278,14 +475,27 @@ export const patchStargatenet = genesis => {
    genesis.app_state = JSON.parse( JSON.stringify( genesis.app_state ).replace( reDenom, '"denom":"uvoi"' ) );
 
    // convert URIs to testnet
-   genesis.app_state.starname.accounts.forEach( account => {
+   genesis.app_state.starname.accounts && genesis.app_state.starname.accounts.forEach( account => {
       const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
 
-      if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
+      if ( resource ) resource.uri = "asset:voi";
    } );
 
    // IBC
-   genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
+   if ( genesis.app_state.ibc ) genesis.app_state.ibc.client_genesis.params.allowed_clients.push( "06-solomachine" );
+
+   // hide mainnet validtor names
+   genesis.validators.forEach( ( validator, i ) => validator.name = `OG${i}` );
+   genesis.app_state.staking.validators.forEach( validator => validator.description = {
+      "details": "",
+      "identity": "",
+      "moniker": "",
+      "security_contact": "",
+      "website": ""
+   } );
+
+   // add a dominant validators
+   injectValidator( genesis );
 }
 
 /**
@@ -294,14 +504,16 @@ export const patchStargatenet = genesis => {
  */
 export const patchMainnet = genesis => {
    genesis.chain_id = "iov-mainnet-ibc";
-   genesis.app_state.staking.params.unbonding_time = "1814400000000000";
+   genesis.initial_height = "4294680";
+
 };
 
 /**
- * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
+ * Performs all the necessary transformations to migrate from a v0.39 chain to a v0.4+ chain.
  * @param {Object} args - various objects required for the transformation
  */
 export const migrate = async args => {
+   const validated = args.validated; // callback on validated
    const flammable = args.flammable;
    const exported = args.exported;
    const home = args.home;
@@ -310,6 +522,7 @@ export const migrate = async args => {
    burnTokens( exported, flammable );
    updateTendermint( exported );
    enableIBC( exported );
+   injectWasm( exported );
    transferCustody( exported );
    adjustInflation( exported );
    fixConfiguration( exported );
@@ -320,7 +533,7 @@ export const migrate = async args => {
    const config = path.join( home, "config" );
    const launchpad = path.join( config, "launchpad.json" );
 
-   if ( !fs.existsSync( config ) ) fs.mkdirSync( config );
+   spawnSync( "starnamed", [ "init", "v0.40", "--home", home ] ); // init the config directory
    fs.writeFileSync( launchpad, stringify( exported, { space: "  " } ), "utf-8" );
 
    // ...and migrate it to genesis.json
@@ -349,18 +562,32 @@ export const migrate = async args => {
 
    const genesis = JSON.parse( out );
    const stargate = path.join( config, "genesis.json" );
+   const priv_key = path.join( config, "priv_validator_key.json" );
+   const conf = path.join( config, "config.toml" );
+   const toml = String( fs.readFileSync( conf ) );
 
    fs.writeFileSync( stargate, stringify( genesis, { space: "  " } ), "utf-8" );
+   fs.writeFileSync( priv_key, stringify( priv_validator_key, { space: "  " } ), "utf-8" );
+   fs.writeFileSync( conf, toml
+      .replace( /fast_sync = true/, "fast_sync = false" ) // unbelievably required or the State module won't start
+      .replace( /timeout_propose = "3s"/, 'timeout_propose = "100ms"' )
+      .replace( /skip_timeout_commit = false/, "skip_timeout_commit = true" ) // be fast
+   , "utf-8" );
 
    // test genesis.json by starting starnamed; we can't use `starnamed validate-genesis` because it craps out with Error: error validating genesis file /tmp/migrate-test-migrate-90es2e/config/genesis.json: invalid account found in genesis state; address: star1p0d75y4vpftsx9z35s93eppkky7kdh220vrk8n, error: account address and pubkey address do not match
    const validate = new Promise( ( resolve, reject ) => {
-      const t0 = Date.now(), dt = 20000;
+      const t0 = Date.now(), dt = 80000;
+      const halt = +genesis.initial_height + 11;
+      const reHeight = /.*"height":(\d+)/s;
       const done = data => {
-         if ( Date.now() - t0 < dt || data.indexOf( "No addresses to dial." ) == -1 ) return; // short-circuit
-         starnamed.kill();
-         //console.log( data );
+         const height = String( data ).match( reHeight );
+         if ( ( height && height.length > 1 && +height[1] >= halt ) || Date.now() - t0 > dt ) starnamed.kill();
       };
-      const starnamed = spawn( "starnamed", [ "start", "--home", home ] );
+      const p2p = process.env.PORT_P2P   || "tcp://127.0.0.1:16656";
+      const rpc = process.env.PORT_RPC   || "tcp://127.0.0.1:16657";
+      const grpc = process.env.PORT_GRPC || "127.0.0.1:16090";
+      const pprof = process.env.PORT_PPROF || "127.0.0.1:16060";
+      const starnamed = spawn( "starnamed", [ "start", "--home", home, "--halt-height", halt, "--log_format", "json", "--p2p.laddr", p2p, "--rpc.laddr", rpc, "--grpc.address", grpc, "--rpc.pprof_laddr", pprof ] );
       let err = "", out = "";
 
       starnamed.stderr.on( "data", data => {
@@ -372,14 +599,15 @@ export const migrate = async args => {
       } );
 
       starnamed.on( "close", code => {
+         if ( validated ) validated( err, out );
+         if ( code ) reject( err );
+
+         resolve( out );
+
          // clean-up superflous files
          [ "addrbook.json", "app.toml", "config.toml", "launchpad.json", "node_key.json", "priv_validator_key.json" ].map( f => path.join( config, f ) ).forEach( f => { if ( fs.existsSync( f ) ) fs.unlinkSync( f ) } );
          [ "data", "wasm" ].map( dir => path.join( home, dir ) ).forEach( dir => { if ( fs.existsSync( dir ) ) fs.rmdirSync( dir, { recursive: true } ) } );
          fs.readdirSync( config ).filter( f => f.indexOf( "write-file-atomic" ) == 0 ).forEach( f => fs.unlinkSync( path.join( config, f ) ) );
-
-         if ( code ) reject( err );
-
-         resolve( out );
       } );
    } ).catch( e => { throw e } );
 

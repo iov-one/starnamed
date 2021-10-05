@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-- [cosmwasm/wasm/v1beta1/types.proto](#cosmwasm/wasm/v1beta1/types.proto)
+- [cosmwasm/wasm/v1/types.proto](#cosmwasm/wasm/v1/types.proto)
     - [AbsoluteTxPosition](#starnamed.x.wasm.v1beta1.AbsoluteTxPosition)
     - [AccessConfig](#starnamed.x.wasm.v1beta1.AccessConfig)
     - [AccessTypeParam](#starnamed.x.wasm.v1beta1.AccessTypeParam)
@@ -13,11 +13,11 @@
     - [ContractInfo](#starnamed.x.wasm.v1beta1.ContractInfo)
     - [Model](#starnamed.x.wasm.v1beta1.Model)
     - [Params](#starnamed.x.wasm.v1beta1.Params)
-  
+
     - [AccessType](#starnamed.x.wasm.v1beta1.AccessType)
     - [ContractCodeHistoryOperationType](#starnamed.x.wasm.v1beta1.ContractCodeHistoryOperationType)
-  
-- [cosmwasm/wasm/v1beta1/tx.proto](#cosmwasm/wasm/v1beta1/tx.proto)
+
+- [cosmwasm/wasm/v1/tx.proto](#cosmwasm/wasm/v1/tx.proto)
     - [MsgClearAdmin](#starnamed.x.wasm.v1beta1.MsgClearAdmin)
     - [MsgClearAdminResponse](#starnamed.x.wasm.v1beta1.MsgClearAdminResponse)
     - [MsgExecuteContract](#starnamed.x.wasm.v1beta1.MsgExecuteContract)
@@ -30,21 +30,21 @@
     - [MsgStoreCodeResponse](#starnamed.x.wasm.v1beta1.MsgStoreCodeResponse)
     - [MsgUpdateAdmin](#starnamed.x.wasm.v1beta1.MsgUpdateAdmin)
     - [MsgUpdateAdminResponse](#starnamed.x.wasm.v1beta1.MsgUpdateAdminResponse)
-  
+
     - [Msg](#starnamed.x.wasm.v1beta1.Msg)
-  
-- [cosmwasm/wasm/v1beta1/genesis.proto](#cosmwasm/wasm/v1beta1/genesis.proto)
+
+- [cosmwasm/wasm/v1/genesis.proto](#cosmwasm/wasm/v1/genesis.proto)
     - [Code](#starnamed.x.wasm.v1beta1.Code)
     - [Contract](#starnamed.x.wasm.v1beta1.Contract)
     - [GenesisState](#starnamed.x.wasm.v1beta1.GenesisState)
     - [GenesisState.GenMsgs](#starnamed.x.wasm.v1beta1.GenesisState.GenMsgs)
     - [Sequence](#starnamed.x.wasm.v1beta1.Sequence)
-  
-- [cosmwasm/wasm/v1beta1/ibc.proto](#cosmwasm/wasm/v1beta1/ibc.proto)
+
+- [cosmwasm/wasm/v1/ibc.proto](#cosmwasm/wasm/v1/ibc.proto)
     - [MsgIBCCloseChannel](#starnamed.x.wasm.v1beta1.MsgIBCCloseChannel)
     - [MsgIBCSend](#starnamed.x.wasm.v1beta1.MsgIBCSend)
-  
-- [cosmwasm/wasm/v1beta1/proposal.proto](#cosmwasm/wasm/v1beta1/proposal.proto)
+
+- [cosmwasm/wasm/v1/proposal.proto](#cosmwasm/wasm/v1/proposal.proto)
     - [ClearAdminProposal](#starnamed.x.wasm.v1beta1.ClearAdminProposal)
     - [InstantiateContractProposal](#starnamed.x.wasm.v1beta1.InstantiateContractProposal)
     - [MigrateContractProposal](#starnamed.x.wasm.v1beta1.MigrateContractProposal)
@@ -52,8 +52,8 @@
     - [StoreCodeProposal](#starnamed.x.wasm.v1beta1.StoreCodeProposal)
     - [UnpinCodesProposal](#starnamed.x.wasm.v1beta1.UnpinCodesProposal)
     - [UpdateAdminProposal](#starnamed.x.wasm.v1beta1.UpdateAdminProposal)
-  
-- [cosmwasm/wasm/v1beta1/query.proto](#cosmwasm/wasm/v1beta1/query.proto)
+
+- [cosmwasm/wasm/v1/query.proto](#cosmwasm/wasm/v1/query.proto)
     - [CodeInfoResponse](#starnamed.x.wasm.v1beta1.CodeInfoResponse)
     - [QueryAllContractStateRequest](#starnamed.x.wasm.v1beta1.QueryAllContractStateRequest)
     - [QueryAllContractStateResponse](#starnamed.x.wasm.v1beta1.QueryAllContractStateResponse)
@@ -71,34 +71,34 @@
     - [QueryRawContractStateResponse](#starnamed.x.wasm.v1beta1.QueryRawContractStateResponse)
     - [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest)
     - [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse)
-  
+
     - [Query](#starnamed.x.wasm.v1beta1.Query)
-  
+
 - [iov/configuration/v1beta1/types.proto](#iov/configuration/v1beta1/types.proto)
-    - [Config](#wasmd.x.configuration.v1beta1.Config)
-    - [Fees](#wasmd.x.configuration.v1beta1.Fees)
-    - [GenesisState](#wasmd.x.configuration.v1beta1.GenesisState)
-  
+    - [Config](#starnamed.x.configuration.v1beta1.Config)
+    - [Fees](#starnamed.x.configuration.v1beta1.Fees)
+    - [GenesisState](#starnamed.x.configuration.v1beta1.GenesisState)
+
 - [iov/configuration/v1beta1/msgs.proto](#iov/configuration/v1beta1/msgs.proto)
-    - [MsgUpdateConfig](#wasmd.x.configuration.v1beta1.MsgUpdateConfig)
-    - [MsgUpdateFees](#wasmd.x.configuration.v1beta1.MsgUpdateFees)
-  
+    - [MsgUpdateConfig](#starnamed.x.configuration.v1beta1.MsgUpdateConfig)
+    - [MsgUpdateFees](#starnamed.x.configuration.v1beta1.MsgUpdateFees)
+
 - [iov/configuration/v1beta1/query.proto](#iov/configuration/v1beta1/query.proto)
-    - [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest)
-    - [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse)
-    - [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest)
-    - [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse)
-  
-    - [Query](#wasmd.x.configuration.v1beta1.Query)
-  
+    - [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest)
+    - [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse)
+    - [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest)
+    - [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse)
+
+    - [Query](#starnamed.x.configuration.v1beta1.Query)
+
 - [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
     - [Domain](#starnamed.x.starname.v1beta1.Domain)
     - [Resource](#starnamed.x.starname.v1beta1.Resource)
-  
+
 - [iov/starname/v1beta1/genesis.proto](#iov/starname/v1beta1/genesis.proto)
     - [GenesisState](#starnamed.x.starname.v1beta1.GenesisState)
-  
+
 - [iov/starname/v1beta1/query.proto](#iov/starname/v1beta1/query.proto)
     - [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest)
     - [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse)
@@ -116,9 +116,9 @@
     - [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
-  
+
     - [Query](#starnamed.x.starname.v1beta1.Query)
-  
+
 - [iov/starname/v1beta1/tx.proto](#iov/starname/v1beta1/tx.proto)
     - [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate)
     - [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse)
@@ -144,17 +144,17 @@
     - [MsgTransferAccountResponse](#starnamed.x.starname.v1beta1.MsgTransferAccountResponse)
     - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
     - [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse)
-  
+
     - [Msg](#starnamed.x.starname.v1beta1.Msg)
-  
+
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="cosmwasm/wasm/v1beta1/types.proto"></a>
+<a name="cosmwasm/wasm/v1/types.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/types.proto
+## cosmwasm/wasm/v1/types.proto
 
 
 
@@ -216,8 +216,6 @@ CodeInfo is data for the uploaded contract WASM code
 | ----- | ---- | ----- | ----------- |
 | `code_hash` | [bytes](#bytes) |  | CodeHash is the unique identifier created by wasmvm |
 | `creator` | [string](#string) |  | Creator address who initially stored the code |
-| `source` | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract's source code, optional |
-| `builder` | [string](#string) |  | Builder is a valid docker image name with tag, optional |
 | `instantiate_config` | [AccessConfig](#starnamed.x.wasm.v1beta1.AccessConfig) |  | InstantiateConfig access control to apply on contract creation, optional |
 
 
@@ -334,10 +332,10 @@ ContractCodeHistoryOperationType actions that caused a code change
 
 
 
-<a name="cosmwasm/wasm/v1beta1/tx.proto"></a>
+<a name="cosmwasm/wasm/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/tx.proto
+## cosmwasm/wasm/v1/tx.proto
 
 
 
@@ -413,7 +411,7 @@ code id.
 | `admin` | [string](#string) |  | Admin is an optional address that can execute migrations |
 | `code_id` | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | `label` | [string](#string) |  | Label is optional metadata to be stored with a contract instance. |
-| `init_msg` | [bytes](#bytes) |  | InitMsg json encoded message to be passed to the contract on instantiation |
+| `msg` | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract on instantiation |
 | `funds` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Funds coins that are transferred to the contract on instantiation |
 
 
@@ -448,7 +446,7 @@ MsgMigrateContract runs a code upgrade/ downgrade for a smart contract
 | `sender` | [string](#string) |  | Sender is the that actor that signed the messages |
 | `contract` | [string](#string) |  | Contract is the address of the smart contract |
 | `code_id` | [uint64](#uint64) |  | CodeID references the new WASM code |
-| `migrate_msg` | [bytes](#bytes) |  | MigrateMsg json encoded message to be passed to the contract on migration |
+| `msg` | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract on migration |
 
 
 
@@ -480,8 +478,6 @@ MsgStoreCode submit Wasm code to the system
 | ----- | ---- | ----- | ----------- |
 | `sender` | [string](#string) |  | Sender is the that actor that signed the messages |
 | `wasm_byte_code` | [bytes](#bytes) |  | WASMByteCode can be raw or gzip compressed |
-| `source` | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract's source code, optional |
-| `builder` | [string](#string) |  | Builder is a valid docker image name with tag, optional |
 | `instantiate_permission` | [AccessConfig](#starnamed.x.wasm.v1beta1.AccessConfig) |  | InstantiatePermission access control to apply on contract creation, optional |
 
 
@@ -555,10 +551,10 @@ Msg defines the wasm Msg service.
 
 
 
-<a name="cosmwasm/wasm/v1beta1/genesis.proto"></a>
+<a name="cosmwasm/wasm/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/genesis.proto
+## cosmwasm/wasm/v1/genesis.proto
 
 
 
@@ -659,10 +655,10 @@ Sequence key and value of an id generation counter
 
 
 
-<a name="cosmwasm/wasm/v1beta1/ibc.proto"></a>
+<a name="cosmwasm/wasm/v1/ibc.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/ibc.proto
+## cosmwasm/wasm/v1/ibc.proto
 
 
 
@@ -708,10 +704,10 @@ MsgIBCSend
 
 
 
-<a name="cosmwasm/wasm/v1beta1/proposal.proto"></a>
+<a name="cosmwasm/wasm/v1/proposal.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/proposal.proto
+## cosmwasm/wasm/v1/proposal.proto
 
 
 
@@ -748,7 +744,7 @@ contract.
 | `admin` | [string](#string) |  | Admin is an optional address that can execute migrations |
 | `code_id` | [uint64](#uint64) |  | CodeID is the reference to the stored WASM code |
 | `label` | [string](#string) |  | Label is optional metadata to be stored with a constract instance. |
-| `init_msg` | [bytes](#bytes) |  | InitMsg json encoded message to be passed to the contract on instantiation |
+| `msg` | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract on instantiation |
 | `funds` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Funds coins that are transferred to the contract on instantiation |
 
 
@@ -769,7 +765,7 @@ MigrateContractProposal gov proposal content type to migrate a contract.
 | `run_as` | [string](#string) |  | RunAs is the address that is passed to the contract's environment as sender |
 | `contract` | [string](#string) |  | Contract is the address of the smart contract |
 | `code_id` | [uint64](#uint64) |  | CodeID references the new WASM code |
-| `migrate_msg` | [bytes](#bytes) |  | MigrateMsg json encoded message to be passed to the contract on migration |
+| `msg` | [bytes](#bytes) |  | Msg json encoded message to be passed to the contract on migration |
 
 
 
@@ -806,8 +802,6 @@ StoreCodeProposal gov proposal content type to submit WASM code to the system
 | `description` | [string](#string) |  | Description is a human readable text |
 | `run_as` | [string](#string) |  | RunAs is the address that is passed to the contract's environment as sender |
 | `wasm_byte_code` | [bytes](#bytes) |  | WASMByteCode can be raw or gzip compressed |
-| `source` | [string](#string) |  | Source is a valid absolute HTTPS URI to the contract's source code, optional |
-| `builder` | [string](#string) |  | Builder is a valid docker image name with tag, optional |
 | `instantiate_permission` | [AccessConfig](#starnamed.x.wasm.v1beta1.AccessConfig) |  | InstantiatePermission to apply on contract creation, optional |
 
 
@@ -860,10 +854,10 @@ UpdateAdminProposal gov proposal content type to set an admin for a contract.
 
 
 
-<a name="cosmwasm/wasm/v1beta1/query.proto"></a>
+<a name="cosmwasm/wasm/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## cosmwasm/wasm/v1beta1/query.proto
+## cosmwasm/wasm/v1/query.proto
 
 
 
@@ -878,8 +872,6 @@ CodeInfoResponse contains code meta data from CodeInfo
 | `code_id` | [uint64](#uint64) |  | id for legacy support |
 | `creator` | [string](#string) |  |  |
 | `data_hash` | [bytes](#bytes) |  |  |
-| `source` | [string](#string) |  |  |
-| `builder` | [string](#string) |  |  |
 
 
 
@@ -1162,14 +1154,14 @@ Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `ContractInfo` | [QueryContractInfoRequest](#starnamed.x.wasm.v1beta1.QueryContractInfoRequest) | [QueryContractInfoResponse](#starnamed.x.wasm.v1beta1.QueryContractInfoResponse) | ContractInfo gets the contract meta data | GET|/wasm/v1beta1/contract/{address}|
-| `ContractHistory` | [QueryContractHistoryRequest](#starnamed.x.wasm.v1beta1.QueryContractHistoryRequest) | [QueryContractHistoryResponse](#starnamed.x.wasm.v1beta1.QueryContractHistoryResponse) | ContractHistory gets the contract code history | GET|/wasm/v1beta1/contract/{address}/history|
-| `ContractsByCode` | [QueryContractsByCodeRequest](#starnamed.x.wasm.v1beta1.QueryContractsByCodeRequest) | [QueryContractsByCodeResponse](#starnamed.x.wasm.v1beta1.QueryContractsByCodeResponse) | ContractsByCode lists all smart contracts for a code id | GET|/wasm/v1beta1/code/{code_id}/contracts|
-| `AllContractState` | [QueryAllContractStateRequest](#starnamed.x.wasm.v1beta1.QueryAllContractStateRequest) | [QueryAllContractStateResponse](#starnamed.x.wasm.v1beta1.QueryAllContractStateResponse) | AllContractState gets all raw store data for a single contract | GET|/wasm/v1beta1/contract/{address}/state|
-| `RawContractState` | [QueryRawContractStateRequest](#starnamed.x.wasm.v1beta1.QueryRawContractStateRequest) | [QueryRawContractStateResponse](#starnamed.x.wasm.v1beta1.QueryRawContractStateResponse) | RawContractState gets single key from the raw store data of a contract | GET|/wasm/v1beta1/contract/{address}/raw/{query_data}|
-| `SmartContractState` | [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest) | [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse) | SmartContractState get smart query result from the contract | GET|/wasm/v1beta1/contract/{address}/smart/{query_data}|
-| `Code` | [QueryCodeRequest](#starnamed.x.wasm.v1beta1.QueryCodeRequest) | [QueryCodeResponse](#starnamed.x.wasm.v1beta1.QueryCodeResponse) | Code gets the binary code and metadata for a singe wasm code | GET|/wasm/v1beta1/code/{code_id}|
-| `Codes` | [QueryCodesRequest](#starnamed.x.wasm.v1beta1.QueryCodesRequest) | [QueryCodesResponse](#starnamed.x.wasm.v1beta1.QueryCodesResponse) | Codes gets the metadata for all stored wasm codes | GET|/wasm/v1beta1/code|
+| `ContractInfo` | [QueryContractInfoRequest](#starnamed.x.wasm.v1beta1.QueryContractInfoRequest) | [QueryContractInfoResponse](#starnamed.x.wasm.v1beta1.QueryContractInfoResponse) | ContractInfo gets the contract meta data | GET|/cosmwasm/wasm/v1/contract/{address}|
+| `ContractHistory` | [QueryContractHistoryRequest](#starnamed.x.wasm.v1beta1.QueryContractHistoryRequest) | [QueryContractHistoryResponse](#starnamed.x.wasm.v1beta1.QueryContractHistoryResponse) | ContractHistory gets the contract code history | GET|/cosmwasm/wasm/v1/contract/{address}/history|
+| `ContractsByCode` | [QueryContractsByCodeRequest](#starnamed.x.wasm.v1beta1.QueryContractsByCodeRequest) | [QueryContractsByCodeResponse](#starnamed.x.wasm.v1beta1.QueryContractsByCodeResponse) | ContractsByCode lists all smart contracts for a code id | GET|/cosmwasm/wasm/v1/code/{code_id}/contracts|
+| `AllContractState` | [QueryAllContractStateRequest](#starnamed.x.wasm.v1beta1.QueryAllContractStateRequest) | [QueryAllContractStateResponse](#starnamed.x.wasm.v1beta1.QueryAllContractStateResponse) | AllContractState gets all raw store data for a single contract | GET|/cosmwasm/wasm/v1/contract/{address}/state|
+| `RawContractState` | [QueryRawContractStateRequest](#starnamed.x.wasm.v1beta1.QueryRawContractStateRequest) | [QueryRawContractStateResponse](#starnamed.x.wasm.v1beta1.QueryRawContractStateResponse) | RawContractState gets single key from the raw store data of a contract | GET|/wasm/v1/contract/{address}/raw/{query_data}|
+| `SmartContractState` | [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest) | [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse) | SmartContractState get smart query result from the contract | GET|/wasm/v1/contract/{address}/smart/{query_data}|
+| `Code` | [QueryCodeRequest](#starnamed.x.wasm.v1beta1.QueryCodeRequest) | [QueryCodeResponse](#starnamed.x.wasm.v1beta1.QueryCodeResponse) | Code gets the binary code and metadata for a singe wasm code | GET|/cosmwasm/wasm/v1/code/{code_id}|
+| `Codes` | [QueryCodesRequest](#starnamed.x.wasm.v1beta1.QueryCodesRequest) | [QueryCodesResponse](#starnamed.x.wasm.v1beta1.QueryCodesResponse) | Codes gets the metadata for all stored wasm codes | GET|/cosmwasm/wasm/v1/code|
 
  <!-- end services -->
 
@@ -1182,7 +1174,7 @@ Query provides defines the gRPC querier service
 
 
 
-<a name="wasmd.x.configuration.v1beta1.Config"></a>
+<a name="starnamed.x.configuration.v1beta1.Config"></a>
 
 ### Config
 Config is the configuration of the network
@@ -1211,7 +1203,7 @@ Config is the configuration of the network
 
 
 
-<a name="wasmd.x.configuration.v1beta1.Fees"></a>
+<a name="starnamed.x.configuration.v1beta1.Fees"></a>
 
 ### Fees
 Fees contains different type of fees to calculate coins to detract when processing different messages
@@ -1246,7 +1238,7 @@ Fees contains different type of fees to calculate coins to detract when processi
 
 
 
-<a name="wasmd.x.configuration.v1beta1.GenesisState"></a>
+<a name="starnamed.x.configuration.v1beta1.GenesisState"></a>
 
 ### GenesisState
 GenesisState - genesis state of x/configuration
@@ -1254,8 +1246,8 @@ GenesisState - genesis state of x/configuration
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `config` | [Config](#wasmd.x.configuration.v1beta1.Config) |  |  |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
+| `config` | [Config](#starnamed.x.configuration.v1beta1.Config) |  |  |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  |  |
 
 
 
@@ -1278,7 +1270,7 @@ GenesisState - genesis state of x/configuration
 
 
 
-<a name="wasmd.x.configuration.v1beta1.MsgUpdateConfig"></a>
+<a name="starnamed.x.configuration.v1beta1.MsgUpdateConfig"></a>
 
 ### MsgUpdateConfig
 MsgUpdateConfig is used to update starname configuration
@@ -1287,14 +1279,14 @@ MsgUpdateConfig is used to update starname configuration
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `signer` | [string](#string) |  | Signer is the address of the entity who is doing the transaction |
-| `new_configuration` | [Config](#wasmd.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
+| `new_configuration` | [Config](#starnamed.x.configuration.v1beta1.Config) |  | NewConfiguration contains the new configuration data |
 
 
 
 
 
 
-<a name="wasmd.x.configuration.v1beta1.MsgUpdateFees"></a>
+<a name="starnamed.x.configuration.v1beta1.MsgUpdateFees"></a>
 
 ### MsgUpdateFees
 MsgUpdateFees is used to update the starname product fees in the starname module.
@@ -1302,7 +1294,7 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  |  |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  |  |
 | `configurer` | [string](#string) |  |  |
 
 
@@ -1326,7 +1318,7 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryConfigRequest"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryConfigRequest"></a>
 
 ### QueryConfigRequest
 QueryConfigRequest is the request type for the Query/Configuration RPC method.
@@ -1336,7 +1328,7 @@ QueryConfigRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryConfigResponse"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryConfigResponse"></a>
 
 ### QueryConfigResponse
 QueryConfigResponse is the response type for the Query/Configuration RPC method.
@@ -1344,14 +1336,14 @@ QueryConfigResponse is the response type for the Query/Configuration RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `config` | [Config](#wasmd.x.configuration.v1beta1.Config) |  | Configuration is the starname configuration. |
+| `config` | [Config](#starnamed.x.configuration.v1beta1.Config) |  | Configuration is the starname configuration. |
 
 
 
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryFeesRequest"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryFeesRequest"></a>
 
 ### QueryFeesRequest
 QueryFeesRequest is the request type for the Query/Configuration RPC method.
@@ -1361,7 +1353,7 @@ QueryFeesRequest is the request type for the Query/Configuration RPC method.
 
 
 
-<a name="wasmd.x.configuration.v1beta1.QueryFeesResponse"></a>
+<a name="starnamed.x.configuration.v1beta1.QueryFeesResponse"></a>
 
 ### QueryFeesResponse
 QueryFeesResponse is the response type for the Query/Fees RPC method
@@ -1369,7 +1361,7 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fees](#wasmd.x.configuration.v1beta1.Fees) |  | Fees is the starname product fee object. |
+| `fees` | [Fees](#starnamed.x.configuration.v1beta1.Fees) |  | Fees is the starname product fee object. |
 
 
 
@@ -1382,15 +1374,15 @@ QueryFeesResponse is the response type for the Query/Fees RPC method
  <!-- end HasExtensions -->
 
 
-<a name="wasmd.x.configuration.v1beta1.Query"></a>
+<a name="starnamed.x.configuration.v1beta1.Query"></a>
 
 ### Query
 Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Config` | [QueryConfigRequest](#wasmd.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#wasmd.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/wasm/v1beta1/configuration/config|
-| `Fees` | [QueryFeesRequest](#wasmd.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#wasmd.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/wasm/v1beta1/configuration/fees|
+| `Config` | [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/starname/v1beta1/configuration/params|
+| `Fees` | [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/starname/v1beta1/configuration/fees|
 
  <!-- end services -->
 
@@ -1778,7 +1770,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Domain` | [QueryDomainRequest](#starnamed.x.starname.v1beta1.QueryDomainRequest) | [QueryDomainResponse](#starnamed.x.starname.v1beta1.QueryDomainResponse) | Domain gets a starname's domain info. | GET|/starname/v1beta1/domain/{name}|
 | `DomainAccounts` | [QueryDomainAccountsRequest](#starnamed.x.starname.v1beta1.QueryDomainAccountsRequest) | [QueryDomainAccountsResponse](#starnamed.x.starname.v1beta1.QueryDomainAccountsResponse) | DomainAccounts gets accounts associated with a given domain. | GET|/starname/v1beta1/accounts/domain/{domain}|
-| `Starname` | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets accounts associated with a given domain. | GET|/starname/v1beta1/account/{starname}|
+| `Starname` | [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest) | [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse) | Starname gets all the information associated with a starname. | GET|/starname/v1beta1/account/{starname}|
 | `OwnerAccounts` | [QueryOwnerAccountsRequest](#starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest) | [QueryOwnerAccountsResponse](#starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse) | OwnerAccounts gets accounts associated with a given owner. | GET|/starname/v1beta1/accounts/owner/{owner}|
 | `OwnerDomains` | [QueryOwnerDomainsRequest](#starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest) | [QueryOwnerDomainsResponse](#starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse) | OwnerDomains gets domains associated with a given owner. | GET|/starname/v1beta1/domains/owner/{owner}|
 | `ResourceAccounts` | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. | GET|/starname/v1beta1/accounts/resource/{uri}/{resource}|
@@ -2190,4 +2182,3 @@ Msg defines the starname Msg service.
 | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
-

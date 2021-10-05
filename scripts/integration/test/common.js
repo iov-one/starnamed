@@ -18,10 +18,10 @@ export const signer = process.env.SIGNER;
 export const urlGRpc = process.env.URL_GRPC;
 export const urlRest = process.env.URL_REST;
 export const urlRpc = process.env.URL_RPC;
-export const w1 = "star10z9fpz8mfr8csea4kkth7ssuwe5ncg2pdaa7yu"; // w1
-export const w2 = "star1jvkz7wr97666l32v6jma6jrcqu0lavdegm7vac"; // w2
-export const w3 = "star1jmrj0g6z6uszp9m5wspmwlanan43shv0day36s"; // w3
-export const msig1 = "star1enqynlqt9wm6yskcn3ek5cld0ywjphwty3fhhn"; // msig1
+export const w1 = "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q"; // w1
+export const w2 = "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la"; // w2
+export const w3 = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
+export const msig1 = "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv"; // msig1
 
 const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", "-f", `"{{ .Dir }}"`, "-m", "github.com/cosmos/cosmos-sdk" ] ).stdout ).trim().slice( 1, -1 );
 
@@ -213,7 +213,7 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       "./proto", // chdir() below
       "-proto",
-      "./proto/cosmwasm/wasm/v1beta1/query.proto",
+      "./proto/cosmwasm/wasm/v1/query.proto",
       "-proto",
       "./proto/iov/starname/v1beta1/query.proto",
       "-proto",

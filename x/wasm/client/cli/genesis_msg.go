@@ -18,6 +18,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/crypto"
@@ -68,8 +69,6 @@ func GenesisStoreCodeCmd(defaultNodeHome string, genesisMutator GenesisMutator) 
 			})
 		},
 	}
-	cmd.Flags().String(flagSource, "", "A valid URI reference to the contract's source code, optional")
-	cmd.Flags().String(flagBuilder, "", "A valid docker tag for the build system, optional")
 	cmd.Flags().String(flagRunAs, "", "The address that is stored as code creator")
 	cmd.Flags().String(flagInstantiateByEverybody, "", "Everybody can instantiate a contract from the code, optional")
 	cmd.Flags().String(flagInstantiateByAddress, "", "Only this address can instantiate a contract instance from the code, optional")
@@ -288,8 +287,6 @@ func getAllCodes(state *types.GenesisState) ([]codeMeta, error) {
 				Info: types.CodeInfo{
 					CodeHash:          hash[:],
 					Creator:           msg.Sender,
-					Source:            msg.Source,
-					Builder:           msg.Builder,
 					InstantiateConfig: accessConfig,
 				},
 			})
@@ -317,7 +314,7 @@ func getAllContracts(state *types.GenesisState) []contractMeta {
 	for _, m := range state.GenMsgs {
 		if msg := m.GetInstantiateContract(); msg != nil {
 			all = append(all, contractMeta{
-				ContractAddress: contractAddress(msg.CodeID, seq).String(),
+				ContractAddress: keeper.BuildContractAddress(msg.CodeID, seq).String(),
 				Info: types.ContractInfo{
 					CodeID:  msg.CodeID,
 					Creator: msg.Sender,
@@ -358,7 +355,7 @@ func hasContract(state *types.GenesisState, contractAddr string) bool {
 	seq := contractSeqValue(state)
 	for _, m := range state.GenMsgs {
 		if msg := m.GetInstantiateContract(); msg != nil {
-			if contractAddress(msg.CodeID, seq).String() == contractAddr {
+			if keeper.BuildContractAddress(msg.CodeID, seq).String() == contractAddr {
 				return true
 			}
 			seq++
@@ -509,14 +506,6 @@ func getActorAddress(cmd *cobra.Command) (sdk.AccAddress, error) {
 		return nil, fmt.Errorf("failed to get address from Keybase: %w", err)
 	}
 	return info.GetAddress(), nil
-}
-
-// contractAddress builds a contract address. copied from keeper
-func contractAddress(codeID, instanceID uint64) sdk.AccAddress {
-	// NOTE: It is possible to get a duplicate address if either codeID or instanceID
-	// overflow 32 bits. This is highly improbable, but something that could be refactored.
-	contractID := codeID<<32 + instanceID
-	return addrFromUint64(contractID)
 }
 
 // addrFromUint64 is a helper for address generation, copied from keeper

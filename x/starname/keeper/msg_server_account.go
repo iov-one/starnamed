@@ -1,13 +1,21 @@
 package keeper
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
+
+// serializeResources serializes an array of resources to a string, to be embedded in the events
+func serializeResources(resources []*types.Resource) string {
+	bytes, _ := json.Marshal(resources)
+	return string(bytes)
+}
 
 func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCertificateInternal) (*types.MsgAddAccountCertificateResponse, error) {
 	// perform domain checks
@@ -49,8 +57,6 @@ func addAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgAddAccountCe
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewCertificate, fmt.Sprintf("%x", msg.NewCertificate)),
@@ -93,7 +99,17 @@ func deleteAccountCertificate(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAcc
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.DeleteCertificate(*certIndex)
 
-	// success; TODO emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyDeletedCertificate, fmt.Sprintf("%x", msg.DeleteCertificate)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgDeleteAccountCertificateResponse{}, nil
 }
 
@@ -126,7 +142,16 @@ func deleteAccount(ctx sdk.Context, k Keeper, msg *types.MsgDeleteAccountInterna
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Delete()
 
-	// success; todo can we emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgDeleteAccountResponse{}, nil
 }
 
@@ -179,7 +204,19 @@ func registerAccount(ctx sdk.Context, k Keeper, msg *types.MsgRegisterAccountInt
 	ex := NewAccountExecutor(ctx, a).WithAccounts(&accounts)
 	ex.Create()
 
-	// success; todo can we emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyRegisterer, msg.Registerer.String()),
+			sdk.NewAttribute(types.AttributeKeyResources, serializeResources(msg.Resources)),
+			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
+		),
+	)
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 
@@ -221,7 +258,16 @@ func renewAccount(ctx sdk.Context, k Keeper, msg *types.MsgRenewAccountInternal)
 		dex.Renew(accNewValidUntil.Unix())
 	}
 
-	// success; todo emit event??
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
+		),
+	)
 	return &types.MsgRenewAccountResponse{}, nil
 }
 
@@ -257,7 +303,17 @@ func replaceAccountResources(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcc
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.ReplaceResources(msg.NewResources)
 
-	// success; TODO emit any useful event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewResources, serializeResources(msg.NewResources)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgReplaceAccountResourcesResponse{}, nil
 }
 
@@ -292,7 +348,17 @@ func replaceAccountMetadata(ctx sdk.Context, k Keeper, msg *types.MsgReplaceAcco
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.UpdateMetadata(msg.NewMetadataURI)
 
-	// success TODO emit event
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewMetadata, msg.NewMetadataURI),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgReplaceAccountMetadataResponse{}, nil
 }
 
@@ -326,6 +392,17 @@ func transferAccount(ctx sdk.Context, k Keeper, msg *types.MsgTransferAccountInt
 	ex := NewAccountExecutor(ctx, accountCtrl.Account()).WithAccounts(&accounts)
 	ex.Transfer(msg.NewOwner, msg.ToReset)
 
-	// success, todo emit event?
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyTransferAccountNewOwner, msg.NewOwner.String()),
+			sdk.NewAttribute(types.AttributeKeyTransferAccountReset, strconv.FormatBool(msg.ToReset)),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
 	return &types.MsgTransferAccountResponse{}, nil
 }

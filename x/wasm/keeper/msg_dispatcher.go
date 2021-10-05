@@ -1,10 +1,10 @@
 package keeper
 
 import (
-	"github.com/iov-one/starnamed/x/wasm/types"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -16,7 +16,7 @@ type Messenger interface {
 
 // replyer is a subset of keeper that can handle replies to submessages
 type replyer interface {
-	reply(ctx sdk.Context, contractAddress sdk.AccAddress, reply wasmvmtypes.Reply) (*sdk.Result, error)
+	reply(ctx sdk.Context, contractAddress sdk.AccAddress, reply wasmvmtypes.Reply) ([]byte, error)
 }
 
 // MessageDispatcher coordinates message sending and submessage reply/ state commits
@@ -76,12 +76,14 @@ func (d MessageDispatcher) DispatchSubmessages(ctx sdk.Context, contractAddr sdk
 	var rsp []byte
 	for _, msg := range msgs {
 		switch msg.ReplyOn {
-		case wasmvmtypes.ReplySuccess, wasmvmtypes.ReplyError, wasmvmtypes.ReplyAlways:
+		case wasmvmtypes.ReplySuccess, wasmvmtypes.ReplyError, wasmvmtypes.ReplyAlways, wasmvmtypes.ReplyNever:
 		default:
-			return nil, sdkerrors.Wrap(types.ErrInvalid, "replyOn")
+			return nil, sdkerrors.Wrap(types.ErrInvalid, "replyOn value")
 		}
 		// first, we build a sub-context which we can use inside the submessages
 		subCtx, commit := ctx.CacheContext()
+		em := sdk.NewEventManager()
+		subCtx = subCtx.WithEventManager(em)
 
 		// check how much gas left locally, optionally wrap the gas meter
 		gasRemaining := ctx.GasMeter().Limit() - ctx.GasMeter().GasConsumed()
@@ -97,17 +99,18 @@ func (d MessageDispatcher) DispatchSubmessages(ctx sdk.Context, contractAddr sdk
 		}
 
 		// if it succeeds, commit state changes from submessage, and pass on events to Event Manager
+		var filteredEvents []sdk.Event
 		if err == nil {
 			commit()
-			ctx.EventManager().EmitEvents(events)
-		}
-		// on failure, revert state from sandbox, and ignore events (just skip doing the above)
+			filteredEvents = filterEvents(append(em.Events(), events...))
+			ctx.EventManager().EmitEvents(filteredEvents)
+		} // on failure, revert state from sandbox, and ignore events (just skip doing the above)
 
-		// we only callback if requested. Short-circuit here the two cases we don't want to
-		if msg.ReplyOn == wasmvmtypes.ReplySuccess && err != nil {
+		// we only callback if requested. Short-circuit here the cases we don't want to
+		if (msg.ReplyOn == wasmvmtypes.ReplySuccess || msg.ReplyOn == wasmvmtypes.ReplyNever) && err != nil {
 			return nil, err
 		}
-		if msg.ReplyOn == wasmvmtypes.ReplyError && err == nil {
+		if msg.ReplyOn == wasmvmtypes.ReplyNever || (msg.ReplyOn == wasmvmtypes.ReplyError && err == nil) {
 			continue
 		}
 
@@ -122,7 +125,7 @@ func (d MessageDispatcher) DispatchSubmessages(ctx sdk.Context, contractAddr sdk
 			}
 			result = wasmvmtypes.SubcallResult{
 				Ok: &wasmvmtypes.SubcallResponse{
-					Events: sdkEventsToWasmVmEvents(events),
+					Events: sdkEventsToWasmVmEvents(filteredEvents),
 					Data:   responseData,
 				},
 			}
@@ -140,15 +143,26 @@ func (d MessageDispatcher) DispatchSubmessages(ctx sdk.Context, contractAddr sdk
 
 		// we can ignore any result returned as there is nothing to do with the data
 		// and the events are already in the ctx.EventManager()
-		rData, err := d.keeper.reply(ctx, contractAddr, reply)
+		rspData, err := d.keeper.reply(ctx, contractAddr, reply)
 		switch {
 		case err != nil:
 			return nil, sdkerrors.Wrap(err, "reply")
-		case rData.Data != nil:
-			rsp = rData.Data
+		case rspData != nil:
+			rsp = rspData
 		}
 	}
 	return rsp, nil
+}
+
+func filterEvents(events []sdk.Event) []sdk.Event {
+	// pre-allocate space for efficiency
+	res := make([]sdk.Event, 0, len(events))
+	for _, ev := range events {
+		if ev.Type != "message" {
+			res = append(res, ev)
+		}
+	}
+	return res
 }
 
 func sdkEventsToWasmVmEvents(events []sdk.Event) []wasmvmtypes.Event {

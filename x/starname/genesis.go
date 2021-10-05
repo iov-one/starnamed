@@ -51,7 +51,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data types.GenesisState) {
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	// domains
-	cursor, err := k.DomainStore(ctx).Query().Where().Index(0x2).Equals([]byte{0x2}).Do() // HARD-CODE in conjunction with keeper.go
+	cursor, err := k.DomainStore(ctx).Query().Do()
 	if err != nil {
 		panic(err)
 	}
@@ -66,15 +66,17 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	}
 
 	// accounts
-	cursor, err = k.AccountStore(ctx).Query().Where().Index(0x1).Equals([]byte{0x1}).Do() // HARD-CODE in conjunction with keeper.go
+	cursor, err = k.AccountStore(ctx).Query().Do()
 	if err != nil {
 		panic(err)
 	}
+
 	var accounts []types.Account
-	account := new(types.Account)
 	for ; cursor.Valid(); cursor.Next() {
-		err = cursor.Read(account)
-		if err != nil {
+		// The account has to be reallocated at each iteration
+		// Otherwise the name get overwritten (as it as a pointer, copying the account is not sufficient)
+		account := new(types.Account)
+		if err = cursor.Read(account); err != nil {
 			panic(err)
 		}
 		accounts = append(accounts, *account)
@@ -88,6 +90,6 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 
 // validateDomain checks if a domain is valid or not
 func validateDomain(d types.Domain) error {
-	// TODO fill
+	// TODO validate domain against the configuration module's domain constraints
 	return nil
 }

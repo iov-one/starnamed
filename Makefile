@@ -59,7 +59,9 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=starname \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=starnamed \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=star \
+		  -X github.com/iov-one/starnamed/app.Bech32Prefix=star \
+		  -X github.com/iov-one/starnamed/app.CoinTypeStr=234 \
+		  -X github.com/iov-one/starnamed/app.NodeDir=.starnamed \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq ($(WITH_CLEVELDB),yes)
@@ -177,10 +179,10 @@ proto-swagger-gen:
 	@./scripts/protoc-swagger-gen.sh
 
 proto-lint:
-	@$(DOCKER_BUF) check lint --error-format=json
+	@$(DOCKER_BUF) lint --error-format=json
 
 proto-check-breaking:
-	@$(DOCKER_BUF) check breaking --against-input $(HTTPS_GIT)#branch=master
+	@$(DOCKER_BUF) breaking --against-input $(HTTPS_GIT)#branch=master
 
 .PHONY: all install install-debug \
 	go-mod-cache draw-deps clean build format \

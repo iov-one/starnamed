@@ -30,25 +30,17 @@ func (c CodeInfo) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(c.Creator); err != nil {
 		return sdkerrors.Wrap(err, "creator")
 	}
-	if err := validateSourceURL(c.Source); err != nil {
-		return sdkerrors.Wrap(err, "source")
-	}
-	if err := validateBuilder(c.Builder); err != nil {
-		return sdkerrors.Wrap(err, "builder")
-	}
 	if err := c.InstantiateConfig.ValidateBasic(); err != nil {
 		return sdkerrors.Wrap(err, "instantiate config")
 	}
 	return nil
 }
 
-// NewCodeInfo fills a new Contract struct
-func NewCodeInfo(codeHash []byte, creator sdk.AccAddress, source string, builder string, instantiatePermission AccessConfig) CodeInfo {
+// NewCodeInfo fills a new CodeInfo struct
+func NewCodeInfo(codeHash []byte, creator sdk.AccAddress, instantiatePermission AccessConfig) CodeInfo {
 	return CodeInfo{
 		CodeHash:          codeHash,
 		Creator:           creator.String(),
-		Source:            source,
-		Builder:           builder,
 		InstantiateConfig: instantiatePermission,
 	}
 }
@@ -295,27 +287,6 @@ func NewWasmCoins(cosmosCoins sdk.Coins) (wasmCoins []wasmvmtypes.Coin) {
 		wasmCoins = append(wasmCoins, wasmCoin)
 	}
 	return wasmCoins
-}
-
-const CustomEventType = "wasm"
-const AttributeKeyContractAddr = "contract_address"
-
-// ParseEvents converts wasm LogAttributes into an sdk.Events
-func ParseEvents(wasmOutputAttrs []wasmvmtypes.EventAttribute, contractAddr sdk.AccAddress) sdk.Events {
-	// we always tag with the contract address issuing this event
-	attrs := []sdk.Attribute{sdk.NewAttribute(AttributeKeyContractAddr, contractAddr.String())}
-
-	// append attributes from wasm to the sdk.Event
-	for _, l := range wasmOutputAttrs {
-		// and reserve the contract_address key for our use (not contract)
-		if l.Key != AttributeKeyContractAddr {
-			attr := sdk.NewAttribute(l.Key, l.Value)
-			attrs = append(attrs, attr)
-		}
-	}
-
-	// each wasm invokation always returns one sdk.Event
-	return sdk.Events{sdk.NewEvent(CustomEventType, attrs...)}
 }
 
 // WasmConfig is the extra config required for wasm

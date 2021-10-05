@@ -26,6 +26,8 @@ const (
 	AttributeKeyNewMetadata             = "new_metadata"
 	AttributeKeyNewResources            = "new_resources"
 	AttributeKeyOwner                   = "owner"
+	AttributeKeyRegisterer              = "registerer"
+	AttributeKeyResources               = "resources"
 	AttributeKeyTransferAccountNewOwner = "new_account_owner"
 	AttributeKeyTransferAccountReset    = "transfer_account_reset"
 	AttributeKeyTransferDomainFlag      = "transfer_domain_flag"
