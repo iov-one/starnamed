@@ -343,11 +343,18 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 		MulDec(sdk.OneDec().Sub(communityTax)).
 		MulDec(sdk.OneDec().Sub(validatorCommission))
 
+	//fmt.Printf("reward pool is " + rewardPool.String() + "\n")
+
 	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx)
+
+	//fmt.Printf("total delegated tokens is " + totalDelegatedTokens.String() + "\n")
+
 	// TODO: use a non hardcoded parameter instead
 	// Voting power is returned in tokens while fees in the sub-unit (iov vs uiov)
 	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(1000000))
 	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
+
+	//fmt.Printf("yield for period " + yieldForPeriod.String() + "\n")
 
 	var apy sdk.Dec
 	if len(yieldForPeriod) == 0 {
@@ -356,10 +363,12 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 		const SecondsPerYear = 365 * 24 * 3600
 		numBlocksPerYear := SecondsPerYear / EstimatedBlockTime
 
+		//fmt.Printf("num blocks %v, per year %v, multiplier %v\n", numBlocks, numBlocksPerYear, uint64(numBlocksPerYear)/numBlocks)
+
 		// TODO: manage multiple tokens for fees
 		apy = yieldForPeriod.
-			QuoDec(sdk.NewDec(int64(numBlocks))).
-			MulDec(sdk.NewDec(int64(numBlocksPerYear)))[0].Amount
+			MulDec(sdk.NewDec(int64(numBlocksPerYear))).
+			QuoDec(sdk.NewDec(int64(numBlocks)))[0].Amount
 	}
 
 	// Give it a nice percentage format

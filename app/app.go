@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -260,6 +262,9 @@ type WasmApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	// Commit multistore for history
+	cms storetypes.CommitMultiStore
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -275,6 +280,10 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+
+	//TODO : this is temporary and used for yield calculation
+	cms := store.NewCommitMultiStore(db)
+	bApp.SetCMS(cms)
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
@@ -295,6 +304,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		cms:               cms,
 	}
 
 	app.paramsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
@@ -418,6 +428,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.distrKeeper,
 		app.stakingKeeper,
 		app.getSubspace(starname.ModuleName),
+		cms,
 	)
 
 	// The gov proposal types can be individually enabled

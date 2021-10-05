@@ -75,15 +75,19 @@ type Keeper struct {
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
 	// crud stores
-	accountStore       crud.Store
-	domainStore        crud.Store
+	accountStore crud.Store
+	domainStore  crud.Store
+	//TODO: find a way to persist this
 	feesSum            sdk.Coins
 	feesSumCount       uint64
 	lastComputedHeight uint64
+	// TODO: this should maybe moved out of this keeper
+	// Used for block fees queries
+	cms sdk.CommitMultiStore
 }
 
 // NewKeeper creates a domain keeper
-func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, auth AuthKeeper, distrib DistributionKeeper, staking StakingKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, auth AuthKeeper, distrib DistributionKeeper, staking StakingKeeper, paramspace ParamSubspace, cms sdk.CommitMultiStore) Keeper {
 	keeper := Keeper{
 		StoreKey:            storeKey,
 		Cdc:                 cdc,
@@ -93,6 +97,7 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper Configur
 		DistributionKeeper:  distrib,
 		StakingKeeper:       staking,
 		paramspace:          paramspace,
+		cms:                 cms,
 	}
 	return keeper
 }
@@ -112,16 +117,25 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 // GetBlockFeesSum retrieves the current value for the sum of the last n blocks
 func (k Keeper) GetBlockFeesSum(ctx sdk.Context) (sdk.Coins, uint64) {
 	// TODO: this shouldn't be an hardcoded value
-	const MaxBlocksInSum = 100000
+	const MaxBlocksInSum = 50000
 
 	//TODO: should we offset this to take into account that fee collectors funds are transferred on block start ?
 	currentHeight := ctx.BlockHeight()
 
+	//fmt.Printf("Begin block fees sum before %v until %v\n", k.lastComputedHeight, currentHeight)
+
+	// if lastComputedHeight is too far behind we discard the current sliding sum and reset it
+	if k.lastComputedHeight+MaxBlocksInSum < uint64(currentHeight) {
+		k.lastComputedHeight = uint64(currentHeight) - MaxBlocksInSum
+		k.feesSum = sdk.Coins{}
+		k.feesSumCount = 0
+	}
+
 	// If we need to, we update the value of the sliding sum
-	// lastComputedHeight is initialized at 0 (first block)
 	for ; k.lastComputedHeight < uint64(currentHeight); k.lastComputedHeight++ {
+
 		// We store the new value in the sliding sum
-		fees, err := k.GetBlockFees(ctx, uint64(currentHeight))
+		fees, err := k.GetBlockFees(ctx, uint64(k.lastComputedHeight))
 		if err != nil {
 			panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", currentHeight))
 		}
@@ -143,14 +157,16 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context) (sdk.Coins, uint64) {
 }
 
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {
-	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(int64(height))
+
+	cms, err := k.cms.CacheMultiStoreWithVersion(int64(height))
 	if err != nil {
 		return nil, err
 	}
-	ctxWithPrevHeight := ctx.WithMultiStore(cms)
+	ctxWithCurrentHeight := ctx.WithMultiStore(cms)
 
-	blockFees := k.SupplyKeeper.GetAllBalances(ctxWithPrevHeight, k.AuthKeeper.GetModuleAddress(authtypes.FeeCollectorName))
-	return blockFees, nil
+	fees := k.SupplyKeeper.GetAllBalances(ctxWithCurrentHeight, k.AuthKeeper.GetModuleAddress(authtypes.FeeCollectorName))
+
+	return fees, nil
 }
 
 // Logger returns aliceAddr module-specific logger.
