@@ -74,20 +74,13 @@ type Keeper struct {
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
 	Cdc        codec.Marshaler
 	paramspace ParamSubspace
-	// crud stores
-	accountStore crud.Store
-	domainStore  crud.Store
-	//TODO: find a way to persist this
-	feesSum            sdk.Coins
-	feesSumCount       uint64
-	lastComputedHeight uint64
-	// TODO: this should maybe moved out of this keeper
 	// Used for block fees queries
 	cms sdk.CommitMultiStore
 }
 
 // NewKeeper creates a domain keeper
 func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, auth AuthKeeper, distrib DistributionKeeper, staking StakingKeeper, paramspace ParamSubspace, cms sdk.CommitMultiStore) Keeper {
+
 	keeper := Keeper{
 		StoreKey:            storeKey,
 		Cdc:                 cdc,
@@ -114,46 +107,50 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 
 // TODO: we should maybe move this in a separate module
 
+//TODO: this cannot be persisted in the keeper as a new one is used for each query
+// Find anoter way of persisting this data, without a global variable
+var slidingSum struct {
+	feesSum            sdk.Coins
+	feesSumCount       uint64
+	lastComputedHeight uint64
+}
+
 // GetBlockFeesSum retrieves the current value for the sum of the last n blocks
 func (k Keeper) GetBlockFeesSum(ctx sdk.Context) (sdk.Coins, uint64) {
-	// TODO: this shouldn't be an hardcoded value
-	const MaxBlocksInSum = 50000
+	const MaxBlocksInSum = 100000
 
-	//TODO: should we offset this to take into account that fee collectors funds are transferred on block start ?
 	currentHeight := ctx.BlockHeight()
 
-	//fmt.Printf("Begin block fees sum before %v until %v\n", k.lastComputedHeight, currentHeight)
-
 	// if lastComputedHeight is too far behind we discard the current sliding sum and reset it
-	if k.lastComputedHeight+MaxBlocksInSum < uint64(currentHeight) {
-		k.lastComputedHeight = uint64(currentHeight) - MaxBlocksInSum
-		k.feesSum = sdk.Coins{}
-		k.feesSumCount = 0
+	if slidingSum.lastComputedHeight+MaxBlocksInSum < uint64(currentHeight) {
+		slidingSum.lastComputedHeight = uint64(currentHeight) - MaxBlocksInSum
+		slidingSum.feesSum = sdk.Coins{}
+		slidingSum.feesSumCount = 0
 	}
 
 	// If we need to, we update the value of the sliding sum
-	for ; k.lastComputedHeight < uint64(currentHeight); k.lastComputedHeight++ {
+	for ; slidingSum.lastComputedHeight < uint64(currentHeight); slidingSum.lastComputedHeight++ {
 
 		// We store the new value in the sliding sum
-		fees, err := k.GetBlockFees(ctx, uint64(k.lastComputedHeight))
+		fees, err := k.GetBlockFees(ctx, uint64(slidingSum.lastComputedHeight))
 		if err != nil {
 			panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", currentHeight))
 		}
-		k.feesSum = k.feesSum.Add(fees...)
+		slidingSum.feesSum = slidingSum.feesSum.Add(fees...)
 
 		// If we reached the maximum number of block, we remove the last block from the sliding sum
-		if k.feesSumCount == MaxBlocksInSum {
-			feesOutgoingBlock, err := k.GetBlockFees(ctx, k.lastComputedHeight-MaxBlocksInSum)
+		if slidingSum.feesSumCount == MaxBlocksInSum {
+			feesOutgoingBlock, err := k.GetBlockFees(ctx, slidingSum.lastComputedHeight-MaxBlocksInSum)
 			if err != nil {
 				panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", currentHeight))
 			}
-			k.feesSum = k.feesSum.Sub(feesOutgoingBlock)
+			slidingSum.feesSum = slidingSum.feesSum.Sub(feesOutgoingBlock)
 		} else { // Else we just increment the number of block included in the sliding sum
-			k.feesSumCount++
+			slidingSum.feesSumCount++
 		}
 	}
 
-	return k.feesSum, k.feesSumCount
+	return slidingSum.feesSum, slidingSum.feesSumCount
 }
 
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {

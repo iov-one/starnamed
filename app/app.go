@@ -281,7 +281,8 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	bApp.SetAppVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	//TODO : this is temporary and used for yield calculation
+	//TODO: find a cleaner way to access store history
+	//This is used for yield calculation
 	cms := store.NewCommitMultiStore(db)
 	bApp.SetCMS(cms)
 

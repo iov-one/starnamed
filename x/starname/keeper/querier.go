@@ -338,23 +338,24 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 
 	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx)
 
+	// Compute the reward pool from the collected fees for the last numBlocks blocks
 	communityTax := keeper.DistributionKeeper.GetCommunityTax(ctx)
+	// communityReward = fees * communityTax
+	// validatorReward = (fees - communityReward) * validatorCommission (if we assume uniform distribution accross validators)
+	// rewardPool = fees - communityReward - validatorReward
+	// => reward = fees * (1 - communityTax) * (1 - validatorCommission)
 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...).
 		MulDec(sdk.OneDec().Sub(communityTax)).
 		MulDec(sdk.OneDec().Sub(validatorCommission))
 
-	//fmt.Printf("reward pool is " + rewardPool.String() + "\n")
+	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx) // in iov
 
-	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx)
+	// Voting power is returned in tokens while fees are in a sub-unit (iov vs uiov)
+	multiplier := 1e6
+	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(int64(multiplier))) // in uiov
 
-	//fmt.Printf("total delegated tokens is " + totalDelegatedTokens.String() + "\n")
-
-	// TODO: use a non hardcoded parameter instead
-	// Voting power is returned in tokens while fees in the sub-unit (iov vs uiov)
-	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(1000000))
+	// Compute yield for numBlocks blocks
 	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
-
-	//fmt.Printf("yield for period " + yieldForPeriod.String() + "\n")
 
 	var apy sdk.Dec
 	if len(yieldForPeriod) == 0 {
@@ -362,8 +363,6 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 	} else {
 		const SecondsPerYear = 365 * 24 * 3600
 		numBlocksPerYear := SecondsPerYear / EstimatedBlockTime
-
-		//fmt.Printf("num blocks %v, per year %v, multiplier %v\n", numBlocks, numBlocksPerYear, uint64(numBlocksPerYear)/numBlocks)
 
 		// TODO: manage multiple tokens for fees
 		apy = yieldForPeriod.
