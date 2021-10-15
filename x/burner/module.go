@@ -41,7 +41,7 @@ func (AppModuleBasic) Name() string { return types.ModuleName }
 
 // DefaultGenesis returns default genesis state as raw bytes for the burner module.
 func (AppModuleBasic) DefaultGenesis(codec.JSONMarshaler) json.RawMessage {
-	return json.RawMessage{}
+	return nil
 }
 
 // ValidateGenesis performs genesis state validation for the burner module.
