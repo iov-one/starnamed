@@ -119,6 +119,9 @@ var slidingSum struct {
 func (k Keeper) GetBlockFeesSum(ctx sdk.Context) (sdk.Coins, uint64) {
 	const MaxBlocksInSum = 100000
 
+	//FIXME: the block height is not updated when querying at a different height (only the stores are)
+	// So this line prevent to query from a different height (and will make the cms panic)
+	// Querying at previous heights also cause problems for the cached sliding sum
 	currentHeight := ctx.BlockHeight()
 
 	// if lastComputedHeight is too far behind we discard the current sliding sum and reset it

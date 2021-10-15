@@ -1470,11 +1470,6 @@ paths:
                     value:
                       type: string
                       format: byte
-      parameters:
-        - name: validator_commission
-          in: query
-          required: false
-          type: string
       tags:
         - Query
   /cosmwasm/wasm/v1/code:

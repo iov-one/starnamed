@@ -204,10 +204,6 @@ message QueryBrokerDomainsResponse {
 
 // QueryYieldRequest is the request type for the Query/Yield RPC method.
 message QueryYieldRequest {
-    string validator_commission = 1 [
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable) = false
-    ];
 }
 
 // QueryYieldResponse is the response type for the Query/Yield RPC method.

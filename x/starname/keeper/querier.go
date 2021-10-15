@@ -317,14 +317,10 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 }
 
 //Yield return an estimation of the delegators annualized yield based on the last 100k blocks
-func (q grpcQuerier) Yield(ctx context.Context, req *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
+func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
 	var response types.QueryYieldResponse
 
-	if req.ValidatorCommission.LT(sdk.ZeroDec()) || req.ValidatorCommission.GT(sdk.NewDec(1)) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The validator commission must be a number between 0 and 1")
-	}
-
-	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper, req.ValidatorCommission)
+	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper)
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +328,7 @@ func (q grpcQuerier) Yield(ctx context.Context, req *types.QueryYieldRequest) (*
 	return &response, err
 }
 
-func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec) (sdk.Dec, error) {
+func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 	// TODO: dont rely on an hardcoded estimate
 	const EstimatedBlockTime = 4
 
@@ -341,12 +337,10 @@ func calculateYield(ctx sdk.Context, keeper *Keeper, validatorCommission sdk.Dec
 	// Compute the reward pool from the collected fees for the last numBlocks blocks
 	communityTax := keeper.DistributionKeeper.GetCommunityTax(ctx)
 	// communityReward = fees * communityTax
-	// validatorReward = (fees - communityReward) * validatorCommission (if we assume uniform distribution accross validators)
-	// rewardPool = fees - communityReward - validatorReward
-	// => reward = fees * (1 - communityTax) * (1 - validatorCommission)
+	// rewardPool = fees - communityReward
+	// => reward = fees * (1 - communityTax)
 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...).
-		MulDec(sdk.OneDec().Sub(communityTax)).
-		MulDec(sdk.OneDec().Sub(validatorCommission))
+		MulDec(sdk.OneDec().Sub(communityTax))
 
 	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx) // in iov
 
