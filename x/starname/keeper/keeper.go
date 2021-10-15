@@ -146,7 +146,7 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 		currentHeight = slidingSum.lastComputedHeight
 	}
 
-	if currentHeight-maxBlocksInSum <= 0 {
+	if currentHeight < maxBlocksInSum {
 		maxBlocksInSum = currentHeight
 	}
 
