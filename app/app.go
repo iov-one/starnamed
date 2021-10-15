@@ -209,11 +209,13 @@ var (
 		burnertypes.ModuleName:         {authtypes.Burner},
 	}
 
-	// module accounts that are allowed to receive tokens
-	allowedReceivingModAcc = map[string]bool{
-		//TODO: this was uncluded from wasmd repo but the allowedReceivingModAcc variable was not used, should we allow
-		// sending tokend to the dsitribution module ?
+	//NOTE: this was included from wasmd repo but the allowedReceivingModAcc variable was not used,
+	/*allowedReceivingModAcc = map[string]bool{
 		//distrtypes.ModuleName:  true,
+	}*/
+
+	// module accounts that are allowed to receive tokens
+	allowedReceivingModules = map[string]bool{
 		burnertypes.ModuleName: true,
 	}
 )
@@ -601,7 +603,7 @@ func (app *WasmApp) LoadHeight(height int64) error {
 func (app *WasmApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		moduleCanReceive, modulePresentInArray := allowedReceivingModAcc[acc]
+		moduleCanReceive, modulePresentInArray := allowedReceivingModules[acc]
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = !(modulePresentInArray && moduleCanReceive)
 	}
 

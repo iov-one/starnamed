@@ -5,12 +5,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	"github.com/iov-one/starnamed/x/wasm"
 )
 
 var emptyWasmOpts []wasm.Option = nil
@@ -45,7 +46,13 @@ func TestBlockedAddrs(t *testing.T) {
 
 	for acc := range maccPerms {
 		t.Run(acc, func(t *testing.T) {
-			require.True(t, gapp.bankKeeper.BlockedAddr(gapp.accountKeeper.GetModuleAddress(acc)),
+			var expected bool
+			if allowedReceivingModules[acc] {
+				expected = false
+			} else {
+				expected = true
+			}
+			require.Equal(t, expected, gapp.bankKeeper.BlockedAddr(gapp.accountKeeper.GetModuleAddress(acc)),
 				"ensure that blocked addresses are properly set in bank keeper",
 			)
 		})
