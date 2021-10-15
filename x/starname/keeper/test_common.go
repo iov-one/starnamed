@@ -53,7 +53,7 @@ func (m *DullMsg) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.signer}
 }
 
-// NewTestCodec generates aliceAddr mock codec for keeper module
+// NewTestCodec generates a mock codec for keeper module
 func NewTestCodec() *codec.ProtoCodec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module

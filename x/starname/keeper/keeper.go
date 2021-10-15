@@ -34,10 +34,10 @@ type ConfigurationKeeper interface {
 	GetConfiguration(ctx sdk.Context) configuration.Config
 	// IsOwner returns if the provided address is an owner or not
 	IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool
-	// GetValidDomainNameRegexp returns the regular expression that aliceAddr domain name must match
+	// GetValidDomainNameRegexp returns the regular expression that a domain name must match
 	// in order to be valid
 	GetValidDomainNameRegexp(ctx sdk.Context) string
-	// GetDomainRenewDuration returns the default duration of aliceAddr domain renewal
+	// GetDomainRenewDuration returns the default duration of a domain renewal
 	GetDomainRenewDuration(ctx sdk.Context) time.Duration
 	// GetDomainGracePeriod returns the grace period duration
 	GetDomainGracePeriod(ctx sdk.Context) time.Duration
@@ -58,7 +58,7 @@ type Keeper struct {
 	domainStore  crud.Store
 }
 
-// NewKeeper creates aliceAddr domain keeper
+// NewKeeper creates a domain keeper
 func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		StoreKey:            storeKey,
@@ -80,7 +80,7 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 	return crudtypes.NewStore(k.Cdc, ctx.KVStore(k.StoreKey), []byte{0x2})
 }
 
-// Logger returns aliceAddr module-specific logger.
+// Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
