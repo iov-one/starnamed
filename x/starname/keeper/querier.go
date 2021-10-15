@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,8 +21,9 @@ type grpcQuerier struct {
 }
 
 const (
-	defaultStart uint64 = 0
-	defaultLimit uint64 = 100 // TODO: read this from config.toml
+	defaultStart     uint64 = 0
+	defaultLimit     uint64 = 100 // TODO: read this from config.toml
+	NumBlocksInAWeek uint64 = 100000
 )
 
 func getPagination(pageRequest *query.PageRequest) (uint64, uint64, bool, error) {
@@ -329,18 +331,15 @@ func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*ty
 }
 
 func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
-	// TODO: dont rely on an hardcoded estimate
-	const EstimatedBlockTime = 4
 
-	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx)
+	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
 
-	// Compute the reward pool from the collected fees for the last numBlocks blocks
-	communityTax := keeper.DistributionKeeper.GetCommunityTax(ctx)
-	// communityReward = fees * communityTax
-	// rewardPool = fees - communityReward
-	// => reward = fees * (1 - communityTax)
-	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...).
-		MulDec(sdk.OneDec().Sub(communityTax))
+	if numBlocks != NumBlocksInAWeek {
+		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
+			ctx.BlockHeight(), NumBlocksInAWeek)
+	}
+
+	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
 
 	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx) // in iov
 
@@ -355,13 +354,9 @@ func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 	if len(yieldForPeriod) == 0 {
 		apy = sdk.ZeroDec()
 	} else {
-		const SecondsPerYear = 365 * 24 * 3600
-		numBlocksPerYear := SecondsPerYear / EstimatedBlockTime
-
+		const WeeksPerYear = 52
 		// TODO: manage multiple tokens for fees
-		apy = yieldForPeriod.
-			MulDec(sdk.NewDec(int64(numBlocksPerYear))).
-			QuoDec(sdk.NewDec(int64(numBlocks)))[0].Amount
+		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
 	}
 
 	// Give it a nice percentage format
