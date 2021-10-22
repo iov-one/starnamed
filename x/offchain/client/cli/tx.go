@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"io/fs"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -44,7 +44,12 @@ func getCmdVerifyMsg() *cobra.Command {
 
 			verifier := types.NewVerifier(clientCtx.TxConfig.SignModeHandler())
 
-			jsonOutput, err := cmd.Flags().GetBool("json")
+			outputFormat, err := cmd.Flags().GetString("format")
+			if err != nil {
+				return err
+			}
+
+			outputFile, err := cmd.Flags().GetString("file")
 			if err != nil {
 				return err
 			}
@@ -76,25 +81,53 @@ func getCmdVerifyMsg() *cobra.Command {
 				msgs[i] = msgSign
 			}
 
-			if jsonOutput {
+			switch outputFormat {
+
+			case "json":
 				data = clientCtx.JSONMarshaler.MustMarshalJSON(&types.ListOfMsgSignData{
 					Msgs: msgs,
 				})
-
 				fmt.Println(string(data))
-			} else {
+			case "simple":
 				fmt.Printf("%v messages in transaction\n", len(msgs))
 				for index, msg := range msgs {
-					fmt.Printf("%v\n\tSigner: %s\n\tData: %s\n", index, msg.Signer, msg.Data)
+					fmt.Printf("%v. Signer: %s\n", index+1, msg.Signer)
 				}
+			case "text":
+				fmt.Printf("%v messages in transaction\n", len(msgs))
+				for index, msg := range msgs {
+					fmt.Printf("%v.\n\tSigner: %s\n\tData: %s\n", index+1, msg.Signer, msg.Data)
+				}
+			case "file":
+				for index, msg := range msgs {
+					filename := outputFile
+					if len(filename) == 0 {
+						filename = file + ".orig"
+					}
+					if len(msgs) > 1 {
+						filename += "." + strconv.Itoa(index)
+					}
+
+					err := ioutil.WriteFile(filename, msg.Data, 0660)
+					if err != nil {
+						return err
+					}
+					fmt.Printf("%v.\n\tSigner: %s\n\tFile: %s\n", index+1, msg.Signer, filename)
+				}
+			default:
+				return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid output format type %v", outputFormat)
 			}
 			return nil
 		},
 	}
 
-	cmd.Flags().Bool("json", false, "If that flag is present, the output will be in JSON format. "+
-		"The JSON output is a ListOfMsgSignData serialized object, with base64 encoded data and bech32 signed address")
-
+	cmd.Flags().StringP("format", "f", "simple", "This determines the output format, the default format is the simple format (simple|text|json|file). "+
+		"\nThe simple format just displays the signers for each message."+
+		"The text format displays the signer and the textual representation of data for each message. "+
+		"The JSON output is a ListOfMsgSignData serialized object, with base64 encoded data. "+
+		"If the file format is selected, then each message will be written in a file, with the signer written in the standard output")
+	cmd.Flags().StringP("file", "o", "", "This determines the name of the output file, if the chosen format is file."+
+		" If multiple messages are present, a number will be appended to the filename")
 	return cmd
 }
 
@@ -160,7 +193,7 @@ func getCmdSignMsg() *cobra.Command {
 				return err
 			}
 
-			return ioutil.WriteFile(destFile, txData, fs.ModePerm)
+			return ioutil.WriteFile(destFile, txData, 0660)
 		},
 	}
 	// add flags
