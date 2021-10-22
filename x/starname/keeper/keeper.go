@@ -34,12 +34,12 @@ type AuthKeeper interface {
 	GetModuleAddress(module string) sdk.AccAddress
 }
 
-// DistributionKeeper is used to estimate the yield for the delegators
+// DistributionKeeper is used to estimate the yield of the chain
 type DistributionKeeper interface {
 	GetCommunityTax(ctx sdk.Context) sdk.Dec
 }
 
-// StakingKeeper is used to estimate the yield for delegators
+// StakingKeeper is used to estimate the yield of the chain
 type StakingKeeper interface {
 	GetLastTotalPower(ctx sdk.Context) sdk.Int
 }
@@ -114,7 +114,7 @@ var slidingSum struct {
 	lastComputedHeight uint64
 }
 
-// RefreshBlockSumCache refresh the sliding sum value if it was
+// RefreshBlockSumCache refreshes the sliding sum value if it has been previously computed
 func (k Keeper) RefreshBlockSumCache(ctx sdk.Context, maxBlocksInSum uint64) {
 	if slidingSum.feesSumCount != 0 {
 		k.GetBlockFeesSum(ctx, maxBlocksInSum)
@@ -188,6 +188,8 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 	return slidingSum.feesSum, slidingSum.feesSumCount
 }
 
+// GetBlockFees returns the fees collected at a specific height
+// It will return an error if the node has not an history of the given height
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {
 
 	cms, err := k.cms.CacheMultiStoreWithVersion(int64(height))
