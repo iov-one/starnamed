@@ -89,6 +89,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/offchain"
 	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
 	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
@@ -192,6 +193,7 @@ var (
 		vesting.AppModuleBasic{},
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
+		offchain.AppModuleBasic{},
 	)
 
 	// module account permissions
