@@ -282,9 +282,9 @@ func getQueryResourceAccounts() *cobra.Command {
 
 func getQueryYield() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "apy",
-		Aliases: []string{"yield", "apr", "APY", "APR", "annualized-yield"},
-		Short:   "get an estimation of the apy based on the previous blocks",
+		Use:     "yield-estimate",
+		Aliases: []string{"yield", "apr", "apy", "APY", "APR", "annualized-yield"},
+		Short:   "get a real-time estimate of the annualized yield",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
 			clientCtx, err := client.GetClientQueryContext(cmd)
