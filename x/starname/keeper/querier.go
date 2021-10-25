@@ -359,6 +359,5 @@ func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
 	}
 
-	// Give it a nice percentage format
-	return apy.Mul(sdk.NewDec(100)), nil
+	return apy, nil
 }
