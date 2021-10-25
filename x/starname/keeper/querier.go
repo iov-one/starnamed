@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	crud "github.com/iov-one/cosmos-sdk-crud"
+
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -19,8 +21,9 @@ type grpcQuerier struct {
 }
 
 const (
-	defaultStart uint64 = 0
-	defaultLimit uint64 = 100 // TODO: read this from config.toml
+	defaultStart     uint64 = 0
+	defaultLimit     uint64 = 100 // TODO: read this from config.toml
+	NumBlocksInAWeek uint64 = 100000
 )
 
 func getPagination(pageRequest *query.PageRequest) (uint64, uint64, bool, error) {
@@ -313,4 +316,48 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
+}
+
+//Yield return an estimation of the delegators annualized yield based on the last 100k blocks
+func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
+	var response types.QueryYieldResponse
+
+	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper)
+	if err != nil {
+		return nil, err
+	}
+	response.Apy = apy
+	return &response, err
+}
+
+func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
+
+	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
+
+	if numBlocks != NumBlocksInAWeek {
+		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
+			ctx.BlockHeight(), NumBlocksInAWeek)
+	}
+
+	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
+
+	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx) // in iov
+
+	// Voting power is returned in tokens while fees are in a sub-unit (iov vs uiov)
+	multiplier := 1e6
+	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(int64(multiplier))) // in uiov
+
+	// Compute yield for numBlocks blocks
+	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
+
+	var apy sdk.Dec
+	if len(yieldForPeriod) == 0 {
+		apy = sdk.ZeroDec()
+	} else {
+		const WeeksPerYear = 52
+		// TODO: manage multiple tokens for fees
+		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
+	}
+
+	return apy, nil
 }

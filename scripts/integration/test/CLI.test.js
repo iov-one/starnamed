@@ -601,4 +601,12 @@ describe( "Tests the CLI.", () => {
 
       expect( resolved1.account.metadata_uri ).toEqual( undefined );
    } );
+
+   it( `Should throw an error while querying the yield for less than 100k blocks`, async () => {
+      try {
+         cli(["query", "starname", "yield"]);
+      } catch (e) {
+         expect(e.message).toContain("not enough data")
+      }
+   } );
 } );
