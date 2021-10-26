@@ -208,9 +208,8 @@ message QueryYieldRequest {
 
 // QueryYieldResponse is the response type for the Query/Yield RPC method.
 message QueryYieldResponse {
-   string apy = 1 [
+   string yield = 1 [
        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
        (gogoproto.nullable) = false
    ];
 }
-

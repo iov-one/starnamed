@@ -326,7 +326,7 @@ func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*ty
 	if err != nil {
 		return nil, err
 	}
-	response.Apy = apy
+	response.Yield = apy
 	return &response, err
 }
 
