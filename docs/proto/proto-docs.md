@@ -1775,7 +1775,7 @@ QueryYieldResponse is the response type for the Query/Yield RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `apy` | [string](#string) |  |  |
+| `yield` | [string](#string) |  |  |
 
 
 
