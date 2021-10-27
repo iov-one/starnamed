@@ -1443,7 +1443,7 @@ paths:
           schema:
             type: object
             properties:
-              apy:
+              yield:
                 type: string
             description: >-
               QueryYieldResponse is the response type for the Query/Yield RPC
@@ -5162,7 +5162,7 @@ definitions:
   starnamed.x.starname.v1beta1.QueryYieldResponse:
     type: object
     properties:
-      apy:
+      yield:
         type: string
     description: QueryYieldResponse is the response type for the Query/Yield RPC method.
   starnamed.x.starname.v1beta1.Resource:
