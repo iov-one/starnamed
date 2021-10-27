@@ -91,6 +91,10 @@
   
     - [Query](#starnamed.x.configuration.v1beta1.Query)
   
+- [iov/offchain/v1alpha1/offchain.proto](#iov/offchain/v1alpha1/offchain.proto)
+    - [ListOfMsgSignData](#cosmos.offchain.v1alpha1.ListOfMsgSignData)
+    - [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData)
+  
 - [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
     - [Domain](#starnamed.x.starname.v1beta1.Domain)
@@ -1385,6 +1389,53 @@ Query provides defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Config` | [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/starname/v1beta1/configuration/params|
 | `Fees` | [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/starname/v1beta1/configuration/fees|
+
+ <!-- end services -->
+
+
+
+<a name="iov/offchain/v1alpha1/offchain.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/offchain/v1alpha1/offchain.proto
+
+
+
+<a name="cosmos.offchain.v1alpha1.ListOfMsgSignData"></a>
+
+### ListOfMsgSignData
+ListOfMsgSignData defines a list of MsgSignData, used to marshal and unmarshal them in a clean way
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `msgs` | [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData) | repeated | msgs is a list of messages |
+
+
+
+
+
+
+<a name="cosmos.offchain.v1alpha1.MsgSignData"></a>
+
+### MsgSignData
+MsgSignData defines an arbitrary, general-purpose, off-chain message
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `signer` | [string](#string) |  | signer is the bech32 representation of the signer's account address |
+| `data` | [bytes](#bytes) |  | data represents the raw bytes of the content that is signed (text, json, etc) |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 
