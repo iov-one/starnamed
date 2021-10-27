@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -262,6 +264,9 @@ type WasmApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	// Commit multistore for history
+	cms storetypes.CommitMultiStore
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -277,6 +282,11 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+
+	//TODO: find a cleaner way to access store history
+	//This is used for yield calculation
+	cms := store.NewCommitMultiStore(db)
+	bApp.SetCMS(cms)
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
@@ -297,6 +307,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		cms:               cms,
 	}
 
 	app.paramsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
@@ -416,7 +427,11 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keys[starname.DomainStoreKey],
 		app.configKeeper,
 		app.bankKeeper,
+		app.accountKeeper,
+		app.distrKeeper,
+		app.stakingKeeper,
 		app.getSubspace(starname.ModuleName),
+		cms,
 	)
 
 	// The gov proposal types can be individually enabled
@@ -476,7 +491,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 	)
-	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName)
+	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, starname.ModuleName)
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.

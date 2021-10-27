@@ -120,6 +120,8 @@
     - [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
+    - [QueryYieldRequest](#starnamed.x.starname.v1beta1.QueryYieldRequest)
+    - [QueryYieldResponse](#starnamed.x.starname.v1beta1.QueryYieldResponse)
   
     - [Query](#starnamed.x.starname.v1beta1.Query)
   
@@ -1805,6 +1807,31 @@ QueryStarnameResponse is the response type for the Query/Starname RPC method.
 
 
 
+
+<a name="starnamed.x.starname.v1beta1.QueryYieldRequest"></a>
+
+### QueryYieldRequest
+QueryYieldRequest is the request type for the Query/Yield RPC method.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryYieldResponse"></a>
+
+### QueryYieldResponse
+QueryYieldResponse is the response type for the Query/Yield RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `yield` | [string](#string) |  |  |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1827,6 +1854,7 @@ Query defines the gRPC querier service.
 | `ResourceAccounts` | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. | GET|/starname/v1beta1/accounts/resource/{uri}/{resource}|
 | `BrokerAccounts` | [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest) | [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse) | BrokerAccounts gets accounts associated with a given broker. | GET|/starname/v1beta1/accounts/broker/{broker}|
 | `BrokerDomains` | [QueryBrokerDomainsRequest](#starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest) | [QueryBrokerDomainsResponse](#starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse) | BrokerDomains gets domains associated with a given broker. | GET|/starname/v1beta1/domains/broker/{broker}|
+| `Yield` | [QueryYieldRequest](#starnamed.x.starname.v1beta1.QueryYieldRequest) | [QueryYieldResponse](#starnamed.x.starname.v1beta1.QueryYieldResponse) | Yield estimates and retrieves the annualized yield for delegators | GET|/starname/v1beta1/yield|
 
  <!-- end services -->
 
