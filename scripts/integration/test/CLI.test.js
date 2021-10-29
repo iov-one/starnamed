@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { gasPrices, cli, denomFee, denomStake, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
+import { burner, cli, denomFee, denomStake, gasPrices, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
 import compareObjects from "./compareObjects";
 import forge from "node-forge";
 
@@ -600,5 +600,23 @@ describe( "Tests the CLI.", () => {
       const resolved1 = cli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( resolved1.account.metadata_uri ).toEqual( undefined );
+   } );
+
+
+   it( `Should burn tokens.`, async () => {
+      const signer = w1;
+      const amount = 1e6;
+      const supply0 = { balances: cli( [ "query", "bank", "total" ] ).supply };
+      const balance0 = cli( [ "query", "bank", "balances", signer ] );
+      const burned = cli( [ "tx", "send", signer, burner, `${amount}${denomFee}`, "--yes", "--broadcast-mode", "block", "--gas-prices", gasPrices, "--memo", memo() ] );
+      const supply = { balances: cli( [ "query", "bank", "total" ] ).supply };
+      const balance = cli( [ "query", "bank", "balances", signer ] );
+      const blackhole = cli( [ "query", "bank", "balances", burner ] );
+
+      expect( burned.txhash ).toBeDefined();
+      if ( !burned.logs ) throw new Error( registered.raw_log );
+      expect( +getBalance( supply ) ).toEqual( +getBalance( supply0 ) - amount );
+      expect( +getBalance( balance ) ).toBeLessThan( +getBalance( balance0 ) - amount); // less than to account for fees
+      expect( +getBalance( blackhole ) ).toBe( 0 );
    } );
 } );
