@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/stretchr/testify/suite"
+	"github.com/tendermint/tendermint/libs/rand"
 
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/test"
@@ -61,7 +62,7 @@ func TestModuleDisabled(t *testing.T) {
 			callMethod: func(k keeper.Keeper) {
 				escrow, obj := gen.NewRandomTestEscrow()
 				seller, _ := sdk.AccAddressFromBech32(escrow.Seller)
-				_, _ = k.CreateEscrow(ctx, seller, escrow.Price, obj, escrow.Deadline)
+				_, _ = k.CreateEscrow(ctx, seller, escrow.Price, obj, escrow.Deadline, rand.Bool())
 			},
 		},
 		{

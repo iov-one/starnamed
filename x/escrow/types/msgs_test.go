@@ -30,7 +30,7 @@ func (suite *MsgTestSuite) SetupTest() {
 	validPrice := sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(50)))
 	validObject := suite.gen.NewTestObject(suite.sender)
 
-	suite.msgCreate = types.NewMsgCreateEscrow(suite.sender.String(), "", validObject, validPrice, suite.gen.NowAfter(0))
+	suite.msgCreate = types.NewMsgCreateEscrow(suite.sender.String(), "", validObject, validPrice, suite.gen.NowAfter(0), false)
 	suite.msgRefund = types.MsgRefundEscrow{
 		Id:     validId,
 		Sender: suite.sender.String(),

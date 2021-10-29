@@ -87,6 +87,7 @@ func (s *EscrowTestSuite) createErroredObjectEscrow(price sdk.Coins) string {
 		price,
 		obj,
 		s.generator.NowAfter(10),
+		false,
 	)
 	if err != nil {
 		panic(err)
@@ -297,6 +298,7 @@ func (s *EscrowTestSuite) TestCreate() {
 				t.price,
 				t.obj,
 				t.deadline,
+				false,
 			)
 			return err
 		}
@@ -315,6 +317,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 		price,
 		newSavedObject(s.generator, s.seller, s.store),
 		escrowDeadline,
+		false,
 	)
 	if err != nil {
 		panic(err)
@@ -325,7 +328,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 		panic(err)
 	}
 	escrowWithTimeConstrainedObjectID, err := s.keeper.CreateEscrow(
-		s.ctx, s.seller, price, timeConstrainedObj, s.generator.NowAfter(5),
+		s.ctx, s.seller, price, timeConstrainedObj, s.generator.NowAfter(5), false,
 	)
 
 	testCases := []struct {
@@ -480,6 +483,7 @@ func (s *EscrowTestSuite) TestTransferTo() {
 			price,
 			newSavedObject(s.generator, seller, s.store),
 			s.generator.NowAfter(10),
+			false,
 		)
 		if err != nil {
 			panic(err)
@@ -683,6 +687,7 @@ func (s *EscrowTestSuite) TestRefund() {
 				price,
 				newSavedObject(s.generator, s.seller, s.store),
 				deadline,
+				false,
 			)
 
 			s.keeper.MarkExpiredEscrows(s.ctx, lastBlockTime)
