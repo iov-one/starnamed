@@ -15,7 +15,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-// NewTestCodec generates aliceAddr mock codec for keeper module
+// NewTestCodec generates a mock codec for keeper module
 func NewTestCodec() *codec.AminoCodec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module
@@ -27,7 +27,7 @@ func NewTestCodec() *codec.AminoCodec {
 	return cdc
 }
 
-// NewTestKeeper generates aliceAddr keeper and aliceAddr context from it
+// NewTestKeeper generates a keeper and a context from it
 func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context) {
 	cdc := NewTestCodec()
 	// generate store

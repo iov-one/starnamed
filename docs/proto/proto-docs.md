@@ -13,10 +13,10 @@
     - [ContractInfo](#starnamed.x.wasm.v1beta1.ContractInfo)
     - [Model](#starnamed.x.wasm.v1beta1.Model)
     - [Params](#starnamed.x.wasm.v1beta1.Params)
-
+  
     - [AccessType](#starnamed.x.wasm.v1beta1.AccessType)
     - [ContractCodeHistoryOperationType](#starnamed.x.wasm.v1beta1.ContractCodeHistoryOperationType)
-
+  
 - [cosmwasm/wasm/v1/tx.proto](#cosmwasm/wasm/v1/tx.proto)
     - [MsgClearAdmin](#starnamed.x.wasm.v1beta1.MsgClearAdmin)
     - [MsgClearAdminResponse](#starnamed.x.wasm.v1beta1.MsgClearAdminResponse)
@@ -30,20 +30,20 @@
     - [MsgStoreCodeResponse](#starnamed.x.wasm.v1beta1.MsgStoreCodeResponse)
     - [MsgUpdateAdmin](#starnamed.x.wasm.v1beta1.MsgUpdateAdmin)
     - [MsgUpdateAdminResponse](#starnamed.x.wasm.v1beta1.MsgUpdateAdminResponse)
-
+  
     - [Msg](#starnamed.x.wasm.v1beta1.Msg)
-
+  
 - [cosmwasm/wasm/v1/genesis.proto](#cosmwasm/wasm/v1/genesis.proto)
     - [Code](#starnamed.x.wasm.v1beta1.Code)
     - [Contract](#starnamed.x.wasm.v1beta1.Contract)
     - [GenesisState](#starnamed.x.wasm.v1beta1.GenesisState)
     - [GenesisState.GenMsgs](#starnamed.x.wasm.v1beta1.GenesisState.GenMsgs)
     - [Sequence](#starnamed.x.wasm.v1beta1.Sequence)
-
+  
 - [cosmwasm/wasm/v1/ibc.proto](#cosmwasm/wasm/v1/ibc.proto)
     - [MsgIBCCloseChannel](#starnamed.x.wasm.v1beta1.MsgIBCCloseChannel)
     - [MsgIBCSend](#starnamed.x.wasm.v1beta1.MsgIBCSend)
-
+  
 - [cosmwasm/wasm/v1/proposal.proto](#cosmwasm/wasm/v1/proposal.proto)
     - [ClearAdminProposal](#starnamed.x.wasm.v1beta1.ClearAdminProposal)
     - [InstantiateContractProposal](#starnamed.x.wasm.v1beta1.InstantiateContractProposal)
@@ -52,7 +52,7 @@
     - [StoreCodeProposal](#starnamed.x.wasm.v1beta1.StoreCodeProposal)
     - [UnpinCodesProposal](#starnamed.x.wasm.v1beta1.UnpinCodesProposal)
     - [UpdateAdminProposal](#starnamed.x.wasm.v1beta1.UpdateAdminProposal)
-
+  
 - [cosmwasm/wasm/v1/query.proto](#cosmwasm/wasm/v1/query.proto)
     - [CodeInfoResponse](#starnamed.x.wasm.v1beta1.CodeInfoResponse)
     - [QueryAllContractStateRequest](#starnamed.x.wasm.v1beta1.QueryAllContractStateRequest)
@@ -71,34 +71,38 @@
     - [QueryRawContractStateResponse](#starnamed.x.wasm.v1beta1.QueryRawContractStateResponse)
     - [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest)
     - [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse)
-
+  
     - [Query](#starnamed.x.wasm.v1beta1.Query)
-
+  
 - [iov/configuration/v1beta1/types.proto](#iov/configuration/v1beta1/types.proto)
     - [Config](#starnamed.x.configuration.v1beta1.Config)
     - [Fees](#starnamed.x.configuration.v1beta1.Fees)
     - [GenesisState](#starnamed.x.configuration.v1beta1.GenesisState)
-
+  
 - [iov/configuration/v1beta1/msgs.proto](#iov/configuration/v1beta1/msgs.proto)
     - [MsgUpdateConfig](#starnamed.x.configuration.v1beta1.MsgUpdateConfig)
     - [MsgUpdateFees](#starnamed.x.configuration.v1beta1.MsgUpdateFees)
-
+  
 - [iov/configuration/v1beta1/query.proto](#iov/configuration/v1beta1/query.proto)
     - [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest)
     - [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse)
     - [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest)
     - [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse)
-
+  
     - [Query](#starnamed.x.configuration.v1beta1.Query)
-
+  
+- [iov/offchain/v1alpha1/offchain.proto](#iov/offchain/v1alpha1/offchain.proto)
+    - [ListOfMsgSignData](#cosmos.offchain.v1alpha1.ListOfMsgSignData)
+    - [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData)
+  
 - [iov/starname/v1beta1/types.proto](#iov/starname/v1beta1/types.proto)
     - [Account](#starnamed.x.starname.v1beta1.Account)
     - [Domain](#starnamed.x.starname.v1beta1.Domain)
     - [Resource](#starnamed.x.starname.v1beta1.Resource)
-
+  
 - [iov/starname/v1beta1/genesis.proto](#iov/starname/v1beta1/genesis.proto)
     - [GenesisState](#starnamed.x.starname.v1beta1.GenesisState)
-
+  
 - [iov/starname/v1beta1/query.proto](#iov/starname/v1beta1/query.proto)
     - [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest)
     - [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse)
@@ -116,9 +120,11 @@
     - [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse)
     - [QueryStarnameRequest](#starnamed.x.starname.v1beta1.QueryStarnameRequest)
     - [QueryStarnameResponse](#starnamed.x.starname.v1beta1.QueryStarnameResponse)
-
+    - [QueryYieldRequest](#starnamed.x.starname.v1beta1.QueryYieldRequest)
+    - [QueryYieldResponse](#starnamed.x.starname.v1beta1.QueryYieldResponse)
+  
     - [Query](#starnamed.x.starname.v1beta1.Query)
-
+  
 - [iov/starname/v1beta1/tx.proto](#iov/starname/v1beta1/tx.proto)
     - [MsgAddAccountCertificate](#starnamed.x.starname.v1beta1.MsgAddAccountCertificate)
     - [MsgAddAccountCertificateResponse](#starnamed.x.starname.v1beta1.MsgAddAccountCertificateResponse)
@@ -144,9 +150,9 @@
     - [MsgTransferAccountResponse](#starnamed.x.starname.v1beta1.MsgTransferAccountResponse)
     - [MsgTransferDomain](#starnamed.x.starname.v1beta1.MsgTransferDomain)
     - [MsgTransferDomainResponse](#starnamed.x.starname.v1beta1.MsgTransferDomainResponse)
-
+  
     - [Msg](#starnamed.x.starname.v1beta1.Msg)
-
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -1388,6 +1394,53 @@ Query provides defines the gRPC querier service.
 
 
 
+<a name="iov/offchain/v1alpha1/offchain.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/offchain/v1alpha1/offchain.proto
+
+
+
+<a name="cosmos.offchain.v1alpha1.ListOfMsgSignData"></a>
+
+### ListOfMsgSignData
+ListOfMsgSignData defines a list of MsgSignData, used to marshal and unmarshal them in a clean way
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `msgs` | [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData) | repeated | msgs is a list of messages |
+
+
+
+
+
+
+<a name="cosmos.offchain.v1alpha1.MsgSignData"></a>
+
+### MsgSignData
+MsgSignData defines an arbitrary, general-purpose, off-chain message
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `signer` | [string](#string) |  | signer is the bech32 representation of the signer's account address |
+| `data` | [bytes](#bytes) |  | data represents the raw bytes of the content that is signed (text, json, etc) |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
 <a name="iov/starname/v1beta1/types.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1754,6 +1807,31 @@ QueryStarnameResponse is the response type for the Query/Starname RPC method.
 
 
 
+
+<a name="starnamed.x.starname.v1beta1.QueryYieldRequest"></a>
+
+### QueryYieldRequest
+QueryYieldRequest is the request type for the Query/Yield RPC method.
+
+
+
+
+
+
+<a name="starnamed.x.starname.v1beta1.QueryYieldResponse"></a>
+
+### QueryYieldResponse
+QueryYieldResponse is the response type for the Query/Yield RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `yield` | [string](#string) |  |  |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1776,6 +1854,7 @@ Query defines the gRPC querier service.
 | `ResourceAccounts` | [QueryResourceAccountsRequest](#starnamed.x.starname.v1beta1.QueryResourceAccountsRequest) | [QueryResourceAccountsResponse](#starnamed.x.starname.v1beta1.QueryResourceAccountsResponse) | ResourceAccounts gets accounts associated with a given resource. | GET|/starname/v1beta1/accounts/resource/{uri}/{resource}|
 | `BrokerAccounts` | [QueryBrokerAccountsRequest](#starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest) | [QueryBrokerAccountsResponse](#starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse) | BrokerAccounts gets accounts associated with a given broker. | GET|/starname/v1beta1/accounts/broker/{broker}|
 | `BrokerDomains` | [QueryBrokerDomainsRequest](#starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest) | [QueryBrokerDomainsResponse](#starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse) | BrokerDomains gets domains associated with a given broker. | GET|/starname/v1beta1/domains/broker/{broker}|
+| `Yield` | [QueryYieldRequest](#starnamed.x.starname.v1beta1.QueryYieldRequest) | [QueryYieldResponse](#starnamed.x.starname.v1beta1.QueryYieldResponse) | Yield estimates and retrieves the annualized yield for delegators | GET|/starname/v1beta1/yield|
 
  <!-- end services -->
 
@@ -2182,3 +2261,4 @@ Msg defines the starname Msg service.
 | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
+

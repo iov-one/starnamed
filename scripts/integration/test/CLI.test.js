@@ -603,6 +603,15 @@ describe( "Tests the CLI.", () => {
    } );
 
 
+   it( `Should throw an error while querying the yield for less than 100k blocks`, async () => {
+      try {
+         cli(["query", "starname", "yield"]);
+      } catch (e) {
+         expect(e.message).toContain("not enough data")
+      }
+   } );
+
+
    it( `Should burn tokens.`, async () => {
       const signer = w1;
       const amount = 1e6;
