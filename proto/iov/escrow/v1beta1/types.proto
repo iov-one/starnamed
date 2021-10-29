@@ -21,8 +21,11 @@ message Escrow {
     repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     EscrowState state = 5;
     uint64 deadline = 6;
-    string broker_address = 7;
-    string broker_commission = 8 [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false ];
+    bool is_auction = 7;
+    string last_bidder = 8;
+    string broker_address = 9;
+    string broker_commission = 10 [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false ];
+
 
     /*
     uint64 timestamp = 9;*/

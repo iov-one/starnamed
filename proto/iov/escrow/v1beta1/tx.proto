@@ -31,6 +31,7 @@ message MsgCreateEscrow {
     google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
     repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     uint64 deadline = 5;
+    bool is_auction = 6;
 }
 
 // MsgCreateEscrowResponse defines the Msg/CreateEscrow response type

@@ -540,6 +540,10 @@ paths:
                   deadline:
                     type: string
                     format: uint64
+                  is_auction:
+                    type: boolean
+                  last_bidder:
+                    type: string
                   broker_address:
                     type: string
                   broker_commission:
@@ -983,6 +987,10 @@ paths:
                     deadline:
                       type: string
                       format: uint64
+                    is_auction:
+                      type: boolean
+                    last_bidder:
+                      type: string
                     broker_address:
                       type: string
                     broker_commission:
@@ -5635,6 +5643,10 @@ definitions:
       deadline:
         type: string
         format: uint64
+      is_auction:
+        type: boolean
+      last_bidder:
+        type: string
       broker_address:
         type: string
       broker_commission:
@@ -5870,6 +5882,10 @@ definitions:
           deadline:
             type: string
             format: uint64
+          is_auction:
+            type: boolean
+          last_bidder:
+            type: string
           broker_address:
             type: string
           broker_commission:
@@ -6098,6 +6114,10 @@ definitions:
             deadline:
               type: string
               format: uint64
+            is_auction:
+              type: boolean
+            last_bidder:
+              type: string
             broker_address:
               type: string
             broker_commission:

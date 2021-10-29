@@ -41,7 +41,12 @@ func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.Transf
 		return nil, err
 	}
 
-	msg := types.NewMsgCreateEscrow(seller, feePayer, obj, price, deadline)
+	isAuction, err := cmd.Flags().GetBool(FlagIsAuction)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := types.NewMsgCreateEscrow(seller, feePayer, obj, price, deadline, isAuction)
 
 	// check if valid
 	if err = msg.ValidateBasic(); err != nil {

@@ -1480,11 +1480,12 @@ EventCreatedEscrow is emitted when an escrow is created
 | `id` | [string](#string) |  |  |
 | `seller` | [string](#string) |  |  |
 | `fee_payer` | [string](#string) |  |  |
-| `broker_address` | [string](#string) |  |  |
-| `broker_commission` | [string](#string) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
+| `broker_address` | [string](#string) |  |  |
+| `broker_commission` | [string](#string) |  |  |
+| `is_auction` | [bool](#bool) |  |  |
 | `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 
 
@@ -1561,6 +1562,8 @@ Escrow defines the struct of an escrow
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | TODO: refactor this to use sdk.Coin instead of sdk.Coins Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only one coin type in a valid escrow |
 | `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
 | `deadline` | [uint64](#uint64) |  |  |
+| `is_auction` | [bool](#bool) |  |  |
+| `last_bidder` | [string](#string) |  |  |
 | `broker_address` | [string](#string) |  |  |
 | `broker_commission` | [string](#string) |  |  |
 
@@ -1818,6 +1821,7 @@ MsgCreateEscrow defines a message to create an escrow
 | `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 | `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 | `deadline` | [uint64](#uint64) |  |  |
+| `is_auction` | [bool](#bool) |  |  |
 
 
 

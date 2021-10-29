@@ -28,7 +28,7 @@ func validateFeePayer(feePayer string) error {
 	if len(feePayer) == 0 {
 		return nil
 	}
-	_, err := sdk.AccAddressFromBech32(feePayer)
+	err := ValidateAddress(feePayer)
 	if err != nil {
 		return sdkerrors.Wrap(err, "invalid fee payer address")
 	}
@@ -71,17 +71,19 @@ func NewMsgCreateEscrow(
 	object TransferableObject,
 	price sdk.Coins,
 	deadline uint64,
+	isAuction bool,
 ) MsgCreateEscrow {
 	packedObj, err := codectypes.NewAnyWithValue(object)
 	if err != nil {
 		panic(err)
 	}
 	return MsgCreateEscrow{
-		Seller:   seller,
-		FeePayer: feePayer,
-		Object:   packedObj,
-		Price:    price,
-		Deadline: deadline,
+		Seller:    seller,
+		FeePayer:  feePayer,
+		Object:    packedObj,
+		Price:     price,
+		Deadline:  deadline,
+		IsAuction: isAuction,
 	}
 }
 

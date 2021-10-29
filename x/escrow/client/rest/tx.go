@@ -136,7 +136,7 @@ func createEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewMsgCreateEscrow(req.Seller, req.FeePayer, req.Object, req.Price, req.Deadline)
+		msg := types.NewMsgCreateEscrow(req.Seller, req.FeePayer, req.Object, req.Price, req.Deadline, req.IsAuction)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 			return

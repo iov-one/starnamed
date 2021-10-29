@@ -31,6 +31,7 @@ func NewEscrow(
 	deadline uint64,
 	brokerAddress string,
 	brokerCommission sdk.Dec,
+	isAuction bool,
 ) Escrow {
 	objectAny, err := codectypes.NewAnyWithValue(object)
 	if err != nil {
@@ -45,6 +46,8 @@ func NewEscrow(
 		Deadline:         deadline,
 		BrokerAddress:    brokerAddress,
 		BrokerCommission: brokerCommission,
+		IsAuction:        isAuction,
+		LastBidder:       "",
 	}
 }
 
@@ -116,6 +119,13 @@ func (e Escrow) ValidateWithoutDeadlineAndObject(priceDenom string) error {
 		return err
 	}
 
+	// Validate last bidder address
+	if len(e.LastBidder) != 0 {
+		if err := ValidateAddress(e.LastBidder); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid last bidder address (%s)", err)
+		}
+	}
+
 	// Validate state
 	return ValidateState(e.State)
 }
@@ -128,7 +138,7 @@ func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
 	}
 
 	// Validate object valid and possessed by the seller
-	// The seller address is already validated
+	// The seller address is already validated in ValidateWithoutDeadlineAndObject
 	seller, _ := sdk.AccAddressFromBech32(e.Seller)
 	if err := ValidateObject(e.GetObject(), seller); err != nil {
 		return err
