@@ -199,18 +199,19 @@ func (k Keeper) TransferToEscrow(
 		return types.ErrInvalidAmount
 	}
 
-	//TODO: does the bidder can add other tokens to the bid ?
-	// Check if the amount is greater or equal than the price if not an auction
+	//TODO: does the bidder can add other tokens to the bid ?  currently it is allowed
+
+	// Check if the amount is greater or equal than the price
 	if !amount.IsAllGTE(escrow.Price) {
 		return types.ErrTransferAmountTooLow
 	}
 
-	// In case of an auction, we have to make a bid that is higher than previous price
+	// In case of an auction, we have to make a bid that is strictly higher than previous price
 	if escrow.IsAuction && amount.IsEqual(escrow.Price) {
 		return sdkerrors.Wrap(types.ErrTransferAmountTooLow, "The bid amount cannot be equal to the last bid")
 	}
 
-	// If we have an auction, the amount is the new bid, if its a regular escrow we cap the amount with the escrow price
+	// If we have an auction the amount is the new bid, else if its a regular escrow we cap the amount with the escrow price
 	var amountToSend sdk.Coins
 	if escrow.IsAuction {
 		amountToSend = amount
@@ -218,7 +219,7 @@ func (k Keeper) TransferToEscrow(
 		amountToSend = escrow.Price
 	}
 
-	// Send the price to the module
+	// Send the coins to the module
 	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, amountToSend)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
@@ -298,6 +299,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
 
+	// Check that if it is an auction then no bid has been made yet
 	if escrow.IsAuction && len(escrow.LastBidder) != 0 {
 		return types.ErrInvalidRefundAuction
 	}
