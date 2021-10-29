@@ -22,6 +22,7 @@ export const w1 = "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q"; // w1
 export const w2 = "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la"; // w2
 export const w3 = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
 export const msig1 = "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv"; // msig1
+export const burner = "star1v7uw4xhrcv0vk7qp8jf9lu3hm5d8uu5ywlkzeg"; // burner
 
 const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", "-f", `"{{ .Dir }}"`, "-m", "github.com/cosmos/cosmos-sdk" ] ).stdout ).trim().slice( 1, -1 );
 
