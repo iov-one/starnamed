@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -332,11 +331,10 @@ func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*ty
 
 func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 
-	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
+	totalFees, error := keeper.GetLastWeekBlockFeesSum(ctx)
 
-	if numBlocks != NumBlocksInAWeek {
-		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
-			ctx.BlockHeight(), NumBlocksInAWeek)
+	if error != nil {
+		return sdk.ZeroDec(), error
 	}
 
 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)

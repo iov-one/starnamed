@@ -115,26 +115,33 @@ var slidingSum struct {
 }
 
 // RefreshBlockSumCache refreshes the sliding sum value if it has been previously computed
-func (k Keeper) RefreshBlockSumCache(ctx sdk.Context, maxBlocksInSum uint64) {
+func (k Keeper) RefreshBlockSumCache(ctx sdk.Context) {
 	if slidingSum.feesSumCount != 0 {
-		k.GetBlockFeesSum(ctx, maxBlocksInSum)
+		// Ignore errors
+		_, _ = k.GetLastWeekBlockFeesSum(ctx)
 	}
 }
 
-func (k Keeper) addOrRemoveFeesSum(ctx sdk.Context, height uint64, add bool) {
+func (k Keeper) addToFeeSum(ctx sdk.Context, height uint64) {
 	fees, err := k.GetBlockFees(ctx, height)
 	if err != nil {
 		panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", height))
 	}
-	if add {
-		slidingSum.feesSum = slidingSum.feesSum.Add(fees...)
-	} else {
-		slidingSum.feesSum = slidingSum.feesSum.Sub(fees)
-	}
+	slidingSum.feesSum = slidingSum.feesSum.Add(fees...)
+	slidingSum.feesSumCount++
 }
 
-// GetBlockFeesSum retrieves the current value for the sum of the last n blocks
-func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coins, uint64) {
+func (k Keeper) removeFromFeeSum(ctx sdk.Context, height uint64) {
+	fees, err := k.GetBlockFees(ctx, height)
+	if err != nil {
+		panic(fmt.Sprintf("Cannot retrieve fees for the block at height %v", height))
+	}
+	slidingSum.feesSum = slidingSum.feesSum.Sub(fees)
+	slidingSum.feesSumCount--
+}
+
+// GetLastWeekBlockFeesSum retrieves the current value for the sum of the blocks of last weeks (100k blocks)
+func (k Keeper) GetLastWeekBlockFeesSum(ctx sdk.Context) (sdk.Coins, error) {
 	//FIXME: the block height is not updated when querying at a different height (only the stores are)
 	// So this line prevent to query from a different height (and will make the cms panic)
 	// Querying at previous heights also cause problems for the cached sliding sum
@@ -146,46 +153,40 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 		currentHeight = slidingSum.lastComputedHeight
 	}
 
-	if currentHeight < maxBlocksInSum {
-		maxBlocksInSum = currentHeight
+	// If we don't have enough blocks, we cannot compute the sum and return an error
+	if currentHeight < NumBlocksInAWeek {
+		return nil, fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
+			currentHeight, NumBlocksInAWeek)
 	}
 
 	// if lastComputedHeight is too far behind we discard the current sliding sum and reset it
-	if slidingSum.lastComputedHeight+maxBlocksInSum <= currentHeight {
-		slidingSum.lastComputedHeight = currentHeight - maxBlocksInSum
+	if slidingSum.lastComputedHeight+NumBlocksInAWeek <= currentHeight {
+		slidingSum.lastComputedHeight = currentHeight - NumBlocksInAWeek
 		slidingSum.feesSum = sdk.Coins{}
 		slidingSum.feesSumCount = 0
 	}
 
-	// if cached sliding sum has a smaller number of element, we may need to add the fees from block older than the older
-	// block of the sliding sum
-	// if the sliding sum contains all the elements wanted for this query, the following loop will not execute
-	for h := slidingSum.lastComputedHeight - slidingSum.feesSumCount; h > currentHeight-maxBlocksInSum; h-- {
-		k.addOrRemoveFeesSum(ctx, h, true)
-		slidingSum.feesSumCount++
+	// Remove fees we don't want anymore
+	oldestWantedBlock := currentHeight - NumBlocksInAWeek + 1
+	oldestCachedBlock := slidingSum.lastComputedHeight - slidingSum.feesSumCount + 1
+	for h := oldestCachedBlock; h < oldestWantedBlock; h++ {
+		k.removeFromFeeSum(ctx, h)
 	}
 
-	// Remove fees from blocks that are too old (if the value of maxBlocksInSum was higher in the previous call)
-	for h := slidingSum.lastComputedHeight - slidingSum.feesSumCount + 1; h <= currentHeight-maxBlocksInSum; h++ {
-		k.addOrRemoveFeesSum(ctx, h, false)
-		slidingSum.feesSumCount--
+	// Add fees from news blocks
+	newestWantedBlock := currentHeight
+	newestCachedBlock := slidingSum.lastComputedHeight
+	for h := newestCachedBlock + 1; h <= newestWantedBlock; h++ {
+		k.addToFeeSum(ctx, h)
+	}
+	slidingSum.lastComputedHeight = currentHeight
+
+	// Make sure we have not messed up with the number of elements
+	if slidingSum.feesSumCount != NumBlocksInAWeek {
+		panic(fmt.Errorf("inconsistent fees sum: %v blocks included when expecting %v", slidingSum.feesSumCount, NumBlocksInAWeek))
 	}
 
-	// If we need to, we update the value of the sliding sum, starting with the first new block
-	for ; slidingSum.lastComputedHeight < currentHeight; slidingSum.lastComputedHeight++ {
-
-		// We store the new value in the sliding sum
-		k.addOrRemoveFeesSum(ctx, slidingSum.lastComputedHeight+1, true)
-
-		// If we reached the maximum number of block, we remove the last block from the sliding sum
-		if slidingSum.feesSumCount == maxBlocksInSum {
-			k.addOrRemoveFeesSum(ctx, slidingSum.lastComputedHeight-maxBlocksInSum+1, false)
-		} else { // Else we just increment the number of block included in the sliding sum
-			slidingSum.feesSumCount++
-		}
-	}
-
-	return slidingSum.feesSum, slidingSum.feesSumCount
+	return slidingSum.feesSum, nil
 }
 
 // GetBlockFees returns the fees collected at a specific height
