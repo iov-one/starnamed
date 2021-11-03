@@ -191,12 +191,14 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 // GetBlockFees returns the fees collected at a specific height
 // It will return an error if the node has not an history of the given height
 func (k Keeper) GetBlockFees(ctx sdk.Context, height uint64) (sdk.Coins, error) {
-
-	cms, err := k.cms.CacheMultiStoreWithVersion(int64(height))
-	if err != nil {
-		return nil, err
+	ctxWithCurrentHeight := ctx
+	if int64(height) != ctxWithCurrentHeight.BlockHeight() {
+		cms, err := k.cms.CacheMultiStoreWithVersion(int64(height))
+		if err != nil {
+			return nil, err
+		}
+		ctxWithCurrentHeight = ctxWithCurrentHeight.WithMultiStore(cms)
 	}
-	ctxWithCurrentHeight := ctx.WithMultiStore(cms)
 
 	fees := k.SupplyKeeper.GetAllBalances(ctxWithCurrentHeight, k.AuthKeeper.GetModuleAddress(authtypes.FeeCollectorName))
 
