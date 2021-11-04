@@ -109,8 +109,7 @@ func (m *Domain) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddres
 	}
 
 	// Should the transfer remove the accounts associated with this domain
-	// TODO: choose this wisely
-	const transferType = TransferFlush
+	const transferType = TransferResetNone
 
 	return k.DoDomainTransfer(ctx, m.Name, from, to, transferType)
 }
