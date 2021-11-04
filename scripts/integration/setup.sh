@@ -9,6 +9,7 @@ FEE=${DENOM_FEE:-tiov}
 CHAIN_ID=${CHAIN:-testing}
 MONIKER=${MONIKER:-node001}
 
+rm -f "$HOME"/.${BINARY}/config/genesis.json
 ${BINARY} init --chain-id "$CHAIN_ID" "$MONIKER" 2>&1 | jq .chain_id
 sed --in-place 's/"params": {}/"params": { "module_enabled": true }/' "$HOME"/.${BINARY}/config/genesis.json # enable escrow
 sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$HOME"/.${BINARY}/config/config.toml

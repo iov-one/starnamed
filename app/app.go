@@ -19,6 +19,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -87,10 +89,13 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/iov-one/starnamed/x/burner"
+	burnertypes "github.com/iov-one/starnamed/x/burner/types"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/escrow"
 	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/iov-one/starnamed/x/offchain"
 	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
 	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
@@ -195,6 +200,7 @@ var (
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
 		escrow.AppModuleBasic{},
+		offchain.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -208,11 +214,17 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                {authtypes.Burner},
 		escrowtypes.ModuleName:         nil,
+		burnertypes.ModuleName:         {authtypes.Burner},
 	}
 
+	//NOTE: this was included from wasmd repo but the allowedReceivingModAcc variable was not used,
+	/*allowedReceivingModAcc = map[string]bool{
+		//distrtypes.ModuleName:  true,
+	}*/
+
 	// module accounts that are allowed to receive tokens
-	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+	allowedReceivingModules = map[string]bool{
+		burnertypes.ModuleName: true,
 	}
 )
 
@@ -265,6 +277,9 @@ type WasmApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	// Commit multistore for history
+	cms storetypes.CommitMultiStore
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -280,6 +295,11 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+
+	//TODO: find a cleaner way to access store history
+	//This is used for yield calculation
+	cms := store.NewCommitMultiStore(db)
+	bApp.SetCMS(cms)
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
@@ -300,6 +320,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		cms:               cms,
 	}
 
 	app.paramsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
@@ -429,7 +450,11 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.configKeeper,
 		app.bankKeeper,
 		app.escrowKeeper,
+		app.accountKeeper,
+		app.distrKeeper,
+		app.stakingKeeper,
 		app.getSubspace(starname.ModuleName),
+		cms,
 	)
 
 	// The gov proposal types can be individually enabled
@@ -480,6 +505,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		configuration.NewAppModule(app.configKeeper),
 		starname.NewAppModule(app.starnameKeeper),
 		escrow.NewAppModule(appCodec, app.escrowKeeper),
+		burner.NewAppModule(app.bankKeeper, app.accountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -490,7 +516,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName, escrowtypes.ModuleName,
 	)
-	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName)
+	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, burnertypes.ModuleName, starname.ModuleName)
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -610,7 +636,8 @@ func (app *WasmApp) LoadHeight(height int64) error {
 func (app *WasmApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+		moduleCanReceive, modulePresentInArray := allowedReceivingModules[acc]
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = !(modulePresentInArray && moduleCanReceive)
 	}
 
 	return modAccAddrs

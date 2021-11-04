@@ -38,7 +38,7 @@ type subTest struct {
 	// BeforeTest are the action to perform before the test
 	BeforeTest func(t *testing.T, ctx sdk.Context, k Keeper)
 	// Request is the query request
-	Request interface{ Validate() error } // represents aliceAddr query
+	Request interface{ Validate() error } // represents a query
 	// Handler is the handler function of the query
 	Handler func(ctx sdk.Context, args []string, req abci.RequestQuery, k Keeper) ([]byte, error)
 	// WantErr is the error we expect, if != from nil it will be matched with errors.Is

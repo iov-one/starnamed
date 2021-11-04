@@ -1,22 +1,6 @@
 import { Base64 } from "js-base64";
-import {
-   gasPrices,
-   cli,
-   denomFee,
-   denomStake,
-   getBalance,
-   memo,
-   msig1,
-   msig1SignTx,
-   signAndBroadcastTx,
-   signer,
-   w1,
-   w2,
-   escrowModuleAddress,
-   writeTmpJson,
-   makeTx,
-   fetchObject, urlRest
-} from "./common";
+
+import { burner, cli, denomFee, denomStake, gasPrices, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
 import compareObjects from "./compareObjects";
 import forge from "node-forge";
 
@@ -659,12 +643,13 @@ describe( "Tests the CLI.", () => {
       // Verify domain belongs to module
       result = cli(["query", "starname", "resolve-domain", "--domain", domain])
       expect(result.domain).toBeDefined()
-      expect(result.domain.admin).toEqual(escrowModuleAddress)
+      //TODO: use actual escrow address
+      expect(result.domain.admin).not.toEqual(signer)
       //Verify account belongs to module
       //TODO: uncomment when account implements TransferableObject again
       /* result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
        expect(result.account).toBeDefined()
-       expect(result.account.owner).toEqual(escrowModuleAddress)*/
+       expect(result.account.owner).not.toEqual(signer)*/
 
       // transfer domain
       unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
@@ -726,7 +711,8 @@ describe( "Tests the CLI.", () => {
       // Check belongs to module
       result = cli(["query", "starname", "resolve-domain", "--domain", domain])
       expect(result.domain).toBeDefined()
-      expect(result.domain.admin).toEqual(escrowModuleAddress)
+      //TODO: compute actual escrow address
+      expect(result.domain.admin).not.toEqual(signer)
 
       // Refund
       unsigned = cli(["tx", "escrow", "refund", escrowId, "--yes","--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
@@ -858,4 +844,29 @@ describe( "Tests the CLI.", () => {
       //TODO
    })
 
+   it( `Should throw an error while querying the yield for less than 100k blocks`, async () => {
+      try {
+         cli(["query", "starname", "yield"]);
+      } catch (e) {
+         expect(e.message).toContain("not enough data")
+      }
+   } );
+
+
+   it( `Should burn tokens.`, async () => {
+      const signer = w1;
+      const amount = 1e6;
+      const supply0 = { balances: cli( [ "query", "bank", "total" ] ).supply };
+      const balance0 = cli( [ "query", "bank", "balances", signer ] );
+      const burned = cli( [ "tx", "send", signer, burner, `${amount}${denomFee}`, "--yes", "--broadcast-mode", "block", "--gas-prices", gasPrices, "--memo", memo() ] );
+      const supply = { balances: cli( [ "query", "bank", "total" ] ).supply };
+      const balance = cli( [ "query", "bank", "balances", signer ] );
+      const blackhole = cli( [ "query", "bank", "balances", burner ] );
+
+      expect( burned.txhash ).toBeDefined();
+      if ( !burned.logs ) throw new Error( registered.raw_log );
+      expect( +getBalance( supply ) ).toEqual( +getBalance( supply0 ) - amount );
+      expect( +getBalance( balance ) ).toBeLessThan( +getBalance( balance0 ) - amount); // less than to account for fees
+      expect( +getBalance( blackhole ) ).toBe( 0 );
+   } );
 } );

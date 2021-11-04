@@ -74,7 +74,7 @@ func (q *QueryConfiguration) QueryPath() string {
 	return "configuration"
 }
 
-// queryAccountsInDomainHandler returns all accounts in aliceAddr domain
+// queryAccountsInDomainHandler returns all accounts in a domain
 func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	cfg := k.GetConfiguration(ctx)
 	// return response

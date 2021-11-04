@@ -3,13 +3,14 @@ package keeper
 import (
 	"errors"
 	"fmt"
-	"github.com/iov-one/starnamed/x/wasm/types"
+
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // msgEncoder is an extension point to customize encodings
@@ -111,13 +112,16 @@ func NewMessageHandlerChain(first Messenger, others ...Messenger) *MessageHandle
 	return r
 }
 
-// DispatchMsg dispatch message to handlers.
+// DispatchMsg dispatch message and calls chained handlers one after another in
+// order to find the right one to process given message. If a handler cannot
+// process given message (returns ErrUnknownMsg), its result is ignored and the
+// next handler is executed.
 func (m MessageHandlerChain) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) ([]sdk.Event, [][]byte, error) {
 	for _, h := range m.handlers {
 		events, data, err := h.DispatchMsg(ctx, contractAddr, contractIBCPortID, msg)
 		switch {
 		case err == nil:
-			return events, data, err
+			return events, data, nil
 		case errors.Is(err, types.ErrUnknownMsg):
 			continue
 		default:
@@ -133,8 +137,8 @@ type IBCRawPacketHandler struct {
 	capabilityKeeper types.CapabilityKeeper
 }
 
-func NewIBCRawPacketHandler(chk types.ChannelKeeper, cak types.CapabilityKeeper) *IBCRawPacketHandler {
-	return &IBCRawPacketHandler{channelKeeper: chk, capabilityKeeper: cak}
+func NewIBCRawPacketHandler(chk types.ChannelKeeper, cak types.CapabilityKeeper) IBCRawPacketHandler {
+	return IBCRawPacketHandler{channelKeeper: chk, capabilityKeeper: cak}
 }
 
 // DispatchMsg publishes a raw IBC packet onto the channel.
@@ -180,9 +184,10 @@ func (h IBCRawPacketHandler) DispatchMsg(ctx sdk.Context, _ sdk.AccAddress, cont
 
 var _ Messenger = MessageHandlerFunc(nil)
 
-// MessageHandlerFunc is a helper to construct simple function based message handler
+// MessageHandlerFunc is a helper to construct a function based message handler.
 type MessageHandlerFunc func(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, err error)
 
+// DispatchMsg delegates dispatching of provided message into the MessageHandlerFunc.
 func (m MessageHandlerFunc) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, err error) {
 	return m(ctx, contractAddr, contractIBCPortID, msg)
 }

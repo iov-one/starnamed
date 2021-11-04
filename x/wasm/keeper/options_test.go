@@ -10,6 +10,7 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestConstructorOptions(t *testing.T) {
@@ -20,36 +21,49 @@ func TestConstructorOptions(t *testing.T) {
 		"wasm engine": {
 			srcOpt: WithWasmEngine(&wasmtesting.MockWasmer{}),
 			verify: func(t *testing.T, k Keeper) {
-				assert.IsType(t, k.wasmVM, &wasmtesting.MockWasmer{})
+				assert.IsType(t, &wasmtesting.MockWasmer{}, k.wasmVM)
 			},
 		},
 		"message handler": {
 			srcOpt: WithMessageHandler(&wasmtesting.MockMessageHandler{}),
 			verify: func(t *testing.T, k Keeper) {
-				assert.IsType(t, k.messenger, &wasmtesting.MockMessageHandler{})
+				assert.IsType(t, &wasmtesting.MockMessageHandler{}, k.messenger)
 			},
 		},
 		"query plugins": {
 			srcOpt: WithQueryHandler(&wasmtesting.MockQueryHandler{}),
 			verify: func(t *testing.T, k Keeper) {
-				assert.IsType(t, k.wasmVMQueryHandler, &wasmtesting.MockQueryHandler{})
+				assert.IsType(t, &wasmtesting.MockQueryHandler{}, k.wasmVMQueryHandler)
+			},
+		},
+		"message handler decorator": {
+			srcOpt: WithMessageHandlerDecorator(func(old Messenger) Messenger {
+				require.IsType(t, &MessageHandlerChain{}, old)
+				return &wasmtesting.MockMessageHandler{}
+			}),
+			verify: func(t *testing.T, k Keeper) {
+				assert.IsType(t, &wasmtesting.MockMessageHandler{}, k.messenger)
+			},
+		},
+		"query plugins decorator": {
+			srcOpt: WithQueryHandlerDecorator(func(old WasmVMQueryHandler) WasmVMQueryHandler {
+				require.IsType(t, QueryPlugins{}, old)
+				return &wasmtesting.MockQueryHandler{}
+			}),
+			verify: func(t *testing.T, k Keeper) {
+				assert.IsType(t, &wasmtesting.MockQueryHandler{}, k.wasmVMQueryHandler)
 			},
 		},
 		"coin transferrer": {
 			srcOpt: WithCoinTransferrer(&wasmtesting.MockCoinTransferrer{}),
 			verify: func(t *testing.T, k Keeper) {
-				assert.IsType(t, k.bank, &wasmtesting.MockCoinTransferrer{})
+				assert.IsType(t, &wasmtesting.MockCoinTransferrer{}, k.bank)
 			},
 		},
 		"costs": {
-			srcOpt: WithCosts(1, 2, 3),
+			srcOpt: WithGasRegister(&wasmtesting.MockGasRegister{}),
 			verify: func(t *testing.T, k Keeper) {
-				t.Cleanup(setApiDefaults)
-				assert.Equal(t, uint64(1), k.compileCost)
-				assert.Equal(t, uint64(2), k.instanceCost)
-				assert.Equal(t, uint64(3), k.gasMultiplier)
-				assert.Equal(t, uint64(15), costHumanize)
-				assert.Equal(t, uint64(12), costCanonical)
+				assert.IsType(t, &wasmtesting.MockGasRegister{}, k.gasRegister)
 			},
 		},
 		"api costs": {
