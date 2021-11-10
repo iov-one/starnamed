@@ -129,7 +129,7 @@ func (k Keeper) addOrRemoveFeesSum(ctx sdk.Context, height uint64, add bool) {
 	if add {
 		slidingSum.feesSum = slidingSum.feesSum.Add(fees...)
 	} else {
-		// don't let floating point math rounding cause slidingSum.feesSum to go negative
+		// FIXME: determine why slidingSum.feesSum can be negative: 3:41PM ERR CONSENSUS FAILURE!!! err="negative coin amount"
 		if fees.IsAnyGT(slidingSum.feesSum) {
 			fees = slidingSum.feesSum
 		}
