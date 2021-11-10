@@ -129,6 +129,10 @@ func (k Keeper) addOrRemoveFeesSum(ctx sdk.Context, height uint64, add bool) {
 	if add {
 		slidingSum.feesSum = slidingSum.feesSum.Add(fees...)
 	} else {
+		// don't let floating point math rounding cause slidingSum.feesSum to go negative
+		if fees.IsAnyGT(slidingSum.feesSum) {
+			fees = slidingSum.feesSum
+		}
 		slidingSum.feesSum = slidingSum.feesSum.Sub(fees)
 	}
 }
