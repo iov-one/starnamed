@@ -42,11 +42,15 @@ func (k Keeper) CreateEscrow(
 		return "", sdkerrors.Wrap(types.ErrInvalidDeadline, "The deadline exceeds the maximum escrow duration")
 	}
 
+	if object == nil {
+		return "", sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The transferable object is nil")
+	}
+
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
 		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
 	)
-	err := escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
+	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
 		return "", err
 	}
@@ -120,7 +124,8 @@ func (k Keeper) UpdateEscrow(
 		if err := types.ValidateDeadline(newDeadline, k.GetLastBlockTime(ctx)); err != nil {
 			return err
 		}
-		if err := types.ValidateObjectDeadline(escrow.GetObject(), newDeadline); err != nil {
+		obj := escrow.GetObject()
+		if err := types.ValidateObjectDeadline(ctx, obj, newDeadline, k.getCustomDataForType(obj.GetObjectTypeID())); err != nil {
 			return err
 		}
 
@@ -204,9 +209,7 @@ func (k Keeper) TransferToEscrow(
 	// If an error occurs here, the buyer have sent the coins and :
 	// - The buyer can have received the object or not
 	// - The seller has not received the coins
-	// This case should never happen because the escrow should possess the coins and the object
-	//TODO: or maybe some other external problems could make this transaction fail
-	// how can we recover in that case ?
+	// This case should not happen because the escrow account possess the coins and the object
 	if err != nil {
 		panic(err)
 	}
@@ -293,7 +296,8 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 // doObjectTransfer transfers the given object
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Transfer the object
-	return object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
+	err := object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
+	return err
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
@@ -400,7 +404,7 @@ func (k Keeper) GetEscrowsByState(ctx sdk.Context, state types.EscrowState, star
 
 func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObject) ([]types.Escrow, error) {
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
-		return query.Where().Index(types.ObjectIndex).Equals(types.GetEscrowObjectKey(object))
+		return query.Where().Index(types.ObjectIndex).Equals(object.GetUniqueKey())
 	})
 }
 
@@ -433,7 +437,7 @@ func (k Keeper) queryEscrowsByAttributes(
 		case "expired":
 			state = types.EscrowState_Expired
 		default:
-			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The state is invalid, can be open or expired")
+			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The state is invalid, it must be one of open or expired")
 		}
 	}
 

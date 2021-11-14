@@ -31,7 +31,12 @@ type ObjectWithCustomFees interface {
 type ObjectWithTimeConstraint interface {
 	// ValidateDeadline returns an error if this object rejects the given deadline (a Unix timestamp), e.g. this object will
 	// not be valid at this date.
-	ValidateDeadline(deadline uint64) error
+	// ValidateDeadline is responsible for doing all the necessary checks, including those which may be included in
+	// ValidateDeadlineBasic
+	ValidateDeadline(ctx sdk.Context, deadline uint64, data CustomData) error
+	// ValidateDeadlineBasic is like ValidateDeadline but without any state information and extra data. This should implement
+	// all the state-less checks for this object, if any.
+	ValidateDeadlineBasic(deadline uint64) error
 }
 
 // TransferableObject is the object type that is used in escrows.

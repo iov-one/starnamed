@@ -48,13 +48,32 @@ func ValidateObject(object TransferableObject, seller sdk.AccAddress) error {
 	return nil
 }
 
-// ValidateObjectDeadline checks, if the object is an ObjectWithTimeConstraint, that the given deadline is validated
-// by the object.
-func ValidateObjectDeadline(transferableObj TransferableObject, deadline uint64) error {
+// validateObjectDeadline checks, if the object is an ObjectWithTimeConstraint, that the given deadline is validated
+// by the object. If the provided context is not null, then a context-aware validation is done. It is not meant to be called
+// directly but rather through the ValidateObjectDeadline or ValidateObjectDeadlineBasic methods.
+func validateObjectDeadline(transferableObj TransferableObject, deadline uint64, ctx *sdk.Context, data CustomData) error {
 	if obj, hasCustomCheck := transferableObj.(ObjectWithTimeConstraint); hasCustomCheck {
-		return sdkerrors.Wrap(obj.ValidateDeadline(deadline), "the deadline has not been validated by the object")
+		var err error
+		if ctx == nil {
+			err = obj.ValidateDeadlineBasic(deadline)
+		} else {
+			err = obj.ValidateDeadline(*ctx, deadline, data)
+		}
+		// Returns nil if err is nil
+		return sdkerrors.Wrap(err, "the deadline has not been validated by the object")
 	}
 	return nil
+}
+
+// ValidateObjectDeadlineBasic checks, if the object is an ObjectWithTimeConstraint, that the given deadline is validated
+// by the object.
+func ValidateObjectDeadlineBasic(obj TransferableObject, deadline uint64) error {
+	return validateObjectDeadline(obj, deadline, nil, nil)
+}
+
+// ValidateObjectDeadline does the same as ValidateObjectDeadlineBasic plus some context-aware validation
+func ValidateObjectDeadline(ctx sdk.Context, obj TransferableObject, deadline uint64, data CustomData) error {
+	return validateObjectDeadline(obj, deadline, &ctx, data)
 }
 
 // ValidateState checks that the escrow is a valid state, e.g. open or expired
