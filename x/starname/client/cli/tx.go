@@ -107,7 +107,10 @@ func getCmdTransferDomain() *cobra.Command {
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name to transfer")
 	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
-	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
+	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf(`the transfer mechanism
+	0 == delete all accounts except the "" account; transfer "" to the new owner
+	1 == transfer all accounts owned by the old owner to the new owner; leave others intact
+	2 == leave all accounts intact except the "" account; transfer "" to the new owner`))
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
