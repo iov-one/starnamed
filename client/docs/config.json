@@ -10,6 +10,9 @@
       "url": "./tmp-swagger-gen/iov/configuration/v1beta1/query.swagger.json"
     },
     {
+      "url": "./tmp-swagger-gen/iov/escrow/v1beta1/query.swagger.json"
+    },
+    {
       "url": "./tmp-swagger-gen/iov/starname/v1beta1/query.swagger.json"
     },
     {

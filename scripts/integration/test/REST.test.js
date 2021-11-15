@@ -1,4 +1,26 @@
-import { chain, cli, denomFee, fetchObject, gasPrices, getBalance, makeTx, memo, msig1, msig1SignTx, postTx, signAndPost, signer, signTx, txUpdateConfigArgs, urlRest, w1, w2, w3, writeTmpJson } from "./common";
+import {
+   chain,
+   cli,
+   denomFee,
+   fetchObject,
+   gasPrices,
+   getBalance,
+   makeTx,
+   memo,
+   msig1,
+   msig1SignTx,
+   postTx,
+   signAndBroadcastTx,
+   signAndPost,
+   signer,
+   signTx,
+   txUpdateConfigArgs,
+   urlRest,
+   w1,
+   w2,
+   w3,
+   writeTmpJson
+} from "./common";
 import { Base64 } from "js-base64";
 import compareObjects from "./compareObjects";
 
@@ -39,6 +61,9 @@ describe( "Tests the REST API.", () => {
          "certificate_size_max",
          "certificate_count_max",
          "metadata_size_max",
+         "escrow_broker",
+         "escrow_commission",
+         "escrow_max_period"
       ];
 
       keys.forEach( key => expect( fetched.result.configuration.hasOwnProperty( key ) ).toEqual( true ) );
@@ -519,7 +544,6 @@ describe( "Tests the REST API.", () => {
       expect( newDomainInfo.result.domain.valid_until ).toBeGreaterThanOrEqual( domainInfo.result.domain.valid_until + configuration.result.configuration.domain_renewal_period / 1e9 );
    } );
 
-
    it.skip( `Should renew an account.`, async () => { // TODO: FIXME: Error: unable to resolve type URL /starnamed.x.starname.v1beta1.MsgRenewAccount
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
@@ -709,4 +733,75 @@ describe( "Tests the REST API.", () => {
 
       expect( unverified.error ).toEqual( "Did you sign with --chain-id 'signed-message-v1', --account-number 0, and --sequence 0?" );
    } );
+
+
+   it("Should generate transaction for escrow requests", async () => {
+
+      // Create a domain via CLI
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      let broadcasted = signAndBroadcastTx(cli(["tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--generate-only", "--gas-prices", gasPrices, "--memo", memo()]))
+      expect(broadcasted.logs).toBeDefined()
+
+      let result = cli(["query", "starname", "resolve-domain", "--domain", domain])
+      expect(result.domain).toBeDefined()
+      const domainObject = result.domain
+
+      // Register a domain escrow
+      let data = {
+         "base_req": {
+            from: signer,
+            memo: memo(),
+            "chain_id": chain,
+            "gas-price": gasPrices,
+         },
+         object: {
+            "type": "starname/Domain",
+            value: domainObject
+         },
+         seller: signer,
+         price: [{
+            amount:"100",
+            denom: denomFee
+         }],
+         deadline: new Date(Date.now() + 500000).toISOString(),
+      }
+      let unsigned = await fetchObject(urlRest + "/escrow/create", {method : "POST", body: JSON.stringify(data)})
+      expect(unsigned.type).toBeDefined()
+
+      const escrowId = "0000000000000001"
+
+      // Update a domain escrow
+      data = {
+         "base_req": data.base_req,
+         updater: w1,
+         price: [{
+            amount:"120",
+            denom: denomFee
+         }],
+         deadline: new Date(Date.now() + 5000000).toISOString(),
+      }
+      unsigned = await fetchObject(urlRest + "/escrow/" + escrowId + "/update", {method : "POST", body: JSON.stringify(data)})
+      expect(unsigned.type).toBeDefined()
+
+      // Refund a domain escrow
+      data = {
+         "base_req": data.base_req,
+         sender: w1,
+      }
+      unsigned = await fetchObject(urlRest + "/escrow/" + escrowId + "/refund", {method : "POST", body: JSON.stringify(data)})
+      expect(unsigned.type).toBeDefined()
+
+      // Transfer to a domain escrow
+      data = {
+         "base_req": data.base_req,
+         sender: w1,
+         amount: [{
+            amount:"120",
+            denom: denomFee
+         }],
+      }
+      unsigned = await fetchObject(urlRest + "/escrow/" + escrowId + "/transfer", {method : "POST", body: JSON.stringify(data)})
+      expect(unsigned.type).toBeDefined()
+   });
+
 } );

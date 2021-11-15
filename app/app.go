@@ -9,21 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	"github.com/cosmos/cosmos-sdk/store"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -31,6 +19,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -89,10 +79,22 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/gorilla/mux"
+	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmjson "github.com/tendermint/tendermint/libs/json"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
 
 	"github.com/iov-one/starnamed/x/burner"
 	burnertypes "github.com/iov-one/starnamed/x/burner/types"
 	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/escrow"
+	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/iov-one/starnamed/x/offchain"
 	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
@@ -197,6 +199,7 @@ var (
 		vesting.AppModuleBasic{},
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
+		escrow.AppModuleBasic{},
 		offchain.AppModuleBasic{},
 	)
 
@@ -210,6 +213,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		wasm.ModuleName:                {authtypes.Burner},
+		escrowtypes.ModuleName:         nil,
 		burnertypes.ModuleName:         {authtypes.Burner},
 	}
 
@@ -262,6 +266,7 @@ type WasmApp struct {
 	wasmKeeper       wasm.Keeper
 	configKeeper     configuration.Keeper
 	starnameKeeper   starname.Keeper
+	escrowKeeper     escrowkeeper.Keeper
 
 	scopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	scopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -301,7 +306,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey,
+		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey, escrowtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -429,12 +434,22 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.getSubspace(configuration.ModuleName),
 	)
 
+	// Create the escrow keeper
+	app.escrowKeeper = escrowkeeper.NewKeeper(appCodec,
+		keys[escrowtypes.StoreKey],
+		app.getSubspace(escrowtypes.ModuleName),
+		app.accountKeeper,
+		app.bankKeeper,
+		app.configKeeper,
+		app.ModuleAccountAddrs(),
+	)
 	// starname keeper
 	app.starnameKeeper = starname.NewKeeper(
 		appCodec,
 		keys[starname.DomainStoreKey],
 		app.configKeeper,
 		app.bankKeeper,
+		app.escrowKeeper,
 		app.accountKeeper,
 		app.distrKeeper,
 		app.stakingKeeper,
@@ -489,6 +504,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		transferModule,
 		configuration.NewAppModule(app.configKeeper),
 		starname.NewAppModule(app.starnameKeeper),
+		escrow.NewAppModule(appCodec, app.escrowKeeper),
 		burner.NewAppModule(app.bankKeeper, app.accountKeeper),
 	)
 
@@ -498,7 +514,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
-		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
+		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName, escrowtypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, burnertypes.ModuleName, starname.ModuleName)
 
@@ -514,7 +530,7 @@ func NewWasmApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
 		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, ibctransfertypes.ModuleName,
 		// wasm after ibc transfer
-		wasm.ModuleName, configuration.ModuleName, starname.ModuleName,
+		wasm.ModuleName, configuration.ModuleName, starname.ModuleName, escrowtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -721,6 +737,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(configuration.ModuleName)
 	paramsKeeper.Subspace(starname.ModuleName)
+	paramsKeeper.Subspace(escrowtypes.ModuleName)
 
 	return paramsKeeper
 }

@@ -73,5 +73,9 @@ func (f *Fees) SetDefaults(denom string) {
 		TransferDomainClosed:         defaultFeeParameter,
 		TransferDomainOpen:           defaultFeeParameter,
 		RenewDomainOpen:              defaultFeeParameter,
+		CreateEscrow:                 defaultFeeParameter,
+		UpdateEscrow:                 defaultFeeParameter,
+		TransferToEscrow:             defaultFeeParameter,
+		RefundEscrow:                 defaultFeeParameter,
 	}
 }

@@ -1,0 +1,43 @@
+syntax = "proto3";
+package starnamed.x.escrow.v1beta1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/escrow/types";
+option (gogoproto.goproto_getters_all) = false;
+
+
+// Escrow defines the struct of an escrow
+message Escrow {
+    string id = 1;
+    string seller = 2;
+    google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
+    //TODO: refactor this to use sdk.Coin instead of sdk.Coins
+    // Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only
+    // one coin type in a valid escrow
+    repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
+    EscrowState state = 5;
+    uint64 deadline = 6;
+    string broker_address = 7;
+    string broker_commission = 8 [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false ];
+
+    /*
+    uint64 timestamp = 9;*/
+}
+
+// EscrowState defines the state of an escrow
+enum EscrowState {
+    option (gogoproto.goproto_enum_prefix) = true;
+
+    // ESCROW_STATE_OPEN defines an open state.
+    ESCROW_STATE_OPEN = 0 [ (gogoproto.enumvalue_customname) = "Open" ];
+    // ESCROW_STATE_COMPLETED defines a completed state.
+    ESCROW_STATE_COMPLETED = 1 [ (gogoproto.enumvalue_customname) = "Completed" ];
+    // ESCROW_STATE_REFUNDED defines a refunded state.
+    ESCROW_STATE_REFUNDED = 2 [ (gogoproto.enumvalue_customname) = "Refunded" ];
+    // ESCROW_STATE_REFUNDED defines an expired state.
+    ESCROW_STATE_EXPIRED = 3 [ (gogoproto.enumvalue_customname) = "Expired" ];
+}

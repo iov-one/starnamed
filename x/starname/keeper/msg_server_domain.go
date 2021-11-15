@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/iov-one/starnamed/x/starname/types"
 )
 
@@ -129,32 +130,19 @@ func renewDomain(ctx sdk.Context, k Keeper, msg *types.MsgRenewDomainInternal) (
 }
 
 func transferDomain(ctx sdk.Context, k Keeper, msg *types.MsgTransferDomainInternal) (*types.MsgTransferDomainResponse, error) {
-	// do precondition and authorization checks
-	domains := k.DomainStore(ctx)
-	c := NewDomainController(ctx, msg.Domain).WithDomains(&domains)
-	err := c.
-		MustExist().
-		Admin(msg.Owner).
-		NotExpired().
-		Transferable(msg.TransferFlag).
-		Validate()
-	if err != nil {
+	// do checks and domain transfer
+	if err := k.DoDomainTransfer(ctx, msg.Domain, msg.Owner, msg.NewAdmin, msg.TransferFlag); err != nil {
 		return nil, err
 	}
 
 	// collect fees
 	domain := new(types.Domain)
-	if err := domains.Read([]byte(msg.Domain), domain); err != nil {
+	if err := k.DomainStore(ctx).Read([]byte(msg.Domain), domain); err != nil {
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 	if err := k.CollectProductFee(ctx, msg, domain); err != nil {
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
-
-	// transfer
-	accounts := k.AccountStore(ctx)
-	ex := NewDomainExecutor(ctx, c.Domain()).WithDomains(&domains).WithAccounts(&accounts)
-	ex.Transfer(msg.TransferFlag, msg.NewAdmin)
 
 	// success
 	ctx.EventManager().EmitEvent(

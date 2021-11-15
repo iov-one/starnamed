@@ -91,6 +91,47 @@
   
     - [Query](#starnamed.x.configuration.v1beta1.Query)
   
+- [iov/escrow/v1beta1/events.proto](#iov/escrow/v1beta1/events.proto)
+    - [EventCompletedEscrow](#starnamed.x.escrow.v1beta1.EventCompletedEscrow)
+    - [EventCreatedEscrow](#starnamed.x.escrow.v1beta1.EventCreatedEscrow)
+    - [EventRefundedEscrow](#starnamed.x.escrow.v1beta1.EventRefundedEscrow)
+    - [EventUpdatedEscrow](#starnamed.x.escrow.v1beta1.EventUpdatedEscrow)
+  
+- [iov/escrow/v1beta1/types.proto](#iov/escrow/v1beta1/types.proto)
+    - [Escrow](#starnamed.x.escrow.v1beta1.Escrow)
+  
+    - [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState)
+  
+- [iov/escrow/v1beta1/params.proto](#iov/escrow/v1beta1/params.proto)
+    - [Params](#starnamed.x.escrow.v1beta1.Params)
+  
+- [iov/escrow/v1beta1/genesis.proto](#iov/escrow/v1beta1/genesis.proto)
+    - [GenesisState](#starnamed.x.escrow.v1beta1.GenesisState)
+  
+- [iov/escrow/v1beta1/query.proto](#iov/escrow/v1beta1/query.proto)
+    - [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest)
+    - [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse)
+    - [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest)
+    - [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse)
+  
+    - [Query](#starnamed.x.escrow.v1beta1.Query)
+  
+- [iov/escrow/v1beta1/test.proto](#iov/escrow/v1beta1/test.proto)
+    - [TestObject](#starnamed.x.escrow.v1beta1.TestObject)
+    - [TestTimeConstrainedObject](#starnamed.x.escrow.v1beta1.TestTimeConstrainedObject)
+  
+- [iov/escrow/v1beta1/tx.proto](#iov/escrow/v1beta1/tx.proto)
+    - [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow)
+    - [MsgCreateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse)
+    - [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow)
+    - [MsgRefundEscrowResponse](#starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse)
+    - [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow)
+    - [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse)
+    - [MsgUpdateEscrow](#starnamed.x.escrow.v1beta1.MsgUpdateEscrow)
+    - [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse)
+  
+    - [Msg](#starnamed.x.escrow.v1beta1.Msg)
+  
 - [iov/offchain/v1alpha1/offchain.proto](#iov/offchain/v1alpha1/offchain.proto)
     - [ListOfMsgSignData](#cosmos.offchain.v1alpha1.ListOfMsgSignData)
     - [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData)
@@ -1203,6 +1244,9 @@ Config is the configuration of the network
 | `certificate_size_max` | [uint64](#uint64) |  | CertificateSizeMax defines maximum size of a certificate that could be saved under an account |
 | `certificate_count_max` | [uint32](#uint32) |  | CertificateCountMax defines maximum number of certificates that could be saved under an account |
 | `metadata_size_max` | [uint64](#uint64) |  | MetadataSizeMax defines maximum size of metadata that could be saved under an account |
+| `escrow_broker` | [string](#string) |  | EscrowBroker defines an address that will receive a commission for completed escrows |
+| `escrow_commission` | [string](#string) |  | EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and 1 (100% commission) |
+| `escrow_max_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | EscrowPeriod defines the maximum duration of an escrow in seconds |
 
 
 
@@ -1238,6 +1282,10 @@ Fees contains different type of fees to calculate coins to detract when processi
 | `transfer_domain_closed` | [string](#string) |  | transfer_domain_closed is the fee to be paid to transfer a closed domain |
 | `transfer_domain_open` | [string](#string) |  | transfer_domain_open is the fee to be paid to transfer open domains |
 | `renew_domain_open` | [string](#string) |  | renew_domain_open is the fee to be paid to renew an open domain |
+| `create_escrow` | [string](#string) |  | create_escrow is the fee to be paid to create an escrow |
+| `update_escrow` | [string](#string) |  | update_escrow is the fee to be paid to update an escrow |
+| `transfer_to_escrow` | [string](#string) |  | transfer_to_escrow is the fee to be paid to transfer coins to an escrow |
+| `refund_escrow` | [string](#string) |  | refund_escrow is the fee to be paid to refund the account or domain placed in an escrow |
 
 
 
@@ -1389,6 +1437,508 @@ Query provides defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Config` | [QueryConfigRequest](#starnamed.x.configuration.v1beta1.QueryConfigRequest) | [QueryConfigResponse](#starnamed.x.configuration.v1beta1.QueryConfigResponse) | Config gets starname configuration. | GET|/starname/v1beta1/configuration/params|
 | `Fees` | [QueryFeesRequest](#starnamed.x.configuration.v1beta1.QueryFeesRequest) | [QueryFeesResponse](#starnamed.x.configuration.v1beta1.QueryFeesResponse) | Fees gets starname product fees. | GET|/starname/v1beta1/configuration/fees|
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/events.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/events.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventCompletedEscrow"></a>
+
+### EventCompletedEscrow
+EventCompletedEscrow is emitted when an escrow is completed
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `buyer` | [string](#string) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventCreatedEscrow"></a>
+
+### EventCreatedEscrow
+EventCreatedEscrow is emitted when an escrow is created
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `seller` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `broker_address` | [string](#string) |  |  |
+| `broker_commission` | [string](#string) |  |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `deadline` | [uint64](#uint64) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventRefundedEscrow"></a>
+
+### EventRefundedEscrow
+EventRefundedEscrow is emitted when an escrow is refunded
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.EventUpdatedEscrow"></a>
+
+### EventUpdatedEscrow
+EventUpdatedEscrow is emitted when an escrow is updated
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `updater` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `new_seller` | [string](#string) |  |  |
+| `new_price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `new_deadline` | [uint64](#uint64) |  |  |
+| `fees` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/types.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/types.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.Escrow"></a>
+
+### Escrow
+Escrow defines the struct of an escrow
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `seller` | [string](#string) |  |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | TODO: refactor this to use sdk.Coin instead of sdk.Coins Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only one coin type in a valid escrow |
+| `state` | [EscrowState](#starnamed.x.escrow.v1beta1.EscrowState) |  |  |
+| `deadline` | [uint64](#uint64) |  |  |
+| `broker_address` | [string](#string) |  |  |
+| `broker_commission` | [string](#string) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="starnamed.x.escrow.v1beta1.EscrowState"></a>
+
+### EscrowState
+EscrowState defines the state of an escrow
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ESCROW_STATE_OPEN | 0 | ESCROW_STATE_OPEN defines an open state. |
+| ESCROW_STATE_COMPLETED | 1 | ESCROW_STATE_COMPLETED defines a completed state. |
+| ESCROW_STATE_REFUNDED | 2 | ESCROW_STATE_REFUNDED defines a refunded state. |
+| ESCROW_STATE_EXPIRED | 3 | ESCROW_STATE_REFUNDED defines an expired state. |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/params.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/params.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.Params"></a>
+
+### Params
+Params defines the parameters of the escrow module
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `module_enabled` | [bool](#bool) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/genesis.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the Escrow module's genesis state
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
+| `last_block_time` | [uint64](#uint64) |  |  |
+| `next_escrow_id` | [uint64](#uint64) |  |  |
+| `params` | [Params](#starnamed.x.escrow.v1beta1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/query.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowRequest"></a>
+
+### QueryEscrowRequest
+QueryEscrowRequest is the request type for the Query/Escrow RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowResponse"></a>
+
+### QueryEscrowResponse
+QueryEscrowResponse is the response type for the Query/Escrow RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `escrow` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowsRequest"></a>
+
+### QueryEscrowsRequest
+QueryEscrowsRequest is the request type for the Query/Escrows RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `seller` | [string](#string) |  |  |
+| `state` | [string](#string) |  |  |
+| `object_key` | [string](#string) |  |  |
+| `pagination_start` | [uint64](#uint64) |  |  |
+| `pagination_length` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.QueryEscrowsResponse"></a>
+
+### QueryEscrowsResponse
+QueryEscrowsResponse is the response type for the Query/Escrows RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `escrows` | [Escrow](#starnamed.x.escrow.v1beta1.Escrow) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="starnamed.x.escrow.v1beta1.Query"></a>
+
+### Query
+Query provides defines the gRPC querier service
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/starnamed/x/escrow/{id}|
+| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/starnamed/x/escrows|
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/test.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/test.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.TestObject"></a>
+
+### TestObject
+TestObject defines a transferable object used for testing
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [uint64](#uint64) |  |  |
+| `owner` | [bytes](#bytes) |  |  |
+| `num_allowed_transfers` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.TestTimeConstrainedObject"></a>
+
+### TestTimeConstrainedObject
+TestTimeConstrainedObject defines a transferable object with a time constrain used for testing
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [uint64](#uint64) |  |  |
+| `owner` | [bytes](#bytes) |  |  |
+| `expiration` | [uint64](#uint64) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="iov/escrow/v1beta1/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/escrow/v1beta1/tx.proto
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgCreateEscrow"></a>
+
+### MsgCreateEscrow
+MsgCreateEscrow defines a message to create an escrow
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `seller` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `object` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `deadline` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse"></a>
+
+### MsgCreateEscrowResponse
+MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgRefundEscrow"></a>
+
+### MsgRefundEscrow
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse"></a>
+
+### MsgRefundEscrowResponse
+
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgTransferToEscrow"></a>
+
+### MsgTransferToEscrow
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse"></a>
+
+### MsgTransferToEscrowResponse
+
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgUpdateEscrow"></a>
+
+### MsgUpdateEscrow
+MsgUpdateEscrow defines a message to update an escrow
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `updater` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+| `seller` | [string](#string) |  |  |
+| `price` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `deadline` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse"></a>
+
+### MsgUpdateEscrowResponse
+MsgUpdateEscrowResponse defines the Msg/UpdateEscrow response type
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="starnamed.x.escrow.v1beta1.Msg"></a>
+
+### Msg
+Msg defines the escrow Msg service
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `CreateEscrow` | [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow) | [MsgCreateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse) | CreateEscrow defines a method for creating an escrow | |
+| `UpdateEscrow` | [MsgUpdateEscrow](#starnamed.x.escrow.v1beta1.MsgUpdateEscrow) | [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse) | UpdateEscrow defines a method for updating an escrow | |
+| `TransferToEscrow` | [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow) | [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse) | TransferToEscrow defines a method for a buyer to transfer funds to the escrow | |
+| `RefundEscrow` | [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow) | [MsgRefundEscrowResponse](#starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse) | RefundEscrow defines a method for the seller to return the assets locked in the escrow | |
 
  <!-- end services -->
 

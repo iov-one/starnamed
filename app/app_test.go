@@ -95,7 +95,7 @@ func TestGetEnabledProposals(t *testing.T) {
 	}
 }
 
-func setGenesis(gapp *WasmApp) error {
+func SetGenesis(gapp *WasmApp) error {
 	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	if err != nil {

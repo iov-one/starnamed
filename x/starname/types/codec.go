@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -24,6 +26,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRenewDomain{}, fmt.Sprintf("%s/RenewDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountResources{}, fmt.Sprintf("%s/ReplaceAccountResources", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountMetadata{}, fmt.Sprintf("%s/SetAccountMetadata", ModuleName), nil)
+
+	cdc.RegisterConcrete(&Domain{}, fmt.Sprintf("%s/Domain", ModuleName), nil)
 }
 
 // RegisterInterfaces registers implementations for the protobuf marshaler.
@@ -42,6 +46,12 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgReplaceAccountResources{},
 		&MsgTransferAccount{},
 		&MsgTransferDomain{},
+	)
+	registry.RegisterImplementations(
+		(*escrowtypes.TransferableObject)(nil),
+		// Register the account and domain objects as TransferableObject implementations to send them in a MsgCreateEscrow
+		&Account{},
+		&Domain{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

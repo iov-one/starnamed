@@ -2,6 +2,7 @@ package configuration
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
@@ -45,6 +46,9 @@ func DefaultGenesisState() types.GenesisState {
 		CertificateSizeMax:     10000,
 		CertificateCountMax:    3,
 		MetadataSizeMax:        86400,
+		EscrowCommission:       sdk.ZeroDec(),                                 // zero commission at first
+		EscrowBroker:           "star1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjewks3", // so the broker is the burn address
+		EscrowMaxPeriod:        7890000 * 1e9,                                 // 3 months
 	}
 	// set fees
 	// add domain module fees

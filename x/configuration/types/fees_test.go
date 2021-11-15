@@ -33,6 +33,10 @@ func TestFees_Validate(t *testing.T) {
 		TransferDomainClosed         types.Dec
 		TransferDomainOpen           types.Dec
 		RenewDomainOpen              types.Dec
+		CreateEscrow                 types.Dec
+		UpdateEscrow                 types.Dec
+		TransferToEscrow             types.Dec
+		RefundEscrow                 types.Dec
 	}
 	tests := []struct {
 		name    string
@@ -78,6 +82,10 @@ func TestFees_Validate(t *testing.T) {
 				TransferDomainClosed:         tt.fields.TransferDomainClosed,
 				TransferDomainOpen:           tt.fields.TransferDomainOpen,
 				RenewDomainOpen:              tt.fields.RenewDomainOpen,
+				CreateEscrow:                 tt.fields.CreateEscrow,
+				UpdateEscrow:                 tt.fields.UpdateEscrow,
+				TransferToEscrow:             tt.fields.TransferToEscrow,
+				RefundEscrow:                 tt.fields.RefundEscrow,
 			}
 			if err := f.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -113,7 +121,11 @@ func TestFees_UnmarshalJson(t *testing.T) {
 				"register_open_domain_multiplier": "2.000000000000000000",
 				"transfer_domain_closed": "10.000000000000000000",
 				"transfer_domain_open": "10.000000000000000000",
-				"renew_domain_open": "10.000000000000000000"
+				"renew_domain_open": "10.000000000000000000",
+				"create_escrow": "10.000000000000000000",
+				"update_escrow": "10.000000000000000000",
+				"transfer_to_escrow": "10.000000000000000000",
+				"refund_escrow": "10.000000000000000000"
 			}`,
 			exp: func() Fees {
 				fees := NewFees()

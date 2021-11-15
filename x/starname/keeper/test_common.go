@@ -80,6 +80,7 @@ func NewTestCodec() *codec.ProtoCodec {
 
 type Mocks struct {
 	Supply *mock.SupplyKeeperMock
+	Escrow *mock.EscrowKeeperMock
 }
 
 // NewTestKeeper a new test keeper, context, and mocks
@@ -101,6 +102,8 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	var mocks Mocks
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
+	// Create mock escrow keeper
+	mocks.Escrow = mock.NewEscrowKeeper()
 	// Create mock auth keeper
 	accountKeeper := mock.NewAccountKeeper().Mock()
 	// Create mock staking keeper
@@ -114,6 +117,7 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// create domain.Keeper
 	return NewKeeper(cdc, domainStoreKey, confKeeper,
 		mocks.Supply.Mock(),
+		mocks.Escrow.Mock(),
 		accountKeeper,
 		distributionKeeper,
 		stakingKeeper,

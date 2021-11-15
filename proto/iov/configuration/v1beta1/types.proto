@@ -78,6 +78,24 @@ message Config {
     uint64 metadata_size_max = 15 [
         (gogoproto.moretags) = "yaml:\"metadata_size_max\""
     ];
+    // EscrowBroker defines an address that will receive a commission for completed escrows
+    string escrow_broker = 16 [
+        (gogoproto.moretags) = "yaml:\"escrow_broker\""
+    ];
+    // EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and
+    // 1 (100% commission)
+    string escrow_commission = 17 [
+        (gogoproto.moretags) = "yaml:\"escrow_commission\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+    // EscrowPeriod defines the maximum duration of an escrow in seconds
+    google.protobuf.Duration escrow_max_period = 18 [
+        (gogoproto.moretags) = "yaml:\"escrow_max_period\"",
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
+    ];
+
 }
 
 // Fees contains different type of fees to calculate coins to detract when processing different messages
@@ -208,6 +226,30 @@ message Fees {
     // renew_domain_open is the fee to be paid to renew an open domain
     string renew_domain_open = 21 [
         (gogoproto.moretags) = "yaml:\"renew_domain_open\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+    // create_escrow is the fee to be paid to create an escrow
+    string create_escrow = 22 [
+        (gogoproto.moretags) = "yaml:\"create_escrow\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+    // update_escrow is the fee to be paid to update an escrow
+    string update_escrow = 23 [
+        (gogoproto.moretags) = "yaml:\"update_escrow\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+    // transfer_to_escrow is the fee to be paid to transfer coins to an escrow
+    string transfer_to_escrow = 24 [
+        (gogoproto.moretags) = "yaml:\"transfer_to_escrow\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
+    // refund_escrow is the fee to be paid to refund the account or domain placed in an escrow
+    string refund_escrow = 25 [
+        (gogoproto.moretags) = "yaml:\"refund_escrow\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
