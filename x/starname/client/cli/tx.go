@@ -833,8 +833,8 @@ func getCmdSetAccountMetadata() *cobra.Command {
 
 func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-account-escrow",
-		Aliases: []string{"cae", "escrow-create-account", "eca", "create-escrow-account", "cea", "account-escrow-create", "aec"},
+		Use:     "account-escrow-create",
+		Aliases: []string{"cae", "escrow-create-account", "eca", "create-escrow-account", "cea", "create-account-escrow", "aec"},
 		Short:   "creates an escrow for an account",
 		Long:    "Creates an escrow to sell an account at a fixed price",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -888,8 +888,8 @@ func getCmdCreateAccountEscrow() *cobra.Command {
 
 func getCmdCreateDomainEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-domain-escrow",
-		Aliases: []string{"cde", "escrow-create-domain", "ecd", "create-escrow-domain", "ced", "domain-escrow-create", "dec"},
+		Use:     "domain-escrow-create",
+		Aliases: []string{"cde", "escrow-create-domain", "ecd", "create-escrow-domain", "ced", "create-domain-escrow", "dec"},
 		Short:   "creates an escrow for a domain",
 		Long:    "Creates an escrow to sell a domain at a fixed price",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
