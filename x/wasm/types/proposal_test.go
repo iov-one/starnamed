@@ -468,7 +468,7 @@ func TestProposalStrings(t *testing.T) {
   Code id:     1
   Label:       testing
   Msg:         "{\"verifier\":\"cosmos1qyqszqgpqyqszqgpqyqszqgpqyqszqgpjnp7du\",\"beneficiary\":\"cosmos1qyqszqgpqyqszqgpqyqszqgpqyqszqgpjnp7du\"}"
-  Funds:
+  Funds:       
 `,
 		},
 		"instantiate contract without admin": {
@@ -477,11 +477,11 @@ func TestProposalStrings(t *testing.T) {
   Title:       Foo
   Description: Bar
   Run as:      cosmos1qyqszqgpqyqszqgpqyqszqgpqyqszqgpjnp7du
-  Admin:
+  Admin:       
   Code id:     1
   Label:       testing
   Msg:         "{\"verifier\":\"cosmos1qyqszqgpqyqszqgpqyqszqgpqyqszqgpjnp7du\",\"beneficiary\":\"cosmos1qyqszqgpqyqszqgpqyqszqgpqyqszqgpjnp7du\"}"
-  Funds:
+  Funds:       
 `,
 		},
 		"migrate contract": {
