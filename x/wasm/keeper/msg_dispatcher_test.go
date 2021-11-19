@@ -138,21 +138,6 @@ func TestDispatchSubmessages(t *testing.T) {
 			expCommits: []bool{false},
 			expErr:     true,
 		},
-		"with context events - discarded on failure": {
-			msgs: []wasmvmtypes.SubMsg{{
-				ReplyOn: wasmvmtypes.ReplyNever,
-			}},
-			replyer: &mockReplyer{},
-			msgHandler: &wasmtesting.MockMessageHandler{
-				DispatchMsgFn: func(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, err error) {
-					myEvents := []sdk.Event{{Type: "myEvent", Attributes: []abci.EventAttribute{{Key: []byte("foo"), Value: []byte("bar")}}}}
-					ctx.EventManager().EmitEvents(myEvents)
-					return nil, nil, errors.New("testing")
-				},
-			},
-			expCommits: []bool{false},
-			expErr:     true,
-		},
 		"reply returns error": {
 			msgs: []wasmvmtypes.SubMsg{{
 				ReplyOn: wasmvmtypes.ReplySuccess,
