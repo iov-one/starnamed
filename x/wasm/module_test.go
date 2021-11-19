@@ -19,9 +19,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-
-	"github.com/iov-one/starnamed/x/wasm/keeper"
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 type testData struct {

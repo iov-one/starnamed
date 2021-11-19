@@ -7,8 +7,6 @@ import (
 	fuzz "github.com/google/gofuzz"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	tmBytes "github.com/tendermint/tendermint/libs/bytes"
-
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 var ModelFuzzers = []interface{}{FuzzAddr, FuzzAddrString, FuzzAbsoluteTxPosition, FuzzContractInfo, FuzzStateModel, FuzzAccessType, FuzzAccessConfig, FuzzContractCodeHistory}

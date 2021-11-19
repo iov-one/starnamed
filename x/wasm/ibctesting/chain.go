@@ -10,8 +10,6 @@ import (
 	"testing"
 	"time"
 
-	wasmd "github.com/iov-one/starnamed/app"
-	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"

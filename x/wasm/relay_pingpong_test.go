@@ -5,11 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	wasmd "github.com/iov-one/starnamed/app"
-	wasmibctesting "github.com/iov-one/starnamed/x/wasm/ibctesting"
-	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
-	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
-	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"

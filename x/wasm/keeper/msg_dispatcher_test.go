@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"

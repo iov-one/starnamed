@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/iov-one/starnamed/x/wasm"
-	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"

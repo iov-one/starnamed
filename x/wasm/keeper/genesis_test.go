@@ -12,8 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/starnamed/x/wasm/types"
-	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"

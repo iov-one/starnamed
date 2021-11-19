@@ -9,8 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	cosmwasm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

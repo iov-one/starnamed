@@ -15,9 +15,6 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-
-	wasmUtils "github.com/iov-one/starnamed/x/wasm/client/utils"
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 const (

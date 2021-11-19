@@ -16,8 +16,6 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 func GetQueryCmd() *cobra.Command {

@@ -23,12 +23,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/iov-one/starnamed/x/wasm/client/cli"
-	"github.com/iov-one/starnamed/x/wasm/client/rest"
-	"github.com/iov-one/starnamed/x/wasm/keeper"
-	"github.com/iov-one/starnamed/x/wasm/simulation"
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 var (

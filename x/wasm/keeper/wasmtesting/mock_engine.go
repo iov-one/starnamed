@@ -9,8 +9,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/tendermint/tendermint/libs/rand"
-
-	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 var _ types.WasmerEngine = &MockWasmer{}
