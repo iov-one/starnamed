@@ -11,11 +11,13 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 func ProposalStoreCodeCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "wasm-store [wasm file] --source [source] --builder [builder] --title [text] --description [text] --run-as [address]",
+		Use:   "wasm-store [wasm file] --title [text] --description [text] --run-as [address]",
 		Short: "Submit a wasm binary proposal",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

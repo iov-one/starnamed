@@ -5,6 +5,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // ValidatorSetSource is a subset of the staking keeper
@@ -55,11 +57,13 @@ func InitGenesis(ctx sdk.Context, keeper *Keeper, data types.GenesisState, staki
 	}
 
 	// sanity check seq values
-	if keeper.peekAutoIncrementID(ctx, types.KeyLastCodeID) <= maxCodeID {
-		return nil, sdkerrors.Wrapf(types.ErrInvalid, "seq %s must be greater %d ", string(types.KeyLastCodeID), maxCodeID)
+	seqVal := keeper.PeekAutoIncrementID(ctx, types.KeyLastCodeID)
+	if seqVal <= maxCodeID {
+		return nil, sdkerrors.Wrapf(types.ErrInvalid, "seq %s with value: %d must be greater than: %d ", string(types.KeyLastCodeID), seqVal, maxCodeID)
 	}
-	if keeper.peekAutoIncrementID(ctx, types.KeyLastInstanceID) <= uint64(maxContractID) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalid, "seq %s must be greater %d ", string(types.KeyLastInstanceID), maxContractID)
+	seqVal = keeper.PeekAutoIncrementID(ctx, types.KeyLastInstanceID)
+	if seqVal <= uint64(maxContractID) {
+		return nil, sdkerrors.Wrapf(types.ErrInvalid, "seq %s with value: %d must be greater than: %d ", string(types.KeyLastInstanceID), seqVal, maxContractID)
 	}
 
 	if len(data.GenMsgs) == 0 {
@@ -122,7 +126,7 @@ func ExportGenesis(ctx sdk.Context, keeper *Keeper) *types.GenesisState {
 	for _, k := range [][]byte{types.KeyLastCodeID, types.KeyLastInstanceID} {
 		genState.Sequences = append(genState.Sequences, types.Sequence{
 			IDKey: k,
-			Value: keeper.peekAutoIncrementID(ctx, k),
+			Value: keeper.PeekAutoIncrementID(ctx, k),
 		})
 	}
 

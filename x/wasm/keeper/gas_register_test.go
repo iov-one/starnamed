@@ -1,13 +1,14 @@
 package keeper
 
 import (
+	"math"
+	"strings"
+	"testing"
+
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
-	"math"
-	"strings"
-	"testing"
 )
 
 func TestCompileCosts(t *testing.T) {
@@ -20,7 +21,7 @@ func TestCompileCosts(t *testing.T) {
 		"one byte": {
 			srcLen:    1,
 			srcConfig: DefaultGasRegisterConfig(),
-			exp:       sdk.Gas(2), // DefaultCompileCost
+			exp:       sdk.Gas(3), // DefaultCompileCost
 		},
 		"zero byte": {
 			srcLen:    0,

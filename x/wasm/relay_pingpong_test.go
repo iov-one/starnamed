@@ -3,7 +3,13 @@ package wasm_test
 import (
 	"encoding/json"
 	"fmt"
+	"testing"
 
+	wasmd "github.com/CosmWasm/wasmd/app"
+	wasmibctesting "github.com/CosmWasm/wasmd/x/wasm/ibctesting"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -18,7 +24,6 @@ import (
 	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 const (
@@ -368,7 +373,7 @@ type startGame struct {
 	MaxValue uint64 `json:"max_value,omitempty"`
 }
 
-func (g startGame) GetBytes() json.RawMessage {
+func (g startGame) GetBytes() wasmtypes.RawContractMessage {
 	b, err := json.Marshal(g)
 	if err != nil {
 		panic(err)

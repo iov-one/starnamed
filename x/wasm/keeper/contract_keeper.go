@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/iov-one/starnamed/x/wasm/types"
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

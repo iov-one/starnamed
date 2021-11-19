@@ -3,13 +3,15 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"testing"
+
+	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"testing"
 )
 
 func TestDispatchSubmessages(t *testing.T) {
@@ -121,6 +123,21 @@ func TestDispatchSubmessages(t *testing.T) {
 				Type:       "myEvent",
 				Attributes: []abci.EventAttribute{{Key: []byte("foo"), Value: []byte("bar")}},
 			}},
+		},
+		"with context events - discarded on failure": {
+			msgs: []wasmvmtypes.SubMsg{{
+				ReplyOn: wasmvmtypes.ReplyNever,
+			}},
+			replyer: &mockReplyer{},
+			msgHandler: &wasmtesting.MockMessageHandler{
+				DispatchMsgFn: func(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, err error) {
+					myEvents := []sdk.Event{{Type: "myEvent", Attributes: []abci.EventAttribute{{Key: []byte("foo"), Value: []byte("bar")}}}}
+					ctx.EventManager().EmitEvents(myEvents)
+					return nil, nil, errors.New("testing")
+				},
+			},
+			expCommits: []bool{false},
+			expErr:     true,
 		},
 		"with context events - discarded on failure": {
 			msgs: []wasmvmtypes.SubMsg{{

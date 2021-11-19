@@ -2,8 +2,72 @@
 
 ## [Unreleased](https://github.com/CosmWasm/wasmd/tree/HEAD)
 
-[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.18.0...HEAD)
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.21.0...HEAD)
 
+## [v0.21.0](https://github.com/CosmWasm/wasmd/tree/v0.21.0) (2021-11-17)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.21.0...v0.20.0)
+
+**Fixed bugs + Api Breaking:**
+- Prevent infinite gas consumption in simulation queries [\#670](https://github.com/CosmWasm/wasmd/issues/670)
+- Amino JSON representation of inner message in Msg{Instantiate,Migrate,Execute}Contract [\#642](https://github.com/CosmWasm/wasmd/issues/642)
+
+**Implemented Enhancements:**
+- Bump wasmvm to v1.0.0-beta2 [\#676](https://github.com/CosmWasm/wasmd/pull/676)
+- Add Benchmarks to compare with native modules [\#635](https://github.com/CosmWasm/wasmd/issues/635)
+- Document M1 is not supported [\#653](https://github.com/CosmWasm/wasmd/issues/653)
+- Open read access to sequences [\#669](https://github.com/CosmWasm/wasmd/pull/669)
+- Remove unused flags from command prompt for storing contract [\#647](https://github.com/CosmWasm/wasmd/issues/647)
+- Ran `make format` [\#649](https://github.com/CosmWasm/wasmd/issues/649)
+- Add golangci lint check to circleci jobs [\620](https://github.com/CosmWasm/wasmd/issues/620)
+- Updated error log statements in initGenesis for easier debugging: [\#643](https://github.com/CosmWasm/wasmd/issues/643)
+- Bump github.com/cosmos/iavl from 0.17.1 to 0.17.2 [\#673](https://github.com/CosmWasm/wasmd/pull/673)
+- Bump github.com/rs/zerolog from 1.25.0 to 1.26.0 [\#666](https://github.com/CosmWasm/wasmd/pull/666)
+
+## [v0.20.0](https://github.com/CosmWasm/wasmd/tree/v0.20.0) (2021-10-08)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.20.0...v0.19.0)
+
+**Fixed bugs:**
+
+- Add capabilities to begin block [\#626](https://github.com/CosmWasm/wasmd/pull/626)
+
+**Api Breaking:**
+- Update to wasmvm 1.0.0-soon2 [\#624](https://github.com/CosmWasm/wasmd/issues/624)
+
+**Implemented Enhancements:**
+
+- Upgrade Cosmos-sdk v0.42.10 [\#627](https://github.com/CosmWasm/wasmd/pull/627) ([alpe](https://github.com/alpe))
+- Add transaction index implemented as counter [\#601](https://github.com/CosmWasm/wasmd/issues/601)
+- Fix inconsistent return of `contractAddress` from `keeper/init()`? [\#616](https://github.com/CosmWasm/wasmd/issues/616)
+- Query pinned wasm codes [\#596](https://github.com/CosmWasm/wasmd/issues/596)
+- Doc IBC Events [\#593](https://github.com/CosmWasm/wasmd/issues/593)
+- Allow contract Info query from the contract [\#584](https://github.com/CosmWasm/wasmd/issues/584)
+- Revisit reply gas costs for submessages. [\#450](https://github.com/CosmWasm/wasmd/issues/450)
+- Benchmarks for gas pricing [\#634](https://github.com/CosmWasm/wasmd/pull/634)
+- Treat all contracts as pinned for gas costs in reply [\#630](https://github.com/CosmWasm/wasmd/pull/630)
+- Bump github.com/spf13/viper from 1.8.1 to 1.9.0 [\#615](https://github.com/CosmWasm/wasmd/pull/615)
+
+## [v0.19.0](https://github.com/CosmWasm/wasmd/tree/v0.19.0) (2021-09-15)
+
+[Full Changelog](https://github.com/CosmWasm/wasmd/compare/v0.19.0...v0.18.0)
+
+**Fixed bugs:**
+
+- Ensure Queries are executed read only [\#610](https://github.com/CosmWasm/wasmd/issues/610)
+- Fix bug in query handler initialization on reply [\#604](https://github.com/CosmWasm/wasmd/issues/604)
+
+**Api Breaking:**
+- Bump Go version to  1.16 [\#612](https://github.com/CosmWasm/wasmd/pull/612)
+
+**Implemented Enhancements:**
+
+- Ensure query isolation [\#611](https://github.com/CosmWasm/wasmd/pull/611)
+- Optimize BalanceQuery [\#609](https://github.com/CosmWasm/wasmd/pull/609)
+- Bump wasmvm to v0.16.1 [\#605](https://github.com/CosmWasm/wasmd/pull/605)
+- Bump github.com/rs/zerolog from 1.23.0 to 1.25.0 [\#603](https://github.com/CosmWasm/wasmd/pull/603)
+- Add decorator options [\#598](https://github.com/CosmWasm/wasmd/pull/598)
+- Bump github.com/spf13/cast from 1.4.0 to 1.4.1 [\#592](https://github.com/CosmWasm/wasmd/pull/592)
 
 ## [v0.18.0](https://github.com/CosmWasm/wasmd/tree/v0.18.0) (2021-08-16)
 

@@ -2,6 +2,14 @@ package wasm_test
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
+	wasmd "github.com/CosmWasm/wasmd/app"
+	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtesting "github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,8 +25,6 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestFromIBCTransferToContract(t *testing.T) {
@@ -221,7 +227,7 @@ func TestContractCanEmulateIBCTransferMessageWithTimeout(t *testing.T) {
 	coinToSendToB := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100))
 	timeout := uint64(chainB.LastHeader.Header.Time.Add(time.Nanosecond).UnixNano()) // not enough time
 
-	// custom payload data to be transfered into a proper ICS20 ibc packet
+	// custom payload data to be transferred into a proper ICS20 ibc packet
 	startMsg := &types.MsgExecuteContract{
 		Sender:   chainA.SenderAccount.GetAddress().String(),
 		Contract: myContractAddr.String(),
@@ -395,7 +401,7 @@ type startTransfer struct {
 	Timeout         uint64
 }
 
-func (g startTransfer) GetBytes() json.RawMessage {
+func (g startTransfer) GetBytes() types.RawContractMessage {
 	b, err := json.Marshal(g)
 	if err != nil {
 		panic(err)

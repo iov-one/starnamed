@@ -16,6 +16,8 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 func GetQueryCmd() *cobra.Command {
@@ -33,6 +35,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdGetContractInfo(),
 		GetCmdGetContractHistory(),
 		GetCmdGetContractState(),
+		GetCmdListPinnedCode(),
 	)
 	return queryCmd
 }
@@ -149,7 +152,7 @@ func GetCmdQueryCode() *cobra.Command {
 			}
 
 			fmt.Printf("Downloading wasm code to %s\n", args[1])
-			return ioutil.WriteFile(args[1], res.Data, 0644)
+			return ioutil.WriteFile(args[1], res.Data, 0600)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -384,6 +387,41 @@ func GetCmdGetContractHistory() *cobra.Command {
 	return cmd
 }
 
+// GetCmdListPinnedCode lists all wasm code ids that are pinned
+func GetCmdListPinnedCode() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pinned",
+		Short: "List all pinned code ids",
+		Long:  "\t\tLong:    List all pinned code ids,\n",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			pageReq, err := client.ReadPageRequest(withPageKeyDecoded(cmd.Flags()))
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.PinnedCodes(
+				context.Background(),
+				&types.QueryPinnedCodesRequest{
+					Pagination: pageReq,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "list codes")
+	return cmd
+}
+
 type argumentDecoder struct {
 	// dec is the default decoder
 	dec                func(string) ([]byte, error)
@@ -437,6 +475,9 @@ func withPageKeyDecoded(flagSet *flag.FlagSet) *flag.FlagSet {
 	if err != nil {
 		panic(err.Error())
 	}
-	flagSet.Set(flags.FlagPageKey, string(raw))
+	err = flagSet.Set(flags.FlagPageKey, string(raw))
+	if err != nil {
+		panic(err.Error())
+	}
 	return flagSet
 }

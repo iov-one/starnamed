@@ -9,6 +9,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
+
+	"github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // MigrateContractCmd will migrate a contract to a new code version
@@ -20,6 +22,9 @@ func MigrateContractCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			msg, err := parseMigrateContractArgs(args, clientCtx)
 			if err != nil {
@@ -62,6 +67,9 @@ func UpdateContractAdminCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			msg, err := parseUpdateContractAdminArgs(args, clientCtx)
 			if err != nil {
