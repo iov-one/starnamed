@@ -14,10 +14,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/spf13/cobra"
-
 	escrowcli "github.com/iov-one/starnamed/x/escrow/client/cli"
 	"github.com/iov-one/starnamed/x/starname/types"
+	"github.com/spf13/cobra"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
@@ -106,7 +105,7 @@ func getCmdTransferDomain() *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
 	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf(`the transfer mechanism
 	0 == delete all accounts except the "" account; transfer "" to the new owner
 	1 == transfer all accounts owned by the old owner to the new owner; leave others intact
@@ -183,7 +182,7 @@ func getCmdTransferAccount() *cobra.Command {
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
 	cmd.Flags().StringP("name", "n", "", "the name of the account you want to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
 	cmd.Flags().StringP("reset", "r", "false", "true: reset all data associated with the account, false: preserves the data")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
@@ -703,7 +702,7 @@ func getCmdRegisterAccount() *cobra.Command {
 	}
 	cmd.Flags().StringP("domain", "d", "", "the existing domain for your account")
 	cmd.Flags().StringP("name", "n", "", "the name of your account")
-	cmd.Flags().StringP("owner", "o", "", "the address of the owner, if no owner provided signer is the owner")
+	cmd.Flags().StringP("owner", "w", "", "the address of the owner, if no owner provided signer is the owner")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	cmd.Flags().StringP("broker", "r", "", "address of the broker, optional")
 	flags.AddTxFlagsToCmd(cmd)

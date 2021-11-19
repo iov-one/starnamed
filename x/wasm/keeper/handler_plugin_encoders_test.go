@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/json"
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
@@ -33,7 +32,7 @@ func TestEncoding(t *testing.T) {
 	valAddr2 := make(sdk.ValAddress, sdk.AddrLen)
 	valAddr2[1] = 123
 
-	jsonMsg := json.RawMessage(`{"foo": 123}`)
+	jsonMsg := types.RawContractMessage(`{"foo": 123}`)
 
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: addr2.String(),

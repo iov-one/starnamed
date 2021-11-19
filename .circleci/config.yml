@@ -3,7 +3,7 @@ version: 2.1
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     working_directory: /go/src/github.com/cosmwasm/wasmd
 
 commands:
@@ -60,6 +60,18 @@ jobs:
           paths:
             - ".git"
 
+  lint:
+    executor: golang
+    docker:
+      - image: golangci/golangci-lint:v1.42.1-alpine
+    steps:
+      - checkout
+      - run:
+          name: Lint
+          command: |
+            golangci-lint run --version
+            golangci-lint run --tests=false --timeout=5m0s
+
   test-cover:
     executor: golang
     parallelism: 4
@@ -85,6 +97,25 @@ jobs:
             - "profiles/*"
       - store_artifacts:
           path: /tmp/logs
+
+  benchmark:
+    executor: golang
+    parallelism: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run:
+          name: Benchmarks for gas calculations
+          command: |
+            cd ./x/wasm/keeper
+            go test -bench .
+      - run:
+          name: Benchmarks to compare with native modules
+          command: |
+            cd ./benchmarks
+            go test -bench .
 
   upload-coverage:
     executor: golang
@@ -172,9 +203,15 @@ workflows:
             tags:
               only:
                 - /^v.*/
+      - lint:
+          requires:
+            - setup-dependencies
       - test-cover:
           requires:
             - setup-dependencies
       - upload-coverage:
+          requires:
+            - test-cover
+      - benchmark:
           requires:
             - test-cover

@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"encoding/json"
-	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	"io/ioutil"
 	"testing"
 
+	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -87,7 +87,7 @@ type InvestmentResponse struct {
 	Validator    sdk.ValAddress `json:"validator"`
 	ExitTax      sdk.Dec        `json:"exit_tax"`
 	// MinWithdrawl is uint128 encoded as a string (use sdk.Int?)
-	MinWithdrawl string `json:"min_withdrawl"`
+	MinWithdrawl string `json:"min_withdrawal"`
 }
 
 func TestInitializeStaking(t *testing.T) {

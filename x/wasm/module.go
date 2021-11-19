@@ -32,19 +32,23 @@ var (
 
 // Module init related flags
 const (
-	flagWasmMemoryCacheSize = "wasm.memory_cache_size"
-	flagWasmQueryGasLimit   = "wasm.query_gas_limit"
+	flagWasmMemoryCacheSize    = "wasm.memory_cache_size"
+	flagWasmQueryGasLimit      = "wasm.query_gas_limit"
+	flagWasmSimulationGasLimit = "wasm.simulation_gas_limit"
 )
 
 // AppModuleBasic defines the basic application module used by the wasm module.
 type AppModuleBasic struct{}
 
-func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
+func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) { //nolint:staticcheck
 	RegisterCodec(amino)
 }
 
 func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serveMux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(clientCtx))
+	err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Name returns the wasm module's name.
@@ -85,12 +89,12 @@ func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// RegisterInterfaceTypes implements InterfaceModule
+// RegisterInterfaces implements InterfaceModule
 func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModule implements an application module for the wasm module.
 type AppModule struct {
@@ -115,7 +119,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), NewQuerier(am.keeper))
 }
 
-func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
+func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier { //nolint:staticcheck
 	return keeper.NewLegacyQuerier(am.keeper, am.keeper.QueryGasLimit())
 }
 
@@ -160,7 +164,7 @@ func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Validato
 	return []abci.ValidatorUpdate{}
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AppModuleSimulation functions
 
@@ -188,13 +192,14 @@ func (am AppModule) WeightedOperations(simState module.SimulationState) []simtyp
 	return nil
 }
 
-//____________________________________________________________________________
+// ____________________________________________________________________________
 
 // AddModuleInitFlags implements servertypes.ModuleInitFlags interface.
 func AddModuleInitFlags(startCmd *cobra.Command) {
 	defaults := DefaultWasmConfig()
 	startCmd.Flags().Uint32(flagWasmMemoryCacheSize, defaults.MemoryCacheSize, "Sets the size in MiB (NOT bytes) of an in-memory cache for Wasm modules. Set to 0 to disable.")
 	startCmd.Flags().Uint64(flagWasmQueryGasLimit, defaults.SmartQueryGasLimit, "Set the max gas that can be spent on executing a query with a Wasm contract")
+	startCmd.Flags().String(flagWasmSimulationGasLimit, "", "Set the max gas that can be spent when executing a simulation TX")
 }
 
 // ReadWasmConfig reads the wasm specifig configuration
@@ -209,6 +214,15 @@ func ReadWasmConfig(opts servertypes.AppOptions) (types.WasmConfig, error) {
 	if v := opts.Get(flagWasmQueryGasLimit); v != nil {
 		if cfg.SmartQueryGasLimit, err = cast.ToUint64E(v); err != nil {
 			return cfg, err
+		}
+	}
+	if v := opts.Get(flagWasmSimulationGasLimit); v != nil {
+		if raw, ok := v.(string); ok && raw != "" {
+			limit, err := cast.ToUint64E(v) // non empty string set
+			if err != nil {
+				return cfg, err
+			}
+			cfg.SimulationGasLimit = &limit
 		}
 	}
 	// attach contract debugging to global "trace" flag

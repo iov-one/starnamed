@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	stypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -16,8 +18,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/iov-one/starnamed/x/wasm/keeper/wasmtesting"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -34,7 +34,7 @@ func init() {
 
 var hackatomWasm []byte
 
-const SupportedFeatures = "staking,stargate"
+const SupportedFeatures = "iterator,staking,stargate"
 
 func TestNewKeeper(t *testing.T) {
 	_, keepers := CreateTestInput(t, false, SupportedFeatures)
@@ -308,7 +308,7 @@ func TestInstantiate(t *testing.T) {
 
 	gasAfter := ctx.GasMeter().GasConsumed()
 	if types.EnableGasVerification {
-		require.Equal(t, uint64(0x12206), gasAfter-gasBefore)
+		require.Equal(t, uint64(0x16e8a), gasAfter-gasBefore)
 	}
 
 	// ensure it is stored properly
@@ -322,7 +322,7 @@ func TestInstantiate(t *testing.T) {
 		Operation: types.ContractCodeHistoryOperationTypeInit,
 		CodeID:    codeID,
 		Updated:   types.NewAbsoluteTxPosition(ctx),
-		Msg:       json.RawMessage(initMsgBz),
+		Msg:       initMsgBz,
 	}}
 	assert.Equal(t, exp, keepers.WasmKeeper.GetContractHistory(ctx, gotContractAddr))
 
@@ -542,7 +542,7 @@ func TestExecute(t *testing.T) {
 	// make sure gas is properly deducted from ctx
 	gasAfter := ctx.GasMeter().GasConsumed()
 	if types.EnableGasVerification {
-		require.Equal(t, uint64(0x12af1), gasAfter-gasBefore)
+		require.Equal(t, uint64(0x17621), gasAfter-gasBefore)
 	}
 	// ensure bob now exists and got both payments released
 	bobAcct = accKeeper.GetAccount(ctx, bob)
@@ -662,7 +662,7 @@ func TestExecuteWithNonExistingAddress(t *testing.T) {
 	creator := createFakeFundedAccount(t, ctx, accKeeper, bankKeeper, deposit.Add(deposit...))
 
 	// unauthorized - trialCtx so we don't change state
-	nonExistingAddress := addrFromUint64(9999)
+	nonExistingAddress := RandomAccountAddress(t)
 	_, err := keeper.Execute(ctx, nonExistingAddress, creator, []byte(`{}`), nil)
 	require.True(t, types.ErrNotFound.Is(err), err)
 }
@@ -1592,28 +1592,54 @@ func TestReply(t *testing.T) {
 	example := SeedNewContractInstance(t, ctx, keepers, &mock)
 
 	specs := map[string]struct {
-		rsp     wasmvmtypes.Response
+		replyFn func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error)
 		expData []byte
 		expErr  bool
 		expEvt  sdk.Events
 	}{
 		"all good": {
-			rsp:     wasmvmtypes.Response{Data: []byte("foo")},
+			replyFn: func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
+				return &wasmvmtypes.Response{Data: []byte("foo")}, 1, nil
+			},
+			expData: []byte("foo"),
+			expEvt:  sdk.Events{sdk.NewEvent("reply", sdk.NewAttribute("_contract_address", example.Contract.String()))},
+		},
+		"with query": {
+			replyFn: func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
+				bzRsp, err := querier.Query(wasmvmtypes.QueryRequest{
+					Bank: &wasmvmtypes.BankQuery{
+						Balance: &wasmvmtypes.BalanceQuery{Address: env.Contract.Address, Denom: "stake"},
+					},
+				}, 1000*DefaultGasMultiplier)
+				require.NoError(t, err)
+				var gotBankRsp wasmvmtypes.BalanceResponse
+				require.NoError(t, json.Unmarshal(bzRsp, &gotBankRsp))
+				assert.Equal(t, wasmvmtypes.BalanceResponse{Amount: wasmvmtypes.NewCoin(0, "stake")}, gotBankRsp)
+				return &wasmvmtypes.Response{Data: []byte("foo")}, 1, nil
+			},
+			expData: []byte("foo"),
+			expEvt:  sdk.Events{sdk.NewEvent("reply", sdk.NewAttribute("_contract_address", example.Contract.String()))},
+		},
+		"with query error handled": {
+			replyFn: func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
+				bzRsp, err := querier.Query(wasmvmtypes.QueryRequest{}, 0)
+				require.Error(t, err)
+				assert.Nil(t, bzRsp)
+				return &wasmvmtypes.Response{Data: []byte("foo")}, 1, nil
+			},
 			expData: []byte("foo"),
 			expEvt:  sdk.Events{sdk.NewEvent("reply", sdk.NewAttribute("_contract_address", example.Contract.String()))},
 		},
 		"error": {
+			replyFn: func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
+				return nil, 1, errors.New("testing")
+			},
 			expErr: true,
 		},
 	}
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
-			mock.ReplyFn = func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
-				if spec.expErr {
-					return nil, 1, errors.New("testing")
-				}
-				return &spec.rsp, 1, nil
-			}
+			mock.ReplyFn = spec.replyFn
 			em := sdk.NewEventManager()
 			gotData, gotErr := k.reply(ctx.WithEventManager(em), example.Contract, wasmvmtypes.Reply{})
 			if spec.expErr {
@@ -1625,6 +1651,37 @@ func TestReply(t *testing.T) {
 			assert.Equal(t, spec.expEvt, em.Events())
 		})
 	}
+}
+
+func TestQueryIsolation(t *testing.T) {
+	ctx, keepers := CreateTestInput(t, false, SupportedFeatures)
+	k := keepers.WasmKeeper
+	var mock wasmtesting.MockWasmer
+	wasmtesting.MakeInstantiable(&mock)
+	example := SeedNewContractInstance(t, ctx, keepers, &mock)
+	WithQueryHandlerDecorator(func(other WasmVMQueryHandler) WasmVMQueryHandler {
+		return WasmVMQueryHandlerFn(func(ctx sdk.Context, caller sdk.AccAddress, request wasmvmtypes.QueryRequest) ([]byte, error) {
+			if request.Custom == nil {
+				return other.HandleQuery(ctx, caller, request)
+			}
+			// here we write to DB which should not be persisted
+			ctx.KVStore(k.storeKey).Set([]byte(`set_in_query`), []byte(`this_is_allowed`))
+			return nil, nil
+		})
+	}).apply(k)
+
+	// when
+	mock.ReplyFn = func(codeID wasmvm.Checksum, env wasmvmtypes.Env, reply wasmvmtypes.Reply, store wasmvm.KVStore, goapi wasmvm.GoAPI, querier wasmvm.Querier, gasMeter wasmvm.GasMeter, gasLimit uint64, deserCost wasmvmtypes.UFraction) (*wasmvmtypes.Response, uint64, error) {
+		_, err := querier.Query(wasmvmtypes.QueryRequest{
+			Custom: []byte(`{}`),
+		}, 10000*DefaultGasMultiplier)
+		require.NoError(t, err)
+		return &wasmvmtypes.Response{}, 0, nil
+	}
+	em := sdk.NewEventManager()
+	_, gotErr := k.reply(ctx.WithEventManager(em), example.Contract, wasmvmtypes.Reply{})
+	require.NoError(t, gotErr)
+	assert.Nil(t, ctx.KVStore(k.storeKey).Get([]byte(`set_in_query`)))
 }
 
 func TestBuildContractAddress(t *testing.T) {

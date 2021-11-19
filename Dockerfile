@@ -1,6 +1,6 @@
 # docker build . -t iov1/starnamed:latest
 # docker run --rm -it iov1/starnamed:latest /bin/sh
-FROM golang:1.15-alpine3.12 AS go-builder
+FROM golang:1.16.8-alpine3.13 AS go-builder
 
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
@@ -15,14 +15,14 @@ WORKDIR /code
 COPY . /code/
 
 # See https://github.com/CosmWasm/wasmvm/releases
-ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.16.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
-RUN sha256sum /lib/libwasmvm_muslc.a | grep ef294a7a53c8d0aa6a8da4b10e94fb9f053f9decf160540d6c7594734bc35cd6
+ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.0.0-beta2/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
+RUN sha256sum /lib/libwasmvm_muslc.a | grep 3f5de8df9c6b606b4211f90edd681c84b0ecd870fdbf50678b6d9afd783a571c
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 
 # --------------------------------------------------------
-FROM alpine:3.12
+FROM alpine:3.13
 
 # add extremely useful commands to the image
 RUN apk update && apk upgrade && apk --no-cache add curl jq openssh-client rsync

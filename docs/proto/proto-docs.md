@@ -67,6 +67,8 @@
     - [QueryContractInfoResponse](#starnamed.x.wasm.v1beta1.QueryContractInfoResponse)
     - [QueryContractsByCodeRequest](#starnamed.x.wasm.v1beta1.QueryContractsByCodeRequest)
     - [QueryContractsByCodeResponse](#starnamed.x.wasm.v1beta1.QueryContractsByCodeResponse)
+    - [QueryPinnedCodesRequest](#starnamed.x.wasm.v1beta1.QueryPinnedCodesRequest)
+    - [QueryPinnedCodesResponse](#starnamed.x.wasm.v1beta1.QueryPinnedCodesResponse)
     - [QueryRawContractStateRequest](#starnamed.x.wasm.v1beta1.QueryRawContractStateRequest)
     - [QueryRawContractStateResponse](#starnamed.x.wasm.v1beta1.QueryRawContractStateResponse)
     - [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest)
@@ -735,7 +737,7 @@ MsgIBCSend
 | `channel` | [string](#string) |  | the channel by which the packet will be sent |
 | `timeout_height` | [uint64](#uint64) |  | Timeout height relative to the current block height. The timeout is disabled when set to 0. |
 | `timeout_timestamp` | [uint64](#uint64) |  | Timeout timestamp (in nanoseconds) relative to the current block timestamp. The timeout is disabled when set to 0. |
-| `data` | [bytes](#bytes) |  | data is the payload to transfer |
+| `data` | [bytes](#bytes) |  | Data is the payload to transfer. We must not make assumption what format or content is in here. |
 
 
 
@@ -1122,6 +1124,39 @@ Query/ContractsByCode RPC method
 
 
 
+<a name="starnamed.x.wasm.v1beta1.QueryPinnedCodesRequest"></a>
+
+### QueryPinnedCodesRequest
+QueryPinnedCodesRequest is the request type for the Query/PinnedCodes
+RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="starnamed.x.wasm.v1beta1.QueryPinnedCodesResponse"></a>
+
+### QueryPinnedCodesResponse
+QueryPinnedCodesResponse is the response type for the
+Query/PinnedCodes RPC method
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `code_ids` | [uint64](#uint64) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
 <a name="starnamed.x.wasm.v1beta1.QueryRawContractStateRequest"></a>
 
 ### QueryRawContractStateRequest
@@ -1209,6 +1244,7 @@ Query provides defines the gRPC querier service
 | `SmartContractState` | [QuerySmartContractStateRequest](#starnamed.x.wasm.v1beta1.QuerySmartContractStateRequest) | [QuerySmartContractStateResponse](#starnamed.x.wasm.v1beta1.QuerySmartContractStateResponse) | SmartContractState get smart query result from the contract | GET|/wasm/v1/contract/{address}/smart/{query_data}|
 | `Code` | [QueryCodeRequest](#starnamed.x.wasm.v1beta1.QueryCodeRequest) | [QueryCodeResponse](#starnamed.x.wasm.v1beta1.QueryCodeResponse) | Code gets the binary code and metadata for a singe wasm code | GET|/cosmwasm/wasm/v1/code/{code_id}|
 | `Codes` | [QueryCodesRequest](#starnamed.x.wasm.v1beta1.QueryCodesRequest) | [QueryCodesResponse](#starnamed.x.wasm.v1beta1.QueryCodesResponse) | Codes gets the metadata for all stored wasm codes | GET|/cosmwasm/wasm/v1/code|
+| `PinnedCodes` | [QueryPinnedCodesRequest](#starnamed.x.wasm.v1beta1.QueryPinnedCodesRequest) | [QueryPinnedCodesResponse](#starnamed.x.wasm.v1beta1.QueryPinnedCodesResponse) | PinnedCodes gets the pinned code ids | GET|/cosmwasm/wasm/v1/codes/pinned|
 
  <!-- end services -->
 

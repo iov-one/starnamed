@@ -5,13 +5,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
-
-	"github.com/iov-one/starnamed/x/wasm"
 )
 
 var emptyWasmOpts []wasm.Option = nil

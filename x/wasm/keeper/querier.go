@@ -5,12 +5,12 @@ import (
 	"encoding/binary"
 	"runtime/debug"
 
+	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/iov-one/starnamed/x/wasm/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -24,7 +24,8 @@ type grpcQuerier struct {
 	queryGasLimit sdk.Gas
 }
 
-func NewGrpcQuerier(cdc codec.Marshaler, storeKey sdk.StoreKey, keeper types.ViewKeeper, queryGasLimit sdk.Gas) *grpcQuerier {
+// NewGrpcQuerier constructor
+func NewGrpcQuerier(cdc codec.Marshaler, storeKey sdk.StoreKey, keeper types.ViewKeeper, queryGasLimit sdk.Gas) *grpcQuerier { //nolint:revive
 	return &grpcQuerier{cdc: cdc, storeKey: storeKey, keeper: keeper, queryGasLimit: queryGasLimit}
 }
 
@@ -162,6 +163,9 @@ func (q grpcQuerier) SmartContractState(c context.Context, req *types.QuerySmart
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
+	if err := req.QueryData.ValidateBasic(); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid query data")
+	}
 	contractAddr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, err
@@ -280,4 +284,29 @@ func queryCode(ctx sdk.Context, codeID uint64, keeper types.ViewKeeper) (*types.
 	}
 
 	return &types.QueryCodeResponse{CodeInfoResponse: &info, Data: code}, nil
+}
+
+func (q grpcQuerier) PinnedCodes(c context.Context, req *types.QueryPinnedCodesRequest) (*types.QueryPinnedCodesResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	r := make([]uint64, 0)
+
+	prefixStore := prefix.NewStore(ctx.KVStore(q.storeKey), types.PinnedCodeIndexPrefix)
+	pageRes, err := query.FilteredPaginate(prefixStore, req.Pagination, func(key []byte, _ []byte, accumulate bool) (bool, error) {
+		if accumulate {
+
+			r = append(r, sdk.BigEndianToUint64(key))
+		}
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryPinnedCodesResponse{
+		CodeIDs:    r,
+		Pagination: pageRes,
+	}, nil
+
 }
