@@ -10,7 +10,7 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // MigrateContractCmd will migrate a contract to a new code version

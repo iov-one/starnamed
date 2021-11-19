@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	wasmd "github.com/CosmWasm/wasmd/app"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmd "github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/golang/protobuf/proto" //nolint
 	"github.com/stretchr/testify/require"

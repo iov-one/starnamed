@@ -8,9 +8,9 @@ import (
 	channelkeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/keeper"
 	ibcante "github.com/cosmos/cosmos-sdk/x/ibc/core/ante"
 
-	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence

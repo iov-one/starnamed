@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"

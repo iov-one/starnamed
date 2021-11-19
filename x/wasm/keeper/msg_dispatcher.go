@@ -7,7 +7,7 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // Messenger is an extension point for custom wasmd message handling
