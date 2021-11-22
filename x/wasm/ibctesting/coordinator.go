@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/starnamed/x/wasm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
-	ibctesting "github.com/cosmos/cosmos-sdk/x/ibc/testing"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	"github.com/cosmos/ibc-go/modules/core/exported"
+	ibctesting "github.com/cosmos/ibc-go/testing"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

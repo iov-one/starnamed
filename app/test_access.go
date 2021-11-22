@@ -3,13 +3,13 @@ package app
 import (
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/keeper"
-	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
+	"github.com/iov-one/starnamed/x/wasm"
 )
 
 type TestSupport struct {

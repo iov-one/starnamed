@@ -5,12 +5,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	channelkeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/keeper"
-	ibcante "github.com/cosmos/cosmos-sdk/x/ibc/core/ante"
-
-	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
-
+	channelkeeper "github.com/cosmos/ibc-go/modules/core/04-channel/keeper"
+	ibcante "github.com/cosmos/ibc-go/modules/core/ante"
 	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
+	wasmTypes "github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence

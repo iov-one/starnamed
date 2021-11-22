@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	ibcexported "github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	ibcexported "github.com/cosmos/ibc-go/modules/core/exported"
 	"github.com/iov-one/starnamed/x/wasm/ibctesting"
 	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestIBCReflectContract(t *testing.T) {
-	t.Skip("Skip TestIBCReflectContract for now") // TODO: FIXME
+	// dmjp t.Skip("Skip TestIBCReflectContract for now") // TODO: FIXME
 
 	// scenario:
 	//  chain A: ibc_reflect_send.wasm
