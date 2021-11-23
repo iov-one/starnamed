@@ -13,7 +13,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/iov-one/starnamed/app"
-	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"google.golang.org/grpc"
@@ -41,7 +40,6 @@ func (tm *TxManager) WithKeybase(keys keyring.Keyring) *TxManager {
 func (tm *TxManager) Init() error {
 	encodingCfg := app.MakeEncodingConfig()
 	tm.clientCtx = client.Context{}.
-		WithJSONMarshaler(clientcodec.NewProtoCodec(encodingCfg.Marshaler, encodingCfg.InterfaceRegistry)).
 		WithInterfaceRegistry(encodingCfg.InterfaceRegistry).
 		WithTxConfig(encodingCfg.TxConfig).
 		WithHomeDir(app.DefaultNodeHome).

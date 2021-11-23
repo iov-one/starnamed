@@ -1,7 +1,6 @@
 package benchmarks
 
 import (
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -15,8 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 )
 
 func BenchmarkTxSending(b *testing.B) {
@@ -32,22 +29,10 @@ func BenchmarkTxSending(b *testing.B) {
 			txBuilder:   buildTxFromMsg(bankSendMsg),
 			numAccounts: 50,
 		},
-		"cw20 transfer - memdb": {
-			db:          buildMemDB,
-			blockSize:   20,
-			txBuilder:   buildTxFromMsg(cw20TransferMsg),
-			numAccounts: 50,
-		},
 		"basic send - leveldb": {
 			db:          buildLevelDB,
 			blockSize:   20,
 			txBuilder:   buildTxFromMsg(bankSendMsg),
-			numAccounts: 50,
-		},
-		"cw20 transfer - leveldb": {
-			db:          buildLevelDB,
-			blockSize:   20,
-			txBuilder:   buildTxFromMsg(cw20TransferMsg),
 			numAccounts: 50,
 		},
 		"basic send - leveldb - 8k accounts": {
@@ -56,34 +41,16 @@ func BenchmarkTxSending(b *testing.B) {
 			txBuilder:   buildTxFromMsg(bankSendMsg),
 			numAccounts: 8000,
 		},
-		"cw20 transfer - leveldb - 8k accounts": {
-			db:          buildLevelDB,
-			blockSize:   20,
-			txBuilder:   buildTxFromMsg(cw20TransferMsg),
-			numAccounts: 8000,
-		},
 		"basic send - leveldb - 8k accounts - huge blocks": {
 			db:          buildLevelDB,
 			blockSize:   1000,
 			txBuilder:   buildTxFromMsg(bankSendMsg),
 			numAccounts: 8000,
 		},
-		"cw20 transfer - leveldb - 8k accounts - huge blocks": {
-			db:          buildLevelDB,
-			blockSize:   1000,
-			txBuilder:   buildTxFromMsg(cw20TransferMsg),
-			numAccounts: 8000,
-		},
 		"basic send - leveldb - 80k accounts": {
 			db:          buildLevelDB,
 			blockSize:   20,
 			txBuilder:   buildTxFromMsg(bankSendMsg),
-			numAccounts: 80000,
-		},
-		"cw20 transfer - leveldb - 80k accounts": {
-			db:          buildLevelDB,
-			blockSize:   20,
-			txBuilder:   buildTxFromMsg(cw20TransferMsg),
 			numAccounts: 80000,
 		},
 	}
@@ -128,25 +95,6 @@ func bankSendMsg(info *AppInfo) ([]sdk.Msg, error) {
 	rcpt := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 	coins := sdk.Coins{sdk.NewInt64Coin(info.Denom, 100)}
 	sendMsg := banktypes.NewMsgSend(info.MinterAddr, rcpt, coins)
-	return []sdk.Msg{sendMsg}, nil
-}
-
-func cw20TransferMsg(info *AppInfo) ([]sdk.Msg, error) {
-	rcpt := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
-	transfer := cw20ExecMsg{Transfer: &transferMsg{
-		Recipient: rcpt.String(),
-		Amount:    765,
-	}}
-	transferBz, err := json.Marshal(transfer)
-	if err != nil {
-		return nil, err
-	}
-
-	sendMsg := &wasmtypes.MsgExecuteContract{
-		Sender:   info.MinterAddr.String(),
-		Contract: info.ContractAddr,
-		Msg:      transferBz,
-	}
 	return []sdk.Msg{sendMsg}, nil
 }
 

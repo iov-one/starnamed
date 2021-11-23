@@ -9,7 +9,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
-	"github.com/iov-one/starnamed/x/wasm"
 )
 
 type TestSupport struct {
@@ -23,10 +22,6 @@ func NewTestSupport(t *testing.T, app *WasmApp) *TestSupport {
 
 func (s TestSupport) IBCKeeper() ibckeeper.Keeper {
 	return *s.app.ibcKeeper
-}
-
-func (s TestSupport) WasmKeeper() wasm.Keeper {
-	return s.app.wasmKeeper
 }
 
 func (s TestSupport) AppCodec() codec.Codec {
