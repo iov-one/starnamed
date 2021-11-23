@@ -58,7 +58,7 @@ type WasmVMResponseHandler interface {
 // Keeper will have a reference to Wasmer with it's own data directory.
 type Keeper struct {
 	storeKey              sdk.StoreKey
-	cdc                   codec.Marshaler
+	cdc                   codec.Codec
 	accountKeeper         types.AccountKeeper
 	bank                  CoinTransferrer
 	portKeeper            types.PortKeeper
@@ -76,7 +76,7 @@ type Keeper struct {
 // NewKeeper creates a new contract Keeper instance
 // If customEncoders is non-nil, we can use this to override some of the message handler, especially custom
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.Codec,
 	storeKey sdk.StoreKey,
 	paramSpace paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
@@ -88,6 +88,7 @@ func NewKeeper(
 	capabilityKeeper types.CapabilityKeeper,
 	portSource types.ICS20TransferPortSource,
 	router sdk.Router,
+	msgRouter *baseapp.MsgServiceRouter,
 	queryRouter GRPCQueryRouter,
 	homeDir string,
 	wasmConfig types.WasmConfig,
@@ -111,7 +112,7 @@ func NewKeeper(
 		bank:             NewBankCoinTransferrer(bankKeeper),
 		portKeeper:       portKeeper,
 		capabilityKeeper: capabilityKeeper,
-		messenger:        NewDefaultMessageHandler(router, channelKeeper, capabilityKeeper, bankKeeper, cdc, portSource),
+		messenger:        NewDefaultMessageHandler(router, msgRouter, channelKeeper, capabilityKeeper, bankKeeper, cdc, portSource),
 		queryGasLimit:    wasmConfig.SmartQueryGasLimit,
 		paramSpace:       paramSpace,
 		gasRegister:      NewDefaultWasmGasRegister(),
@@ -200,7 +201,7 @@ func (k Keeper) create(ctx sdk.Context, creator sdk.AccAddress, wasmCode []byte,
 func (k Keeper) storeCodeInfo(ctx sdk.Context, codeID uint64, codeInfo types.CodeInfo) {
 	store := ctx.KVStore(k.storeKey)
 	// 0x01 | codeID (uint64) -> ContractInfo
-	store.Set(types.GetCodeKey(codeID), k.cdc.MustMarshalBinaryBare(&codeInfo))
+	store.Set(types.GetCodeKey(codeID), k.cdc.MustMarshal(&codeInfo))
 }
 
 func (k Keeper) importCode(ctx sdk.Context, codeID uint64, codeInfo types.CodeInfo, wasmCode []byte) error {
@@ -222,7 +223,7 @@ func (k Keeper) importCode(ctx sdk.Context, codeID uint64, codeInfo types.CodeIn
 		return sdkerrors.Wrapf(types.ErrDuplicate, "duplicate code: %d", codeID)
 	}
 	// 0x01 | codeID (uint64) -> ContractInfo
-	store.Set(key, k.cdc.MustMarshalBinaryBare(&codeInfo))
+	store.Set(key, k.cdc.MustMarshal(&codeInfo))
 	return nil
 }
 
@@ -259,7 +260,7 @@ func (k Keeper) instantiate(ctx sdk.Context, codeID uint64, creator, admin sdk.A
 		return nil, nil, sdkerrors.Wrap(types.ErrNotFound, "code")
 	}
 	var codeInfo types.CodeInfo
-	k.cdc.MustUnmarshalBinaryBare(bz, &codeInfo)
+	k.cdc.MustUnmarshal(bz, &codeInfo)
 
 	if !authZ.CanInstantiateContract(codeInfo.InstantiateConfig, creator) {
 		return nil, nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "can not instantiate")
@@ -362,6 +363,7 @@ func (k Keeper) execute(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "dispatch")
 	}
+
 	return data, nil
 }
 
@@ -431,6 +433,7 @@ func (k Keeper) migrate(ctx sdk.Context, contractAddress sdk.AccAddress, caller 
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "dispatch")
 	}
+
 	return data, nil
 }
 
@@ -467,6 +470,7 @@ func (k Keeper) Sudo(ctx sdk.Context, contractAddress sdk.AccAddress, msg []byte
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "dispatch")
 	}
+
 	return data, nil
 }
 
@@ -501,6 +505,7 @@ func (k Keeper) reply(ctx sdk.Context, contractAddress sdk.AccAddress, reply was
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "dispatch")
 	}
+
 	return data, nil
 }
 
@@ -551,7 +556,7 @@ func (k Keeper) appendToContractHistory(ctx sdk.Context, contractAddr sdk.AccAdd
 	for _, e := range newEntries {
 		pos++
 		key := types.GetContractCodeHistoryElementKey(contractAddr, pos)
-		store.Set(key, k.cdc.MustMarshalBinaryBare(&e)) //nolint:gosec
+		store.Set(key, k.cdc.MustMarshal(&e))
 	}
 }
 
@@ -561,7 +566,7 @@ func (k Keeper) GetContractHistory(ctx sdk.Context, contractAddr sdk.AccAddress)
 	iter := prefixStore.Iterator(nil, nil)
 	for ; iter.Valid(); iter.Next() {
 		var e types.ContractCodeHistoryEntry
-		k.cdc.MustUnmarshalBinaryBare(iter.Value(), &e)
+		k.cdc.MustUnmarshal(iter.Value(), &e)
 		r = append(r, e)
 	}
 	return r
@@ -576,7 +581,7 @@ func (k Keeper) getLastContractHistoryEntry(ctx sdk.Context, contractAddr sdk.Ac
 		// all contracts have a history
 		panic(fmt.Sprintf("no history for %s", contractAddr.String()))
 	}
-	k.cdc.MustUnmarshalBinaryBare(iter.Value(), &r)
+	k.cdc.MustUnmarshal(iter.Value(), &r)
 	return r
 }
 
@@ -622,14 +627,14 @@ func (k Keeper) contractInstance(ctx sdk.Context, contractAddress sdk.AccAddress
 		return types.ContractInfo{}, types.CodeInfo{}, prefix.Store{}, sdkerrors.Wrap(types.ErrNotFound, "contract")
 	}
 	var contractInfo types.ContractInfo
-	k.cdc.MustUnmarshalBinaryBare(contractBz, &contractInfo)
+	k.cdc.MustUnmarshal(contractBz, &contractInfo)
 
 	codeInfoBz := store.Get(types.GetCodeKey(contractInfo.CodeID))
 	if codeInfoBz == nil {
 		return contractInfo, types.CodeInfo{}, prefix.Store{}, sdkerrors.Wrap(types.ErrNotFound, "code info")
 	}
 	var codeInfo types.CodeInfo
-	k.cdc.MustUnmarshalBinaryBare(codeInfoBz, &codeInfo)
+	k.cdc.MustUnmarshal(codeInfoBz, &codeInfo)
 	prefixStoreKey := types.GetContractStorePrefix(contractAddress)
 	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), prefixStoreKey)
 	return contractInfo, codeInfo, prefixStore, nil
@@ -642,7 +647,7 @@ func (k Keeper) GetContractInfo(ctx sdk.Context, contractAddress sdk.AccAddress)
 	if contractBz == nil {
 		return nil
 	}
-	k.cdc.MustUnmarshalBinaryBare(contractBz, &contract)
+	k.cdc.MustUnmarshal(contractBz, &contract)
 	return &contract
 }
 
@@ -654,7 +659,7 @@ func (k Keeper) HasContractInfo(ctx sdk.Context, contractAddress sdk.AccAddress)
 // storeContractInfo persists the ContractInfo. No secondary index updated here.
 func (k Keeper) storeContractInfo(ctx sdk.Context, contractAddress sdk.AccAddress, contract *types.ContractInfo) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetContractAddressKey(contractAddress), k.cdc.MustMarshalBinaryBare(contract))
+	store.Set(types.GetContractAddressKey(contractAddress), k.cdc.MustMarshal(contract))
 }
 
 func (k Keeper) IterateContractInfo(ctx sdk.Context, cb func(sdk.AccAddress, types.ContractInfo) bool) {
@@ -662,7 +667,7 @@ func (k Keeper) IterateContractInfo(ctx sdk.Context, cb func(sdk.AccAddress, typ
 	iter := prefixStore.Iterator(nil, nil)
 	for ; iter.Valid(); iter.Next() {
 		var contract types.ContractInfo
-		k.cdc.MustUnmarshalBinaryBare(iter.Value(), &contract)
+		k.cdc.MustUnmarshal(iter.Value(), &contract)
 		// cb returns true to stop early
 		if cb(iter.Key(), contract) {
 			break
@@ -698,7 +703,7 @@ func (k Keeper) GetCodeInfo(ctx sdk.Context, codeID uint64) *types.CodeInfo {
 	if codeInfoBz == nil {
 		return nil
 	}
-	k.cdc.MustUnmarshalBinaryBare(codeInfoBz, &codeInfo)
+	k.cdc.MustUnmarshal(codeInfoBz, &codeInfo)
 	return &codeInfo
 }
 
@@ -712,7 +717,7 @@ func (k Keeper) IterateCodeInfos(ctx sdk.Context, cb func(uint64, types.CodeInfo
 	iter := prefixStore.Iterator(nil, nil)
 	for ; iter.Valid(); iter.Next() {
 		var c types.CodeInfo
-		k.cdc.MustUnmarshalBinaryBare(iter.Value(), &c)
+		k.cdc.MustUnmarshal(iter.Value(), &c)
 		// cb returns true to stop early
 		if cb(binary.BigEndian.Uint64(iter.Key()), c) {
 			return
@@ -727,7 +732,7 @@ func (k Keeper) GetByteCode(ctx sdk.Context, codeID uint64) ([]byte, error) {
 	if codeInfoBz == nil {
 		return nil, nil
 	}
-	k.cdc.MustUnmarshalBinaryBare(codeInfoBz, &codeInfo)
+	k.cdc.MustUnmarshal(codeInfoBz, &codeInfo)
 	return k.wasmVM.GetCode(codeInfo.CodeHash)
 }
 
@@ -868,9 +873,7 @@ func BuildContractAddress(codeID, instanceID uint64) sdk.AccAddress {
 	contractID := make([]byte, 16)
 	binary.BigEndian.PutUint64(contractID[:8], codeID)
 	binary.BigEndian.PutUint64(contractID[8:], instanceID)
-	// 20 bytes to work with Cosmos SDK 0.42 (0.43 pushes for 32 bytes)
-	// TODO: remove truncate if we update to 0.43 before wasmd 1.0
-	return Module(types.ModuleName, contractID)[:20]
+	return sdkaddress.Module(types.ModuleName, contractID)
 }
 
 // Hash and Module is taken from https://github.com/cosmos/cosmos-sdk/blob/v0.43.0-rc2/types/address/hash.go

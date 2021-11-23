@@ -6,10 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/iov-one/starnamed/app"
-	"github.com/iov-one/starnamed/x/wasm"
-	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
-	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -22,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
@@ -30,6 +25,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	"github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/x/wasm"
+	clientcodec "github.com/iov-one/starnamed/x/wasm/client/codec"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -52,7 +51,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	config.Seal()
 
 	initClientCtx := client.Context{}.
-		WithJSONMarshaler(clientcodec.NewProtoCodec(encodingConfig.Marshaler, encodingConfig.InterfaceRegistry)).
+		WithJSONCodec(clientcodec.NewProtoCodec(encodingConfig.Marshaler, encodingConfig.InterfaceRegistry)).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
@@ -69,7 +68,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd)
+			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
 		},
 	}
 
@@ -79,8 +78,6 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
-	authclient.Codec = encodingConfig.Marshaler
-
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
