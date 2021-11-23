@@ -34,7 +34,7 @@ var (
 // Keeper defines the escrow keeper
 type Keeper struct {
 	storeKey            sdk.StoreKey
-	cdc                 codec.Marshaler
+	cdc                 codec.Codec
 	paramSpace          paramstypes.Subspace
 	accountKeeper       types.AccountKeeper
 	bankKeeper          types.BankKeeper
@@ -45,7 +45,7 @@ type Keeper struct {
 
 // NewKeeper creates a new escrow Keeper instance
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.Codec,
 	key sdk.StoreKey,
 	paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper,

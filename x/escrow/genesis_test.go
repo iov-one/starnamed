@@ -20,7 +20,7 @@ import (
 
 type GenesisTestSuite struct {
 	suite.Suite
-	cdc       codec.JSONMarshaler
+	cdc       codec.JSONCodec
 	app       *app.WasmApp
 	ctx       sdk.Context
 	storeKey  sdk.StoreKey

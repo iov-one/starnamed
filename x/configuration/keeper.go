@@ -17,12 +17,12 @@ type ParamSubspace interface {
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
-	cdc        codec.Marshaler
+	cdc        codec.Codec
 	paramspace ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Codec, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,

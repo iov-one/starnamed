@@ -81,14 +81,14 @@ type Keeper struct {
 	DistributionKeeper  DistributionKeeper
 	// default fields
 	StoreKey   sdk.StoreKey // contains the store key for the domain module
-	Cdc        codec.Marshaler
+	Cdc        codec.Codec
 	paramspace ParamSubspace
 	// Used for block fees queries
 	cms sdk.CommitMultiStore
 }
 
 // NewKeeper creates a domain keeper
-func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, escrow EscrowKeeper, auth AuthKeeper, distrib DistributionKeeper, staking StakingKeeper, paramspace ParamSubspace, cms sdk.CommitMultiStore) Keeper {
+func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, escrow EscrowKeeper, auth AuthKeeper, distrib DistributionKeeper, staking StakingKeeper, paramspace ParamSubspace, cms sdk.CommitMultiStore) Keeper {
 	keeper := Keeper{
 		StoreKey:            storeKey,
 		Cdc:                 cdc,
