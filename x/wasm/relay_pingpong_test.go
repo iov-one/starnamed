@@ -28,7 +28,8 @@ const (
 
 var doNotTimeout = clienttypes.NewHeight(1, 1111111)
 
-func TestPinPong(t *testing.T) {
+func TestPingPong(t *testing.T) {
+	wasmibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	pingContract := &player{t: t, actor: ping}
 	pongContract := &player{t: t, actor: pong}
 

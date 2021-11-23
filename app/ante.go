@@ -22,6 +22,7 @@ func NewAnteHandler(
 	txCounterStoreKey sdk.StoreKey,
 	channelKeeper channelkeeper.Keeper,
 	wasmConfig wasmTypes.WasmConfig,
+	fk ante.FeegrantKeeper,
 ) sdk.AnteHandler {
 	// copied sdk https://github.com/cosmos/cosmos-sdk/blob/v0.42.9/x/auth/ante/ante.go
 	return sdk.ChainAnteDecorators(
@@ -34,10 +35,9 @@ func NewAnteHandler(
 		ante.TxTimeoutHeightDecorator{},
 		ante.NewValidateMemoDecorator(ak),
 		ante.NewConsumeGasForTxSizeDecorator(ak),
-		ante.NewRejectFeeGranterDecorator(),
 		ante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewValidateSigCountDecorator(ak),
-		ante.NewDeductFeeDecorator(ak, bankKeeper),
+		ante.NewDeductFeeDecorator(ak, bankKeeper, fk),
 		ante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		ante.NewSigVerificationDecorator(ak, signModeHandler),
 		ante.NewIncrementSequenceDecorator(ak),

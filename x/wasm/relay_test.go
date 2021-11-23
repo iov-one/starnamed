@@ -23,6 +23,7 @@ import (
 )
 
 func TestFromIBCTransferToContract(t *testing.T) {
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	// scenario: a contract can handle the receiving side of an ics20 transfer
 	myContract := receiverContract{t: t}
 	var (
@@ -76,6 +77,7 @@ func TestFromIBCTransferToContract(t *testing.T) {
 }
 
 func TestContractCanUseIBCTransferMsg(t *testing.T) {
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	// scenario: a contract can start an ibc transfer via ibctransfertypes.NewMsgTransfer
 	// on an existing connection
 	myContract := &sendViaIBCTransferContract{t: t}
@@ -133,6 +135,7 @@ func TestContractCanUseIBCTransferMsg(t *testing.T) {
 }
 
 func TestContractCanEmulateIBCTransferMessage(t *testing.T) {
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	// scenario: a contract can be the sending side of an ics20 transfer
 	// on an existing connection
 	myContract := &sendEmulatedIBCTransferContract{t: t}
@@ -193,6 +196,7 @@ func TestContractCanEmulateIBCTransferMessage(t *testing.T) {
 }
 
 func TestContractCanEmulateIBCTransferMessageWithTimeout(t *testing.T) {
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	// scenario: a contract is the sending side of an ics20 transfer but the packet was not received
 	// on the destination chain within the timeout boundaries
 	myContract := &sendEmulatedIBCTransferContract{t: t}
@@ -255,6 +259,7 @@ func TestContractCanEmulateIBCTransferMessageWithTimeout(t *testing.T) {
 }
 
 func TestContractHandlesChannelClose(t *testing.T) {
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	// scenario: a contract is the sending side of an ics20 transfer but the packet was not received
 	// on the destination chain within the timeout boundaries
 	myContractA := &captureCloseContract{}

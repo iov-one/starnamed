@@ -21,7 +21,7 @@ func TestIBCReflectContract(t *testing.T) {
 	//
 	//  Chain A "ibc_reflect_send" sends a IBC packet "on channel connect" event to chain B "ibc_reflect"
 	//  "ibc_reflect" sends a submessage to "reflect" which is returned as submessage.
-
+	ibctesting.DefaultTestingAppInit = wasmd.SetupTestingApp
 	var (
 		coordinator = ibctesting.NewCoordinator(t, 2, nil, nil)
 		chainA      = coordinator.GetChain(ibctesting.GetChainID(0))

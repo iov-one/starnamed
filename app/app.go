@@ -9,21 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	"github.com/cosmos/cosmos-sdk/store"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -31,8 +19,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
@@ -91,6 +82,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
+	"github.com/gorilla/mux"
 	"github.com/iov-one/starnamed/x/burner"
 	burnertypes "github.com/iov-one/starnamed/x/burner/types"
 	"github.com/iov-one/starnamed/x/configuration"
@@ -101,6 +93,14 @@ import (
 	"github.com/iov-one/starnamed/x/starname"
 	"github.com/iov-one/starnamed/x/wasm"
 	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
+	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmjson "github.com/tendermint/tendermint/libs/json"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -199,6 +199,7 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
+		feegrantmod.AppModuleBasic{},
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
 		escrow.AppModuleBasic{},
@@ -240,7 +241,7 @@ var (
 type WasmApp struct {
 	*baseapp.BaseApp
 	legacyAmino       *codec.LegacyAmino //nolint:staticcheck
-	appCodec          codec.Marshaler
+	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
 
 	invCheckPeriod uint
@@ -266,6 +267,7 @@ type WasmApp struct {
 	evidenceKeeper   evidencekeeper.Keeper
 	transferKeeper   ibctransferkeeper.Keeper
 	wasmKeeper       wasm.Keeper
+	feegrantkeeper   feegrantkeeper.Keeper
 	configKeeper     configuration.Keeper
 	starnameKeeper   starname.Keeper
 	escrowKeeper     escrowkeeper.Keeper
@@ -276,6 +278,9 @@ type WasmApp struct {
 
 	// the module manager
 	mm *module.Manager
+
+	// module configurator
+	configurator module.Configurator
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -305,7 +310,7 @@ func NewWasmApp(
 
 	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
-	bApp.SetAppVersion(version.Version)
+	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	//TODO: find a cleaner way to access store history
@@ -317,7 +322,7 @@ func NewWasmApp(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
+		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey, feegrant.StoreKey,
 		wasm.StoreKey, configuration.StoreKey, starname.DomainStoreKey, escrowtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -370,7 +375,7 @@ func NewWasmApp(
 	app.crisisKeeper = crisiskeeper.NewKeeper(
 		app.getSubspace(crisistypes.ModuleName), invCheckPeriod, app.bankKeeper, authtypes.FeeCollectorName,
 	)
-	app.upgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath)
+	app.upgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
 	app.RegisterUpgradeHandlers()
 
 	// register the staking hooks
@@ -379,9 +384,11 @@ func NewWasmApp(
 		stakingtypes.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
+	app.feegrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.accountKeeper)
+
 	// Create IBC Keeper
 	app.ibcKeeper = ibckeeper.NewKeeper(
-		appCodec, keys[ibchost.StoreKey], app.getSubspace(ibchost.ModuleName), app.stakingKeeper, scopedIBCKeeper,
+		appCodec, keys[ibchost.StoreKey], app.getSubspace(ibchost.ModuleName), app.stakingKeeper, app.upgradeKeeper, scopedIBCKeeper,
 	)
 
 	// register the proposal types
@@ -390,7 +397,7 @@ func NewWasmApp(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.upgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientUpdateProposalHandler(app.ibcKeeper.ClientKeeper))
+		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.ibcKeeper.ClientKeeper))
 
 	// Create Transfer Keepers
 	app.transferKeeper = ibctransferkeeper.NewKeeper(
@@ -399,10 +406,6 @@ func NewWasmApp(
 		app.accountKeeper, app.bankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.transferKeeper)
-
-	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -432,6 +435,7 @@ func NewWasmApp(
 		scopedWasmKeeper,
 		app.transferKeeper,
 		app.Router(),
+		app.MsgServiceRouter(),
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
@@ -473,6 +477,10 @@ func NewWasmApp(
 	if len(enabledProposals) != 0 {
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
 	}
+
+	// Create static IBC router, add transfer route, then set and seal it
+	ibcRouter := porttypes.NewRouter()
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.wasmKeeper, app.ibcKeeper.ChannelKeeper))
 	app.ibcKeeper.SetRouter(ibcRouter)
 
@@ -514,6 +522,7 @@ func NewWasmApp(
 		ibc.NewAppModule(app.ibcKeeper),
 		params.NewAppModule(app.paramsKeeper),
 		transferModule,
+		feegrantmod.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feegrantKeeper, app.interfaceRegistry),
 		configuration.NewAppModule(app.configKeeper),
 		starname.NewAppModule(app.starnameKeeper),
 		escrow.NewAppModule(appCodec, app.escrowKeeper),
@@ -547,7 +556,8 @@ func NewWasmApp(
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
-	app.mm.RegisterServices(module.NewConfigurator(app.MsgServiceRouter(), app.GRPCQueryRouter()))
+	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.mm.RegisterServices(app.configurator)
 
 	// add test gRPC service for testing gRPC queries in isolation
 	// testdata.RegisterTestServiceServer(app.GRPCQueryRouter(), testdata.QueryImpl{}) // TODO: this is testdata !!!!
@@ -568,6 +578,7 @@ func NewWasmApp(
 		params.NewAppModule(app.paramsKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.stakingKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
+		feegrantmod.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feegrantKeeper, app.interfaceRegistry),
 		ibc.NewAppModule(app.ibcKeeper),
 		transferModule,
 	)
@@ -604,7 +615,8 @@ func NewWasmApp(
 		// Note that since this reads from the store, we can only perform it when
 		// `loadLatest` is set to true.
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-		app.capabilityKeeper.InitializeAndSeal(ctx)
+		app.capabilityKeeper.InitMemStore(ctx)
+		app.capabilityKeeper.Seal()
 
 		// Initialize pinned codes in wasmvm as they are not persisted there
 		if err := app.wasmKeeper.InitializePinnedCodes(ctx); err != nil {
@@ -709,7 +721,7 @@ func (app *WasmApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 
-func (app *WasmApp) AppCodec() codec.JSONMarshaler {
+func (app *WasmApp) AppCodec() codec.JSONCodec {
 	return app.appCodec
 }
 
@@ -734,7 +746,7 @@ func GetMaccPerms() map[string][]string {
 }
 
 // initParamsKeeper init params keeper and its subspaces
-func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper { //nolint:staticcheck
+func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper { //nolint:staticcheck
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
@@ -753,4 +765,29 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(escrowtypes.ModuleName)
 
 	return paramsKeeper
+}
+
+// GetBaseApp implements the TestingApp interface.
+func (app *WasmApp) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *WasmApp) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.stakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *WasmApp) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.ibcKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *WasmApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.scopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *WasmApp) GetTxConfig() client.TxConfig {
+	return MakeEncodingConfig().TxConfig
 }
