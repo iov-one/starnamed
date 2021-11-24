@@ -46,7 +46,10 @@ func (v SignatureVerifier) Verify(tx sdk.Tx) error {
 		}
 	}
 
-	signers := sigTx.GetPubKeys()
+	signers, err := sigTx.GetPubKeys()
+	if err != nil {
+		return err
+	}
 	if len(signers) == 0 {
 		return sdkerrors.ErrInvalidPubKey
 	}
@@ -89,12 +92,12 @@ func verifyMessage(m sdk.Msg) error {
 	// generally speaking we do not want to try to handle
 	// any other type of transaction aside from the offchain ones
 	// as they abide by different rules
-	_, valid := m.(msg)
+	msg, valid := m.(msg)
 	if !valid {
 		return fmt.Errorf("%w: %T", errInvalidType, m)
 	}
-	if m.Route() != ExpectedRoute {
-		return fmt.Errorf("%w: %s", errInvalidRoute, m.Route())
+	if msg.Route() != ExpectedRoute {
+		return fmt.Errorf("%w: %s", errInvalidRoute, msg.Route())
 	}
 	return nil
 }
