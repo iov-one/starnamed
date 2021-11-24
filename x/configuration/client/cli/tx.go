@@ -102,7 +102,7 @@ func getCmdUpdateConfig() *cobra.Command {
 					&types.MsgUpdateFees{},
 				)
 				marshaler := codec.NewProtoCodec(interfaceRegistry)
-				marshaler.MustUnmarshalBinaryBare(rawCfg, config)
+				marshaler.MustUnmarshal(rawCfg, config)
 			}
 			var signer string
 			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag

@@ -43,7 +43,7 @@ func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 		panic("no configuration available")
 	}
 	var conf types.Config
-	k.cdc.MustUnmarshalBinaryBare(confBytes, &conf)
+	k.cdc.MustUnmarshal(confBytes, &conf)
 	// success
 	return conf
 }
@@ -72,7 +72,7 @@ func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
 // SetConfig updates or saves a new config in the store
 func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshalBinaryBare(&conf))
+	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshal(&conf))
 }
 
 // GetDomainGracePeriod returns the default grace period before domains

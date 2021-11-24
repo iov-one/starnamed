@@ -17,8 +17,8 @@ func NewDecodeStore(cdc codec.Codec) func(kvA, kvB kv.Pair) string {
 		switch {
 		case bytes.Equal(kvA.Key[:1], keeper.EscrowStoreKey):
 			var escrow1, escrow2 types.Escrow
-			cdc.MustUnmarshalBinaryBare(kvA.Value, &escrow1)
-			cdc.MustUnmarshalBinaryBare(kvB.Value, &escrow2)
+			cdc.MustUnmarshal(kvA.Value, &escrow1)
+			cdc.MustUnmarshal(kvB.Value, &escrow2)
 			return fmt.Sprintf("%v\n%v", escrow1, escrow2)
 
 		case bytes.Equal(kvA.Key[:1], keeper.DeadlineStoreKey):
