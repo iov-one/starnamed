@@ -12,10 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/iov-one/starnamed/app"
-	abci "github.com/tendermint/tendermint/abci/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"google.golang.org/grpc"
+
+	"github.com/iov-one/starnamed/app"
 )
 
 type TxManager struct {
@@ -23,13 +22,12 @@ type TxManager struct {
 	keys       keyring.Keyring
 	faucetAcc  authtypes.AccountI
 	grpcClient *grpc.ClientConn
-	rpcClient  *rpchttp.HTTP
 	clientCtx  client.Context
 	faucetAddr string
 }
 
-func NewTxManager(conf *Configuration, conn *grpc.ClientConn, rpcClient *rpchttp.HTTP) *TxManager {
-	return &TxManager{grpcClient: conn, conf: conf, rpcClient: rpcClient}
+func NewTxManager(conf *Configuration, conn *grpc.ClientConn) *TxManager {
+	return &TxManager{grpcClient: conn, conf: conf}
 }
 
 func (tm *TxManager) WithKeybase(keys keyring.Keyring) *TxManager {
@@ -42,8 +40,7 @@ func (tm *TxManager) Init() error {
 	tm.clientCtx = client.Context{}.
 		WithInterfaceRegistry(encodingCfg.InterfaceRegistry).
 		WithTxConfig(encodingCfg.TxConfig).
-		WithHomeDir(app.DefaultNodeHome).
-		WithClient(tm.rpcClient)
+		WithHomeDir(app.DefaultNodeHome)
 
 	info, err := tm.keys.Key("faucet")
 	if err != nil {
@@ -79,17 +76,6 @@ func (tm *TxManager) refreshAccount() error {
 	}
 	tm.faucetAcc = account
 	return nil
-}
-
-func (tm *TxManager) queryWithData(path string, data []byte) ([]byte, int64, error) {
-	res, err := tm.clientCtx.Client.ABCIQuery(context.TODO(), path, data)
-	if err != nil {
-		panic(err)
-	}
-	if res.Response.Code != abci.CodeTypeOK {
-		return nil, 0, errors.New("faucet", 1, "Error while simulating the transaction")
-	}
-	return res.Response.Value, res.Response.Height, nil
 }
 
 func (tm *TxManager) BroadcastTx(tx []byte) (*sdk.TxResponse, error) {
@@ -134,7 +120,7 @@ func (tm *TxManager) BuildAndSignTx(targetAddr string) ([]byte, error) {
 	txBuilder.SetMemo(tm.conf.Memo)
 
 	// Set gas limit and fee amount
-	_, adjusted, err := clienttx.CalculateGas(tm.queryWithData, fact, txBuilder.GetTx().GetMsgs()...)
+	_, adjusted, err := clienttx.CalculateGas(tm.grpcClient, fact, txBuilder.GetTx().GetMsgs()...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to simulate the transaction")
 	}
