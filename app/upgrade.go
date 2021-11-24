@@ -7,23 +7,46 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authz "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 )
 
 type upgradeData struct {
-	name    string
-	handler upgradetypes.UpgradeHandler
+	name                  string
+	handler               upgradetypes.UpgradeHandler
+	storeLoaderRegisterer func(*WasmApp, storetypes.UpgradeInfo)
 }
 
 func (app *WasmApp) RegisterUpgradeHandlers() {
-	upgrades := []upgradeData{getIOVMainnetIBC2UpgradeHandler(app)}
+	upgrades := []upgradeData{
+		getIOVMainnetIBC2UpgradeHandler(app),
+		getCosmosSDKv44UpgradeHandler(app),
+	}
+
+	upgradeInfo, err := app.upgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(sdkerrors.Wrap(err, "cannot read upgrade info to register store loaders"))
+	}
 
 	for _, upgrade := range upgrades {
+		// Register upgrade handler
 		app.upgradeKeeper.SetUpgradeHandler(upgrade.name, upgrade.handler)
+
+		// Run the store migrations when needed
+		// This is taken from https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
+		if upgradeInfo.Name == upgrade.name && !app.upgradeKeeper.IsSkipHeight(upgradeInfo.Height) &&
+			upgrade.storeLoaderRegisterer != nil {
+			upgrade.storeLoaderRegisterer(app, upgradeInfo)
+		}
 	}
+
 }
 
 func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
@@ -147,4 +170,57 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 		return vm, nil
 	}
 	return upgradeData{name: planName, handler: handler}
+}
+
+func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
+	const planName = "cosmos-sdk-v0.44-upgrade"
+	handler := func(ctx sdk.Context, plan upgradetypes.Plan, fromVersionMap module.VersionMap) (module.VersionMap, error) {
+		// Overwrite the version map :
+		// Set up modules that were already present in previous version (but were not registered as the version map didn't
+		// exist prior to v0.44.3). All those modules are at there first registered version (1).
+		// If we keep the version map as is (empty) the upgrade handler will use the DefaultGenesis state for those modules
+		fromVersionMap = map[string]uint64{
+			// Cosmos sdk modules
+			"auth":         1,
+			"bank":         1,
+			"capability":   1,
+			"crisis":       1,
+			"distribution": 1,
+			"evidence":     1,
+			"gov":          1,
+			"mint":         1,
+			"params":       1,
+			"slashing":     1,
+			"staking":      1,
+			"upgrade":      1,
+			"vesting":      1,
+			"ibc":          1,
+			"genutil":      1,
+			"transfer":     1,
+
+			// Custom modules
+			"configuration": 1,
+			"burner":        1, // the burner module has no state but it implements AppModule so its better to put it here
+			"starname":      1,
+
+			// The escrow is a newly introduced module, as well as the feegrant and authz modules so we do not include them
+		}
+		return app.mm.RunMigrations(ctx, app.configurator, fromVersionMap)
+	}
+
+	// Set the store loader for the 3 new modules : authz, feegrant and escrow
+	setStoreLoader := func(app *WasmApp, info storetypes.UpgradeInfo) {
+		storeUpgrades := storetypes.StoreUpgrades{
+			Added: []string{authz.StoreKey, feegrant.StoreKey, escrowtypes.StoreKey},
+		}
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(info.Height, &storeUpgrades))
+	}
+
+	return upgradeData{
+		name:                  planName,
+		handler:               handler,
+		storeLoaderRegisterer: setStoreLoader,
+	}
 }
