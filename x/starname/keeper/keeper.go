@@ -44,6 +44,7 @@ type DistributionKeeper interface {
 // StakingKeeper is used to estimate the yield of the chain
 type StakingKeeper interface {
 	GetLastTotalPower(ctx sdk.Context) sdk.Int
+	TokensFromConsensusPower(ctx sdk.Context, power int64) sdk.Int
 }
 
 // ConfigurationKeeper defines the behaviour of the configuration state checks

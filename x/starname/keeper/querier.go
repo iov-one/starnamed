@@ -341,11 +341,10 @@ func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 
 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
 
-	totalDelegatedTokens := keeper.StakingKeeper.GetLastTotalPower(ctx) // in iov
+	totalDelegatedPower := keeper.StakingKeeper.GetLastTotalPower(ctx) // in voting power unit
 
-	// Voting power is returned in tokens while fees are in a sub-unit (iov vs uiov)
-	multiplier := 1e6
-	totalDelegatedTokens = totalDelegatedTokens.Mul(sdk.NewInt(int64(multiplier))) // in uiov
+	// Translate the voting power to actual tokens
+	totalDelegatedTokens := keeper.StakingKeeper.TokensFromConsensusPower(ctx, totalDelegatedPower.Int64()) // in tokens (uiov)
 
 	// Compute yield for numBlocks blocks
 	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
