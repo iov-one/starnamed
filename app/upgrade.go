@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -97,7 +98,7 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 		}},
 	}
 
-	handler := func(ctx sdk.Context, plan upgradetypes.Plan) {
+	handler := func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 
 		if !plan.ShouldExecute(ctx) || plan.Name != planName {
 			panic(fmt.Errorf("the %s upgrade handler has been called when it should not have been", planName))
@@ -106,7 +107,7 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 		for _, accountData := range multisigAccounts {
 			address, err := sdk.AccAddressFromBech32(accountData.address)
 			if err != nil {
-				panic(sdkerrors.Wrap(err, "error while decoding a multisig account address"))
+				return vm, sdkerrors.Wrap(err, "error while decoding a multisig account address")
 			}
 
 			// Get the account
@@ -115,7 +116,7 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 			// Ensure that the account is a multisig account
 			multisigPubkey, match := account.GetPubKey().(*multisig.LegacyAminoPubKey)
 			if !match {
-				panic(fmt.Errorf("the accounts %s is not a multisig account", accountData.address))
+				return vm, fmt.Errorf("the accounts %s is not a multisig account", accountData.address)
 			}
 
 			// Populate the pubkeys array
@@ -123,25 +124,27 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 
 				pubkeyBytes, err := base64.StdEncoding.DecodeString(pubkeyData)
 				if err != nil {
-					panic(fmt.Errorf("error while decdoding the pubkey number %d of account %s", n, accountData.address))
+					return vm, fmt.Errorf("error while decdoding the pubkey number %d of account %s", n, accountData.address)
 				}
 				pubkey := &secp256k1.PubKey{Key: pubkeyBytes}
 
 				wrappedPubkey, err := cdctypes.NewAnyWithValue(pubkey)
 				if err != nil {
-					panic(fmt.Errorf("error while packing the pubkey number %d of account %s", n, accountData.address))
+					return vm, fmt.Errorf("error while packing the pubkey number %d of account %s", n, accountData.address)
 				}
 				multisigPubkey.PubKeys = append(multisigPubkey.PubKeys, wrappedPubkey)
 			}
 
 			// Write back the multi signature public key to the account
 			if err := account.SetPubKey(multisigPubkey); err != nil {
-				panic(fmt.Errorf("error while writing the multisig pubkey back to the account %s", accountData.address))
+				return vm, fmt.Errorf("error while writing the multisig pubkey back to the account %s", accountData.address)
 			}
 
 			// Write back the account to the store
 			app.accountKeeper.SetAccount(ctx, account)
 		}
+
+		return vm, nil
 	}
 	return upgradeData{name: planName, handler: handler}
 }
