@@ -22,7 +22,7 @@ describe( "Tests the CLI.", () => {
       }
 
       const amount = 1.25e6;
-      const signed = msig1SignTx( [ "tx", "staking", "delegate", validator, `${amount}${denomStake}`, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed = msig1SignTx( [ "tx", "staking", "delegate", validator, `${amount}${denomStake}`, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const signedTmp = writeTmpJson( signed );
 
       const broadcasted = cli( [ "tx", "broadcast", signedTmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
@@ -35,7 +35,7 @@ describe( "Tests the CLI.", () => {
 
    it( `Should do a multisig send.`, async () => {
       const amount = 1000000;
-      const signed = msig1SignTx( [ "tx", "send", msig1, w1, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed = msig1SignTx( [ "tx", "send", msig1, w1, `${amount}${denomFee}`, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const signedTmp = writeTmpJson( signed );
 
       const balance0 = cli( [ "query", "bank", "balances", w1 ] );
@@ -61,7 +61,7 @@ describe( "Tests the CLI.", () => {
       } );
 
       const feesTmp = writeTmpJson( fees );
-      const signed = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", feesTmp, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", feesTmp, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const signedTmp = writeTmpJson( signed );
       const broadcasted = cli( [ "tx", "broadcast", signedTmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
       const updated = cli( [ "query", "configuration", "get-fees" ] );
@@ -80,7 +80,7 @@ describe( "Tests the CLI.", () => {
 
       // restore original fees
       const fees0Tmp = writeTmpJson( fees0.fees );
-      const signed0 = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", fees0Tmp, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed0 = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", fees0Tmp, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const signed0Tmp = writeTmpJson( signed0 );
       const restore = cli( [ "tx", "broadcast", signed0Tmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
       const restored = cli( [ "query", "configuration", "get-fees" ] );
@@ -95,7 +95,7 @@ describe( "Tests the CLI.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const certificate0 = validCertificate;
       const base64 = Base64.encode( certificate0 );
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "domain-register", ...common ] ),
          cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
@@ -135,7 +135,7 @@ describe( "Tests the CLI.", () => {
       const invalidity = "scammer";
       const invalid = certificate0.replace( "hjkwbdkj", invalidity ); // invalidate the certificate
       const base64 = Base64.encode( invalid );
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "domain-register", ...common ] ),
          cli( [ "tx", "starname", "account-register", "--name", name, ...common ] ),
@@ -172,7 +172,7 @@ describe( "Tests the CLI.", () => {
    it( `Should register a domain with a broker.`, async () => {
       const broker = w1;
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
@@ -188,12 +188,12 @@ describe( "Tests the CLI.", () => {
       const broker = w1;
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const registeredDomain = cli( [ "tx", "starname", "domain-register", "--yes", "--broadcast-mode", "block", "--domain", domain,                 "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registeredDomain = cli( [ "tx", "starname", "domain-register", "--yes", "--broadcast-mode", "block", "--domain", domain,                 "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registeredDomain.txhash ).toBeDefined();
       if ( !registeredDomain.logs ) throw new Error( registeredDomain.raw_log );
 
-      const registered = cli( [ "tx", "starname", "account-register", "--yes", "--broadcast-mode", "block", "--domain", domain, "--name", name, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = cli( [ "tx", "starname", "account-register", "--yes", "--broadcast-mode", "block", "--domain", domain, "--name", name, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
@@ -207,7 +207,7 @@ describe( "Tests the CLI.", () => {
 
 
    it( `Should do a multisig reward withdrawl.`, async () => {
-      const signed = msig1SignTx( [ "tx", "distribution", "withdraw-rewards", validator, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const signed = msig1SignTx( [ "tx", "distribution", "withdraw-rewards", validator, "--from", msig1, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const signedTmp = writeTmpJson( signed );
 
       const balance0 = cli( [ "query", "bank", "balances", msig1 ] );
@@ -225,7 +225,7 @@ describe( "Tests the CLI.", () => {
       const name = `${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "obviated by resource";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
@@ -248,7 +248,7 @@ describe( "Tests the CLI.", () => {
       expect( resolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
 
       const recipient = w1;
-      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( transferred.gas_used ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
@@ -275,7 +275,7 @@ describe( "Tests the CLI.", () => {
       const other = w2; // 3rd party account owner in this case
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
@@ -301,7 +301,7 @@ describe( "Tests the CLI.", () => {
       expect( resolvedOther.account.owner ).toEqual( other );
 
       const recipient = w1;
-      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( transferred.gas_used ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
@@ -328,7 +328,7 @@ describe( "Tests the CLI.", () => {
       const other = w2; // 3rd party account owner in this case
       const metadata = "Why the uri suffix?";
       const metadataEmpty = "top-level corporate info"; // metadata for the empty account
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "register-account",  "--name", name, ...common ] ),
@@ -354,7 +354,7 @@ describe( "Tests the CLI.", () => {
       expect( resolvedOther.account.owner ).toEqual( other );
 
       const recipient = w1;
-      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( transferred.gas_used ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
@@ -376,7 +376,7 @@ describe( "Tests the CLI.", () => {
 
    it( `Should register an open domain and transfer it.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
@@ -388,7 +388,7 @@ describe( "Tests the CLI.", () => {
       expect( domainInfo.domain.type ).toEqual( "open" );
 
       const recipient = w1;
-      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const transferred = cli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( transferred.txhash ).toBeDefined();
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
@@ -404,13 +404,13 @@ describe( "Tests the CLI.", () => {
    it( `Should register and renew a domain.`, async () => {
       // register domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
 
       // register account
-      const notEmpty = cli( [ "tx", "starname", "register-account", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--name", "not-empty" ] );
+      const notEmpty = cli( [ "tx", "starname", "register-account", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--name", "not-empty" ] );
 
       expect( notEmpty.txhash ).toBeDefined();
       if ( !notEmpty.logs ) throw new Error( notEmpty.raw_log );
@@ -421,7 +421,7 @@ describe( "Tests the CLI.", () => {
 
       // renew
       const balance0 = cli( [ "query", "bank", "balances", signer ] );
-      const renewed = cli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const renewed = cli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( renewed.txhash ).toBeDefined();
       if ( !renewed.logs ) throw new Error( renewed.raw_log );
@@ -443,7 +443,7 @@ describe( "Tests the CLI.", () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "domain-register", "--generate-only", "--type", "open", ...common ] ),
          cli( [ "tx", "starname", "account-register", "--generate-only", "--name", name, ...common ] ),
@@ -475,7 +475,7 @@ describe( "Tests the CLI.", () => {
    // TODO: don't skip when the message signing module is integrated
    it.skip( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
       const message = "Hello, World!";
-      const created = cli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--memo", memo(), "--generate-only" ] );
+      const created = cli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--note", memo(), "--generate-only" ] );
       const tmpCreated = writeTmpJson( created );
       const signed = cli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
       const tmpSigned = writeTmpJson( signed );
@@ -508,7 +508,7 @@ describe( "Tests the CLI.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
@@ -540,7 +540,7 @@ describe( "Tests the CLI.", () => {
          }
       ];
       const fileResources = writeTmpJson( resources );
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-resources", "--name", "", "--src", fileResources, ...common ] ),
@@ -559,7 +559,7 @@ describe( "Tests the CLI.", () => {
 
       const emptyResources = [];
       const tmpResources = writeTmpJson( emptyResources );
-      const replaceResources1 = cli( [ "tx", "starname", "set-resources", "--domain", domain, "--name", "", "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources1 = cli( [ "tx", "starname", "set-resources", "--domain", domain, "--name", "", "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const broadcasted1 = signAndBroadcastTx( replaceResources1 );
 
       expect( broadcasted1.gas_used ).toBeDefined();
@@ -574,7 +574,7 @@ describe( "Tests the CLI.", () => {
    it( `Should register a domain, set metadata, and delete metadata.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const metadata = "Not empty.";
-      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ];
+      const common = [ "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ];
       const unsigned = makeTx(
          cli( [ "tx", "starname", "register-domain", ...common ] ),
          cli( [ "tx", "starname", "set-account-metadata", "--name", "", "--metadata", metadata, ...common ] ),
@@ -592,7 +592,7 @@ describe( "Tests the CLI.", () => {
       expect( resolved.account.metadata_uri ).toEqual( metadata );
 
       const metadata1 = "";
-      const setMetadata1 = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadata1, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata1 = cli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadata1, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--note", memo() ] );
       const broadcasted1 = signAndBroadcastTx( setMetadata1 );
 
       expect( broadcasted1.gas_used ).toBeDefined();
@@ -607,11 +607,11 @@ describe( "Tests the CLI.", () => {
    it("Should create and transfer coins to an account escrow and a domain escrow", async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned);
       expect( broadcasted.logs ).toBeDefined();
 
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
        broadcasted = signAndBroadcastTx( unsigned);
        expect( broadcasted.logs ).toBeDefined();
 
@@ -619,12 +619,12 @@ describe( "Tests the CLI.", () => {
       const expiration = new Date(Date.now() + 100000);
       let idDomainEscrow, idAccountEscrow;
 
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect(broadcasted.logs).toBeDefined()
       expect( idDomainEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
        broadcasted = signAndBroadcastTx( unsigned );
        expect(broadcasted.logs).toBeDefined()
        expect( idAccountEscrow = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
@@ -648,7 +648,7 @@ describe( "Tests the CLI.", () => {
        expect(result.account.owner).not.toEqual(signer)
 
       // transfer domain
-      unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned , "w1");
       expect(broadcasted.logs).toBeDefined()
       // Check escrow does not exist
@@ -661,7 +661,7 @@ describe( "Tests the CLI.", () => {
       expect(result.domain.admin).toEqual(w1)
 
       // transfer account
-      unsigned = cli(["tx", "escrow", "transfer", idAccountEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "escrow", "transfer", idAccountEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
        broadcasted = signAndBroadcastTx( unsigned , "w1");
        expect(broadcasted.logs).toBeDefined()
       // Check escrow does not exist
@@ -678,7 +678,7 @@ describe( "Tests the CLI.", () => {
       // Create domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
@@ -686,14 +686,14 @@ describe( "Tests the CLI.", () => {
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000)
       let escrowId;
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
       // Modify deadline and price
       const modifiedPrice = "120" + denomFee;
       const modifiedExpiration = new Date(expiration.valueOf() + 5000000)
-      unsigned = cli(["tx", "escrow", "update", "--yes", escrowId, "--expiration", modifiedExpiration.toISOString(), "--price", modifiedPrice, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "escrow", "update", "--yes", escrowId, "--expiration", modifiedExpiration.toISOString(), "--price", modifiedPrice, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs  ).toBeDefined();
 
@@ -710,7 +710,7 @@ describe( "Tests the CLI.", () => {
       expect(result.domain.admin).not.toEqual(signer)
 
       // Refund
-      unsigned = cli(["tx", "escrow", "refund", escrowId, "--yes","--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "escrow", "refund", escrowId, "--yes","--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
@@ -727,7 +727,7 @@ describe( "Tests the CLI.", () => {
       // Create domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
@@ -736,7 +736,7 @@ describe( "Tests the CLI.", () => {
       const price = "100" + denomFee;
       const expirationTooFar = "5025-01-01T00:00:00Z";
       let escrowId;
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"], true)
       expect( unsigned.length).toBe(0);
 
 
@@ -746,7 +746,7 @@ describe( "Tests the CLI.", () => {
 
       // Create escrow
       let expiration = new Date(Date.now() + 1000000)
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
@@ -756,7 +756,7 @@ describe( "Tests the CLI.", () => {
       expect(result.escrow.id).toEqual(escrowId)
 
       // Modify deadline after max period
-      unsigned = cli(["tx", "escrow", "update", "--yes", "--expiration", expirationTooFar, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
+      unsigned = cli(["tx", "escrow", "update", "--yes", "--expiration", expirationTooFar, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"], true)
       expect( unsigned.length ).toBe(0);
       // check data
       result = cli(["query", "escrow", "escrow", escrowId])
@@ -770,12 +770,12 @@ describe( "Tests the CLI.", () => {
           const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
           const name = "test";
           // Create domain
-          let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+          let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
           let broadcasted = signAndBroadcastTx( unsigned );
           expect( broadcasted.logs ).toBeDefined();
 
           // Create account
-          unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+          unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
           broadcasted = signAndBroadcastTx( unsigned );
           expect( broadcasted.logs ).toBeDefined();
 
@@ -791,11 +791,11 @@ describe( "Tests the CLI.", () => {
           //Create escrow domain / account with long expiration date
           const price = "100" + denomFee;
           let expirationTooFar = new Date((domainExpiration + 10) * 1000).toISOString()
-          unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
+          unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"], true)
           expect( unsigned.length).toBe(0);
 
         expirationTooFar = new Date((accountExpiration + 10) * 1000).toISOString()
-          unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"], true)
+          unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expirationTooFar, "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"], true)
           expect( unsigned.length).toBe(0);
 
           // Check does not exist
@@ -809,22 +809,22 @@ describe( "Tests the CLI.", () => {
       // Create domain
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
       // Create account
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       signAndBroadcastTx( unsigned );
 
       // Create escrows
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000);
       let escrowDomainId, escrowAccountId;
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowDomainId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( escrowAccountId = JSON.parse(broadcasted.logs[0].events[1].attributes.find(a => a.key === "id").value) ).toBeDefined();
 
@@ -870,19 +870,19 @@ describe( "Tests the CLI.", () => {
    it("Should reject the creation of an escrow with a closed-domain account ", async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned);
       expect( broadcasted.logs ).toBeDefined();
 
       // Create account
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000);
 
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeUndefined();
 
@@ -896,7 +896,7 @@ describe( "Tests the CLI.", () => {
 
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = "test";
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned);
       expect( broadcasted.logs ).toBeDefined();
 
@@ -904,14 +904,14 @@ describe( "Tests the CLI.", () => {
       await new Promise(resolve => setTimeout(resolve, 2000))
 
       // Create account
-      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      unsigned = cli([ "tx", "starname", "register-account", "--yes", "--name", name, "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + config.domain_renewal_period / 1e6 - 1000);
 
-      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-account-escrow", "--yes", "--name", name, "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeUndefined();
 
@@ -922,14 +922,14 @@ describe( "Tests the CLI.", () => {
 
    it("Should create a closed-domain escrow", async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only" ])
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
       let broadcasted = signAndBroadcastTx( unsigned);
       expect( broadcasted.logs ).toBeDefined();
 
       const price = "100" + denomFee;
       const expiration = new Date(Date.now() + 100000);
 
-      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--memo", memo(), "--generate-only"])
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned );
       expect( broadcasted.logs ).toBeDefined();
 
@@ -953,7 +953,7 @@ describe( "Tests the CLI.", () => {
       const amount = 1e6;
       const supply0 = { balances: cli( [ "query", "bank", "total" ] ).supply };
       const balance0 = cli( [ "query", "bank", "balances", signer ] );
-      const burned = cli( [ "tx", "send", signer, burner, `${amount}${denomFee}`, "--yes", "--broadcast-mode", "block", "--gas-prices", gasPrices, "--memo", memo() ] );
+      const burned = cli( [ "tx", "send", signer, burner, `${amount}${denomFee}`, "--yes", "--broadcast-mode", "block", "--gas-prices", gasPrices, "--note", memo() ] );
       const supply = { balances: cli( [ "query", "bank", "total" ] ).supply };
       const balance = cli( [ "query", "bank", "balances", signer ] );
       const blackhole = cli( [ "query", "bank", "balances", burner ] );
