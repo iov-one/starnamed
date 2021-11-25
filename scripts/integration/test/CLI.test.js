@@ -955,7 +955,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.only( `Should burn tokens.`, async () => {
+   it( `Should burn tokens.`, async () => {
       const signer = w1;
       const amount = 1e6;
       const supply0 = { balances: cli( [ "query", "bank", "total" ] ).supply };

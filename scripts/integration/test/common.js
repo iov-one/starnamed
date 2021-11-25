@@ -56,26 +56,10 @@ export const signTx = ( tx, from, multisig = "", amino = false ) => {
    const tmpname = writeTmpJson( tx );
    const args = [ "tx", "sign", tmpname, "--from", from ];
    if ( multisig != "" ) args.push( "--multisig", multisig );
-   if ( amino ) args.push( "--amino", "--sign-mode", "amino-json");
+   if ( amino ) throw new Error( "There is no amino." );
    const signed = cli( args );
 
    return signed;
-};
-
-
-export const postTx = async ( signed ) => {
-   const tx = { tx: signed.tx, mode: "block" };
-   const fetched = await fetch( `${urlRest}/txs`, { method: "POST", body: JSON.stringify( tx ) } );
-
-   return fetched;
-};
-
-
-export const signAndPost = async ( unsigned, from = signer ) => {
-   const tx = signTx( unsigned, from, "", true );
-   const posted = await postTx( tx );
-
-   return posted;
 };
 
 
