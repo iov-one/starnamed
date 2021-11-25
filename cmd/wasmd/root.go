@@ -26,7 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/iov-one/starnamed/app"
-	clientcodec "github.com/iov-one/starnamed/x/starname/client/codec"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
@@ -48,7 +47,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	config.Seal()
 
 	initClientCtx := client.Context{}.
-		WithJSONCodec(clientcodec.NewProtoCodec(encodingConfig.Marshaler, encodingConfig.InterfaceRegistry)).
+		WithCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
