@@ -36,11 +36,9 @@ export const cli = ( args , shouldFail = false) => {
 
    if ( shouldFail !== !!app.status ) throw app.error ? app.error : new Error( app.stderr.length ? app.stderr : app.stdout ) ;
 
-   if (shouldFail)
-      return app.stdout
-   else
-      return JSON.parse( app.stdout );
+   const inconsistent = app.stdout.length ? app.stdout: app.stderr; // HACK around the sdk's continued inconsistencies re stdout and stderr
 
+   return shouldFail ? inconsistent : JSON.parse( inconsistent )
 };
 
 
