@@ -16,12 +16,12 @@ var _ codec.Codec = (*ProtoCodec)(nil)
 // This Marshaler can be used globally when setting up the client context or individually
 // for each command via `clientCtx.WithJSONCodec(myMarshaler)`.
 type ProtoCodec struct {
-	codec.Codec
+	*codec.ProtoCodec
 	interfaceRegistry types.InterfaceRegistry
 }
 
 func NewProtoCodec(marshaler codec.Codec, registry types.InterfaceRegistry) *ProtoCodec {
-	return &ProtoCodec{Codec: marshaler, interfaceRegistry: registry}
+	return &ProtoCodec{ProtoCodec: marshaler.(*codec.ProtoCodec), interfaceRegistry: registry}
 }
 
 // MarshalJSON implements JSONCodec.MarshalJSON method,
