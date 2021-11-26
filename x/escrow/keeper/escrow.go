@@ -225,22 +225,27 @@ func (k Keeper) TransferToEscrow(
 		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
 	}
 
-	// If this is an auction, we refund old bidder, if it exist
-	if escrow.IsAuction && len(escrow.LastBidder) != 0 {
-		lastBidder, err := sdk.AccAddressFromBech32(escrow.LastBidder)
-		if err != nil {
-			//this should be always valid because the escrow is guaranteed to be in a valid state when created
-			panic(sdkerrors.Wrapf(err, "Invalid escrow last bidder address : %v", escrow.LastBidder))
+	if escrow.IsAuction {
+		// We refund old bidder, if it exists
+		if len(escrow.LastBidder) != 0 {
+			lastBidder, err := sdk.AccAddressFromBech32(escrow.LastBidder)
+			if err != nil {
+				//this should be always valid because the escrow is guaranteed to be in a valid state when created
+				panic(sdkerrors.Wrapf(err, "Invalid escrow last bidder address : %v", escrow.LastBidder))
+			}
+
+			err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, escrow.Price)
+			if err != nil {
+				panic(sdkerrors.Wrapf(err, "Cannot send back the coins to the previous bidder"))
+			}
 		}
 
-		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, escrow.Price)
-		if err != nil {
-			panic(sdkerrors.Wrapf(err, "Cannot send back the coins to the previous bidder"))
-		}
-	}
+		// We update the auction and save it back to the store
+		escrow.LastBidder = buyer
+		escrow.Price = amountToSend
+		k.SaveEscrow(ctx, escrow)
 
-	// If this is a regular escrow, we complete the exchange of the money and object
-	if !escrow.IsAuction {
+	} else { // If this is a regular escrow, we complete the exchange of the money and object
 		err = k.doSwap(ctx, escrow, buyer, seller, broker)
 		// If an error occurs here, the buyer have sent the coins and :
 		// - The buyer can have received the object or not

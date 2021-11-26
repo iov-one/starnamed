@@ -9,9 +9,9 @@ import (
 
 func (k Keeper) completeAuction(ctx sdk.Context, auction types.Escrow) error {
 
-	//TODO: this checks seem odd here, maybe an assert-like check with a panic will be more appropriate
+	//TODO: this check seems odd here, maybe an assert-like check with a panic will be more appropriate
 	if !auction.IsAuction {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "the specified escrow should be an escrow but isn't one")
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "the specified escrow should be an auction but isn't one")
 	}
 	if auction.State != types.EscrowState_Open {
 		return types.ErrEscrowNotOpen
@@ -24,7 +24,7 @@ func (k Keeper) completeAuction(ctx sdk.Context, auction types.Escrow) error {
 	}
 
 	// If no one has made a bid, then just refund the escrow
-	if len(auction.LastBidder) != 0 {
+	if len(auction.LastBidder) == 0 {
 		err = k.refundEscrow(ctx, auction, seller)
 		if err != nil {
 			return err
