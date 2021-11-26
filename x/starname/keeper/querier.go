@@ -332,8 +332,11 @@ func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*ty
 
 func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 
-	totalFees, numBlocks := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
+	totalFees, numBlocks, err := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
 
+	if err != nil {
+		return sdk.ZeroDec(), sdkerrors.Wrapf(err, "could not compute the fees for the latest blocks at height %v", ctx.BlockHeight())
+	}
 	if numBlocks != NumBlocksInAWeek {
 		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
 			ctx.BlockHeight(), NumBlocksInAWeek)

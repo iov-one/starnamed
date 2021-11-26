@@ -157,16 +157,14 @@ func (k Keeper) addOrRemoveFeesSum(ctx sdk.Context, height uint64, add bool) {
 }
 
 // GetBlockFeesSum retrieves the current value for the sum of the last n blocks
-func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coins, uint64) {
-	//FIXME: the block height is not updated when querying at a different height (only the stores are)
-	// So this line prevent to query from a different height (and will make the cms panic)
-	// Querying at previous heights also cause problems for the cached sliding sum
+func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coins, uint64, error) {
 	currentHeight := uint64(ctx.BlockHeight())
 
-	// Solves a bug where currentHeight is less than the last computed height, we always want to
-	// have the latest available data no matter what
+	// We force the query height to be greater than the latest computed height of the cached sliding sum otherwise querying
+	// at different height would cause high latency as the sum would have to be recomputed.
 	if currentHeight < slidingSum.lastComputedHeight {
-		currentHeight = slidingSum.lastComputedHeight
+		return nil, 0, fmt.Errorf("querying at past height is forbidden because of performance issues: queried " +
+			"height %v when last known height is %v", currentHeight, slidingSum.lastComputedHeight)
 	}
 
 	if currentHeight < maxBlocksInSum {
@@ -208,7 +206,7 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 		}
 	}
 
-	return slidingSum.feesSum, slidingSum.feesSumCount
+	return slidingSum.feesSum, slidingSum.feesSumCount, nil
 }
 
 // GetBlockFees returns the fees collected at a specific height
