@@ -20,8 +20,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -34,8 +34,8 @@ import (
 // WasmApp testing.
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
-		MaxBytes: 200000,
-		MaxGas:   2000000,
+		MaxBytes: 8000000,
+		MaxGas:   1234000000,
 	},
 	Evidence: &tmproto.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
@@ -49,9 +49,9 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
-func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*WasmApp, GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*WasmApp, GenesisState) {
 	db := dbm.NewMemDB()
-	app := NewWasmApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, invCheckPeriod, wasm.EnableAllProposals, EmptyBaseAppOptions{}, opts)
+	app := NewWasmApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, invCheckPeriod, EmptyBaseAppOptions{})
 	if withGenesis {
 		return app, NewDefaultGenesisState()
 	}
@@ -85,8 +85,8 @@ func Setup(isCheckTx bool) *WasmApp {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the WasmApp from first genesis
 // account. A Nop logger is set in WasmApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, opts []wasm.Option, balances ...banktypes.Balance) *WasmApp {
-	app, genesisState := setup(true, 5, opts...)
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *WasmApp {
+	app, genesisState := setup(true, 5)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(authGenesis)
@@ -126,7 +126,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins...)
 	}
 
 	// update total supply
@@ -206,18 +206,24 @@ func createRandomAccounts(accNum int) []sdk.AccAddress {
 
 // createIncrementalAccounts is a strategy used by addTestAddrs() in order to generated addresses in ascending order.
 func createIncrementalAccounts(accNum int) []sdk.AccAddress {
-	var addresses []sdk.AccAddress
+	addresses := make([]sdk.AccAddress, 0, accNum)
 	var buffer bytes.Buffer
 
 	// start at 100 so we can make up to 999 test addresses with valid test addresses
 	for i := 100; i < (accNum + 100); i++ {
 		numString := strconv.Itoa(i)
-		buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") //base address string
+		buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") // base address string
 
-		buffer.WriteString(numString) //adding on final two digits to make addresses unique
-		res, _ := sdk.AccAddressFromHex(buffer.String())
+		buffer.WriteString(numString) // adding on final two digits to make addresses unique
+		res, err := sdk.AccAddressFromHex(buffer.String())
+		if err != nil {
+			panic(err)
+		}
 		bech := res.String()
-		addr, _ := TestAddr(buffer.String(), bech)
+		addr, err := TestAddr(buffer.String(), bech)
+		if err != nil {
+			panic(err)
+		}
 
 		addresses = append(addresses, addr)
 		buffer.Reset()
@@ -240,9 +246,13 @@ func AddTestAddrsFromPubKeys(app *WasmApp, ctx sdk.Context, pubKeys []cryptotype
 
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *WasmApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	totalSupply := sdk.NewCoins(sdk.NewCoin(app.stakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
-	prevSupply := app.bankKeeper.GetSupply(ctx)
-	app.bankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
+	totalSupply := sdk.NewCoin(app.stakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts)))
+	prevSupply := app.bankKeeper.GetSupply(ctx, app.stakingKeeper.BondDenom(ctx))
+	newTotal := totalSupply.Add(prevSupply)
+	err := app.bankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(newTotal))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
@@ -275,7 +285,11 @@ func addTestAddrs(app *WasmApp, ctx sdk.Context, accNum int, accAmt sdk.Int, str
 func saveAccount(app *WasmApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.accountKeeper.NewAccountWithAddress(ctx, addr)
 	app.accountKeeper.SetAccount(ctx, acc)
-	err := app.bankKeeper.AddCoins(ctx, addr, initCoins)
+	err := app.bankKeeper.MintCoins(ctx, minttypes.ModuleName, initCoins)
+	if err != nil {
+		panic(err)
+	}
+	err = app.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, initCoins)
 	if err != nil {
 		panic(err)
 	}
@@ -407,7 +421,7 @@ func incrementAllSequenceNumbers(initSeqNums []uint64) {
 
 // CreateTestPubKeys returns a total of numPubKeys public keys in ascending order.
 func CreateTestPubKeys(numPubKeys int) []cryptotypes.PubKey {
-	var publicKeys []cryptotypes.PubKey
+	publicKeys := make([]cryptotypes.PubKey, 0, numPubKeys)
 	var buffer bytes.Buffer
 
 	// start at 10 to avoid changing 1 to 01, 2 to 02, etc

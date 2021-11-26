@@ -22,7 +22,7 @@ export const w1 = "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q"; // w1
 export const w2 = "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la"; // w2
 export const w3 = "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9"; // w3
 export const msig1 = "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv"; // msig1
-export const escrowModuleAddress = "star14pphss726thpwws3yc458hggufynm9x7j7k3y2";
+export const burner = "star1v7uw4xhrcv0vk7qp8jf9lu3hm5d8uu5ywlkzeg"; // burner
 
 const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", "-f", `"{{ .Dir }}"`, "-m", "github.com/cosmos/cosmos-sdk" ] ).stdout ).trim().slice( 1, -1 );
 
@@ -36,11 +36,9 @@ export const cli = ( args , shouldFail = false) => {
 
    if ( shouldFail !== !!app.status ) throw app.error ? app.error : new Error( app.stderr.length ? app.stderr : app.stdout ) ;
 
-   if (shouldFail)
-      return app.stdout
-   else
-      return JSON.parse( app.stdout );
+   const inconsistent = app.stdout.length ? app.stdout: app.stderr; // HACK around the sdk's continued inconsistencies re stdout and stderr
 
+   return shouldFail ? inconsistent : JSON.parse( inconsistent )
 };
 
 
@@ -58,26 +56,10 @@ export const signTx = ( tx, from, multisig = "", amino = false ) => {
    const tmpname = writeTmpJson( tx );
    const args = [ "tx", "sign", tmpname, "--from", from ];
    if ( multisig != "" ) args.push( "--multisig", multisig );
-   if ( amino ) args.push( "--amino", "--sign-mode", "amino-json");
+   if ( amino ) throw new Error( "There is no amino." );
    const signed = cli( args );
 
    return signed;
-};
-
-
-export const postTx = async ( signed ) => {
-   const tx = { tx: signed.tx, mode: "block" };
-   const fetched = await fetch( `${urlRest}/txs`, { method: "POST", body: JSON.stringify( tx ) } );
-
-   return fetched;
-};
-
-
-export const signAndPost = async ( unsigned, from = signer ) => {
-   const tx = signTx( unsigned, from, "", true );
-   const posted = await postTx( tx );
-
-   return posted;
 };
 
 
@@ -218,7 +200,7 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       "./proto", // chdir() below
       "-proto",
-      "./proto/cosmwasm/wasm/v1beta1/query.proto",
+      "./proto/cosmwasm/wasm/v1/query.proto",
       "-proto",
       "./proto/iov/starname/v1beta1/query.proto",
       "-proto",

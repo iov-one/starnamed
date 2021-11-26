@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/stretchr/testify/suite"
@@ -15,11 +16,12 @@ import (
 
 type EscrowTestSuite struct {
 	BaseKeeperSuite
-	buyer             sdk.AccAddress
-	seller            sdk.AccAddress
-	expiredEscrowId   string
-	refundedEscrowId  string
-	completedEscrowId string
+	buyer                      sdk.AccAddress
+	seller                     sdk.AccAddress
+	expiredEscrowId            string
+	refundedEscrowId           string
+	completedEscrowId          string
+	timeConstrainedObjectsData *testWithCustomTimeConstrainData
 }
 
 type assetState struct {
@@ -94,12 +96,39 @@ func (s *EscrowTestSuite) createErroredObjectEscrow(price sdk.Coins) string {
 	return id
 }
 
+// Used for context-aware object validation testing
+type testWithCustomTimeConstrainData struct {
+	storeKey  sdk.StoreKey
+	crudStore crud.Store
+}
+
+func (d testWithCustomTimeConstrainData) getDeadlineStore(ctx sdk.Context) sdk.KVStore {
+	return prefix.NewStore(ctx.KVStore(d.storeKey), []byte{0x42})
+}
+
+func (d testWithCustomTimeConstrainData) GetCrudStore() crud.Store {
+	return d.crudStore
+}
+
+func (d testWithCustomTimeConstrainData) GetDeadlineOrDefault(ctx sdk.Context, obj types.TransferableObject, defaultDeadline uint64) uint64 {
+	bytes := d.getDeadlineStore(ctx).Get(obj.GetUniqueKey())
+	if bytes == nil {
+		return defaultDeadline
+	}
+	return sdk.BigEndianToUint64(bytes)
+}
+
+func (d testWithCustomTimeConstrainData) SetDeadline(ctx sdk.Context, obj types.TransferableObject, deadline uint64) {
+	d.getDeadlineStore(ctx).Set(obj.GetUniqueKey(), sdk.Uint64ToBigEndian(deadline))
+}
+
 func (s *EscrowTestSuite) SetupTest() {
 	test.SetConfig()
 	s.generator = test.NewEscrowGenerator(uint64(test.TimeNow.Unix()))
 	s.seller = s.generator.NewAccAddress()
 	s.buyer = s.generator.NewAccAddress()
-	s.keeper, s.ctx, s.store, s.balances, _, s.configKeeper = test.NewTestKeeper([]sdk.AccAddress{s.buyer}, true)
+	var storeKey sdk.StoreKey
+	s.keeper, s.ctx, s.store, s.balances, storeKey, s.configKeeper = test.NewTestKeeper([]sdk.AccAddress{s.buyer}, true)
 
 	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
 
@@ -123,6 +152,13 @@ func (s *EscrowTestSuite) SetupTest() {
 	s.completedEscrowId = escrow.Id
 	s.keeper.SaveEscrow(s.ctx, escrow)
 
+	s.timeConstrainedObjectsData = &testWithCustomTimeConstrainData{
+		storeKey:  storeKey,
+		crudStore: s.store,
+	}
+
+	s.keeper.RegisterCustomData(types.TypeIDTestTimeConstrainedObject, s.timeConstrainedObjectsData)
+
 	s.keeper.ImportNextID(s.ctx, s.generator.GetNextId())
 }
 
@@ -140,6 +176,11 @@ func (s *EscrowTestSuite) TestCreate() {
 		if err := s.store.Create(obj); err != nil {
 			panic(err)
 		}
+		return obj
+	}
+	createAndSaveTimeConstrainedObjectWithContextDeadline := func(deadline uint64) *types.TestTimeConstrainedObject {
+		obj := createAndSaveTimeConstrainedObject()
+		s.timeConstrainedObjectsData.SetDeadline(s.ctx, obj, deadline)
 		return obj
 	}
 	invalidObj := s.generator.NewTestObject(s.generator.NewAccAddress())
@@ -191,6 +232,13 @@ func (s *EscrowTestSuite) TestCreate() {
 			deadline: s.generator.NowAfter(5),
 		},
 		{
+			name:     "valid scenario with context-aware time constrained object",
+			seller:   validAddress,
+			obj:      createAndSaveTimeConstrainedObjectWithContextDeadline(s.generator.NowAfter(10)),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(5),
+		},
+		{
 			name:     "invalid price: zero",
 			seller:   validAddress,
 			obj:      createAndSaveObject(),
@@ -222,6 +270,20 @@ func (s *EscrowTestSuite) TestCreate() {
 			name:     "invalid deadline: not validated by object",
 			seller:   validAddress,
 			obj:      createAndSaveTimeConstrainedObject(),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(15),
+		},
+		{
+			name:     "invalid deadline: not validated by object with context-aware validation",
+			seller:   validAddress,
+			obj:      createAndSaveTimeConstrainedObjectWithContextDeadline(s.generator.NowAfter(2)),
+			price:    defaultPrice,
+			deadline: s.generator.NowAfter(5),
+		},
+		{
+			name:     "invalid deadline: not validated by object with both validations",
+			seller:   validAddress,
+			obj:      createAndSaveTimeConstrainedObjectWithContextDeadline(s.generator.NowAfter(10)),
 			price:    defaultPrice,
 			deadline: s.generator.NowAfter(15),
 		},
@@ -328,6 +390,15 @@ func (s *EscrowTestSuite) TestUpdate() {
 		s.ctx, s.seller, price, timeConstrainedObj, s.generator.NowAfter(5),
 	)
 
+	contextAwaretimeConstrainObj := s.generator.NewTimeConstrainedObject(s.seller, s.generator.NowAfter(10))
+	s.timeConstrainedObjectsData.SetDeadline(s.ctx, contextAwaretimeConstrainObj, s.generator.NowAfter(8))
+	if err := s.store.Create(contextAwaretimeConstrainObj); err != nil {
+		panic(err)
+	}
+	escrowWithContextAwareTimeConstrainedObjectID, err := s.keeper.CreateEscrow(
+		s.ctx, s.seller, price, contextAwaretimeConstrainObj, s.generator.NowAfter(5),
+	)
+
 	testCases := []struct {
 		name     string
 		id       string
@@ -351,6 +422,12 @@ func (s *EscrowTestSuite) TestUpdate() {
 			updater:  s.seller,
 			deadline: s.generator.NowAfter(8),
 			id:       escrowWithTimeConstrainedObjectID,
+		},
+		{
+			name:     "deadline update with context aware time constrained object",
+			updater:  s.seller,
+			deadline: s.generator.NowAfter(7),
+			id:       escrowWithContextAwareTimeConstrainedObjectID,
 		},
 		{
 			name:     "multiple fields update",
@@ -378,6 +455,12 @@ func (s *EscrowTestSuite) TestUpdate() {
 			updater:  s.seller,
 			deadline: s.generator.NowAfter(100),
 			id:       escrowWithTimeConstrainedObjectID,
+		},
+		{
+			name:     "invalid deadline: not validated by an object with a context time constraint",
+			updater:  s.seller,
+			deadline: s.generator.NowAfter(9),
+			id:       escrowWithContextAwareTimeConstrainedObjectID,
 		},
 		{
 			name:    "invalid update: empty",

@@ -8,6 +8,7 @@ import (
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	crud "github.com/iov-one/cosmos-sdk-crud"
 )
 
@@ -26,8 +27,7 @@ const (
 
 // Ensure that Account and Domain implement crud.Object, escrowtypes.TransferableObject and escrowtypes.ObjectWithTimeConstraint
 
-// TODO: when creator domain type is created, let accounts be TransferableObjects
-//var _ escrowtypes.TransferableObject = &Account{}
+var _ escrowtypes.TransferableObject = &Account{}
 var _ escrowtypes.TransferableObject = &Domain{}
 
 var _ crud.Object = &Account{}
@@ -58,6 +58,15 @@ type expectedTransferKeeper interface {
 
 	AccountStore(ctx sdk.Context) crud.Store
 	DomainStore(ctx sdk.Context) crud.Store
+}
+
+// Extracts the expectedTransferKeeper from a CustomData object
+func extractTransferKeeper(data escrowtypes.CustomData) expectedTransferKeeper {
+	k, correct := data.(expectedTransferKeeper)
+	if !correct {
+		panic("Corrupted custom data: the data should be a starname keeper")
+	}
+	return k
 }
 
 // PrimaryKey fulfills part of the crud.Object interface
@@ -103,22 +112,26 @@ func (m *Domain) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 // Transfer implements escrowtypes.TransferableObject
 func (m *Domain) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data escrowtypes.CustomData) error {
 	// Extract the custom data (which is the starname keeper)
-	k, correct := data.(expectedTransferKeeper)
-	if !correct {
-		panic("Corrupted custom data for Domain : the data should be a starname keeper")
+	k := extractTransferKeeper(data)
+	// Should the transfer remove the accounts associated with this domain
+	const transferType = TransferResetNone
+
+	if err := k.DoDomainTransfer(ctx, m.Name, from, to, transferType); err != nil {
+		return err
 	}
 
-	// Should the transfer remove the accounts associated with this domain
-	// TODO: choose this wisely
-	const transferType = TransferFlush
-
-	return k.DoDomainTransfer(ctx, m.Name, from, to, transferType)
+	return k.DomainStore(ctx).Read(m.PrimaryKey(), m)
 }
 
 // Make Domain implement escrowtypes.ObjectWithTimeConstraint
 
 // ValidateDeadline implements escrowtypes.TransferableObject
-func (m *Domain) ValidateDeadline(time uint64) error {
+func (m *Domain) ValidateDeadline(_ sdk.Context, time uint64, _ escrowtypes.CustomData) error {
+	return m.ValidateDeadlineBasic(time)
+}
+
+// ValidateDeadlineBasic implements escrowtypes.TransferableObject
+func (m *Domain) ValidateDeadlineBasic(time uint64) error {
 	if uint64(m.ValidUntil) <= time {
 		return ErrDomainExpired
 	}
@@ -191,8 +204,7 @@ func (m *Account) SecondaryKeys() []crud.SecondaryKey {
 }
 
 // Make Account implement escrowtypes.TransferableObject
-// TODO: when creator domain type is created, let accounts be TransferableObjects
-/*
+
 // GetType implements escrowtypes.TransferableObject
 func (m *Account) GetObjectTypeID() escrowtypes.TypeID {
 	return AccountTypeID
@@ -211,23 +223,43 @@ func (m *Account) IsOwnedBy(account sdk.AccAddress) (bool, error) {
 // Transfer implements escrowtypes.TransferableObject
 func (m *Account) Transfer(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data escrowtypes.CustomData) error {
 	// Extract the custom data (which is the starname keeper)
-	k, correct := data.(expectedTransferKeeper)
-	if !correct {
-		panic("Corrupted custom data for Account : the data should be a starname keeper")
-	}
+	k := extractTransferKeeper(data)
 
 	// Should the transfer reset the account metadata, resources and certificates
 	const shouldReset = false
 
-	_, _, err := k.DoAccountTransfer(ctx, *m.Name, m.Domain, from, to, shouldReset)
+	if _, _, err := k.DoAccountTransfer(ctx, *m.Name, m.Domain, from, to, shouldReset); err != nil {
+		return err
+	}
 
-	return err
+	return k.AccountStore(ctx).Read(m.PrimaryKey(), m)
 }
-*/
+
 // Make Account implement escrowtypes.ObjectWithTimeConstraint
 
 // ValidateDeadline implements escrowtypes.TransferableObject
-func (m *Account) ValidateDeadline(time uint64) error {
+func (m *Account) ValidateDeadline(ctx sdk.Context, time uint64, data escrowtypes.CustomData) error {
+	if err := m.ValidateDeadlineBasic(time); err != nil {
+		return err
+	}
+	//TODO: this may not be required if the account deadline is forced to be <= the domain deadline
+	// Validate the deadline against the escrow deadline
+	k := extractTransferKeeper(data)
+	domain := Domain{Name: m.Domain}
+	if err := k.DomainStore(ctx).Read(domain.PrimaryKey(), &domain); err != nil {
+		panic(sdkerrors.Wrapf(err, "error while reading %s domain", domain.Name))
+	}
+
+	//This is not the cleanest way of checking this, maybe we should add another dedicated function to the TransferableObject interface
+	if domain.Type == ClosedDomain {
+		return sdkerrors.Wrapf(ErrInvalidDomainType, "accounts that belongs to a closed domain cannot be traded")
+	}
+
+	return domain.ValidateDeadlineBasic(time)
+}
+
+// ValidateDeadlineBasic implements escrowtypes.TransferableObject
+func (m *Account) ValidateDeadlineBasic(time uint64) error {
 	if uint64(m.ValidUntil) <= time {
 		return ErrAccountExpired
 	}

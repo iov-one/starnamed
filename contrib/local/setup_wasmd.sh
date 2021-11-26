@@ -12,7 +12,10 @@ wasmd init --chain-id "$CHAIN_ID" "$MONIKER"
 ## OSX requires: -i.
 sed -i. "s/\"stake\"/\"$STAKE\"/" "$HOME"/.wasmd/config/genesis.json
 if ! wasmd keys show validator --keyring-backend test; then
-  (echo "$PASSWORD"; echo "$PASSWORD") | wasmd keys add validator --keyring-backend test
+  (
+    echo "$PASSWORD"
+    echo "$PASSWORD"
+  ) | wasmd keys add validator --keyring-backend test
 fi
 # hardcode the validator account for this instance
 echo "$PASSWORD" | wasmd add-genesis-account validator "1000000000$STAKE,1000000000$FEE" --keyring-backend test

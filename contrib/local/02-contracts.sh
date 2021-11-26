@@ -8,7 +8,7 @@ echo "## Add new CosmWasm contract"
 RESP=$(wasmd tx wasm store "$DIR/../../x/wasm/keeper/testdata/hackatom.wasm" \
   --from validator --gas 1500000 -y --chain-id=testing --node=http://localhost:26657 -b block)
 
-CODE_ID=$(echo "$RESP" | jq -r '.logs[0].events[0].attributes[-1].value')
+CODE_ID=$(echo "$RESP" | jq -r '.logs[0].events[1].attributes[-1].value')
 echo "* Code id: $CODE_ID"
 echo "* Download code"
 TMPDIR=$(mktemp -t wasmdXXXXXX)
@@ -21,7 +21,7 @@ wasmd query wasm list-code --node=http://localhost:26657 --chain-id=testing -o j
 echo "-----------------------"
 echo "## Create new contract instance"
 INIT="{\"verifier\":\"$(wasmd keys show validator -a)\", \"beneficiary\":\"$(wasmd keys show fred -a)\"}"
-wasmd tx wasm instantiate "$CODE_ID" "$INIT" --admin=$(wasmd keys show validator -a) \
+wasmd tx wasm instantiate "$CODE_ID" "$INIT" --admin="$(wasmd keys show validator -a)" \
   --from validator --amount="100ustake" --label "local0.1.0" \
   --gas 1000000 -y --chain-id=testing -b block | jq
 
@@ -36,7 +36,6 @@ echo "### Query raw"
 KEY=$(echo "$RESP" | jq -r ".models[0].key")
 wasmd query wasm contract-state raw "$CONTRACT" "$KEY" -o json | jq
 
-
 echo "-----------------------"
 echo "## Execute contract $CONTRACT"
 MSG='{"release":{}}'
@@ -44,15 +43,13 @@ wasmd tx wasm execute "$CONTRACT" "$MSG" \
   --from validator \
   --gas 1000000 -y --chain-id=testing -b block | jq
 
-
 echo "-----------------------"
 echo "## Set new admin"
-echo "### Query old admin: $(wasmd q wasm contract $CONTRACT -o json | jq -r '.contract_info.admin')"
+echo "### Query old admin: $(wasmd q wasm contract "$CONTRACT" -o json | jq -r '.contract_info.admin')"
 echo "### Update contract"
-wasmd tx wasm set-contract-admin "$CONTRACT" $(wasmd keys show fred -a) \
+wasmd tx wasm set-contract-admin "$CONTRACT" "$(wasmd keys show fred -a)" \
   --from validator -y --chain-id=testing -b block | jq
-echo "### Query new admin: $(wasmd q wasm contract $CONTRACT -o json | jq -r '.admin')"
-
+echo "### Query new admin: $(wasmd q wasm contract "$CONTRACT" -o json | jq -r '.admin')"
 
 echo "-----------------------"
 echo "## Migrate contract"
@@ -60,7 +57,7 @@ echo "### Upload new code"
 RESP=$(wasmd tx wasm store "$DIR/../../x/wasm/keeper/testdata/burner.wasm" \
   --from validator --gas 1000000 -y --chain-id=testing --node=http://localhost:26657 -b block)
 
-BURNER_CODE_ID=$(echo "$RESP" | jq -r '.logs[0].events[0].attributes[-1].value')
+BURNER_CODE_ID=$(echo "$RESP" | jq -r '.logs[0].events[1].attributes[-1].value')
 echo "### Migrate to code id: $BURNER_CODE_ID"
 
 DEST_ACCOUNT=$(wasmd keys show fred -a)
@@ -77,8 +74,8 @@ wasmd q wasm contract-history "$CONTRACT" -o json | jq
 
 echo "-----------------------"
 echo "## Clear contract admin"
-echo "### Query old admin: $(wasmd q wasm contract $CONTRACT -o json | jq -r '.admin')"
+echo "### Query old admin: $(wasmd q wasm contract "$CONTRACT" -o json | jq -r '.admin')"
 echo "### Update contract"
 wasmd tx wasm clear-contract-admin "$CONTRACT" \
   --from fred -y --chain-id=testing -b block | jq
-echo "### Query new admin: $(wasmd q wasm contract $CONTRACT -o json | jq -r '.admin')"
+echo "### Query new admin: $(wasmd q wasm contract "$CONTRACT" -o json | jq -r '.admin')"

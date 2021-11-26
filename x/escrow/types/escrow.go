@@ -73,7 +73,7 @@ func (e Escrow) SecondaryKeys() []crud.SecondaryKey {
 	}
 	sks[2] = crud.SecondaryKey{
 		ID:    ObjectIndex,
-		Value: GetEscrowObjectKey(e.GetObject()),
+		Value: e.GetObject().GetUniqueKey(),
 	}
 	return sks
 }
@@ -135,12 +135,23 @@ func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
 	}
 
 	// Validate that the object has no conflict with the escrow deadline
-	if err := ValidateObjectDeadline(e.GetObject(), e.Deadline); err != nil {
+	if err := ValidateObjectDeadlineBasic(e.GetObject(), e.Deadline); err != nil {
 		return err
 	}
 
 	// Validate deadline
 	return ValidateDeadline(e.Deadline, lastBlockTime)
+}
+
+// ValidateWithContext validates the escrow with a given context and custom data. It performs the same validation as Validate
+// plus some context-aware validation
+func (e *Escrow) ValidateWithContext(ctx sdk.Context, priceDenom string, lastBlockTime uint64, data CustomData) error {
+	if err := e.Validate(priceDenom, lastBlockTime); err != nil {
+		return err
+	}
+	//NOTE: this performs a repeated validation for the basic validation part of the object
+	return ValidateObjectDeadline(ctx, e.GetObject(), e.Deadline, data)
+
 }
 
 func (e *Escrow) GetObject() TransferableObject {

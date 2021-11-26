@@ -7,16 +7,16 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/spf13/cobra"
-
 	escrowcli "github.com/iov-one/starnamed/x/escrow/client/cli"
 	"github.com/iov-one/starnamed/x/starname/types"
+	"github.com/spf13/cobra"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
@@ -42,8 +42,7 @@ func GetTxCmd() *cobra.Command {
 		getCmdDeleteAccountCertificate(),
 		getCmdRegisterAccount(),
 		getCmdSetAccountMetadata(),
-		// TODO: when creator domain type is created, let accounts be TransferableObjects
-		// getCmdCreateAccountEscrow(),
+		getCmdCreateAccountEscrow(),
 		getCmdCreateDomainEscrow(),
 	)
 	return domainTxCmd
@@ -106,8 +105,11 @@ func getCmdTransferDomain() *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
-	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
+	cmd.Flags().IntP("transfer-flag", "t", types.TransferResetNone, fmt.Sprintf(`the transfer mechanism
+	0 == delete all accounts except the "" account; transfer "" to the new owner
+	1 == transfer all accounts owned by the old owner to the new owner; leave others intact
+	2 == leave all accounts intact except the "" account; transfer "" to the new owner`))
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
@@ -180,7 +182,7 @@ func getCmdTransferAccount() *cobra.Command {
 	// add flags
 	cmd.Flags().StringP("domain", "d", "", "the domain name of account")
 	cmd.Flags().StringP("name", "n", "", "the name of the account you want to transfer")
-	cmd.Flags().StringP("new-owner", "o", "", "the new owner address in bech32 format")
+	cmd.Flags().StringP("new-owner", "w", "", "the new owner address in bech32 format")
 	cmd.Flags().StringP("reset", "r", "false", "true: reset all data associated with the account, false: preserves the data")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	flags.AddTxFlagsToCmd(cmd)
@@ -700,7 +702,7 @@ func getCmdRegisterAccount() *cobra.Command {
 	}
 	cmd.Flags().StringP("domain", "d", "", "the existing domain for your account")
 	cmd.Flags().StringP("name", "n", "", "the name of your account")
-	cmd.Flags().StringP("owner", "o", "", "the address of the owner, if no owner provided signer is the owner")
+	cmd.Flags().StringP("owner", "w", "", "the address of the owner, if no owner provided signer is the owner")
 	cmd.Flags().StringP("payer", "p", "", "address of the fee payer, optional")
 	cmd.Flags().StringP("broker", "r", "", "address of the broker, optional")
 	flags.AddTxFlagsToCmd(cmd)
@@ -831,11 +833,10 @@ func getCmdSetAccountMetadata() *cobra.Command {
 	return cmd
 }
 
-/*
 func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-account-escrow",
-		Aliases: []string{"cae", "escrow-create-account", "eca", "create-escrow-account", "cea", "account-escrow-create", "aec"},
+		Use:     "account-escrow-create",
+		Aliases: []string{"cae", "escrow-create-account", "eca", "create-escrow-account", "cea", "create-account-escrow", "aec"},
 		Short:   "creates an escrow for an account",
 		Long:    "Creates an escrow to sell an account at a fixed price",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -885,12 +886,12 @@ func getCmdCreateAccountEscrow() *cobra.Command {
 	cmd.Flags().StringP("name", "n", "", "the name of the account whose resources you want to replace")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
-}*/
+}
 
 func getCmdCreateDomainEscrow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-domain-escrow",
-		Aliases: []string{"cde", "escrow-create-domain", "ecd", "create-escrow-domain", "ced", "domain-escrow-create", "dec"},
+		Use:     "domain-escrow-create",
+		Aliases: []string{"cde", "escrow-create-domain", "ecd", "create-escrow-domain", "ced", "create-domain-escrow", "dec"},
 		Short:   "creates an escrow for a domain",
 		Long:    "Creates an escrow to sell a domain at a fixed price",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {

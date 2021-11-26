@@ -11,8 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/pkg/queries"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/iov-one/starnamed/pkg/queries"
 )
 
 func TestMain(t *testing.M) {
@@ -21,12 +22,12 @@ func TestMain(t *testing.M) {
 
 func genTestAddress() (sdk.AccAddress, sdk.AccAddress) {
 	keyBase := keyring.NewInMemory()
-	addr1, _, err := keyBase.NewMnemonic("alice", keyring.English, "", hd.Secp256k1)
+	addr1, _, err := keyBase.NewMnemonic("alice", keyring.English, "", "", hd.Secp256k1)
 	if err != nil {
 		fmt.Println("unable to generate mock addresses " + err.Error())
 		os.Exit(1)
 	}
-	addr2, _, err := keyBase.NewMnemonic("bob", keyring.English, "", hd.Secp256k1)
+	addr2, _, err := keyBase.NewMnemonic("bob", keyring.English, "", "", hd.Secp256k1)
 	if err != nil {
 		fmt.Println("unable to generate mock addresses " + err.Error())
 		os.Exit(1)
@@ -38,7 +39,7 @@ type subTest struct {
 	// BeforeTest are the action to perform before the test
 	BeforeTest func(t *testing.T, ctx sdk.Context, k Keeper)
 	// Request is the query request
-	Request interface{ Validate() error } // represents aliceAddr query
+	Request interface{ Validate() error } // represents a query
 	// Handler is the handler function of the query
 	Handler func(ctx sdk.Context, args []string, req abci.RequestQuery, k Keeper) ([]byte, error)
 	// WantErr is the error we expect, if != from nil it will be matched with errors.Is

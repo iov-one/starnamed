@@ -1,7 +1,9 @@
-# Add A (Validator) Node To iov-mainnet-ibc
+# Add A Node To iov-mainnet-ibc
 
-Execute the following commands to light-up a node for **iov-mainnet-ibc**.  Be sure to change the custom environment variables `USER_IOV`, the user that will run the node, and `SIGNER`, the key that will sign the `create-validator` transaction.  `USER_IOV` must exist before you can proceed.  If your node is not a validator then `SIGNER` is inconsequential.
+Execute the following commands to light-up a node for **iov-mainnet-ibc**.  Be sure to change the custom environment variable `USER_IOV`, the user that will run the node.  `USER_IOV` must exist before you can proceed.
 
+
+## Phase 1 Of 2
 
 ```sh
 sudo su -c bash # make life easier for the next ~100 lines
@@ -12,7 +14,6 @@ cd /etc/systemd/system
 
 # custom variables - use values appropriate for your setup
 export USER_IOV=iov # "iov" is not recommended
-export SIGNER=dave*iov # signer for the create-validator tx
 
 # assert that USER_IOV exists
 id ${USER_IOV} && echo '✅ All good!' || echo "❌ ${USER_IOV} does not exist."
@@ -111,7 +112,62 @@ sha256sum config/genesis.json | grep e20eb984b3a85eb3d2c76b94d1a30c4b3cfa47397d5
 exit # ${USER_IOV}
 
 systemctl enable starnamed.service
-journalctl -f -u starnamed.service & systemctl start starnamed.service # watch the chain sync
+journalctl -f -u starnamed.service & systemctl start starnamed.service # watch the chain sync until it intentionlly panics after block 4597999
 
 exit # root
 ```
+
+## Phase 2 Of 2
+
+[Proposal 9](https://big-dipper.iov-mainnet-ibc.iov.one/proposals/9), a software upgrade, forced `starnamed` to intentionally panic after block 4,597,999.  The `starnamed` binary needs to be upgraded in order to continue sync'ing `iov-mainnet-ibc`.
+
+```sh
+# make life easier for the next ~20 lines
+sudo su -c bash
+
+# replace the old starnamed artifact with the new one in starnamed.env
+sed --in-place 's/0.10.12/0.10.13/g' /etc/systemd/system/starnamed.env
+
+# pick-up env vars
+set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport
+
+# cd to where all the action is going to happen
+cd ${DIR_STARNAMED}
+
+# move the old binaries out of the way of the new ones
+mv -v starnamed starnamed-v0.10.12
+mv -v libwasmvm.so libwasmvm.so-v0.10.12
+
+# get the new starnamed binary
+wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep a3555955a1d001449d7e05793852ea23064905614bab0bb8cefc250758ea81bf && tar xvf $(basename ${STARNAMED}) && echo '✅ All good!' || echo '❌ BAD BINARY!'
+
+journalctl -f -u starnamed.service & systemctl restart starnamed.service # watch the chain sync
+
+exit # sudo su
+```
+
+## Contributors
+
+Thanks to the current and former employees of IOV SAS and all the open-source developers in the Cosmos community!
+
+* Adrien Duval [LeCodeurDuDimanche](https://github.com/LeCodeurDuDimanche)
+* Jacob Gadikian [faddat](https://github.com/faddat)
+* Frojdi Dymylja [fdymylja](https://github.com/fdymylja)
+* Orkun Külçe [orkunkl](https://github.com/orkunkl)
+* Ethan Frey [ethanfrey](https://github.com/ethanfrey)
+* Simon Warta [webmaster128](https://github.com/webmaster128)
+* Alex Peters [alpe](https://github.com/alpe)
+* Aaron Craelius [aaronc](https://github.com/aaronc)
+* Sunny Aggarwal [sunnya97](https://github.com/sunnya97)
+* Cory Levinson [clevinson](https://github.com/clevinson)
+* Sahith Narahari [sahith-narahari](https://github.com/sahith-narahari)
+* Jehan Tremback [jtremback](https://github.com/jtremback)
+* Shane Vitarana [shanev](https://github.com/shanev)
+* Billy Rennekamp [okwme](https://github.com/okwme)
+* Westaking [westaking](https://github.com/westaking)
+* Marko [marbar3778](https://github.com/marbar3778)
+* JayB [kogisin](https://github.com/kogisin)
+* Rick Dudley [AFDudley](https://github.com/AFDudley)
+* KamiD [KamiD](https://github.com/KamiD)
+* Valery Litvin [litvintech](https://github.com/litvintech)
+* Leonardo Bragagnolo [bragaz](https://github.com/bragaz)

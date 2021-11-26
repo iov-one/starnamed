@@ -12,9 +12,9 @@ import (
 // This is provided for compatibility between protobuf and amino implementations.
 type EncodingConfig struct {
 	InterfaceRegistry types.InterfaceRegistry
-	Marshaler         codec.Marshaler
+	Marshaler         codec.Codec
 	TxConfig          client.TxConfig
-	Amino             *codec.LegacyAmino
+	Amino             *codec.LegacyAmino //nolint:staticcheck
 }
 
 func MakeEncodingConfig() EncodingConfig {
