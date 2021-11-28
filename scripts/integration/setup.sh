@@ -13,7 +13,6 @@ rm -rf "$HOME"/.${BINARY}/config/gen*
 ${BINARY} init --chain-id "$CHAIN_ID" "$MONIKER" 2>&1 | jq .chain_id
 sed --in-place 's/"params": {}/"params": { "module_enabled": true }/' "$HOME"/.${BINARY}/config/genesis.json # enable escrow
 sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$HOME"/.${BINARY}/config/config.toml
-sed --in-place 's/enable = false/enable = true/'
 perl -i -0777 -pe 's/(\[api\][^\[]*)enable = false/$1enable = true/g' "$HOME"/.${BINARY}/config/app.toml # enable ONLY api (and not rosetta)
 # staking/governance token is hardcoded in config, change this
 ## OSX requires: -i.
