@@ -18,14 +18,13 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/iov-one/starnamed/x/wasm"
+	ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	ibchost "github.com/cosmos/ibc-go/modules/core/24-host"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -105,7 +104,7 @@ func TestAppImportExport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 
-	app := NewWasmApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, wasm.EnableAllProposals, EmptyBaseAppOptions{}, nil, fauxMerkleModeOpt)
+	app := NewWasmApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, EmptyBaseAppOptions{}, nil, fauxMerkleModeOpt)
 	require.Equal(t, appName, app.Name())
 
 	// Run randomized simulation
@@ -145,7 +144,7 @@ func TestAppImportExport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(newDir))
 	}()
 
-	newApp := NewWasmApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, wasm.EnableAllProposals, EmptyBaseAppOptions{}, nil, fauxMerkleModeOpt)
+	newApp := NewWasmApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, EmptyBaseAppOptions{}, nil, fauxMerkleModeOpt)
 	require.Equal(t, appName, newApp.Name())
 
 	var genesisState GenesisState
@@ -176,7 +175,6 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[capabilitytypes.StoreKey], newApp.keys[capabilitytypes.StoreKey], [][]byte{}},
 		{app.keys[ibchost.StoreKey], newApp.keys[ibchost.StoreKey], [][]byte{}},
 		{app.keys[ibctransfertypes.StoreKey], newApp.keys[ibctransfertypes.StoreKey], [][]byte{}},
-		{app.keys[wasm.StoreKey], newApp.keys[wasm.StoreKey], [][]byte{}},
 	}
 
 	for _, skp := range storeKeysPrefixes {
@@ -204,7 +202,7 @@ func TestFullAppSimulation(t *testing.T) {
 	}()
 
 	app := NewWasmApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue,
-		wasm.EnableAllProposals, simapp.EmptyAppOptions{}, nil, fauxMerkleModeOpt)
+		simapp.EmptyAppOptions{}, nil, fauxMerkleModeOpt)
 	require.Equal(t, "WasmApp", app.Name())
 
 	// run randomized simulation

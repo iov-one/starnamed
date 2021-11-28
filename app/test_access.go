@@ -3,13 +3,12 @@ package app
 import (
 	"testing"
 
-	"github.com/iov-one/starnamed/x/wasm"
 	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/keeper"
-	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
 )
 
 type TestSupport struct {
@@ -25,11 +24,7 @@ func (s TestSupport) IBCKeeper() ibckeeper.Keeper {
 	return *s.app.ibcKeeper
 }
 
-func (s TestSupport) WasmKeeper() wasm.Keeper {
-	return s.app.wasmKeeper
-}
-
-func (s TestSupport) AppCodec() codec.Marshaler {
+func (s TestSupport) AppCodec() codec.Codec {
 	return s.app.appCodec
 }
 func (s TestSupport) ScopedWasmIBCKeeper() capabilitykeeper.ScopedKeeper {

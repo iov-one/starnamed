@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
 )
 
 // interface implementation assertions
@@ -23,7 +24,7 @@ const (
 // procedures are only applied to transactions lying in this package.
 // TODO: making this exported would allow external types to use the SignatureVerifier and Signer
 type msg interface {
-	sdk.Msg
+	legacytx.LegacyMsg
 	offchain()
 }
 

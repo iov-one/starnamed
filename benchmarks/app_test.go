@@ -2,9 +2,7 @@ package benchmarks
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -22,12 +20,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/iov-one/starnamed/app"
-	"github.com/iov-one/starnamed/x/wasm"
-	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 )
 
-func setup(db dbm.DB, withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*app.WasmApp, app.GenesisState) {
-	wasmApp := app.NewWasmApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, app.DefaultNodeHome, invCheckPeriod, wasm.EnableAllProposals, app.EmptyBaseAppOptions{}, opts)
+func setup(db dbm.DB, withGenesis bool, invCheckPeriod uint) (*app.WasmApp, app.GenesisState) {
+	wasmApp := app.NewWasmApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, app.DefaultNodeHome, invCheckPeriod, app.EmptyBaseAppOptions{})
 	if withGenesis {
 		return wasmApp, app.NewDefaultGenesisState()
 	}
@@ -72,14 +68,13 @@ func SetupWithGenesisAccounts(db dbm.DB, genAccs []authtypes.GenesisAccount, bal
 }
 
 type AppInfo struct {
-	App          *app.WasmApp
-	MinterKey    *secp256k1.PrivKey
-	MinterAddr   sdk.AccAddress
-	ContractAddr string
-	Denom        string
-	AccNum       uint64
-	SeqNum       uint64
-	TxConfig     client.TxConfig
+	App        *app.WasmApp
+	MinterKey  *secp256k1.PrivKey
+	MinterAddr sdk.AccAddress
+	Denom      string
+	AccNum     uint64
+	SeqNum     uint64
+	TxConfig   client.TxConfig
 }
 
 func InitializeWasmApp(b testing.TB, db dbm.DB, numAccounts int) AppInfo {
@@ -113,74 +108,14 @@ func InitializeWasmApp(b testing.TB, db dbm.DB, numAccounts int) AppInfo {
 	}
 	wasmApp := SetupWithGenesisAccounts(db, genAccs, bals...)
 
-	// add wasm contract
-	height := int64(2)
-	txGen := simappparams.MakeTestEncodingConfig().TxConfig
-	wasmApp.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: height, Time: time.Now()}})
-
-	// upload the code
-	cw20Code, err := ioutil.ReadFile("./testdata/cw20_base.wasm")
-	require.NoError(b, err)
-	storeMsg := wasmtypes.MsgStoreCode{
-		Sender:       addr.String(),
-		WASMByteCode: cw20Code,
-	}
-	storeTx, err := helpers.GenTx(txGen, []sdk.Msg{&storeMsg}, nil, 55123123, "", []uint64{0}, []uint64{0}, minter)
-	require.NoError(b, err)
-	_, res, err := wasmApp.Deliver(txGen.TxEncoder(), storeTx)
-	require.NoError(b, err)
-	codeID := uint64(1)
-
-	// instantiate the contract
-	initialBalances := make([]balance, numAccounts+1)
-	for i := 0; i <= numAccounts; i++ {
-		acct := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()).String()
-		if i == 0 {
-			acct = addr.String()
-		}
-		initialBalances[i] = balance{
-			Address: acct,
-			Amount:  1000000000,
-		}
-	}
-	init := cw20InitMsg{
-		Name:            "Cash Money",
-		Symbol:          "CASH",
-		Decimals:        2,
-		InitialBalances: initialBalances,
-	}
-	initBz, err := json.Marshal(init)
-	require.NoError(b, err)
-	initMsg := wasmtypes.MsgInstantiateContract{
-		Sender: addr.String(),
-		Admin:  addr.String(),
-		CodeID: codeID,
-		Label:  "Demo contract",
-		Msg:    initBz,
-	}
-	gasWanted := 500000 + 10000*uint64(numAccounts)
-	initTx, err := helpers.GenTx(txGen, []sdk.Msg{&initMsg}, nil, gasWanted, "", []uint64{0}, []uint64{1}, minter)
-	require.NoError(b, err)
-	_, res, err = wasmApp.Deliver(txGen.TxEncoder(), initTx)
-	require.NoError(b, err)
-
-	// TODO: parse contract address better
-	evt := res.Events[len(res.Events)-1]
-	attr := evt.Attributes[0]
-	contractAddr := string(attr.Value)
-
-	wasmApp.EndBlock(abci.RequestEndBlock{Height: height})
-	wasmApp.Commit()
-
 	return AppInfo{
-		App:          wasmApp,
-		MinterKey:    minter,
-		MinterAddr:   addr,
-		ContractAddr: contractAddr,
-		Denom:        denom,
-		AccNum:       0,
-		SeqNum:       2,
-		TxConfig:     simappparams.MakeTestEncodingConfig().TxConfig,
+		App:        wasmApp,
+		MinterKey:  minter,
+		MinterAddr: addr,
+		Denom:      denom,
+		AccNum:     0,
+		SeqNum:     2,
+		TxConfig:   simappparams.MakeTestEncodingConfig().TxConfig,
 	}
 }
 

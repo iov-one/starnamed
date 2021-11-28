@@ -25,7 +25,7 @@ var (
 
 // AppModuleBasic defines the basic application module used by the burner module.
 type AppModuleBasic struct {
-	cdc codec.Marshaler
+	cdc codec.Codec
 }
 
 // RegisterLegacyAminoCodec registers the amino codec.
@@ -40,12 +40,12 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(client.Context, *runtime.Serve
 func (AppModuleBasic) Name() string { return types.ModuleName }
 
 // DefaultGenesis returns default genesis state as raw bytes for the burner module.
-func (AppModuleBasic) DefaultGenesis(codec.JSONMarshaler) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis(codec.JSONCodec) json.RawMessage {
 	return nil
 }
 
 // ValidateGenesis performs genesis state validation for the burner module.
-func (b AppModuleBasic) ValidateGenesis(_ codec.JSONMarshaler, _ client.TxEncodingConfig, genesisData json.RawMessage) error {
+func (b AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, genesisData json.RawMessage) error {
 	if len(genesisData) > 0 {
 		return fmt.Errorf("invalid genesis data for module burner: should be empty")
 	}
@@ -123,11 +123,14 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 }
 
 // InitGenesis performs genesis initialization for the burner module. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONMarshaler, _ json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, _ json.RawMessage) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the burner module.
-func (am AppModule) ExportGenesis(sdk.Context, codec.JSONMarshaler) json.RawMessage {
+func (am AppModule) ExportGenesis(sdk.Context, codec.JSONCodec) json.RawMessage {
 	return am.DefaultGenesis(nil)
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }

@@ -21,7 +21,7 @@ var (
 
 // AppModuleBasic defines the basic application module used by the configuration module.
 type AppModuleBasic struct {
-	cdc codec.Marshaler
+	cdc codec.Codec
 }
 
 // RegisterLegacyAminoCodec registers the amino codec.
@@ -38,12 +38,12 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(client.Context, *runtime.ServeMu
 func (AppModuleBasic) Name() string { return "offchain" }
 
 // DefaultGenesis returns default genesis state as raw bytes for the configuration module.
-func (AppModuleBasic) DefaultGenesis(codec.JSONMarshaler) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis(codec.JSONCodec) json.RawMessage {
 	return nil
 }
 
 // ValidateGenesis performs genesis state validation for the configuration module.
-func (AppModuleBasic) ValidateGenesis(codec.JSONMarshaler, client.TxEncodingConfig, json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(codec.JSONCodec, client.TxEncodingConfig, json.RawMessage) error {
 	return nil
 }
 

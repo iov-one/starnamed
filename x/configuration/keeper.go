@@ -17,12 +17,12 @@ type ParamSubspace interface {
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
-	cdc        codec.Marshaler
+	cdc        codec.Codec
 	paramspace ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc codec.Codec, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,
@@ -43,7 +43,7 @@ func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 		panic("no configuration available")
 	}
 	var conf types.Config
-	k.cdc.MustUnmarshalBinaryBare(confBytes, &conf)
+	k.cdc.MustUnmarshal(confBytes, &conf)
 	// success
 	return conf
 }
@@ -72,7 +72,7 @@ func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
 // SetConfig updates or saves a new config in the store
 func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshalBinaryBare(&conf))
+	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshal(&conf))
 }
 
 // GetDomainGracePeriod returns the default grace period before domains

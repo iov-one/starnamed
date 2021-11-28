@@ -3,25 +3,23 @@ module github.com/iov-one/starnamed
 go 1.16
 
 require (
-	github.com/CosmWasm/wasmvm v1.0.0-beta2
-	github.com/cosmos/cosmos-sdk v0.42.10
-	github.com/cosmos/iavl v0.17.2
-	github.com/dvsekhvalnov/jose2go v0.0.0-20200901110807-248326c1351b
+	github.com/cosmos/cosmos-sdk v0.44.3
+	github.com/cosmos/iavl v0.17.2 // indirect
+	github.com/cosmos/ibc-go v1.2.3
 	github.com/fatih/structs v1.1.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
-	github.com/google/gofuzz v1.2.0
+	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/iov-one/cosmos-sdk-crud v0.2.3
+	github.com/iov-one/cosmos-sdk-crud v0.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.11.0
 	github.com/rakyll/statik v0.1.7
 	github.com/regen-network/cosmos-proto v0.3.1
 	github.com/rs/zerolog v1.26.0
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cast v1.4.1
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.7.0
@@ -32,7 +30,6 @@ require (
 	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2

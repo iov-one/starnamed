@@ -25,7 +25,7 @@ var (
 
 // AppModuleBasic defines the basic application module used by the configuration module.
 type AppModuleBasic struct {
-	cdc codec.Marshaler
+	cdc codec.Codec
 }
 
 // RegisterLegacyAminoCodec registers the amino codec.
@@ -42,13 +42,13 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serv
 func (AppModuleBasic) Name() string { return types.ModuleName }
 
 // DefaultGenesis returns default genesis state as raw bytes for the configuration module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	defaultGenesisState := DefaultGenesisState()
 	return cdc.MustMarshalJSON(&defaultGenesisState)
 }
 
 // ValidateGenesis performs genesis state validation for the configuration module.
-func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONMarshaler, config client.TxEncodingConfig, message json.RawMessage) error {
+func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONCodec, config client.TxEncodingConfig, message json.RawMessage) error {
 	var data types.GenesisState
 	err := marshaler.UnmarshalJSON(message, &data)
 	if err != nil {
@@ -124,7 +124,7 @@ func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Validato
 }
 
 // InitGenesis performs genesis initialization for the configuration module. It returns no validator updates.
-func (a AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
+func (a AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, a.keeper, genesisState)
@@ -132,7 +132,10 @@ func (a AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data js
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the configuration module.
-func (a AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
+func (a AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesisState := ExportGenesis(ctx, a.keeper)
 	return cdc.MustMarshalJSON(genesisState)
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }

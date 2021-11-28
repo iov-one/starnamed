@@ -84,7 +84,7 @@ func getCmdVerifyMsg() *cobra.Command {
 			switch outputFormat {
 
 			case "json":
-				data = clientCtx.JSONMarshaler.MustMarshalJSON(&types.ListOfMsgSignData{
+				data = clientCtx.JSONCodec.MustMarshalJSON(&types.ListOfMsgSignData{
 					Msgs: msgs,
 				})
 				fmt.Println(string(data))

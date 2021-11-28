@@ -10,16 +10,16 @@ describe( "Tests gRPC.", () => {
 
 
    it( `Should list wasm contract codes.`, async () => {
-      const grpcurled = grpcurl( `starnamed.x.wasm.${versionWasm}.Query/Codes` );
+      const grpcurled = grpcurl( `starnamed.x.configuration.${versionStarname}.Query/Config` );
 
-      expect( grpcurled.pagination ).toBeDefined();
+      expect( grpcurled.config ).toBeDefined();
    } );
 
 
    it( `Should register a domain and query it.`, async () => {
       const broker = w1;
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
-      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = cli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--note", memo() ] );
 
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
