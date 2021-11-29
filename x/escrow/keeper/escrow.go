@@ -199,7 +199,8 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	// Send the price to the module
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, escrow.Price)
+
+	err = k.transferCoinsToEscrow(ctx, buyer, escrow.Id, escrow.Price)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
 	}
@@ -232,11 +233,11 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 	brokerCoins, _ := sdk.NewDecCoinsFromCoins(escrow.Price...).MulDec(escrow.BrokerCommission).TruncateDecimal()
 	sellerCoins := escrow.Price.Sub(brokerCoins)
 
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, broker, brokerCoins)
+	err = k.transferCoinsFromEscrow(ctx, escrow.Id, broker, brokerCoins)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the broker")
 	}
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, seller, sellerCoins)
+	err = k.transferCoinsFromEscrow(ctx, escrow.Id, seller, sellerCoins)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the seller")
 	}
@@ -298,6 +299,26 @@ func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, objec
 	// Transfer the object
 	err := object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
 	return err
+}
+
+// transferCoinsFromAccountToAccountThroughModule sends coins from an account to another through the escrow module.
+// It is intended to use between a module sub-account and a regular only.
+func (k Keeper) transferCoinsFromAccountToAccountThroughModule(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, coins sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, from, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, to, coins)
+}
+
+// transferCoinsToEscrow transfers coins from an account to an escrow account
+func (k Keeper) transferCoinsToEscrow(ctx sdk.Context, from sdk.AccAddress, toEscrowId string, coins sdk.Coins) error {
+	return k.transferCoinsFromAccountToAccountThroughModule(ctx, from, k.GetEscrowAddress(toEscrowId), coins)
+}
+
+// transferCoinsFromEscrow transfers coins from an escrow account to an account
+func (k Keeper) transferCoinsFromEscrow(ctx sdk.Context, fromEscrowId string, to sdk.AccAddress, coins sdk.Coins) error {
+	return k.transferCoinsFromAccountToAccountThroughModule(ctx, k.GetEscrowAddress(fromEscrowId), to, coins)
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {

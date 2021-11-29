@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/types/address"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/store"
@@ -86,10 +87,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetEscrowAddress returns the address of the escrow account
 func (k Keeper) GetEscrowAddress(id string) sdk.AccAddress {
-	//TODO: use the changes introduced by https://github.com/cosmos/cosmos-sdk/pull/9088 in v0.43 to effectively have one account per escrow
-	return k.accountKeeper.GetModuleAddress(types.ModuleName)
-	// We could use this instead, but it is not optimal and increases probability of collision
-	// return k.accountKeeper.GetModuleAddress(types.ModuleName + id)
+	return address.Module(types.ModuleName, []byte(id))
 }
 
 func (k Keeper) ImportNextID(ctx sdk.Context, nextID uint64) {
