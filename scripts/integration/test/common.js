@@ -200,8 +200,8 @@ export const grpcurl = ( endpoint, args ) => {
       "-import-path",
       "./proto", // chdir() below
       "-proto",
-      "./proto/cosmwasm/wasm/v1/query.proto",
-      "-proto",
+      // FIXME: uncomment when x/wasm is real "./proto/cosmwasm/wasm/v1/query.proto",
+      // FIXME: uncomment when x/wasm is real "-proto",
       "./proto/iov/starname/v1beta1/query.proto",
       "-proto",
       "./proto/iov/configuration/v1beta1/query.proto",
