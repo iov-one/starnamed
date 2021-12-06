@@ -124,6 +124,13 @@
   
     - [Msg](#starnamed.x.starname.v1beta1.Msg)
   
+- [wasm/types.proto](#wasm/types.proto)
+    - [AccessConfig](#iovone.starnamed.wasm.AccessConfig)
+    - [AccessTypeParam](#iovone.starnamed.wasm.AccessTypeParam)
+    - [Params](#iovone.starnamed.wasm.Params)
+  
+    - [AccessType](#iovone.starnamed.wasm.AccessType)
+  
 - [wasm/genesis.proto](#wasm/genesis.proto)
     - [GenesisState](#iovone.starnamed.wasm.GenesisState)
   
@@ -1715,6 +1722,84 @@ Msg defines the starname Msg service.
 
 
 
+<a name="wasm/types.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## wasm/types.proto
+
+
+
+<a name="iovone.starnamed.wasm.AccessConfig"></a>
+
+### AccessConfig
+AccessConfig access control type.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `permission` | [AccessType](#iovone.starnamed.wasm.AccessType) |  |  |
+| `address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="iovone.starnamed.wasm.AccessTypeParam"></a>
+
+### AccessTypeParam
+AccessTypeParam
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [AccessType](#iovone.starnamed.wasm.AccessType) |  |  |
+
+
+
+
+
+
+<a name="iovone.starnamed.wasm.Params"></a>
+
+### Params
+Params defines the set of wasm parameters.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `code_upload_access` | [AccessConfig](#iovone.starnamed.wasm.AccessConfig) |  |  |
+| `instantiate_default_permission` | [AccessType](#iovone.starnamed.wasm.AccessType) |  |  |
+| `max_wasm_code_size` | [uint64](#uint64) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="iovone.starnamed.wasm.AccessType"></a>
+
+### AccessType
+AccessType permission types
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ACCESS_TYPE_UNSPECIFIED | 0 | AccessTypeUnspecified placeholder for empty value |
+| ACCESS_TYPE_NOBODY | 1 | AccessTypeNobody forbidden |
+| ACCESS_TYPE_ONLY_ADDRESS | 2 | AccessTypeOnlyAddress restricted to an address |
+| ACCESS_TYPE_EVERYBODY | 3 | AccessTypeEverybody unrestricted |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
 <a name="wasm/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1726,6 +1811,11 @@ Msg defines the starname Msg service.
 
 ### GenesisState
 GenesisState defines the wasm module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#iovone.starnamed.wasm.Params) |  |  |
 
 
 
