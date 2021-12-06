@@ -83,7 +83,7 @@ func (a AccessConfig) Equals(o AccessConfig) bool {
 }
 
 var (
-	DefaultUploadAccess = AllowNobody
+	DefaultUploadAccess = AllowEverybody
 	AllowEverybody      = AccessConfig{Permission: AccessTypeEverybody}
 	AllowNobody         = AccessConfig{Permission: AccessTypeNobody}
 )
@@ -96,8 +96,8 @@ func ParamKeyTable() paramtypes.KeyTable {
 // DefaultParams returns default wasm parameters
 func DefaultParams() Params {
 	return Params{
-		CodeUploadAccess:             AllowNobody,
-		InstantiateDefaultPermission: AccessTypeNobody,
+		CodeUploadAccess:             AllowEverybody,
+		InstantiateDefaultPermission: AccessTypeEverybody,
 		MaxWasmCodeSize:              DefaultMaxWasmCodeSize,
 	}
 }
