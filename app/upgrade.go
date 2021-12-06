@@ -202,6 +202,7 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 			"burner":        1, // the burner module has no state but it implements AppModule so its better to put it here
 			"configuration": 1,
 			"starname":      1,
+			"wasm":          1,
 
 			// The escrow is a newly introduced module, as well as the feegrant and authz modules so we do not include them
 		}
