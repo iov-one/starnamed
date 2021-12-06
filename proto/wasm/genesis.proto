@@ -1,0 +1,11 @@
+syntax = "proto3";
+package iovone.starnamed.wasm;
+
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/iov-one/starnamed/x/wasm/types";
+
+// GenesisState defines the wasm module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+}

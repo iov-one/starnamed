@@ -12,6 +12,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.1 // indirect
 	github.com/iov-one/cosmos-sdk-crud v0.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
@@ -27,7 +28,7 @@ require (
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
+	google.golang.org/genproto v0.0.0-20211129164237-f09f9a12af12
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 )
