@@ -20,6 +20,8 @@ import (
 	"github.com/iov-one/starnamed/x/wasm/types"
 	"github.com/iov-one/starnamed/x/wasm/client/cli"
 	
+	// HACK: Force dependency on wasmvm so that an unmodified .travis.yml can build releases.
+	_ "github.com/CosmWasm/wasmvm/types"
 )
 
 var (

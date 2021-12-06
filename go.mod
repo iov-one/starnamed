@@ -3,6 +3,7 @@ module github.com/iov-one/starnamed
 go 1.16
 
 require (
+	github.com/CosmWasm/wasmvm v0.16.2
 	github.com/cosmos/cosmos-sdk v0.44.3
 	github.com/cosmos/iavl v0.17.2 // indirect
 	github.com/cosmos/ibc-go v1.2.3
@@ -12,7 +13,6 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.1 // indirect
 	github.com/iov-one/cosmos-sdk-crud v0.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
