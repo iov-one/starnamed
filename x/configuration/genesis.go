@@ -2,6 +2,7 @@ package configuration
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/iov-one/starnamed/x/configuration/types"
 )
@@ -46,8 +47,8 @@ func DefaultGenesisState() types.GenesisState {
 		CertificateSizeMax:     10000,
 		CertificateCountMax:    3,
 		MetadataSizeMax:        86400,
-		EscrowCommission:       sdk.NewDecFromInt(sdk.NewInt(1)).QuoInt(sdk.NewInt(100)), // 1%
-		EscrowBroker:           "star1d3lhm5vtta78cm7c7ytzqh7z5pcgktmautntqv",            // msig1
+		EscrowCommission:       sdk.ZeroDec(), 											  // 0 % commission
+		EscrowBroker:           authtypes.NewModuleAddress(authtypes.Burner),             // the burner module address
 		EscrowMaxPeriod:        7890000 * 1e9,                                            // 3 months
 	}
 	// set fees
