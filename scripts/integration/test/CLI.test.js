@@ -639,7 +639,8 @@ describe( "Tests the CLI.", () => {
       const config = cli(["query", "configuration", "get-config"]).configuration;
 
        let prevBalance = parseInt(cli(["query", "bank", "balances", signer]).balances.find(b => b.denom =="tiov").amount)
-      let prevBrokerBalance = parseInt(cli(["query", "bank", "balances", config.escrow_broker]).balances.find(b => b.denom =="tiov").amount)
+      let prevBrokerBalance = cli(["query", "bank", "balances", config.escrow_broker]).balances;
+      prevBrokerBalance = prevBrokerBalance ? parseInt(prevBrokerBalance.find(b => b.denom =="tiov").amount) : 0;
 
       // Verify escrows exists
       let result = cli(["query", "escrow", "escrow", idDomainEscrow])
