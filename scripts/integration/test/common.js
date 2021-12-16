@@ -28,8 +28,8 @@ const dirSdk = process.env.COSMOS_SDK_DIR || String( spawnSync( "go", [ "list", 
 
 
 export const cli = ( args , shouldFail = false) => {
-   const maybeWithKeyring = args.find( arg => arg == "query" ) ? args : args.concat( [ "--keyring-backend", "test" ] );
-   const maybeWithChainId = args.find( arg => arg == "--offline" || arg == "signutil" ) ? maybeWithKeyring : maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc ] );
+   const maybeWithKeyring = args.find( arg => arg == "query" || arg == "offchain" ) ? args : args.concat( [ "--keyring-backend", "test" ] );
+   const maybeWithChainId = args.find( arg => arg == "offchain") ? maybeWithKeyring : maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc ] );
    const cliargs = maybeWithChainId.concat( maybeWithChainId.find( arg => arg == "query" ) ? "--output" : "--log_format", "json" );
    const app = spawnSync( binary, cliargs );
    if ( echo ) console.info( `\n\x1b[94m${binary} ${cliargs.join( " " )} | jq\x1b[89m\n` );
@@ -79,6 +79,7 @@ export const fetchObject = async ( url, options ) => {
 
    return o;
 };
+
 
 
 /**

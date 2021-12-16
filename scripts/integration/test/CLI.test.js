@@ -1,8 +1,11 @@
 import { Base64 } from "js-base64";
 
-import { burner, cli, denomFee, denomStake, gasPrices, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
+import { burner, cli, binary, denomFee, denomStake, gasPrices, getBalance, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson, makeTx } from "./common";
 import compareObjects from "./compareObjects";
 import forge from "node-forge";
+import fs from "fs";
+import {spawnSync} from "child_process";
+import tmp from "tmp";
 
 "use strict";
 
@@ -472,27 +475,29 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   // TODO: don't skip when the message signing module is integrated
-   it.skip( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
+   it( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
       const message = "Hello, World!";
-      const created = cli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--note", memo(), "--generate-only" ] );
-      const tmpCreated = writeTmpJson( created );
-      const signed = cli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
-      const tmpSigned = writeTmpJson( signed );
-      const verified = cli( [ "tx", "signutil", "verify", "--file", tmpSigned ] );
+      const tmpName = tmp.tmpNameSync( { template: "test-sign-XXXXXX.json", unsafeCleanup: true } );
+      
+      let app = spawnSync(binary, [ "tx", "offchain", "sign",tmpName, "--text", message, "--from", signer, "--keyring-backend", "test"] );
+      expect(app.status).toEqual(0);
 
-      expect( verified.message ).toEqual( message );
-      expect( verified.signer ).toEqual( signer );
+      const verified = cli( [ "tx", "offchain", "verify",tmpName, "--format", "json" ] );
 
-      // alter the y+NyzKwBpsPJ2xdZMYR4CkFMjhHh004gnRmyXqoWN9J7kqOHxNaevG7TMSvs/NnOT649kbxHUim7koWkvGy8Ew== signature
-      signed.value.signatures[0].signature = "z" + signed.value.signatures[0].signature.substr( 1 );
+      expect( verified.msgs[0].data ).toEqual( Buffer.from(message, 'utf8').toString('base64') );
+      expect( verified.msgs[0].signer ).toEqual( signer );
+
+
+      const signed = JSON.parse(fs.readFileSync(tmpName));
+          // alter the signature
+      signed.signatures[0] = "z" + signed.signatures[0].substr( 1 );
 
       const tmpAltered = writeTmpJson( signed );
 
       try {
-         cli( [ "tx", "signutil", "verify", "--file", tmpAltered ] );
+         cli( [ "tx", "offchain", "verify", tmpAltered ] );
       } catch ( e ) {
-         expect( e.message.indexOf( "ERROR: invalid signature from address found at index 0" ) ).toEqual( 0 );
+         expect( e.message.indexOf( "invalid signature 0" ) != -1).toBeTruthy(  );
       }
    } );
 
@@ -631,6 +636,11 @@ describe( "Tests the CLI.", () => {
        const accounted = broadcasted.logs[0].events.filter( event => event.type.indexOf( "EventCreatedEscrow" ) != -1 )[0];
        expect( idAccountEscrow = JSON.parse(accounted.attributes.find(a => a.key === "id").value) ).toBeDefined();
 
+      const config = cli(["query", "configuration", "get-config"]).configuration;
+
+       let prevBalance = parseInt(cli(["query", "bank", "balances", signer]).balances.find(b => b.denom =="tiov").amount)
+      let prevBrokerBalance = parseInt(cli(["query", "bank", "balances", config.escrow_broker]).balances.find(b => b.denom =="tiov").amount)
+
       // Verify escrows exists
       let result = cli(["query", "escrow", "escrow", idDomainEscrow])
       expect(result.escrow).toBeDefined()
@@ -650,7 +660,8 @@ describe( "Tests the CLI.", () => {
        expect(result.account.owner).not.toEqual(signer)
 
       // transfer domain
-      unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
+      // The default gas of 200000 is not enough here
+      unsigned = cli(["tx", "escrow", "transfer", idDomainEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--gas", 300000, "--note", memo(), "--generate-only"])
       broadcasted = signAndBroadcastTx( unsigned , "w1");
       expect(broadcasted.logs).toBeDefined()
       // Check escrow does not exist
@@ -661,6 +672,12 @@ describe( "Tests the CLI.", () => {
       result = cli(["query", "starname", "resolve-domain", "--domain", domain])
       expect(result.domain).toBeDefined()
       expect(result.domain.admin).toEqual(w1)
+
+      // Check tokens belong to seller
+      result = cli(["query", "bank", "balances", signer])
+      let iovBalance = result.balances.find(b => b.denom == "tiov");
+      expect(parseInt(iovBalance.amount)).toEqual(prevBalance + parseInt(100 *  (1 - parseFloat(config.escrow_commission))));
+      prevBalance = parseInt(iovBalance.amount);
 
       // transfer account
       unsigned = cli(["tx", "escrow", "transfer", idAccountEscrow, price, "--yes", "--from", w1, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
@@ -674,6 +691,15 @@ describe( "Tests the CLI.", () => {
       result = cli(["query", "starname", "resolve-account", "--domain", domain, "--name", name])
       expect(result.account).toBeDefined()
       expect(result.account.owner).toEqual(w1)
+
+
+      // Check token transfer
+      let balance = parseInt(cli(["query", "bank", "balances", signer]).balances.find(b => b.denom =="tiov").amount)
+      expect(balance).toEqual(prevBalance + parseInt(100 * (1 - parseFloat(config.escrow_commission))));
+
+      // Check broker balance
+      balance = parseInt(cli(["query", "bank", "balances", config.escrow_broker]).balances.find(b =>b.denom == "tiov").amount)
+      expect(balance).toEqual(prevBrokerBalance + parseInt(100 * parseFloat(config.escrow_commission) * 2))
    })
 
 
