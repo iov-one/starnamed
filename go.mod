@@ -3,6 +3,7 @@ module github.com/iov-one/starnamed
 go 1.16
 
 require (
+	github.com/CosmWasm/wasmvm v0.16.2
 	github.com/cosmos/cosmos-sdk v0.44.3
 	github.com/cosmos/iavl v0.17.2 // indirect
 	github.com/cosmos/ibc-go v1.2.3
@@ -27,9 +28,10 @@ require (
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
+	google.golang.org/genproto v0.0.0-20211129164237-f09f9a12af12
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
