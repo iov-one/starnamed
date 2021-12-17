@@ -669,8 +669,8 @@ Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/starnamed/x/escrow/{id}|
-| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/starnamed/x/escrows|
+| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/starnamed/v1beta1/escrow/{id}|
+| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/starnamed/v1beta1/escrows|
 
  <!-- end services -->
 
