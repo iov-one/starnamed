@@ -3,6 +3,7 @@ package configuration
 import (
 	"context"
 	"encoding/json"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -43,7 +44,7 @@ func (AppModuleBasic) Name() string { return types.ModuleName }
 
 // DefaultGenesis returns default genesis state as raw bytes for the configuration module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	defaultGenesisState := DefaultGenesisState()
+	defaultGenesisState := types.DefaultGenesisState()
 	return cdc.MustMarshalJSON(&defaultGenesisState)
 }
 
@@ -54,7 +55,7 @@ func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONCodec, config client
 	if err != nil {
 		return err
 	}
-	return ValidateGenesis(data)
+	return types.ValidateGenesis(data)
 }
 
 // RegisterRESTRoutes registers the REST routes for the configuration module.
@@ -97,6 +98,11 @@ func (AppModule) Name() string { return types.ModuleName }
 // RegisterServices allows a module to register services
 func (a AppModule) RegisterServices(configurator module.Configurator) {
 	types.RegisterQueryServer(configurator.QueryServer(), NewQuerier(&a.keeper))
+
+	m := NewMigrator(a.keeper)
+	if err := configurator.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(sdkerrors.Wrapf(err, "Error while registering the configuration module migration from version 1 to 2"))
+	}
 }
 
 // LegacyQuerierHandler provides an sdk.Querier object that uses the legacy amino codec.
@@ -138,4 +144,4 @@ func (a AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawM
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return 2 }
