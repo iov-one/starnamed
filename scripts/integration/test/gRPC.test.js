@@ -9,7 +9,7 @@ describe( "Tests gRPC.", () => {
    const versionWasm = "v1beta1";
 
 
-   it( `Should list wasm contract codes.`, async () => {
+   it( `Should get starname configuration.`, async () => {
       const grpcurled = grpcurl( `starnamed.x.configuration.${versionStarname}.Query/Config` );
 
       expect( grpcurled.config ).toBeDefined();
