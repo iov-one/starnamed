@@ -12,12 +12,12 @@ option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 service Query {
     // Escrow queries the escrow by the specified id
     rpc Escrow(QueryEscrowRequest) returns (QueryEscrowResponse) {
-        option (google.api.http).get = "/starnamed/x/escrow/{id}";
+        option (google.api.http).get = "/starnamed/v1beta1/escrow/{id}";
     }
 
     // Escrows queries escrows by the specified key-value pairs
     rpc Escrows(QueryEscrowsRequest) returns (QueryEscrowsResponse) {
-        option (google.api.http).get = "/starnamed/x/escrows";
+        option (google.api.http).get = "/starnamed/v1beta1/escrows";
     }
 }
 

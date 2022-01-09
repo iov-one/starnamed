@@ -187,21 +187,22 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 			"crisis":       1,
 			"distribution": 1,
 			"evidence":     1,
+			"genutil":      1,
 			"gov":          1,
+			"ibc":          1,
 			"mint":         1,
 			"params":       1,
 			"slashing":     1,
 			"staking":      1,
+			"transfer":     1,
 			"upgrade":      1,
 			"vesting":      1,
-			"ibc":          1,
-			"genutil":      1,
-			"transfer":     1,
 
 			// Custom modules
-			"configuration": 1,
 			"burner":        1, // the burner module has no state but it implements AppModule so its better to put it here
+			"configuration": 1, // the configuration module will be updated to version 2 (adding the escrow conf)
 			"starname":      1,
+			"wasm":          1,
 
 			// The escrow is a newly introduced module, as well as the feegrant and authz modules so we do not include them
 		}

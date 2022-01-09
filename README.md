@@ -3,7 +3,16 @@
 Execute the following commands to light-up a node for **iov-mainnet-ibc**.  Be sure to change the custom environment variable `USER_IOV`, the user that will run the node.  `USER_IOV` must exist before you can proceed.
 
 
-## Phase 1 Of 2
+## Sync'ing Using `statesync`
+
+TDB
+
+
+## Sync'ing From Block 1
+
+The chain has been upgraded twice since its inception, which means that three different binaries are needed to sync the chain from block 1.  Sync'ing from block 1 is broken into three phases and will take days.
+
+### Phase 1 Of 3
 
 ```sh
 sudo su -c bash # make life easier for the next ~100 lines
@@ -117,7 +126,7 @@ journalctl -f -u starnamed.service & systemctl start starnamed.service # watch t
 exit # root
 ```
 
-## Phase 2 Of 2
+### Phase 2 Of 3
 
 [Proposal 9](https://big-dipper.iov-mainnet-ibc.iov.one/proposals/9), a software upgrade, forced `starnamed` to intentionally panic after block 4,597,999.  The `starnamed` binary needs to be upgraded in order to continue sync'ing `iov-mainnet-ibc`.
 
@@ -141,7 +150,12 @@ mv -v libwasmvm.so libwasmvm.so-v0.10.12
 # get the new starnamed binary
 wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep a3555955a1d001449d7e05793852ea23064905614bab0bb8cefc250758ea81bf && tar xvf $(basename ${STARNAMED}) && echo '✅ All good!' || echo '❌ BAD BINARY!'
 
-journalctl -f -u starnamed.service & systemctl restart starnamed.service # watch the chain sync
+journalctl -f -u starnamed.service & systemctl restart starnamed.service # watch the chain sync  until it intentionlly panics after block xxxxxxx
+
+
+### Phase 3 Of 3
+
+[Proposal x](https://big-dipper.iov-mainnet-ibc.iov.one/proposals/x), a software upgrade, forced `starnamed` to intentionally panic after block x,xxx,xxx.  The `starnamed` binary needs to be upgraded in order to continue sync'ing `iov-mainnet-ibc`.
 
 exit # sudo su
 ```

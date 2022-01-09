@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/hex"
+	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 	"strings"
 	"testing"
 	"time"
@@ -214,7 +215,7 @@ func NewTestKeeper(coinHolders []sdk.AccAddress, isModuleEnabled bool) (keeper.K
 	defaultFees.SetDefaults(Denom)
 	configKeeper.SetFees(ctx, defaultFees)
 
-	defaultConfig := configuration.DefaultGenesisState().Config
+	defaultConfig := configurationtypes.DefaultGenesisState().Config
 	configKeeper.SetConfig(ctx, defaultConfig)
 
 	// register blocked addresses
