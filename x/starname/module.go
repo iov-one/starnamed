@@ -12,12 +12,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/iov-one/starnamed/x/starname/client/cli"
 	"github.com/iov-one/starnamed/x/starname/client/rest"
 	"github.com/iov-one/starnamed/x/starname/keeper"
 	"github.com/iov-one/starnamed/x/starname/types"
-	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -25,9 +26,9 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the configuration module.
+// AppModuleBasic defines the basic application module used by the starname module.
 type AppModuleBasic struct {
-	cdc codec.Marshaler
+	cdc codec.Codec
 }
 
 // RegisterLegacyAminoCodec registers the amino codec.
@@ -40,17 +41,17 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serv
 	types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(clientCtx))
 }
 
-// Name returns the configuration module's name.
+// Name returns the starname module's name.
 func (AppModuleBasic) Name() string { return types.ModuleName }
 
-// DefaultGenesis returns default genesis state as raw bytes for the configuration module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+// DefaultGenesis returns default genesis state as raw bytes for the starname module.
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	defaultGenesisState := DefaultGenesisState()
 	return cdc.MustMarshalJSON(&defaultGenesisState)
 }
 
-// ValidateGenesis performs genesis state validation for the configuration module.
-func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONMarshaler, config client.TxEncodingConfig, message json.RawMessage) error {
+// ValidateGenesis performs genesis state validation for the starname module.
+func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONCodec, config client.TxEncodingConfig, message json.RawMessage) error {
 	var data types.GenesisState
 	if err := marshaler.UnmarshalJSON(message, &data); err != nil {
 		return err
@@ -78,7 +79,7 @@ func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) 
 	types.RegisterInterfaces(registry)
 }
 
-// AppModule implements an application module for the configuration module.
+// AppModule implements an application module for the starname module.
 type AppModule struct {
 	AppModuleBasic
 	keeper Keeper
@@ -92,7 +93,7 @@ func NewAppModule(keeper Keeper) AppModule {
 	}
 }
 
-// Name returns the configuration module's name.
+// Name returns the starname module's name.
 func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterServices allows a module to register services
@@ -106,35 +107,40 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 	return keeper.NewLegacyQuerier(am.keeper)
 }
 
-// RegisterInvariants registers the configuration module invariants.
+// RegisterInvariants registers the starname module invariants.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// Route returns the message routing key for the configuration module.
+// Route returns the message routing key for the starname module.
 func (am AppModule) Route() sdk.Route {
 	return sdk.NewRoute(RouterKey, NewHandler(&am.keeper))
 }
 
-// QuerierRoute returns the configuration module's querier route name.
+// QuerierRoute returns the starname module's querier route name.
 func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
-// BeginBlock returns the begin blocker for the configuration module.
-func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+// BeginBlock returns the begin blocker for the starname module.
+func (AppModule) BeginBlock(sdk.Context, abci.RequestBeginBlock) {
+}
 
-// EndBlock returns the end blocker for the configuration module. It returns no validator updates.
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+// EndBlock returns the end blocker for the starname module. It returns no validator updates.
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
 }
 
-// InitGenesis performs genesis initialization for the configuration module. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
+// InitGenesis performs genesis initialization for the starname module. It returns no validator updates.
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the configuration module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
+// ExportGenesis returns the exported genesis state as raw bytes for the starname module.
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesisState := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(genesisState)
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }

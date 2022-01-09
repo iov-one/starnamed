@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	crud "github.com/iov-one/cosmos-sdk-crud"
+
 	"github.com/iov-one/starnamed/pkg/utils"
 	"github.com/iov-one/starnamed/x/starname/types"
 )
@@ -19,8 +21,9 @@ type grpcQuerier struct {
 }
 
 const (
-	defaultStart uint64 = 0
-	defaultLimit uint64 = 100 // TODO: read this from config.toml
+	defaultStart     uint64 = 0
+	defaultLimit     uint64 = 100 // TODO: read this from config.toml
+	NumBlocksInAWeek uint64 = 100000
 )
 
 func getPagination(pageRequest *query.PageRequest) (uint64, uint64, bool, error) {
@@ -313,4 +316,50 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 		return nil, sdkerrors.Wrapf(err, "'%s' caused error", broker.String())
 	}
 	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
+}
+
+//Yield return an estimation of the delegators annualized yield based on the last 100k blocks
+func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
+	var response types.QueryYieldResponse
+
+	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper)
+	if err != nil {
+		return nil, err
+	}
+	response.Yield = apy
+	return &response, err
+}
+
+func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
+
+	totalFees, numBlocks, err := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
+
+	if err != nil {
+		return sdk.ZeroDec(), sdkerrors.Wrapf(err, "could not compute the fees for the latest blocks at height %v", ctx.BlockHeight())
+	}
+	if numBlocks != NumBlocksInAWeek {
+		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
+			ctx.BlockHeight(), NumBlocksInAWeek)
+	}
+
+	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
+
+	totalDelegatedPower := keeper.StakingKeeper.GetLastTotalPower(ctx) // in voting power unit
+
+	// Translate the voting power to actual tokens
+	totalDelegatedTokens := keeper.StakingKeeper.TokensFromConsensusPower(ctx, totalDelegatedPower.Int64()) // in tokens (uiov)
+
+	// Compute yield for numBlocks blocks
+	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
+
+	var apy sdk.Dec
+	if len(yieldForPeriod) == 0 {
+		apy = sdk.ZeroDec()
+	} else {
+		const WeeksPerYear = 52
+		// TODO: manage multiple tokens for fees
+		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
+	}
+
+	return apy, nil
 }

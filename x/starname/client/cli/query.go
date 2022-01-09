@@ -7,8 +7,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/iov-one/starnamed/x/starname/types"
 	"github.com/spf13/cobra"
+
+	"github.com/iov-one/starnamed/x/starname/types"
 )
 
 // GetQueryCmd builds the commands for queries in the domain module
@@ -27,6 +28,7 @@ func GetQueryCmd() *cobra.Command {
 		getQueryOwnerAccounts(),
 		getQueryOwnerDomains(),
 		getQueryResourceAccounts(),
+		getQueryYield(),
 	)
 	return domainQueryCmd
 }
@@ -275,5 +277,31 @@ func getQueryResourceAccounts() *cobra.Command {
 	cmd.Flags().String("resource", "", "resource")
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "resource accounts")
+	return cmd
+}
+
+func getQueryYield() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "yield-estimate",
+		Aliases: []string{"yield", "apr", "apy", "APY", "APR", "annualized-yield"},
+		Short:   "get a real-time estimate of the annualized yield",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			res, err := types.NewQueryClient(clientCtx).Yield(
+				context.Background(),
+				&types.QueryYieldRequest{},
+			)
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(res)
+		},
+	}
+	// add flags
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }

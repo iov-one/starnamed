@@ -9,11 +9,11 @@
 
 This repository hosts `Wasmd`, the first implementation of a cosmos zone with wasm smart contracts enabled.
 
-This code was forked from the `cosmos/gaia` repository as a basis and then we added `x/wasm` and cleaned up
+This code was forked from the `cosmos/gaia` repository as a basis and then we added `x/wasm` and cleaned up 
 many gaia-specific files. However, the `wasmd` binary should function just like `gaiad` except for the
 addition of the `x/wasm` module.
 
-**Note**: Requires [Go 1.15+](https://golang.org/dl/)
+**Note**: Requires [Go 1.16.8+](https://golang.org/dl/)
 
 ## Compatibility with CosmWasm contracts
 
@@ -25,6 +25,10 @@ compatibility list:
 
 | wasmd | cosmwasm-vm | cosmwasm-std |
 | ----- | ----------- | ------------ |
+| 0.21  | 1.0.0-beta | 1.0.0-beta  |
+| 0.20  | 1.0.0-beta | 1.0.0-beta  |
+| 0.19  | 0.16        | 0.16         |
+| 0.18  | 0.16        | 0.16         |
 | 0.17  | 0.14        | 0.14         |
 | 0.16  | 0.14        | 0.14         |
 | 0.15  | 0.13        | 0.11-0.13    |
@@ -45,9 +49,10 @@ using [wasmer](https://github.com/wasmerio/wasmer/) 1.0, which is significantly 
 ## Supported Systems
 
 The supported systems are limited by the dlls created in [`wasmvm`](https://github.com/CosmWasm/wasmvm). In particular, **we only support MacOS and Linux**.
+However, **M1 macs are currently not supported.**
 For linux, the default is to build for glibc, and we cross-compile with CentOS 7 to provide
 backwards compatibility for `glibc 2.12+`. This includes all known supported distributions
-using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19).
+using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19). 
 
 As of `0.9.0` we support `muslc` Linux systems, in particular **Alpine linux**,
 which is popular in docker distributions. Note that we do **not** store the
@@ -60,8 +65,8 @@ binary for `muslc`. (Or just use this Dockerfile for your production setup).
 
 **This is alpha software, do not run on a production system.** Notably, we currently provide **no migration path** not even "dump state and restart" to move to future versions. At **beta** we will begin to offer migrations and better backwards compatibility guarantees.
 
-With the `v0.6.0` tag, we entered semver. That means anything with `v0.6.x` tags is compatible with each other,
-and everything with `v0.7.x` tags is compatible with each other.
+With the `v0.6.0` tag, we entered semver. That means anything with `v0.6.x` tags is compatible with each other, 
+and everything with `v0.7.x` tags is compatible with each other. 
 Between these minor versions, there is API breakage with no upgrade path provided.
 
 We will have a stable `v0.x` version before the final `v1.0.0` version with
@@ -75,11 +80,11 @@ given feedback to improve stability.
 ## Encoding
 The used cosmos-sdk version is in transition migrating from amino encoding to protobuf for state. So are we now.
 
-We use standard cosmos-sdk encoding (amino) for all sdk Messages. However, the message body sent to all contracts,
-as well as the internal state is encoded using JSON. Cosmwasm allows arbitrary bytes with the contract itself
+We use standard cosmos-sdk encoding (amino) for all sdk Messages. However, the message body sent to all contracts, 
+as well as the internal state is encoded using JSON. Cosmwasm allows arbitrary bytes with the contract itself 
 responsible for decodng. For better UX, we often use `json.RawMessage` to contain these bytes, which enforces that it is
 valid json, but also give a much more readable interface.  If you want to use another encoding in the contracts, that is
-a relatively minor change to wasmd but would currently require a fork. Please open in issue if this is important for
+a relatively minor change to wasmd but would currently require a fork. Please open in issue if this is important for 
 your use case.
 
 ## Quick Start
@@ -167,11 +172,11 @@ to the configuration.
 
 Available flags:
 
-
+ 
 * `-X github.com/CosmWasm/wasmd/app.NodeDir=.corald` - set the config/data directory for the node (default `~/.wasmd`)
 * `-X github.com/CosmWasm/wasmd/app.Bech32Prefix=coral` - set the bech32 prefix for all accounts (default `wasm`)
 * `-X github.com/CosmWasm/wasmd/app.ProposalsEnabled=true` - enable all x/wasm governance proposals (default `false`)
-* `-X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin` -
+* `-X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin` - 
     enable a subset of the x/wasm governance proposal types (overrides `ProposalsEnabled`)
 
 Examples:
@@ -179,8 +184,12 @@ Examples:
 * [`wasmd`](./Makefile#L50-L55) is a generic, permissionless version using the `cosmos` bech32 prefix
 
 ## Genesis Configuration
-
-@alpe we should document all the genesis config for x/wasm even more.
+We strongly suggest **to limit the max block gas in the genesis** and not use the default value (`-1` for infinite).
+```json
+  "consensus_params": {
+    "block": {
+      "max_gas": "SET_YOUR_MAX_VALUE",  
+```
 
 Tip: if you want to lock this down to a permisisoned network, the following script can edit the genesis file
 to only allow permissioned use of code upload or instantiating. (Make sure you set `app.ProposalsEnabled=true`

@@ -183,4 +183,5 @@ func TestValidate(t *testing.T) {
 			Deadline: gen.NowAfter(0) - 20,
 		}.Validate(denom, gen.NowAfter(0))
 	})
+	// TODO test valid escrow object deadline without context but invalid with context
 }

@@ -130,7 +130,7 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 	}
 
 	obj := msg.Object.GetCachedValue().(TransferableObject)
-	if err := ValidateObjectDeadline(obj, msg.Deadline); err != nil {
+	if err := ValidateObjectDeadlineBasic(obj, msg.Deadline); err != nil {
 		return err
 	}
 

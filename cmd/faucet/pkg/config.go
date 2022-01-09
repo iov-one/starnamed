@@ -7,23 +7,23 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/app"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/iov-one/starnamed/app"
 )
 
 type Configuration struct {
-	GRPCEndpoint          string
-	TendermintRPCEndpoint string
-	Port                  uint
-	ChainID               string
-	ArmorFile             string
-	Memo                  string
-	SendAmount            sdk.Coin
-	GasPrices             sdk.DecCoin
-	GasAdjust             float64
-	Passphrase            string
+	GRPCEndpoint string
+	Port         uint
+	ChainID      string
+	ArmorFile    string
+	Memo         string
+	SendAmount   sdk.Coin
+	GasPrices    sdk.DecCoin
+	GasAdjust    float64
+	Passphrase   string
 }
 
 func ParseConfiguration() (*Configuration, error) {
@@ -32,7 +32,6 @@ func ParseConfiguration() (*Configuration, error) {
 
 	pflag.String("send-amount", "100tiov", "Coin to send when receiving a credit request")
 	pflag.String("grpc-endpoint", "localhost:9090", "The address and port of a tendermint node gRPC")
-	pflag.String("rpc-endpoint", "http://localhost:26657", "A full address, with protocol and port, of a tendermint node RPC")
 	pflag.Uint("listen-port", 8080, "The port the faucet HTTP server will listen to")
 	pflag.String("memo", "Sent with love by IOV", "The message associated with the transaction")
 	pflag.String("chain-id", "integration-test", "The chain ID")
@@ -81,15 +80,14 @@ func ParseConfiguration() (*Configuration, error) {
 	}
 
 	return &Configuration{
-		GRPCEndpoint:          viper.GetString("grpc-endpoint"),
-		TendermintRPCEndpoint: viper.GetString("rpc-endpoint"),
-		Port:                  viper.GetUint("listen-port"),
-		ChainID:               viper.GetString("chain-id"),
-		ArmorFile:             viper.GetString("armor-file"),
-		Memo:                  viper.GetString("memo"),
-		SendAmount:            amt,
-		GasPrices:             gasPrice,
-		Passphrase:            viper.GetString("armor-passphrase"),
-		GasAdjust:             viper.GetFloat64("gas-adjust"),
+		GRPCEndpoint: viper.GetString("grpc-endpoint"),
+		Port:         viper.GetUint("listen-port"),
+		ChainID:      viper.GetString("chain-id"),
+		ArmorFile:    viper.GetString("armor-file"),
+		Memo:         viper.GetString("memo"),
+		SendAmount:   amt,
+		GasPrices:    gasPrice,
+		Passphrase:   viper.GetString("armor-passphrase"),
+		GasAdjust:    viper.GetFloat64("gas-adjust"),
 	}, nil
 }

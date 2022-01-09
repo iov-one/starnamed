@@ -44,11 +44,15 @@ func (k Keeper) CreateEscrow(
 		return "", sdkerrors.Wrap(types.ErrInvalidDeadline, "The deadline exceeds the maximum escrow duration")
 	}
 
+	if object == nil {
+		return "", sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The transferable object is nil")
+	}
+
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
 		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx), isAuction,
 	)
-	err := escrow.Validate(k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx))
+	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
 		return "", err
 	}
@@ -129,7 +133,8 @@ func (k Keeper) UpdateEscrow(
 		if err := types.ValidateDeadline(newDeadline, k.GetLastBlockTime(ctx)); err != nil {
 			return err
 		}
-		if err := types.ValidateObjectDeadline(escrow.GetObject(), newDeadline); err != nil {
+		obj := escrow.GetObject()
+		if err := types.ValidateObjectDeadline(ctx, obj, newDeadline, k.getCustomDataForType(obj.GetObjectTypeID())); err != nil {
 			return err
 		}
 
@@ -220,7 +225,8 @@ func (k Keeper) TransferToEscrow(
 	}
 
 	// Send the coins to the module
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, amountToSend)
+	err = k.transferCoinsToEscrow(ctx, buyer, escrow.Id, amountToSend)
+
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
 	}
@@ -251,8 +257,6 @@ func (k Keeper) TransferToEscrow(
 		// - The buyer can have received the object or not
 		// - The seller has not received the coins
 		// This case should never happen because the escrow should possess the coins and the object
-		//TODO: or maybe some other external problems could make this transaction fail
-		// how can we recover in that case ?
 		if err != nil {
 			panic(err)
 		}
@@ -277,11 +281,11 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 	brokerCoins, _ := sdk.NewDecCoinsFromCoins(escrow.Price...).MulDec(escrow.BrokerCommission).TruncateDecimal()
 	sellerCoins := escrow.Price.Sub(brokerCoins)
 
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, broker, brokerCoins)
+	err = k.transferCoinsFromEscrow(ctx, escrow.Id, broker, brokerCoins)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the broker")
 	}
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, seller, sellerCoins)
+	err = k.transferCoinsFromEscrow(ctx, escrow.Id, seller, sellerCoins)
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the seller")
 	}
@@ -347,7 +351,28 @@ func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.Ac
 // doObjectTransfer transfers the given object
 func (k Keeper) doObjectTransfer(ctx sdk.Context, from, to sdk.AccAddress, object types.TransferableObject) error {
 	// Transfer the object
-	return object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
+	err := object.Transfer(ctx, from, to, k.getCustomDataForType(object.GetObjectTypeID()))
+	return err
+}
+
+// transferCoinsFromAccountToAccountThroughModule sends coins from an account to another through the escrow module.
+// It is intended to use between a module sub-account and a regular only.
+func (k Keeper) transferCoinsFromAccountToAccountThroughModule(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, coins sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, from, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, to, coins)
+}
+
+// transferCoinsToEscrow transfers coins from an account to an escrow account
+func (k Keeper) transferCoinsToEscrow(ctx sdk.Context, from sdk.AccAddress, toEscrowId string, coins sdk.Coins) error {
+	return k.transferCoinsFromAccountToAccountThroughModule(ctx, from, k.GetEscrowAddress(toEscrowId), coins)
+}
+
+// transferCoinsFromEscrow transfers coins from an escrow account to an account
+func (k Keeper) transferCoinsFromEscrow(ctx sdk.Context, fromEscrowId string, to sdk.AccAddress, coins sdk.Coins) error {
+	return k.transferCoinsFromAccountToAccountThroughModule(ctx, k.GetEscrowAddress(fromEscrowId), to, coins)
 }
 
 func (k Keeper) addEscrowToDeadlineStore(ctx sdk.Context, escrow types.Escrow) {
@@ -454,7 +479,7 @@ func (k Keeper) GetEscrowsByState(ctx sdk.Context, state types.EscrowState, star
 
 func (k Keeper) GetEscrowsByObject(ctx sdk.Context, object types.TransferableObject) ([]types.Escrow, error) {
 	return k.QueryEscrows(ctx, func(query crud.QueryStatement) crud.ValidQuery {
-		return query.Where().Index(types.ObjectIndex).Equals(types.GetEscrowObjectKey(object))
+		return query.Where().Index(types.ObjectIndex).Equals(object.GetUniqueKey())
 	})
 }
 
@@ -487,7 +512,7 @@ func (k Keeper) queryEscrowsByAttributes(
 		case "expired":
 			state = types.EscrowState_Expired
 		default:
-			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The state is invalid, can be open or expired")
+			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The state is invalid, it must be one of open or expired")
 		}
 	}
 

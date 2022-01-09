@@ -223,9 +223,24 @@ func NewTestKeeper(coinHolders []sdk.AccAddress, isModuleEnabled bool) (keeper.K
 
 	k := keeper.NewKeeper(cdc, escrowStoreKey, paramsSubspace, authMocker.Mock(), bankMocker.Mock(), configKeeper, blockedAddr)
 	k.RegisterCustomData(types.TypeIDTestObject, crudStore)
-	k.RegisterCustomData(types.TypeIDTestTimeConstrainedObject, crudStore)
+	k.RegisterCustomData(types.TypeIDTestTimeConstrainedObject, wrapStoreForTimeContrainedObjects(crudStore))
 	k.SetLastBlockTime(ctx, uint64(ctx.BlockTime().Unix()))
 	return k, ctx, crudStore, balances, escrowStoreKey, configKeeper
+}
+
+type storeWrapper struct {
+	store crud.Store
+}
+
+func wrapStoreForTimeContrainedObjects(store crud.Store) *storeWrapper {
+	return &storeWrapper{store}
+}
+
+func (s storeWrapper) GetCrudStore() crud.Store {
+	return s.store
+}
+func (s storeWrapper) GetDeadlineOrDefault(_ sdk.Context, _ types.TransferableObject, def uint64) uint64 {
+	return def
 }
 
 func MustPackToAny(val proto.Message) *cdctypes.Any {
@@ -248,6 +263,9 @@ func CheckError(t *testing.T, name string, shouldFail bool, err error) {
 	}
 }
 
+// EvaluateTest executes the given test and checks that the execution is matching with the expected behaviour.
+// The name of the test describe the expected behaviour: if the name contains "panic" then the test should panic,
+// otherwise it should not. If the name contains "invalid" then the test function should return an error, otherwise it should not.
 func EvaluateTest(t *testing.T, name string, test func(t *testing.T) error) {
 	shouldPanic := strings.Contains(name, "panic")
 	shouldFail := strings.Contains(name, "invalid")

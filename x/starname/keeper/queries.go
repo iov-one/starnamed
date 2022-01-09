@@ -124,7 +124,7 @@ type QueryAccountsInDomainResponse struct {
 	Accounts []*types.Account `json:"accounts"`
 }
 
-// queryAccountsInDomainHandler returns all accounts in aliceAddr domain
+// queryAccountsInDomainHandler returns all accounts in a domain
 func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsInDomain)
 	err := queries.DefaultQueryDecode(req.Data, query)

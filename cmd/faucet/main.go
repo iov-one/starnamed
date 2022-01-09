@@ -14,10 +14,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/starnamed/cmd/faucet/pkg"
 	"github.com/tendermint/crypto/ssh/terminal"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"google.golang.org/grpc"
+
+	"github.com/iov-one/starnamed/cmd/faucet/pkg"
 )
 
 func main() {
@@ -34,11 +34,6 @@ func main() {
 	grpcClient, err := grpc.DialContext(ctx, conf.GRPCEndpoint, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("grpc connection: %s", err)
-	}
-
-	rpcClient, err := rpchttp.New(conf.TendermintRPCEndpoint, "/websocket")
-	if err != nil {
-		log.Fatalf("Connection to RPC node failed: %v", err)
 	}
 
 	keys := keyring.NewInMemory()
@@ -70,7 +65,7 @@ func main() {
 	passphrase = ""
 
 	// setup tx manager
-	txManager := pkg.NewTxManager(conf, grpcClient, rpcClient).WithKeybase(keys)
+	txManager := pkg.NewTxManager(conf, grpcClient).WithKeybase(keys)
 	if err := txManager.Init(); err != nil {
 		log.Fatalf("tx manager: %v", err)
 	}

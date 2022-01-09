@@ -13,12 +13,12 @@ func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
 		panic("no length fees set")
 	}
 	var fees = new(types.Fees)
-	k.cdc.MustUnmarshalBinaryBare(value, fees)
+	k.cdc.MustUnmarshal(value, fees)
 	return fees
 }
 
 // SetFees sets the network fees
 func (k Keeper) SetFees(ctx sdk.Context, fees *types.Fees) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.FeeKey), k.cdc.MustMarshalBinaryBare(fees))
+	store.Set([]byte(types.FeeKey), k.cdc.MustMarshal(fees))
 }

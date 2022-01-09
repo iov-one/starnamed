@@ -12,8 +12,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/starnamed/x/configuration/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/iov-one/starnamed/x/configuration/types"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
@@ -37,6 +39,7 @@ var defaultDuration, _ = time.ParseDuration("1h")
 
 const defaultRegex = "^(.*?)?"
 const defaultNumber = 1
+const defaultString = ""
 
 func getCmdUpdateFees() *cobra.Command {
 	cmd := &cobra.Command{
@@ -99,7 +102,7 @@ func getCmdUpdateConfig() *cobra.Command {
 					&types.MsgUpdateFees{},
 				)
 				marshaler := codec.NewProtoCodec(interfaceRegistry)
-				marshaler.MustUnmarshalBinaryBare(rawCfg, config)
+				marshaler.MustUnmarshal(rawCfg, config)
 			}
 			var signer string
 			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
@@ -116,7 +119,7 @@ func getCmdUpdateConfig() *cobra.Command {
 			if err != nil {
 				return
 			}
-			if configurerStr != "" {
+			if configurerStr != defaultString {
 				config.Configurer = configurerStr
 			}
 			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
@@ -218,6 +221,33 @@ func getCmdUpdateConfig() *cobra.Command {
 				config.MetadataSizeMax = metadataSizeMax
 			}
 
+			escrowBroker, err := cmd.Flags().GetString("escrow-broker")
+			if err != nil {
+				return err
+			}
+			if escrowBroker != defaultString {
+				config.EscrowBroker = escrowBroker
+			}
+
+			escrowCommission, err := cmd.Flags().GetString("escrow-commission")
+			if err != nil {
+				return err
+			}
+			if escrowCommission != defaultString {
+				config.EscrowCommission, err = sdk.NewDecFromStr(escrowCommission)
+				if err != nil {
+					return sdkerrors.Wrap(err, "invalid escrow commission")
+				}
+			}
+
+			escrowMaxPeriod, err := cmd.Flags().GetDuration("escrow-max-period")
+			if err != nil {
+				return err
+			}
+			if escrowMaxPeriod != defaultNumber {
+				config.EscrowMaxPeriod = escrowMaxPeriod
+			}
+
 			if err := config.Validate(); err != nil {
 				return err
 			}
@@ -235,8 +265,8 @@ func getCmdUpdateConfig() *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("signer", "", "current configuration owner, for offline usage, otherwise --from is used")
-	cmd.Flags().String("configurer", "", "new configuration owner")
+	cmd.Flags().String("signer", defaultString, "current configuration owner, for offline usage, otherwise --from is used")
+	cmd.Flags().String("configurer", defaultString, "new configuration owner")
 	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
 	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
 	cmd.Flags().String("valid-uri", defaultRegex, "regexp that determines if uri is valid or not")
@@ -254,6 +284,10 @@ func getCmdUpdateConfig() *cobra.Command {
 	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
 	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
 	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
+
+	cmd.Flags().Duration("escrow-max-period", defaultDuration, "maximum allowed duration for an escrow")
+	cmd.Flags().String("escrow-commission", defaultString, "commission that will be received by the broker. The number represent the fraction of the price that will be sent to the broker account, it must be between 0 and 1.")
+	cmd.Flags().String("escrow-broker", defaultString, "bech32 encoded address of the broker account")
 
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd

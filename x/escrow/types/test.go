@@ -66,11 +66,31 @@ func (m *TestObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddr
 	return nil
 }
 
-func (m *TestTimeConstrainedObject) ValidateDeadline(time uint64) error {
+type expectedData interface {
+	GetDeadlineOrDefault(sdk.Context, TransferableObject, uint64) uint64
+	GetCrudStore() crud.Store
+}
+
+func (m *TestTimeConstrainedObject) ValidateDeadlineBasic(time uint64) error {
 	if time >= m.Expiration {
-		return fmt.Errorf("this object is expired")
+		return fmt.Errorf("this object is expired : %v >= %v", time, m.Expiration)
 	}
 	return nil
+}
+
+func (m *TestTimeConstrainedObject) ValidateDeadline(ctx sdk.Context, time uint64, data CustomData) error {
+	if data == nil {
+		return fmt.Errorf("no custom data found for TestTimeConstrainedObjects")
+	}
+	extractor, hasExtractor := data.(expectedData)
+	if !hasExtractor {
+		return fmt.Errorf("custom data not set properly for TestTimeConstrainedObject: invalid type %T", data)
+	}
+	oldExpiration := m.Expiration
+	m.Expiration = extractor.GetDeadlineOrDefault(ctx, m, m.Expiration)
+	err := m.ValidateDeadlineBasic(time)
+	m.Expiration = oldExpiration
+	return err
 }
 
 func (m *TestTimeConstrainedObject) PrimaryKey() []byte {
@@ -94,7 +114,7 @@ func (m *TestTimeConstrainedObject) IsOwnedBy(account sdk.AccAddress) (bool, err
 }
 
 func (m *TestTimeConstrainedObject) Transfer(_ sdk.Context, from sdk.AccAddress, to sdk.AccAddress, data CustomData) error {
-	store := data.(crud.Store)
+	store := data.(expectedData).GetCrudStore()
 	if err := store.Read(m.PrimaryKey(), m); err != nil {
 		panic(err)
 	}
