@@ -100,13 +100,25 @@ func (s *MsgServerTestSuite) TestAll() {
 			obj:    s.generator.NewNotPossessedTestObject(),
 		},
 		{
+			name:   "invalid feePayer : invalid bech32",
+			feePayer: validAddress.String() + "5",
+			seller: validAddress.String(),
+			obj:    s.generator.NewNotPossessedTestObject(),
+		},
+		{
+			name:   "invalid feePayer : invalid prefix",
+			seller: validAddress.String(),
+			feePayer: strings.ReplaceAll(validAddress.String(), app.Bech32Prefix, "cosmos"),
+			obj:    s.generator.NewNotPossessedTestObject(),
+		},
+		{
 			name:   "invalid seller: module address",
 			seller: authtypes.NewModuleAddress(types.ModuleName).String(),
 			obj:    s.generator.NewNotPossessedTestObject(),
 		},
 		{
 			name:   "invalid object: not a transferable object",
-			seller: authtypes.NewModuleAddress(types.ModuleName).String(),
+			seller: validAddress.String(),
 			obj:    new(types.GenesisState),
 		},
 	}

@@ -84,6 +84,12 @@ func TestModuleDisabled(t *testing.T) {
 			},
 		},
 		{
+			name: "should panic upon completing auction",
+			callMethod: func(k keeper.Keeper) {
+				_ = k.CompleteAuction(ctx, "00001")
+			},
+		},
+		{
 			name: "should panic upon query",
 			callMethod: func(k keeper.Keeper) {
 				k.GetEscrow(ctx, "0000000000000001")

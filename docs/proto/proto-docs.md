@@ -123,6 +123,8 @@
     - [TestTimeConstrainedObject](#starnamed.x.escrow.v1beta1.TestTimeConstrainedObject)
   
 - [iov/escrow/v1beta1/tx.proto](#iov/escrow/v1beta1/tx.proto)
+    - [MsgCompleteAuction](#starnamed.x.escrow.v1beta1.MsgCompleteAuction)
+    - [MsgCompleteAuctionResponse](#starnamed.x.escrow.v1beta1.MsgCompleteAuctionResponse)
     - [MsgCreateEscrow](#starnamed.x.escrow.v1beta1.MsgCreateEscrow)
     - [MsgCreateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgCreateEscrowResponse)
     - [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow)
@@ -1618,7 +1620,7 @@ EscrowState defines the state of an escrow
 | ESCROW_STATE_OPEN | 0 | ESCROW_STATE_OPEN defines an open state. |
 | ESCROW_STATE_COMPLETED | 1 | ESCROW_STATE_COMPLETED defines a completed state. |
 | ESCROW_STATE_REFUNDED | 2 | ESCROW_STATE_REFUNDED defines a refunded state. |
-| ESCROW_STATE_EXPIRED | 3 | ESCROW_STATE_REFUNDED defines an expired state. |
+| ESCROW_STATE_EXPIRED | 3 | ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed. |
 
 
  <!-- end enums -->
@@ -1842,6 +1844,33 @@ TestTimeConstrainedObject defines a transferable object with a time constrain us
 
 
 
+<a name="starnamed.x.escrow.v1beta1.MsgCompleteAuction"></a>
+
+### MsgCompleteAuction
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  |  |
+| `sender` | [string](#string) |  |  |
+| `fee_payer` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="starnamed.x.escrow.v1beta1.MsgCompleteAuctionResponse"></a>
+
+### MsgCompleteAuctionResponse
+
+
+
+
+
+
+
 <a name="starnamed.x.escrow.v1beta1.MsgCreateEscrow"></a>
 
 ### MsgCreateEscrow
@@ -1979,6 +2008,7 @@ Msg defines the escrow Msg service
 | `UpdateEscrow` | [MsgUpdateEscrow](#starnamed.x.escrow.v1beta1.MsgUpdateEscrow) | [MsgUpdateEscrowResponse](#starnamed.x.escrow.v1beta1.MsgUpdateEscrowResponse) | UpdateEscrow defines a method for updating an escrow | |
 | `TransferToEscrow` | [MsgTransferToEscrow](#starnamed.x.escrow.v1beta1.MsgTransferToEscrow) | [MsgTransferToEscrowResponse](#starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse) | TransferToEscrow defines a method for a buyer to transfer funds to the escrow | |
 | `RefundEscrow` | [MsgRefundEscrow](#starnamed.x.escrow.v1beta1.MsgRefundEscrow) | [MsgRefundEscrowResponse](#starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse) | RefundEscrow defines a method for the seller to return the assets locked in the escrow | |
+| `CompleteAuction` | [MsgCompleteAuction](#starnamed.x.escrow.v1beta1.MsgCompleteAuction) | [MsgCompleteAuctionResponse](#starnamed.x.escrow.v1beta1.MsgCompleteAuctionResponse) | CompleteAuction defines a method to finish a completed auction | |
 
  <!-- end services -->
 

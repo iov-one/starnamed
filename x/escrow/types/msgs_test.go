@@ -18,6 +18,7 @@ type MsgTestSuite struct {
 	msgRefund   types.MsgRefundEscrow
 	msgTransfer types.MsgTransferToEscrow
 	msgUpdate   types.MsgUpdateEscrow
+	msgCompleteAuction types.MsgCompleteAuction
 	sender      sdk.AccAddress
 	gen         *test.EscrowGenerator
 }
@@ -46,6 +47,10 @@ func (suite *MsgTestSuite) SetupTest() {
 		Id:     validId,
 		Sender: suite.sender.String(),
 		Amount: validPrice,
+	}
+	suite.msgCompleteAuction = types.MsgCompleteAuction{
+		Id:       validId,
+		Sender:   suite.sender.String(),
 	}
 }
 
@@ -100,6 +105,13 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 		}
 		if len(msg.Sender) == 0 {
 			msg.Sender = suite.msgRefund.Sender
+		}
+		return &msg
+	}
+
+	completeMsgCompleteAuction := func(msg types.MsgCompleteAuction) * types.MsgCompleteAuction {
+		if len(msg.Id) == 0 {
+			msg.Id = suite.msgCompleteAuction.Id
 		}
 		return &msg
 	}
@@ -260,6 +272,38 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 			name: "refund: invalid escrow ID: invalid length",
 			msg:  completeMsgRefund(types.MsgRefundEscrow{Id: invalidIDLength}),
 		},
+		{
+			name: "complete auction: valid",
+			msg:  &suite.msgCompleteAuction,
+		},
+		{
+			name: "complete auction: valid with fee payer",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{FeePayer: suite.sender.String()}),
+		},
+		{
+			name: "complete auction: invalid seller: not bech32",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{Sender: invalidBech32Addr}),
+		},
+		{
+			name: "complete auction: invalid seller: invalid prefix",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{Sender: invalidPrefixAddr}),
+		},
+		{
+			name: "complete auction: invalid fee payer: invalid bech32",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{FeePayer: invalidBech32Addr}),
+		},
+		{
+			name: "complete auction: invalid fee payer: invalid prefix",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{FeePayer: invalidPrefixAddr}),
+		},
+		{
+			name: "complete auction: invalid escrow ID: not hexadecimal",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{Id: invalidIDHexa}),
+		},
+		{
+			name: "complete auction: invalid escrow ID: invalid length",
+			msg:  completeMsgCompleteAuction(types.MsgCompleteAuction{Id: invalidIDLength}),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -270,10 +314,12 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 func (suite *MsgTestSuite) TestMsgGetSignersAndGetFeePayer() {
 	senderInArray := []sdk.AccAddress{suite.sender}
 	t := suite.T()
+	require.Equal(t, senderInArray, suite.msgCompleteAuction.GetSigners(), "Invalid complete auction message signers")
 	require.Equal(t, senderInArray, suite.msgRefund.GetSigners(), "Invalid refund message signers")
 	require.Equal(t, senderInArray, suite.msgTransfer.GetSigners(), "Invalid transfer message signers")
 	require.Equal(t, senderInArray, suite.msgCreate.GetSigners(), "Invalid create message signers")
 	require.Equal(t, senderInArray, suite.msgUpdate.GetSigners(), "Invalid update message signers")
+	require.Equal(t, suite.sender, suite.msgCompleteAuction.GetFeePayer(), "Invalid complete auction message fee payer")
 	require.Equal(t, suite.sender, suite.msgRefund.GetFeePayer(), "Invalid refund message fee payer")
 	require.Equal(t, suite.sender, suite.msgTransfer.GetFeePayer(), "Invalid transfer message fee payer")
 	require.Equal(t, suite.sender, suite.msgCreate.GetFeePayer(), "Invalid create message fee payer")
@@ -282,6 +328,8 @@ func (suite *MsgTestSuite) TestMsgGetSignersAndGetFeePayer() {
 	feePayer := suite.gen.NewAccAddress()
 	senderWithFeePayer := []sdk.AccAddress{suite.sender, feePayer}
 
+	msgCompleteAuctionWithFeePayer := suite.msgCompleteAuction
+	msgCompleteAuctionWithFeePayer.FeePayer = feePayer.String()
 	msgRefundWithFeePayer := suite.msgRefund
 	msgRefundWithFeePayer.FeePayer = feePayer.String()
 	msgCreateWithFeePayer := suite.msgCreate
@@ -291,10 +339,12 @@ func (suite *MsgTestSuite) TestMsgGetSignersAndGetFeePayer() {
 	msgTransferWithFeePayer := suite.msgTransfer
 	msgTransferWithFeePayer.FeePayer = feePayer.String()
 
+	require.Equal(t, senderWithFeePayer, msgCompleteAuctionWithFeePayer.GetSigners(), "Invalid complete auction message signers with fee payer")
 	require.Equal(t, senderWithFeePayer, msgRefundWithFeePayer.GetSigners(), "Invalid refund message signers with fee payer")
 	require.Equal(t, senderWithFeePayer, msgTransferWithFeePayer.GetSigners(), "Invalid transfer message signers with fee payer")
 	require.Equal(t, senderWithFeePayer, msgCreateWithFeePayer.GetSigners(), "Invalid create message signers with fee payer")
 	require.Equal(t, senderWithFeePayer, msgUpdateWithFeePayer.GetSigners(), "Invalid update message signers with fee payer")
+	require.Equal(t, feePayer, msgCompleteAuctionWithFeePayer.GetFeePayer(), "Invalid complete auction message fee payer with fee payer")
 	require.Equal(t, feePayer, msgRefundWithFeePayer.GetFeePayer(), "Invalid refund message fee payer with fee payer")
 	require.Equal(t, feePayer, msgTransferWithFeePayer.GetFeePayer(), "Invalid transfer message fee payer with fee payer")
 	require.Equal(t, feePayer, msgCreateWithFeePayer.GetFeePayer(), "Invalid create message fee payer with fee payer")

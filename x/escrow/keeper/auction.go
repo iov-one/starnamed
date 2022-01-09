@@ -7,14 +7,27 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
-func (k Keeper) completeAuction(ctx sdk.Context, auction types.Escrow) error {
+// CompleteAuction complete an auction whose deadline has passed.
+// The auction must have at least one bid to be completed, otherwise it has to be refunded with RefundEscrow instead
+// It sends the object to the last bidder and send the locked tokens to the seller
+func (k Keeper) CompleteAuction(ctx sdk.Context, id string) error {
+	k.checkThatModuleIsEnabled(ctx)
 
-	//TODO: this check seems odd here, maybe an assert-like check with a panic will be more appropriate
-	if !auction.IsAuction {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "the specified escrow should be an auction but isn't one")
+	auction, found := k.GetEscrow(ctx, id)
+	if !found {
+		return sdkerrors.Wrap(types.ErrEscrowNotFound, id)
 	}
-	if auction.State != types.EscrowState_Open {
-		return types.ErrEscrowNotOpen
+
+	if !auction.IsAuction {
+		return sdkerrors.Wrap(types.ErrNotAnAuction, id)
+	}
+
+	if auction.State != types.EscrowState_Expired {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "the auction has not finished yet")
+	}
+
+	if len(auction.LastBidder) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "the auction has no bidder and cannot be completed, call refund instead")
 	}
 
 	seller, err := sdk.AccAddressFromBech32(auction.Seller)
@@ -23,35 +36,28 @@ func (k Keeper) completeAuction(ctx sdk.Context, auction types.Escrow) error {
 		panic(err)
 	}
 
-	// If no one has made a bid, then just refund the escrow
-	if len(auction.LastBidder) == 0 {
-		err = k.refundEscrow(ctx, auction, seller)
-		if err != nil {
-			return err
-		}
-	} else { // Else, we complete the auction by doing the swap and removing the escrow
-
-		broker, err := sdk.AccAddressFromBech32(auction.BrokerAddress)
-		if err != nil {
-			// This should not happen as the seller address is already validated
-			panic(err)
-		}
-
-		lastBidder, err := sdk.AccAddressFromBech32(auction.LastBidder)
-		if err != nil {
-			// This should not happen as the seller address is already validated
-			panic(err)
-		}
-
-		// Do the swap between the object and the coins
-		err = k.doSwap(ctx, auction, lastBidder, seller, broker)
-		if err != nil {
-			panic(err)
-		}
-
-		// We mark the auction as completed and we delete it
-		auction.State = types.EscrowState_Completed
-		k.deleteEscrow(ctx, auction)
+   // We complete the auction by doing the swap and removing the escrow
+	broker, err := sdk.AccAddressFromBech32(auction.BrokerAddress)
+	if err != nil {
+		// This should not happen as the seller address is already validated
+		panic(err)
 	}
+
+	lastBidder, err := sdk.AccAddressFromBech32(auction.LastBidder)
+	if err != nil {
+		// This should not happen as the seller address is already validated
+		panic(err)
+	}
+
+	// Do the swap between the object and the coins
+	err = k.doSwap(ctx, auction, lastBidder, seller, broker)
+	if err != nil {
+		panic(err)
+	}
+
+	// We mark the auction as completed and we delete it
+	auction.State = types.EscrowState_Completed
+	k.deleteEscrow(ctx, auction)
+
 	return nil
 }

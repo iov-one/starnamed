@@ -189,3 +189,21 @@ func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow)
 
 	return &types.MsgRefundEscrowResponse{}, nil
 }
+
+func (m msgServer) CompleteAuction(ctx context.Context, msg *types.MsgCompleteAuction) (*types.MsgCompleteAuctionResponse, error) {
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	err := m.Keeper.CompleteAuction(sdkCtx, msg.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect fees
+	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
+		return nil, err
+	}
+
+	//TODO: Emit event
+
+	return &types.MsgCompleteAuctionResponse{}, nil
+}

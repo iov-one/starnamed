@@ -37,7 +37,7 @@ const (
 	EscrowState_Completed EscrowState = 1
 	// ESCROW_STATE_REFUNDED defines a refunded state.
 	EscrowState_Refunded EscrowState = 2
-	// ESCROW_STATE_REFUNDED defines an expired state.
+	// ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
 	EscrowState_Expired EscrowState = 3
 )
 

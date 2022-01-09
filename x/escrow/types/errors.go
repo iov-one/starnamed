@@ -19,4 +19,5 @@ var (
 	ErrInvalidPrice          = sdkerrors.Register(ModuleName, 14, "The price is invalid")
 	ErrInvalidDeadline       = sdkerrors.Register(ModuleName, 15, "The deadline is invalid")
 	ErrInvalidRefundAuction  = sdkerrors.Register(ModuleName, 16, "An auction cannot be refunded if it has at least one bidder")
+	ErrNotAnAuction 		 = sdkerrors.Register(ModuleName, 17, "This object is not an auction and should be one")
 )

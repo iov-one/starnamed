@@ -41,6 +41,6 @@ enum EscrowState {
     ESCROW_STATE_COMPLETED = 1 [ (gogoproto.enumvalue_customname) = "Completed" ];
     // ESCROW_STATE_REFUNDED defines a refunded state.
     ESCROW_STATE_REFUNDED = 2 [ (gogoproto.enumvalue_customname) = "Refunded" ];
-    // ESCROW_STATE_REFUNDED defines an expired state.
+    // ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
     ESCROW_STATE_EXPIRED = 3 [ (gogoproto.enumvalue_customname) = "Expired" ];
 }
