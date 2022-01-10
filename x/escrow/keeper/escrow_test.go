@@ -411,7 +411,7 @@ func (s *EscrowTestSuite) TestUpdate() {
 		panic(err)
 	}
 	escrowWithContextAwareTimeConstrainedObjectID, err := s.keeper.CreateEscrow(
-		s.ctx, s.seller, price, contextAwaretimeConstrainObj, s.generator.NowAfter(5),
+		s.ctx, s.seller, price, contextAwaretimeConstrainObj, s.generator.NowAfter(5), false,
 	)
 
 	testCases := []struct {
@@ -661,10 +661,10 @@ func (s *EscrowTestSuite) TestTransferTo() {
 			id:     createAndSaveEscrow(s.seller, defaultPrice),
 		},
 		{
-			name:   "valid transfer: multiple coins",
+			name:   "invalid transfer: multiple coins",
 			buyer:  s.buyer,
 			amount: defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(30))),
-			check:  checkDefaultValidTransfer,
+			check:  checkInvalidTransfer,
 			id:     createAndSaveEscrow(s.seller, defaultPrice),
 		},
 		{
@@ -677,10 +677,10 @@ func (s *EscrowTestSuite) TestTransferTo() {
 			expectedCommission: sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt/10))),
 		},
 		{
-			name:               "valid transfer with broker and a composite price",
+			name:               "invalid transfer with broker and a composite price",
 			buyer:              s.buyer,
 			amount:             defaultPrice.Add(sdk.NewCoin(test.DenomAux, sdk.NewInt(30))),
-			check:              checkDefaultValidTransfer,
+			check:              checkInvalidTransfer,
 			broker:             brokerAddr,
 			id:                 createAndSaveEscrowWithBroker(s.seller, defaultPrice, sdk.NewDec(1).Quo(sdk.NewDec(5))),
 			expectedCommission: sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(defaultPriceAmt/5))),
@@ -798,13 +798,16 @@ func (s *EscrowTestSuite) TestBid() {
 	testAuction := createAndSaveAuction(s.seller, prices["default"])
 
 
-	checkDefaultValidBid:= func(before, after assetState, name string, price sdk.Coins, id string) {
-		s.Assert().Equal(before.buyerBalance, after.buyerBalance.Add(defaultPrice...), "Buyer balance on test %s", name)
-		s.Assert().Equal(before.sellerBalance.Add(price...), after.sellerBalance, "Seller balance on test %s", name)
+	checkDefaultValidBid:= func(before, after assetState, name string, price sdk.Coins, id string, lastBid sdk.Coins) {
+		s.Assert().Equal(before.buyerBalance.Sub(price), after.buyerBalance, "Buyer balance on test %s", name)
+		s.Assert().Equal(before.sellerBalance, after.sellerBalance, "Seller balance on test %s", name)
+		//FIXME: we use the broker field as the last bidder, and that's not pretty
+		// We add .String() to have the same format on both side (nil coins vs empty non-nil coins)
+		s.Assert().Equal(before.brokerBalance.Add(lastBid...).String(), after.brokerBalance.String(), "Previous bidder balance on test %s", name)
 		s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(id), "Object owner on test %s", name)
-		s.Assert().Equal(after.objectOwner, s.buyer, "Object owner on test %s", name)
+		s.Assert().Equal(after.objectOwner, s.keeper.GetEscrowAddress(id), "Object owner on test %s", name)
 	}
-	checkInvalidBid := func(before, after assetState, name string, _ sdk.Coins, id string) {
+	checkInvalidBid := func(before, after assetState, name string, _ sdk.Coins, id string, _ sdk.Coins) {
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance, "Buyer balance on test %s", name)
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance, "Seller balance on test %s", name)
 		s.Assert().Equal(before.brokerBalance, after.brokerBalance, "Broker balance on test %s", name)
@@ -813,13 +816,18 @@ func (s *EscrowTestSuite) TestBid() {
 	}
 
 	testAuctionToBid := createAndSaveAuction(s.seller, defaultPrice)
+	buyers := []sdk.AccAddress{s.generator.NewAccAddress(), s.generator.NewAccAddress()}
+
+	for i := range buyers {
+		s.balances[buyers[i].String()] = sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(10000)))
+	}
 
 	testCases := []struct {
 		name               string
 		bidders            []sdk.AccAddress
 		amounts            []sdk.Coins
 		id                 string
-		check              func(before, after assetState, name string, price sdk.Coins, id string)
+		check              func(before, after assetState, name string, price sdk.Coins, id string, lastBid sdk.Coins)
 	}{
 		{
 			name:   "valid transfer: 1 bid",
@@ -837,7 +845,7 @@ func (s *EscrowTestSuite) TestBid() {
 		},
 		{
 			name:   "valid bid: multiple bids",
-			bidders: []sdk.AccAddress{s.generator.NewAccAddress(), s.generator.NewAccAddress(), s.buyer},
+			bidders: []sdk.AccAddress{buyers[0], buyers[1], s.buyer},
 			amounts: []sdk.Coins{
 				defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(10))),
 				defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(20))),
@@ -872,13 +880,17 @@ func (s *EscrowTestSuite) TestBid() {
 		{
 			name:  "invalid buyer: it is the seller",
 			bidders: []sdk.AccAddress{s.seller},
+			amounts: []sdk.Coins{ defaultPrice},
 			check: checkInvalidBid,
 		},
+		//TODO: should we disallow adding a bid when the bidder is already the last bidder ?
+		/*
 		{
 			name:  "invalid buyer: it is the last bidder",
 			bidders: []sdk.AccAddress {s.buyer, s.buyer},
+			amounts: []sdk.Coins{ defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(10))), defaultPrice.Add(sdk.NewCoin(test.Denom, sdk.NewInt(20)))},
 			check: checkInvalidBid,
-		},
+		},*/
 	}
 
 	// Set a commission to ensure bidding is not affected by commissions
@@ -896,18 +908,22 @@ func (s *EscrowTestSuite) TestBid() {
 
 		check := t.check
 		if check == nil {
-			check = func(_, _ assetState, _ string, _ sdk.Coins, _ string) {}
+			check = func(assetState, assetState, string, sdk.Coins, string, sdk.Coins) {}
 		}
 
 		transfer := func(*testing.T) error {
 			auction, found := s.keeper.GetEscrow(s.ctx, id)
 			var err error
+			var lastBidder sdk.AccAddress = nil
+			lastBid := sdk.Coins(nil)
 			for i, buyer := range t.bidders {
-				before := s.getState(s.seller, buyer, nil, auction, found)
+				before := s.getState(s.seller, buyer, lastBidder, auction, found)
 				if err = s.keeper.TransferToEscrow(s.ctx, buyer, id, t.amounts[i]); err != nil {
 					break
 				}
-				check(before, s.getState(s.seller, buyer, nil, auction, found), t.name, t.amounts[i], id)
+				check(before, s.getState(s.seller, buyer, lastBidder, auction, found), t.name, t.amounts[i], id, lastBid)
+				lastBidder = buyer
+				lastBid = t.amounts[i]
 			}
 			return err
 		}
@@ -954,17 +970,17 @@ func (s *EscrowTestSuite) TestRefund() {
 	passedDeadline :=  s.generator.NowAfter(0) - 10
 	s.keeper.SetLastBlockTime(s.ctx, passedDeadline-1)
 
-	createAuction := func(price sdk.Coins) string {
+	createAuction := func(price sdk.Coins, deadline uint64) string {
 		id, err := s.keeper.CreateEscrow(
-		s.ctx, s.seller, price, newSavedObject(s.generator, s.seller, s.store), passedDeadline, true)
+		s.ctx, s.seller, price, newSavedObject(s.generator, s.seller, s.store), deadline, true)
 		if err != nil {
 			panic(err)
 		}
 		return id
 	}
 
-	expiredAuctionWithoutBidsId := createAuction(price)
-	expiredAuctionWithBidsId := createAuction(lowerPrice)
+	expiredAuctionWithoutBidsId := createAuction(price, passedDeadline)
+	expiredAuctionWithBidsId := createAuction(lowerPrice, passedDeadline)
 	err := s.keeper.TransferToEscrow(s.ctx, s.buyer, expiredAuctionWithBidsId, price)
 	if err != nil {
 		panic(err)
@@ -973,9 +989,9 @@ func (s *EscrowTestSuite) TestRefund() {
 	s.keeper.MarkExpiredEscrows(s.ctx, lastBlockTime)
 	s.keeper.SetLastBlockTime(s.ctx, lastBlockTime)
 
-	auctionWithoutBidsId := createAuction(price)
-	auctionWithBidsId := createAuction(lowerPrice)
-	err = s.keeper.TransferToEscrow(s.ctx, s.buyer, expiredAuctionWithBidsId, price)
+	auctionWithoutBidsId := createAuction(price, s.generator.NowAfter(10))
+	auctionWithBidsId := createAuction(lowerPrice, s.generator.NowAfter(10))
+	err = s.keeper.TransferToEscrow(s.ctx, s.buyer, auctionWithBidsId, price)
 	if err != nil {
 		panic(err)
 	}
@@ -1104,7 +1120,7 @@ func (s *EscrowTestSuite) TestCompleteAuction() {
 
 	var expiredAuctionIds [3]string
 	for i := 0; i < 3; i++ {
-		deadline := lastBlockTime + 5
+		deadline := lastBlockTime - 5
 		// Cheat a little to be able to create the escrows in the past
 		s.keeper.SetLastBlockTime(s.ctx, deadline-1)
 		id, err := s.keeper.CreateEscrow(
@@ -1120,18 +1136,20 @@ func (s *EscrowTestSuite) TestCompleteAuction() {
 		}
 
 		for j := 0; j < i; j++ {
-			err := s.keeper.TransferToEscrow(s.ctx, s.generator.NewAccAddress(), id, price.Add(sdk.NewCoin(test.Denom, sdk.NewInt(int64(j+1)))))
+			addr := s.generator.NewAccAddress()
+			s.balances[addr.String()]= price.Add(price...)
+			err := s.keeper.TransferToEscrow(s.ctx, addr, id, price.Add(sdk.NewCoin(test.Denom, sdk.NewInt(int64(j+1)))))
 			if err != nil {
 				panic(err)
 			}
 		}
 
+		s.keeper.SetLastBlockTime(s.ctx, lastBlockTime)
 		s.keeper.MarkExpiredEscrows(s.ctx, lastBlockTime)
 
 		expiredAuctionIds[i] = id
 	}
 
-	s.keeper.SetLastBlockTime(s.ctx, lastBlockTime)
 
 	invalidObjectAuctionId := s.createErroredObjectEscrow(price, true)
 
@@ -1147,41 +1165,47 @@ func (s *EscrowTestSuite) TestCompleteAuction() {
 		config.EscrowBroker = brokerAddr.String()
 		config.EscrowCommission = commission
 		s.configKeeper.SetConfig(s.ctx, config)
+
+		passedDeadline := s.generator.NowAfter(0) - 5
+		s.keeper.SetLastBlockTime(s.ctx, passedDeadline - 1)
+
 		id, err := s.keeper.CreateEscrow(
 			s.ctx,
 			s.seller,
 			price,
 			newSavedObject(s.generator, s.seller, s.store),
-			s.generator.NowAfter(10),
+			passedDeadline,
 			true,
 		)
-		if err != nil {
-			panic(err)
-		}
-		err = s.keeper.TransferToEscrow(s.ctx, s.generator.NewAccAddress(), id, price.Add(sdk.NewCoin(test.Denom, sdk.NewInt(int64(1)))))
-		if err != nil {
-			panic(err)
-		}
 		s.configKeeper.SetConfig(s.ctx, defaultConfig)
+
+		if err != nil {
+			panic(err)
+		}
+		addr := s.generator.NewAccAddress()
+		s.balances[addr.String()] = price.Add(price...)
+		err = s.keeper.TransferToEscrow(s.ctx, addr, id, price.Add(sdk.NewCoin(test.Denom, sdk.NewInt(int64(1)))))
+		if err != nil {
+			panic(err)
+		}
+
+		s.keeper.SetLastBlockTime(s.ctx, s.generator.NowAfter(0))
+		s.keeper.MarkExpiredEscrows(s.ctx, s.generator.NowAfter(0))
 		return id
 	}
 
-	getValidCompletionCheck := func (price sdk.Coins) func(before, after assetState, escrowId string, _ sdk.Coins) {
-		return func(before, after assetState, escrowId string, expectedCommission sdk.Coins) {
+	getValidCompletionCheck := func (price sdk.Coins) func(before, after assetState, escrowId string, _ sdk.Coins, _ sdk.AccAddress) {
+		return func(before, after assetState, escrowId string, expectedCommission sdk.Coins, lastBidder sdk.AccAddress) {
 			s.Assert().Equal(before.sellerBalance.Add(price...).Sub(expectedCommission), after.sellerBalance)
 			s.Assert().Equal(before.buyerBalance, after.buyerBalance)
-			s.Assert().Equal(before.brokerBalance.Add(expectedCommission...), after.brokerBalance)
+			s.Assert().Equal(before.brokerBalance.Add(expectedCommission...).String(), after.brokerBalance.String())
 
 			s.Assert().Equal(before.objectOwner, s.keeper.GetEscrowAddress(escrowId))
-			auction, ok := s.keeper.GetEscrow(s.ctx, escrowId)
-			if !ok {
-				panic(types.ErrEscrowNotFound)
-			}
-			s.Assert().Equal(after.objectOwner, auction.LastBidder)
+			s.Assert().Equal(after.objectOwner, lastBidder)
 		}
 	}
 
-	invalidCompletion := func(before, after assetState, escrowId string, _ sdk.Coins) {
+	invalidCompletion := func(before, after assetState, escrowId string, _ sdk.Coins, _ sdk.AccAddress) {
 		s.Assert().Equal(before.sellerBalance, after.sellerBalance)
 		s.Assert().Equal(before.buyerBalance, after.buyerBalance)
 		// If this is has sense
@@ -1196,7 +1220,7 @@ func (s *EscrowTestSuite) TestCompleteAuction() {
 		id     string
 		broker sdk.AccAddress
 		expectedCommission sdk.Coins
-		check  func(before, after assetState, escrowId string, expectedCommission sdk.Coins)
+		check  func(before, after assetState, escrowId string, expectedCommission sdk.Coins, _ sdk.AccAddress)
 	}{
 		{
 			name:   "invalid completion: no bids",
@@ -1237,16 +1261,29 @@ func (s *EscrowTestSuite) TestCompleteAuction() {
 	}
 
 	for _, t := range testCases {
-		check := func(before, after assetState, id string, _ sdk.Coins) {}
+		check := func(before, after assetState, id string, _ sdk.Coins, _ sdk.AccAddress) {}
 		if t.check != nil {
 			check = t.check
 		}
 
 		completeAuction := func(*testing.T) error {
 			escrow, found := s.keeper.GetEscrow(s.ctx, t.id)
+			var lastBidder sdk.AccAddress
+			var err error
+			if len(escrow.LastBidder) != 0 {
+				lastBidder, err = sdk.AccAddressFromBech32(escrow.LastBidder)
+				if err != nil {
+					panic(err)
+				}
+			}
 			before := s.getState(s.seller, nil, t.broker, escrow, found)
-			err := s.keeper.CompleteAuction(s.ctx, t.id)
-			check(before, s.getState(s.seller, nil, t.broker, escrow, found), t.id, t.expectedCommission)
+			err = s.keeper.CompleteAuction(s.ctx, t.id)
+			check(before,
+				s.getState(s.seller, nil, t.broker, escrow, found),
+				t.id,
+				t.expectedCommission,
+				lastBidder,
+				)
 			return err
 		}
 

@@ -162,6 +162,7 @@ func (k Keeper) UpdateEscrow(
 // the amount provided is just a security to limit the coins the buyer accepts to spend.
 // The coins will be transferred to the escrow account and then the object is transferred to the buyer and the coins
 // are sent to the seller. The escrow is then marked as completed and removed.
+// The buyer cannot be the same address as the seller
 // If the object or the coin transfer from the escrow account fail, this function panics.
 func (k Keeper) TransferToEscrow(
 	ctx sdk.Context,
@@ -238,7 +239,7 @@ func (k Keeper) TransferToEscrow(
 				panic(sdkerrors.Wrapf(err, "Invalid escrow last bidder address : %v", escrow.LastBidder))
 			}
 
-			err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, escrow.Price)
+			err = k.transferCoinsFromEscrow(ctx, escrow.Id, lastBidder, escrow.Price)
 			if err != nil {
 				panic(sdkerrors.Wrapf(err, "Cannot send back the coins to the previous bidder"))
 			}

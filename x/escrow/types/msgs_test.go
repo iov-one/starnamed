@@ -113,6 +113,9 @@ func (suite *MsgTestSuite) TestMsgValidate() {
 		if len(msg.Id) == 0 {
 			msg.Id = suite.msgCompleteAuction.Id
 		}
+		if len(msg.Sender) == 0 {
+			msg.Sender = suite.msgRefund.Sender
+		}
 		return &msg
 	}
 

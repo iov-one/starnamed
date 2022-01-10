@@ -100,16 +100,16 @@ func (s *MsgServerTestSuite) TestAll() {
 			obj:    s.generator.NewNotPossessedTestObject(),
 		},
 		{
-			name:   "invalid feePayer : invalid bech32",
+			name:     "invalid feePayer : invalid bech32",
 			feePayer: validAddress.String() + "5",
-			seller: validAddress.String(),
-			obj:    s.generator.NewNotPossessedTestObject(),
+			seller:   validAddress.String(),
+			obj:      s.generator.NewNotPossessedTestObject(),
 		},
 		{
-			name:   "invalid feePayer : invalid prefix",
-			seller: validAddress.String(),
+			name:     "invalid feePayer : invalid prefix",
+			seller:   validAddress.String(),
 			feePayer: strings.ReplaceAll(validAddress.String(), app.Bech32Prefix, "cosmos"),
-			obj:    s.generator.NewNotPossessedTestObject(),
+			obj:      s.generator.NewNotPossessedTestObject(),
 		},
 		{
 			name:   "invalid seller: module address",
@@ -234,6 +234,114 @@ func (s *MsgServerTestSuite) TestAll() {
 			checkNoFees(t, "refund", oldFeePayerBalance)
 		}
 
+	}
+}
+
+func (s *MsgServerTestSuite) TestCompleteAuctionFees() {
+
+	validAddress := s.generator.NewAccAddress()
+	s.balances[validAddress.String()] = sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(100)))
+
+	type testCase struct {
+		name     string
+		sender   string
+		feePayer string
+	}
+
+	getFeePayerBalance := func(tc testCase) sdk.Coins {
+		payer := tc.feePayer
+		if len(payer) == 0 {
+			payer = tc.sender
+		}
+		return s.balances[payer]
+	}
+	checkFees := func(tc testCase, oldBalance sdk.Coins) {
+		expectedDelta := s.keeper.ComputeFees(s.ctx, &types.MsgCompleteAuction{})
+
+		newBalance := getFeePayerBalance(tc)
+		s.Assert().Equal(
+			expectedDelta[0].Amount.Int64(),                                     // Only one denom for the fee
+			oldBalance.Sub(newBalance).AmountOf(expectedDelta[0].Denom).Int64(), // Only one denom for the fee
+			"Invalid fee payed for test "+tc.name)
+
+	}
+
+	checkNoFees := func(tc testCase, oldBalance sdk.Coins) {
+		newBalance := getFeePayerBalance(tc)
+		s.Assert().Equal(
+			int64(0),
+			oldBalance.Sub(newBalance).AmountOf(test.Denom).Int64(), // Only one denom for the fee
+			"Invalid fee payed for test "+tc.name)
+
+	}
+
+	commonTestCases := []testCase{
+		{
+			name:   "normal scenario",
+			sender: validAddress.String(),
+		},
+		{
+			name:     "normal scenario with fee payer",
+			sender:   validAddress.String(),
+			feePayer: s.feePayer.String(),
+		},
+	}
+
+	createAuction := func(t testCase) string {
+		obj := s.generator.NewNotPossessedTestObject()
+		err := s.store.Create(obj)
+		if err != nil {
+			panic(err)
+		}
+
+		passedDeadline := s.generator.NowAfter(0) - 2
+		s.keeper.SetLastBlockTime(s.ctx, passedDeadline - 2)
+
+		resp, err := s.msgServer.CreateEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgCreateEscrow{
+			Seller:    s.sender.String(),
+			Object:    test.MustPackToAny(obj),
+			Price:     sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(50))),
+			IsAuction: true,
+			Deadline:  passedDeadline,
+		})
+
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = s.msgServer.TransferToEscrow(sdk.WrapSDKContext(s.ctx), &types.MsgTransferToEscrow{
+			Id:       resp.Id,
+			Sender:   s.buyer.String(),
+			Amount:    sdk.NewCoins(sdk.NewCoin(test.Denom, sdk.NewInt(60))),
+		})
+
+		s.keeper.SetLastBlockTime(s.ctx, s.generator.NowAfter(0))
+		s.keeper.MarkExpiredEscrows(s.ctx, s.generator.NowAfter(0))
+
+		if resp == nil {
+			return ""
+		} else {
+			return resp.Id
+		}
+	}
+
+	for _, t := range commonTestCases {
+		shouldFail := strings.Contains(t.name, "invalid")
+
+		// check completing auction
+		id := createAuction(t)
+		oldFeePayerBalance := getFeePayerBalance(t)
+		_, err := s.msgServer.CompleteAuction(sdk.WrapSDKContext(s.ctx), &types.MsgCompleteAuction{
+			Id:       id,
+			Sender:   t.sender,
+			FeePayer: t.feePayer,
+		})
+		test.CheckError(s.T(), t.name, shouldFail, err)
+		if !shouldFail {
+			checkFees(t, oldFeePayerBalance)
+		} else {
+			checkNoFees(t, oldFeePayerBalance)
+		}
 	}
 }
 
