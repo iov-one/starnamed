@@ -253,6 +253,12 @@ message Fees {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable) = false
     ];
+    // complete_auction is the fee to be paid to complete an auction
+    string complete_auction = 26 [
+        (gogoproto.moretags) = "yaml:\"complete_auction\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable) = false
+    ];
 }
 
 // GenesisState - genesis state of x/configuration

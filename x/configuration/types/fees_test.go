@@ -37,6 +37,7 @@ func TestFees_Validate(t *testing.T) {
 		UpdateEscrow                 types.Dec
 		TransferToEscrow             types.Dec
 		RefundEscrow                 types.Dec
+		CompleteAuction 			 types.Dec
 	}
 	tests := []struct {
 		name    string
@@ -86,6 +87,7 @@ func TestFees_Validate(t *testing.T) {
 				UpdateEscrow:                 tt.fields.UpdateEscrow,
 				TransferToEscrow:             tt.fields.TransferToEscrow,
 				RefundEscrow:                 tt.fields.RefundEscrow,
+				CompleteAuction:              tt.fields.CompleteAuction,
 			}
 			if err := f.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -125,7 +127,8 @@ func TestFees_UnmarshalJson(t *testing.T) {
 				"create_escrow": "10.000000000000000000",
 				"update_escrow": "10.000000000000000000",
 				"transfer_to_escrow": "10.000000000000000000",
-				"refund_escrow": "10.000000000000000000"
+				"refund_escrow": "10.000000000000000000",
+				"complete_auction": "10.000000000000000000"
 			}`,
 			exp: func() Fees {
 				fees := NewFees()

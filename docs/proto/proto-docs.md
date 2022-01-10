@@ -218,6 +218,7 @@ Fees contains different type of fees to calculate coins to detract when processi
 | `update_escrow` | [string](#string) |  | update_escrow is the fee to be paid to update an escrow |
 | `transfer_to_escrow` | [string](#string) |  | transfer_to_escrow is the fee to be paid to transfer coins to an escrow |
 | `refund_escrow` | [string](#string) |  | refund_escrow is the fee to be paid to refund the account or domain placed in an escrow |
+| `complete_auction` | [string](#string) |  | complete_auction is the fee to be paid to complete an auction |
 
 
 

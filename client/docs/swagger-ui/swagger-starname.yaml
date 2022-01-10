@@ -136,6 +136,11 @@ paths:
                     title: >-
                       refund_escrow is the fee to be paid to refund the account
                       or domain placed in an escrow
+                  complete_auction:
+                    type: string
+                    title: >-
+                      complete_auction is the fee to be paid to complete an
+                      auction
                 title: >-
                   Fees contains different type of fees to calculate coins to
                   detract when processing different messages
@@ -2953,6 +2958,9 @@ definitions:
         title: >-
           refund_escrow is the fee to be paid to refund the account or domain
           placed in an escrow
+      complete_auction:
+        type: string
+        title: complete_auction is the fee to be paid to complete an auction
     title: >-
       Fees contains different type of fees to calculate coins to detract when
       processing different messages
@@ -3181,6 +3189,9 @@ definitions:
             title: >-
               refund_escrow is the fee to be paid to refund the account or
               domain placed in an escrow
+          complete_auction:
+            type: string
+            title: complete_auction is the fee to be paid to complete an auction
         title: >-
           Fees contains different type of fees to calculate coins to detract
           when processing different messages
