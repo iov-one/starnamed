@@ -28,6 +28,7 @@ func NewTxCmd() *cobra.Command {
 		GetCmdUpdateEscrow(),
 		GetCmdTransferToEscrow(),
 		GetCmdRefundEscrow(),
+		GetCmdCompleteAuction(),
 	)
 
 	return escrowTxCmd
@@ -181,6 +182,49 @@ func GetCmdRefundEscrow() *cobra.Command {
 			}
 
 			msg := types.MsgRefundEscrow{
+				Id:       args[0],
+				Sender:   sender,
+				FeePayer: feePayer,
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	addCommonFlags(cmd.Flags())
+
+	return cmd
+}
+
+// GetCmdCompleteAuction implements the command to complete an auction
+func GetCmdCompleteAuction() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "complete-auction [id]",
+		Aliases: []string{"complete"},
+		Short: "Completes an auction whose deadline has passed",
+		Long:  "Completes an auction whose deadline has passed, sending the token locked in the escrow to the seller " +
+			"and the asset for sale to the last bidder",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			sender := clientCtx.GetFromAddress().String()
+			if len(sender) == 0 {
+				return fmt.Errorf("a sender address must be provided with the --from flag")
+			}
+
+			feePayer, err := cmd.Flags().GetString(FlagFeePayer)
+			if err != nil {
+				return err
+			}
+
+			msg := types.MsgCompleteAuction{
 				Id:       args[0],
 				Sender:   sender,
 				FeePayer: feePayer,

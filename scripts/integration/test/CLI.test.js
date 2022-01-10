@@ -973,6 +973,96 @@ describe( "Tests the CLI.", () => {
       expect(result.escrows[0].object.name).toEqual(domain)
    })
 
+   it("Should create an auction, bid and complete it", async () => {
+      const fees = cli(["query", "configuration", "get-fees"])["fees"];
+      const config = cli(["query", "configuration", "get-config"])["configuration"];
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      let unsigned = cli([ "tx", "starname", "register-domain", "--yes", "--type", "closed", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only" ])
+      let broadcasted = signAndBroadcastTx( unsigned);
+      expect( broadcasted.logs ).toBeDefined();
+
+      const price = "100" + denomFee;
+      const expiration = new Date(Date.now() + 8000);
+
+      unsigned = cli(["tx", "starname", "create-domain-escrow", "--is-auction", "--yes", "--domain", domain, "--expiration", expiration.toISOString(), "--price", price, "--from", signer, "--gas-prices", gasPrices, "--note", memo(), "--generate-only"])
+      broadcasted = signAndBroadcastTx( unsigned );
+      expect( broadcasted.logs ).toBeDefined();
+
+      // Check that the escrow exists
+      let result = cli(["query", "escrow", "escrows", "--object", Buffer.from(domain).toString('hex')]);
+      expect(result.escrows).toBeDefined();
+      expect(result.escrows[0].object.name).toEqual(domain);
+      let id = result.escrows[0].id;
+
+      let getBalances =  addr => cli(["query", "bank", "balances", addr])["balances"];
+
+      // Add two bids to the escrow
+      let w1balance = getBalances(w1);
+      let w2balance = getBalances(w2);
+      let sellerBalance = getBalances(signer);
+      let brokerBalance = getBalances(config.escrow_broker);
+
+      unsigned = cli(["tx", "escrow", "transfer", id, "200" + denomFee, "--yes", "--from", w1, "--fees", "0" + denomFee, "--note", memo(), "--generate-only"])
+      broadcasted = signAndBroadcastTx( unsigned, w1 );
+      expect( broadcasted.logs ).toBeDefined();
+
+      let newW1Balance = getBalances(w1);
+      let expectedBalance = +w1balance.find(b => b.denom === denomFee).amount - 200 - fees.transfer_to_escrow / +fees.fee_coin_price;
+      expect(+newW1Balance.find(b=>b.denom === denomFee).amount).toEqual(expectedBalance);
+      w1balance = newW1Balance;
+
+      expect(getBalances(signer)).toEqual(sellerBalance);
+      expect(getBalances(config.escrow_broker)).toEqual(brokerBalance);
+
+      unsigned = cli(["tx", "escrow", "transfer", id, "300" + denomFee, "--yes", "--from", w2, "--fees", "0" + denomFee, "--note", memo(), "--generate-only"])
+      broadcasted = signAndBroadcastTx( unsigned, w2 );
+      expect( broadcasted.logs ).toBeDefined();
+
+      let newW2Balance = getBalances(w2);
+      expectedBalance = +w2balance.find(b => b.denom === denomFee).amount - 300 - fees.transfer_to_escrow / +fees.fee_coin_price;
+      expect(+newW2Balance.find(b => b.denom === denomFee).amount).toEqual(expectedBalance);
+      w2balance = newW2Balance;
+
+      newW1Balance = getBalances(w1);
+      expectedBalance = +w1balance.find(b => b.denom === denomFee).amount + 200;
+      expect(+newW1Balance.find(b => b.denom === denomFee).amount).toEqual(expectedBalance);
+      w1balance = newW1Balance;
+
+      expect(getBalances(signer)).toEqual(sellerBalance);
+      expect(getBalances(config.escrow_broker)).toEqual(brokerBalance);
+
+      // Wait for auction expiration
+      await new Promise(resolve => setTimeout(resolve, 8000));
+
+      // Complete the auction
+      unsigned = cli(["tx", "escrow", "complete", id, "--yes", "--from", signer, "--fees", "0" + denomFee, "--note", memo(), "--generate-only"])
+      broadcasted = signAndBroadcastTx( unsigned );
+      expect( broadcasted.logs ).toBeDefined();
+
+      let newSellerBalance = getBalances(signer);
+      expectedBalance = +sellerBalance.find(b => b.denom === denomFee).amount + 300 * (1 - config.escrow_commission) - fees.complete_auction / +fees.fee_coin_price;
+      expect(+newSellerBalance.find(b => b.denom === denomFee).amount).toEqual(expectedBalance);
+
+      let newBrokerBalance = getBalances(config.escrow_broker);
+      if (brokerBalance == undefined || brokerBalance.length === 0)
+         brokerBalance = [{"denom": denomFee, "amount": 0}];
+      expectedBalance = +brokerBalance.find(b => b.denom === denomFee).amount + 300 * config.escrow_commission;
+      expect(+newBrokerBalance.find(b => b.denom === denomFee).amount).toEqual(expectedBalance);
+
+      expect(getBalances(w1)).toEqual(w1balance);
+      expect(getBalances(w2)).toEqual(w2balance);
+
+      // Check that escrow does not exist
+      result = cli(["query", "escrow", "escrows", "--object", Buffer.from(domain).toString('hex')]);
+      expect(result.escrows).toBeUndefined();
+
+      // Check that domain belongs to w2
+      result  = cli(["query", "starname", "resolve-domain", "--domain", domain])
+      expect(result.domain).toBeDefined()
+      expect(result.domain.admin).toEqual(w2)
+
+   })
+
    it( `Should throw an error while querying the yield for less than 100k blocks`, async () => {
       try {
          cli(["query", "starname", "yield"]);

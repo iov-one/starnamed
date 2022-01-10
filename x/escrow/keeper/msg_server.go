@@ -2,10 +2,8 @@ package keeper
 
 import (
 	"context"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/iov-one/starnamed/x/escrow/types"
 )
 
@@ -35,9 +33,12 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 		return nil, sdkerrors.Wrap(types.ErrInvalidAccount, msg.Seller)
 	}
 
-	obj := msg.Object.GetCachedValue().(types.TransferableObject)
+	obj, ok := msg.Object.GetCachedValue().(types.TransferableObject)
+	if !ok {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "the object does not implement types.TransferableObject: %T", msg.Object.GetCachedValue())
+	}
 	// Create the escrow
-	id, err := m.Keeper.CreateEscrow(sdkCtx, seller, msg.Price, obj, msg.Deadline)
+	id, err := m.Keeper.CreateEscrow(sdkCtx, seller, msg.Price, obj, msg.Deadline, msg.IsAuction)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +58,7 @@ func (m msgServer) CreateEscrow(ctx context.Context, msg *types.MsgCreateEscrow)
 		Price:            msg.Price,
 		Object:           msg.Object,
 		Deadline:         msg.Deadline,
+		IsAuction:        msg.IsAuction,
 		Fees:             m.Keeper.ComputeFees(sdkCtx, msg),
 	}); err != nil {
 		return nil, err
@@ -187,4 +189,22 @@ func (m msgServer) RefundEscrow(ctx context.Context, msg *types.MsgRefundEscrow)
 	}
 
 	return &types.MsgRefundEscrowResponse{}, nil
+}
+
+func (m msgServer) CompleteAuction(ctx context.Context, msg *types.MsgCompleteAuction) (*types.MsgCompleteAuctionResponse, error) {
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	err := m.Keeper.CompleteAuction(sdkCtx, msg.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect fees
+	if err := m.Keeper.CollectFees(sdkCtx, msg); err != nil {
+		return nil, err
+	}
+
+	//TODO: Emit event
+
+	return &types.MsgCompleteAuctionResponse{}, nil
 }

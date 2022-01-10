@@ -15,6 +15,8 @@ const (
 	TypeMsgUpdateEscrow = "update_escrow"
 	// TypeMsgTransferToEscrow is the type for MsgTransferToEscrow
 	TypeMsgTransferToEscrow = "transfer_to_escrow"
+	// TypeMsgCompleteAuction is the type for MsgCompleteAuction
+	TypeMsgCompleteAuction = "complete_auction"
 )
 
 var (
@@ -28,7 +30,7 @@ func validateFeePayer(feePayer string) error {
 	if len(feePayer) == 0 {
 		return nil
 	}
-	_, err := sdk.AccAddressFromBech32(feePayer)
+	err := ValidateAddress(feePayer)
 	if err != nil {
 		return sdkerrors.Wrap(err, "invalid fee payer address")
 	}
@@ -71,17 +73,19 @@ func NewMsgCreateEscrow(
 	object TransferableObject,
 	price sdk.Coins,
 	deadline uint64,
+	isAuction bool,
 ) MsgCreateEscrow {
 	packedObj, err := codectypes.NewAnyWithValue(object)
 	if err != nil {
 		panic(err)
 	}
 	return MsgCreateEscrow{
-		Seller:   seller,
-		FeePayer: feePayer,
-		Object:   packedObj,
-		Price:    price,
-		Deadline: deadline,
+		Seller:    seller,
+		FeePayer:  feePayer,
+		Object:    packedObj,
+		Price:     price,
+		Deadline:  deadline,
+		IsAuction: isAuction,
 	}
 }
 
@@ -298,5 +302,47 @@ func (msg MsgTransferToEscrow) GetFeePayer() sdk.AccAddress {
 
 // GetSigners implements Msg
 func (msg MsgTransferToEscrow) GetSigners() []sdk.AccAddress {
+	return getSigners(msg.Sender, msg.FeePayer)
+}
+
+// -----------------------------------------------------------------------------
+
+// Route implements Msg
+func (msg MsgCompleteAuction) Route() string { return RouterKey }
+
+// Type implements Msg
+func (msg MsgCompleteAuction) Type() string { return TypeMsgCompleteAuction }
+
+// ValidateBasic implements Msg
+func (msg MsgCompleteAuction) ValidateBasic() error {
+	if err := ValidateID(msg.Id); err != nil {
+		return err
+	}
+
+	if err := validateFeePayer(msg.FeePayer); err != nil {
+		return err
+	}
+
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+	}
+
+	return nil
+}
+
+// GetSignBytes implements Msg
+func (msg MsgCompleteAuction) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetFeePayer implements MsgWithFeePayer
+func (msg MsgCompleteAuction) GetFeePayer() sdk.AccAddress {
+	return getFeePayer(msg.Sender, msg.FeePayer)
+}
+
+// GetSigners implements Msg
+func (msg MsgCompleteAuction) GetSigners() []sdk.AccAddress {
 	return getSigners(msg.Sender, msg.FeePayer)
 }

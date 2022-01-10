@@ -14,20 +14,21 @@ message EventCreatedEscrow {
     string id = 1;
     string seller = 2;
     string fee_payer= 3;
-    string broker_address= 4;
-    string broker_commission= 5 [
-        (gogoproto.nullable) = false,
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
-    ];
-    repeated cosmos.base.v1beta1.Coin price = 6 [
+    repeated cosmos.base.v1beta1.Coin price = 4 [
         (gogoproto.nullable) = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
     ];
-    google.protobuf.Any object = 7 [
+    google.protobuf.Any object = 5 [
         (cosmos_proto.accepts_interface) = "TransferableObject"
     ];
-    uint64 deadline= 8;
-    repeated cosmos.base.v1beta1.Coin fees = 9 [
+    uint64 deadline= 6;
+    string broker_address= 7;
+    string broker_commission= 8 [
+        (gogoproto.nullable) = false,
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    ];
+    bool is_auction = 9;
+    repeated cosmos.base.v1beta1.Coin fees = 10 [
         (gogoproto.nullable) = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
     ];

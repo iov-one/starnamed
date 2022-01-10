@@ -77,5 +77,6 @@ func (f *Fees) SetDefaults(denom string) {
 		UpdateEscrow:                 defaultFeeParameter,
 		TransferToEscrow:             defaultFeeParameter,
 		RefundEscrow:                 defaultFeeParameter,
+		CompleteAuction: defaultFeeParameter,
 	}
 }

@@ -14,6 +14,7 @@ const (
 	FlagState            = "state"
 	FlagPaginationStart  = "pagination-start"
 	FlagPaginationLength = "pagination-length"
+	FlagIsAuction        = "is-auction"
 )
 
 var (
@@ -25,6 +26,7 @@ func init() {
 	FsEscrow.String(FlagSeller, "", "Bech32 encoded address of the new seller for the escrow")
 	FsEscrow.String(FlagPrice, "", "Price of the object")
 	FsEscrow.String(FlagDeadline, "", "Expiration date of the escrow, in the RFC3339 time format")
+	FsEscrow.Bool(FlagIsAuction, false, "Specifies if the escrow should act as an auction, with the deadline being the end of the auction and the price the initial price")
 	addCommonFlags(FsEscrow)
 
 	FsQueryEscrows.String(FlagSeller, "", "Bech32 encoded address of the seller of the escrow")

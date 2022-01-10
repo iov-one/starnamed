@@ -136,6 +136,11 @@ paths:
                     title: >-
                       refund_escrow is the fee to be paid to refund the account
                       or domain placed in an escrow
+                  complete_auction:
+                    type: string
+                    title: >-
+                      complete_auction is the fee to be paid to complete an
+                      auction
                 title: >-
                   Fees contains different type of fees to calculate coins to
                   detract when processing different messages
@@ -535,11 +540,15 @@ paths:
                       state.
                        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-                       - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+                       - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
                     title: EscrowState defines the state of an escrow
                   deadline:
                     type: string
                     format: uint64
+                  is_auction:
+                    type: boolean
+                  last_bidder:
+                    type: string
                   broker_address:
                     type: string
                   broker_commission:
@@ -978,11 +987,15 @@ paths:
                         state.
                          - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                          - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-                         - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+                         - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
                       title: EscrowState defines the state of an escrow
                     deadline:
                       type: string
                       format: uint64
+                    is_auction:
+                      type: boolean
+                    last_bidder:
+                      type: string
                     broker_address:
                       type: string
                     broker_commission:
@@ -2945,6 +2958,9 @@ definitions:
         title: >-
           refund_escrow is the fee to be paid to refund the account or domain
           placed in an escrow
+      complete_auction:
+        type: string
+        title: complete_auction is the fee to be paid to complete an auction
     title: >-
       Fees contains different type of fees to calculate coins to detract when
       processing different messages
@@ -3173,6 +3189,9 @@ definitions:
             title: >-
               refund_escrow is the fee to be paid to refund the account or
               domain placed in an escrow
+          complete_auction:
+            type: string
+            title: complete_auction is the fee to be paid to complete an auction
         title: >-
           Fees contains different type of fees to calculate coins to detract
           when processing different messages
@@ -3388,11 +3407,15 @@ definitions:
           - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
            - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
            - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-           - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+           - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
         title: EscrowState defines the state of an escrow
       deadline:
         type: string
         format: uint64
+      is_auction:
+        type: boolean
+      last_bidder:
+        type: string
       broker_address:
         type: string
       broker_commission:
@@ -3410,7 +3433,7 @@ definitions:
       - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-       - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+       - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
     title: EscrowState defines the state of an escrow
   starnamed.x.escrow.v1beta1.QueryEscrowResponse:
     type: object
@@ -3623,11 +3646,15 @@ definitions:
               - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
                - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-               - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+               - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
             title: EscrowState defines the state of an escrow
           deadline:
             type: string
             format: uint64
+          is_auction:
+            type: boolean
+          last_bidder:
+            type: string
           broker_address:
             type: string
           broker_commission:
@@ -3851,11 +3878,15 @@ definitions:
                 - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
                  - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                  - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
-                 - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
+                 - ESCROW_STATE_EXPIRED: ESCROW_STATE_EXPIRED defines an expired escrow or an auction that can be completed.
               title: EscrowState defines the state of an escrow
             deadline:
               type: string
               format: uint64
+            is_auction:
+              type: boolean
+            last_bidder:
+              type: string
             broker_address:
               type: string
             broker_commission:

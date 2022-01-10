@@ -22,6 +22,9 @@ service Msg {
 
     // RefundEscrow defines a method for the seller to return the assets locked in the escrow
     rpc RefundEscrow(MsgRefundEscrow) returns (MsgRefundEscrowResponse);
+
+    // CompleteAuction defines a method to finish a completed auction
+    rpc CompleteAuction(MsgCompleteAuction) returns (MsgCompleteAuctionResponse);
 }
 
 // MsgCreateEscrow defines a message to create an escrow
@@ -31,6 +34,7 @@ message MsgCreateEscrow {
     google.protobuf.Any object = 3 [ (cosmos_proto.accepts_interface) = "TransferableObject" ];
     repeated cosmos.base.v1beta1.Coin price = 4 [ (gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins" ];
     uint64 deadline = 5;
+    bool is_auction = 6;
 }
 
 // MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
@@ -68,3 +72,11 @@ message MsgRefundEscrow {
 }
 
 message MsgRefundEscrowResponse {}
+
+message MsgCompleteAuction {
+    string id = 1;
+    string sender = 2;
+    string fee_payer = 3;
+}
+
+message MsgCompleteAuctionResponse {}

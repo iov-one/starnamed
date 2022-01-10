@@ -17,6 +17,7 @@ import (
 // The price must be in fee_coin_denom denomination.
 // The escrow is created with the predefined escrow_broker broker address and
 // escrow_commission commission.
+// If isAuction is true then the escrow created will behave as an auction
 // The returned string is the 16 character escrow ID
 func (k Keeper) CreateEscrow(
 	ctx sdk.Context,
@@ -24,6 +25,7 @@ func (k Keeper) CreateEscrow(
 	price sdk.Coins,
 	object types.TransferableObject,
 	deadline uint64,
+	isAuction bool,
 ) (
 	string,
 	error,
@@ -48,7 +50,7 @@ func (k Keeper) CreateEscrow(
 
 	// Create and validate the escrow
 	escrow := types.NewEscrow(
-		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
+		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx), isAuction,
 	)
 	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
@@ -73,6 +75,7 @@ func (k Keeper) CreateEscrow(
 // If no changes are to be made for a specific parameter, it must be a zero value.
 // An empty update (with all parameter being nil/zero) will fail and return an error.
 // The new deadline must be in the interval [oldDeadline; now + max_escrow_period].
+// The deadline and the price cannot be updated for an auction
 func (k Keeper) UpdateEscrow(
 	ctx sdk.Context,
 	id string,
@@ -97,6 +100,12 @@ func (k Keeper) UpdateEscrow(
 	// Check if there is an actual update
 	if newSeller == nil && newPrice == nil && newDeadline == 0 {
 		return types.ErrEmptyUpdate
+	}
+
+	// TODO: should we allow modification is no one has made a bid yet ?
+	// Check that an auction price or deadline is not updated
+	if escrow.IsAuction && (newPrice != nil || newDeadline != 0) {
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Impossible to update the price or deadline of an auction")
 	}
 
 	oldSeller, err := sdk.AccAddressFromBech32(escrow.Seller)
@@ -147,10 +156,13 @@ func (k Keeper) UpdateEscrow(
 
 // TransferToEscrow transfers coins from the buyer to the escrow account.
 // The specified amount must be greater than or equal to the escrow price.
-// The actual transferred coins match the price of the escrow, the amount provided there is just a security to limit
-// the coins the buyer accepts to spend.
+// In the case of an auction, the price must be strictly greater than the escrow price and is transferred to the escrow account
+// If there is a previous bidder, he is refunded.
+// Otherwise, if the escrow does not represent an auction, the actual transferred coins match the price of the escrow,
+// the amount provided is just a security to limit the coins the buyer accepts to spend.
 // The coins will be transferred to the escrow account and then the object is transferred to the buyer and the coins
 // are sent to the seller. The escrow is then marked as completed and removed.
+// The buyer cannot be the same address as the seller
 // If the object or the coin transfer from the escrow account fail, this function panics.
 func (k Keeper) TransferToEscrow(
 	ctx sdk.Context,
@@ -174,13 +186,13 @@ func (k Keeper) TransferToEscrow(
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
 	if err != nil {
 		//this should be always valid because the escrow is guaranteed to be in a valid state when created/updated
-		panic(sdkerrors.Wrapf(err, "Invalid seller address : %v", escrow.Seller))
+		panic(sdkerrors.Wrapf(err, "Invalid escrow seller address : %v", escrow.Seller))
 	}
 
 	broker, err := sdk.AccAddressFromBech32(escrow.BrokerAddress)
 	if err != nil {
 		//this should be always valid because the escrow is guaranteed to be in a valid state when created
-		panic(sdkerrors.Wrapf(err, "Invalid broker address : %v", escrow.BrokerAddress))
+		panic(sdkerrors.Wrapf(err, "Invalid escrow broker address : %v", escrow.BrokerAddress))
 	}
 
 	// Ensure that the buyer is not the seller of this escrow
@@ -188,9 +200,9 @@ func (k Keeper) TransferToEscrow(
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "The owner of the escrow cannot transfer coins to the escrow")
 	}
 
-	// Check if the provided amount is valid
-	if !amount.IsValid() {
-		return types.ErrInvalidAmount
+	// Check if the provided amount is valid and only in feeCoinDenom denomination (important for auctions)
+	if err := types.ValidatePrice(amount, k.GetEscrowPriceDenom(ctx)); err != nil {
+		return err
 	}
 
 	// Check if the amount is greater or equal than the price
@@ -198,25 +210,59 @@ func (k Keeper) TransferToEscrow(
 		return types.ErrTransferAmountTooLow
 	}
 
-	// Send the price to the module
+	// In case of an auction, we have to make a bid that is strictly higher than previous price
+	if escrow.IsAuction && amount.IsEqual(escrow.Price) {
+		return sdkerrors.Wrap(types.ErrTransferAmountTooLow, "The bid amount cannot be equal to the last bid")
+	}
 
-	err = k.transferCoinsToEscrow(ctx, buyer, escrow.Id, escrow.Price)
+	// If we have an auction the amount is the new bid, else if its a regular escrow we cap the amount with the escrow price
+	var amountToSend sdk.Coins
+	if escrow.IsAuction {
+		amountToSend = amount
+	} else {
+		amountToSend = escrow.Price
+	}
+
+	// Send the coins to the module
+	err = k.transferCoinsToEscrow(ctx, buyer, escrow.Id, amountToSend)
+
 	if err != nil {
 		return sdkerrors.Wrap(err, "Cannot send the coins to the escrow")
 	}
 
-	// Do the exchange
-	err = k.doSwap(ctx, escrow, buyer, seller, broker)
-	// If an error occurs here, the buyer have sent the coins and :
-	// - The buyer can have received the object or not
-	// - The seller has not received the coins
-	// This case should not happen because the escrow account possess the coins and the object
-	if err != nil {
-		panic(err)
+	if escrow.IsAuction {
+		// We refund old bidder, if it exists
+		if len(escrow.LastBidder) != 0 {
+			lastBidder, err := sdk.AccAddressFromBech32(escrow.LastBidder)
+			if err != nil {
+				//this should be always valid because the escrow is guaranteed to be in a valid state when created
+				panic(sdkerrors.Wrapf(err, "Invalid escrow last bidder address : %v", escrow.LastBidder))
+			}
+
+			err = k.transferCoinsFromEscrow(ctx, escrow.Id, lastBidder, escrow.Price)
+			if err != nil {
+				panic(sdkerrors.Wrapf(err, "Cannot send back the coins to the previous bidder"))
+			}
+		}
+
+		// We update the auction and save it back to the store
+		escrow.LastBidder = buyer.String()
+		escrow.Price = amountToSend
+		k.SaveEscrow(ctx, escrow)
+
+	} else { // If this is a regular escrow, we complete the exchange of the money and object
+		err = k.doSwap(ctx, escrow, buyer, seller, broker)
+		// If an error occurs here, the buyer have sent the coins and :
+		// - The buyer can have received the object or not
+		// - The seller has not received the coins
+		if err != nil {
+			panic(err)
+		}
+
+		escrow.State = types.EscrowState_Completed
+		k.deleteEscrow(ctx, escrow)
 	}
 
-	escrow.State = types.EscrowState_Completed
-	k.deleteEscrow(ctx, escrow)
 	return nil
 }
 
@@ -246,6 +292,7 @@ func (k Keeper) doSwap(ctx sdk.Context, escrow types.Escrow, buyer, seller sdk.A
 
 // RefundEscrow refunds the specified escrow, returning the object to the seller and removing the escrow.
 // An escrow can only be refunded by its owner (the seller) or by anybody when it is expired
+// An auction can only be refunded if it has no bidder
 func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) error {
 	k.checkThatModuleIsEnabled(ctx)
 
@@ -259,9 +306,15 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 		return sdkerrors.Wrap(types.ErrEscrowNotOpen, escrow.Id)
 	}
 
+	// Check that if it is an auction then no bid has been made yet
+	if escrow.IsAuction && len(escrow.LastBidder) != 0 {
+		return types.ErrInvalidRefundAuction
+	}
+
 	seller, err := sdk.AccAddressFromBech32(escrow.Seller)
 	if err != nil {
-		return err
+		//this should be always valid because the escrow is guaranteed to be in a valid state when created/updated
+		panic(sdkerrors.Wrapf(err, "Invalid escrow seller address : %v", escrow.Seller))
 	}
 
 	// Ensure the seller is the one asking for a refund or that escrow is expired
@@ -276,6 +329,7 @@ func (k Keeper) RefundEscrow(ctx sdk.Context, sender sdk.AccAddress, id string) 
 
 	return nil
 }
+
 
 // refundEscrow perform the actual refund logic
 func (k Keeper) refundEscrow(ctx sdk.Context, escrow types.Escrow, seller sdk.AccAddress) error {

@@ -88,6 +88,7 @@ func (gen *EscrowGenerator) NewTestEscrow(seller sdk.AccAddress, price sdk.Coins
 		Deadline:         deadline,
 		BrokerCommission: sdk.ZeroDec(),
 		BrokerAddress:    gen.NewAccAddress().String(),
+		IsAuction:        false,
 	}, obj
 }
 

@@ -24,12 +24,13 @@ func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
 
 // CreateEscrowReq defines the properties of a escrow creation request's body.
 type CreateEscrowReq struct {
-	BaseReq  rest.BaseReq             `json:"base_req" yaml:"base_req"`
-	Seller   string                   `json:"seller" yaml:"seller"`
-	FeePayer string                   `json:"fee_payer" yaml:"fee_payer"`
-	Price    sdk.Coins                `json:"price" yaml:"price"`
-	Deadline uint64                   `json:"expiration" yaml:"expiration"`
-	Object   types.TransferableObject `json:"object" yaml:"object"`
+	BaseReq   rest.BaseReq             `json:"base_req" yaml:"base_req"`
+	Seller    string                   `json:"seller" yaml:"seller"`
+	FeePayer  string                   `json:"fee_payer" yaml:"fee_payer"`
+	Price     sdk.Coins                `json:"price" yaml:"price"`
+	Deadline  uint64                   `json:"expiration" yaml:"expiration"`
+	IsAuction bool                     `json:"is_auction" yaml:"is_auction"`
+	Object    types.TransferableObject `json:"object" yaml:"object"`
 }
 
 // UpdateEscrowReq defines the properties of an escrow update request's body.
@@ -50,8 +51,15 @@ type TransferToEscrowReq struct {
 	Amount   sdk.Coins    `json:"amount" yaml:"amount"`
 }
 
-// RefundEscrowReq defines the properties of a escrow refund request's body.
+// RefundEscrowReq defines the properties of an escrow refund request's body.
 type RefundEscrowReq struct {
+	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Sender   string       `json:"sender" yaml:"sender"`
+	FeePayer string       `json:"fee_payer" yaml:"fee_payer"`
+}
+
+// CompleteAuctionReq defines the properties of an auction completion request's body.
+type CompleteAuctionReq struct {
 	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Sender   string       `json:"sender" yaml:"sender"`
 	FeePayer string       `json:"fee_payer" yaml:"fee_payer"`

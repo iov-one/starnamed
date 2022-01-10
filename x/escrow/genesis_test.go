@@ -7,6 +7,7 @@ import (
 	crud "github.com/iov-one/cosmos-sdk-crud"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/rand"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -83,13 +84,14 @@ func (suite *GenesisTestSuite) TestImportExport() {
 	var escrows []types.Escrow
 	for i := 0; i < N; i++ {
 		escrow, obj := suite.gen.NewRandomTestEscrow()
+		escrow.IsAuction = rand.Bool()
 
 		err := suite.crudStore.Create(obj)
 		if err != nil {
 			panic(fmt.Errorf("error while saving the escrow's object : %v", err))
 		}
 
-		id, err := suite.keeper.CreateEscrow(suite.ctx, obj.Owner, escrow.Price, obj, escrow.Deadline)
+		id, err := suite.keeper.CreateEscrow(suite.ctx, obj.Owner, escrow.Price, obj, escrow.Deadline, escrow.IsAuction)
 		if err != nil {
 			panic(fmt.Errorf("error while creating an escrow : %v", err))
 		}

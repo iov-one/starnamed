@@ -103,6 +103,9 @@ func (a AppModule) RegisterServices(configurator module.Configurator) {
 	if err := configurator.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(sdkerrors.Wrapf(err, "Error while registering the configuration module migration from version 1 to 2"))
 	}
+	if err := configurator.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(sdkerrors.Wrapf(err, "Error while registering the configuration module migration from version 2 to 3"))
+	}
 }
 
 // LegacyQuerierHandler provides an sdk.Querier object that uses the legacy amino codec.
@@ -144,4 +147,4 @@ func (a AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawM
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return 3 }
