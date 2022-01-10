@@ -59,6 +59,7 @@ func NewMsgCreateEscrow(ctx client.Context, cmd *cobra.Command, obj types.Transf
 // AddCreateEscrowFlags adds the flags used by NewMsgCreateEscrow to the given cmd.Flag() flag set
 func AddCreateEscrowFlags(cmd *cobra.Command) {
 	addCommonFlags(cmd.Flags())
+	cmd.Flags().Bool(FlagIsAuction, false, "Specifies if the escrow should act as an auction, with the deadline being the end of the auction and the price the initial price")
 	cmd.Flags().String(FlagPrice, "", "Price of the object")
 	cmd.Flags().String(FlagDeadline, "", "Expiration date of the escrow, in the RFC3339 time format")
 }

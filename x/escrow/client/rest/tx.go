@@ -17,6 +17,7 @@ const (
 	UpdateRoute     = "update"
 	TransferToRoute = "transfer"
 	RefundRoute     = "refund"
+	CompleteAuctionRoute = "complete-auction"
 )
 
 func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
@@ -25,6 +26,7 @@ func registerTxRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(escrowRouteTpl+UpdateRoute, updateEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+TransferToRoute, transferToEscrowHandlerFn(cliCtx)).Methods("POST")
 	r.HandleFunc(escrowRouteTpl+RefundRoute, refundEscrowHandlerFn(cliCtx)).Methods("POST")
+	r.HandleFunc(escrowRouteTpl+CompleteAuctionRoute, completeAuctionHandlerFn(cliCtx)).Methods("POST")
 }
 
 func updateEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
@@ -111,6 +113,37 @@ func refundEscrowHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		msg := types.MsgRefundEscrow{
+			Id:       id,
+			Sender:   req.Sender,
+			FeePayer: req.FeePayer,
+		}
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, &msg)
+	}
+}
+
+func completeAuctionHandlerFn(cliCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := getVar(r, w, IDParam)
+		if len(id) == 0 {
+			return
+		}
+
+		var req CompleteAuctionReq
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
+
+		msg := types.MsgCompleteAuction{
 			Id:       id,
 			Sender:   req.Sender,
 			FeePayer: req.FeePayer,

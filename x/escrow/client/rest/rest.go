@@ -51,8 +51,15 @@ type TransferToEscrowReq struct {
 	Amount   sdk.Coins    `json:"amount" yaml:"amount"`
 }
 
-// RefundEscrowReq defines the properties of a escrow refund request's body.
+// RefundEscrowReq defines the properties of an escrow refund request's body.
 type RefundEscrowReq struct {
+	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Sender   string       `json:"sender" yaml:"sender"`
+	FeePayer string       `json:"fee_payer" yaml:"fee_payer"`
+}
+
+// CompleteAuctionReq defines the properties of an auction completion request's body.
+type CompleteAuctionReq struct {
 	BaseReq  rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Sender   string       `json:"sender" yaml:"sender"`
 	FeePayer string       `json:"fee_payer" yaml:"fee_payer"`
