@@ -290,14 +290,17 @@ func NewWasmApp(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
+
+	//TODO: find a cleaner way to access store history
+	//Maybe this could cause a problem regarding interBlockCache (see baseapp constructor)
+	//This is used for yield calculation, set the multistore before setting the multistore tracer
+	cms := store.NewCommitMultiStore(db)
+	bApp.SetCMS(cms)
+
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	//TODO: find a cleaner way to access store history
-	//This is used for yield calculation
-	cms := store.NewCommitMultiStore(db)
-	bApp.SetCMS(cms)
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
