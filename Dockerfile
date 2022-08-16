@@ -1,6 +1,8 @@
 # docker build . -t iov1/starnamed:latest
 # docker run --rm -it iov1/starnamed:latest /bin/sh
-FROM golang:1.16.8-alpine3.13 AS go-builder
+FROM golang:1.18-alpine3.16 AS go-builder
+
+ARG VERSION
 
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
@@ -22,7 +24,7 @@ RUN sha256sum /lib/libwasmvm_muslc.a | grep 3f5de8df9c6b606b4211f90edd681c84b0ec
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 
 # --------------------------------------------------------
-FROM alpine:3.13
+FROM alpine:3.16
 
 # add extremely useful commands to the image
 RUN apk update && apk upgrade && apk --no-cache add curl jq openssh-client rsync
