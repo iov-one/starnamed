@@ -92,7 +92,7 @@ else
 endif
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/starnamed
+	go install -mod=readonly $(BUILD_FLAGS) -a -v ./cmd/starnamed
 
 ########################################
 ### Tools & dependencies
@@ -152,9 +152,9 @@ lint:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*_test.go" | xargs gofmt -d -s
 
 format:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gofmt -w -s
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs goimports -w -local github.com/CosmWasm/wasmd
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" -not -path "./client/docs/statik/statik.go" | xargs gofmt -w -s
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" -not -path "./client/docs/statik/statik.go" | xargs misspell -w
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" -not -path "./client/docs/statik/statik.go" | xargs goimports -w -local github.com/CosmWasm/wasmd
 
 
 ###############################################################################
@@ -188,3 +188,11 @@ proto-check-breaking:
 	go-mod-cache draw-deps clean build format \
 	test test-all test-build test-cover test-unit test-race \
 	test-sim-import-export \
+
+build-rc:
+	env VERSION=v0.11-rc-alpha-2 CGO_ENABLED=0 LEDGER_ENABLED=false BUILD_TAGS=muslc $(MAKE) build 
+	./build/starnamed version
+
+build-rc-mac:
+	env GOOS=darwin GOARCH=amd64 VERSION=v0.11-rc-alpha-2 CGO_ENABLED=0 LEDGER_ENABLED=false BUILD_TAGS=muslc $(MAKE) build 
+	mv ./build/starnamed ./build/starnamed-mac64 
