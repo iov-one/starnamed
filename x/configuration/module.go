@@ -3,6 +3,7 @@ package configuration
 import (
 	"context"
 	"encoding/json"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"

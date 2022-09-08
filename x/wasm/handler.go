@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/iov-one/starnamed/x/wasm/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewHandler ...

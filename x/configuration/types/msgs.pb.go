@@ -78,7 +78,8 @@ func (m *MsgUpdateConfig) GetNewConfiguration() *Config {
 	return nil
 }
 
-// MsgUpdateFees is used to update the starname product fees in the starname module.
+// MsgUpdateFees is used to update the starname product fees in the starname
+// module.
 type MsgUpdateFees struct {
 	Fees       *Fees  `protobuf:"bytes,1,opt,name=fees,proto3" json:"fees,omitempty"`
 	Configurer string `protobuf:"bytes,2,opt,name=configurer,proto3" json:"configurer,omitempty" yaml:"configurer"`

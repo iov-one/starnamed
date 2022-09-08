@@ -2,10 +2,11 @@ package test
 
 import (
 	"encoding/hex"
-	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 	"strings"
 	"testing"
 	"time"
+
+	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"

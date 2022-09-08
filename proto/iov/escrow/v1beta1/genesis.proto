@@ -9,8 +9,8 @@ option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 
 // GenesisState defines the Escrow module's genesis state
 message GenesisState {
-    repeated v1beta1.Escrow escrows = 1 [ (gogoproto.nullable) = false ];
-    uint64 last_block_time = 2;
-    uint64 next_escrow_id = 3;
-    v1beta1.Params params = 4 [ (gogoproto.nullable) = false ];
+  repeated v1beta1.Escrow escrows = 1 [ (gogoproto.nullable) = false ];
+  uint64 last_block_time = 2;
+  uint64 next_escrow_id = 3;
+  v1beta1.Params params = 4 [ (gogoproto.nullable) = false ];
 }

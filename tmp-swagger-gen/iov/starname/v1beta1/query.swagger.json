@@ -1,0 +1,779 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "iov/starname/v1beta1/query.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/starname/v1beta1/account/{starname}": {
+      "get": {
+        "summary": "Starname gets all the information associated with a starname.",
+        "operationId": "Starname",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryStarnameResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "starname",
+            "description": "Starname is the of the form account*domain.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/accounts/broker/{broker}": {
+      "get": {
+        "summary": "BrokerAccounts gets accounts associated with a given broker.",
+        "operationId": "BrokerAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "broker",
+            "description": "Broker is the broker of accounts.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/accounts/domain/{domain}": {
+      "get": {
+        "summary": "DomainAccounts gets accounts associated with a given domain.",
+        "operationId": "DomainAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryDomainAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "domain",
+            "description": "Domain is the name of the domain.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/accounts/owner/{owner}": {
+      "get": {
+        "summary": "OwnerAccounts gets accounts associated with a given owner.",
+        "operationId": "OwnerAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "owner",
+            "description": "Owner is the owner of accounts.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/accounts/resource/{uri}/{resource}": {
+      "get": {
+        "summary": "ResourceAccounts gets accounts associated with a given resource.",
+        "operationId": "ResourceAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryResourceAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uri",
+            "description": "Uri is the uri of the resource. query.pb.gw.to doesn't respect\ngogoproto.customname, so we're stuck with Uri.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resource",
+            "description": "Resource is the resource of interest.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/domain/{name}": {
+      "get": {
+        "summary": "Domain gets a starname's domain info.",
+        "operationId": "Domain",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryDomainResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "Name is the name of the domain.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/domains/broker/{broker}": {
+      "get": {
+        "summary": "BrokerDomains gets domains associated with a given broker.",
+        "operationId": "BrokerDomains",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "broker",
+            "description": "Broker is the broker of accounts.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/domains/owner/{owner}": {
+      "get": {
+        "summary": "OwnerDomains gets domains associated with a given owner.",
+        "operationId": "OwnerDomains",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "owner",
+            "description": "Owner is the owner of accounts.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pagination.key",
+            "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "pagination.offset",
+            "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.limit",
+            "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.count_total",
+            "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/yield": {
+      "get": {
+        "summary": "Yield estimates and retrieves the annualized yield for delegators",
+        "operationId": "Yield",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.starname.v1beta1.QueryYieldResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "cosmos.base.query.v1beta1.PageRequest": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "format": "byte",
+          "description": "key is a value returned in PageResponse.next_key to begin\nquerying the next page most efficiently. Only one of offset or key\nshould be set."
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64",
+          "description": "offset is a numeric offset that can be used when key is unavailable.\nIt is less efficient than using key. Only one of offset or key should\nbe set."
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64",
+          "description": "limit is the total number of results to be returned in the result page.\nIf left empty it will default to a value to be set by each app."
+        },
+        "count_total": {
+          "type": "boolean",
+          "description": "count_total is set to true  to indicate that the result set should include\na count of the total number of items available for pagination in UIs.\ncount_total is only respected when offset is used. It is ignored when key\nis set."
+        }
+      },
+      "description": "message SomeRequest {\n         Foo some_parameter = 1;\n         PageRequest pagination = 2;\n }",
+      "title": "PageRequest is to be embedded in gRPC request messages for efficient\npagination. Ex:"
+    },
+    "cosmos.base.query.v1beta1.PageResponse": {
+      "type": "object",
+      "properties": {
+        "next_key": {
+          "type": "string",
+          "format": "byte",
+          "title": "next_key is the key to be passed to PageRequest.key to\nquery the next page most efficiently"
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64",
+          "title": "total is total number of results available if PageRequest.count_total\nwas set, its value is undefined otherwise"
+        }
+      },
+      "description": "PageResponse is to be embedded in gRPC response messages where the\ncorresponding request message has used PageRequest.\n\n message SomeResponse {\n         repeated Bar results = 1;\n         PageResponse page = 2;\n }"
+    },
+    "google.protobuf.Any": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "grpc.gateway.runtime.Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/google.protobuf.Any"
+          }
+        }
+      }
+    },
+    "starnamed.x.starname.v1beta1.Account": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string",
+          "title": "Domain references the domain this account belongs to"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name is the name of the account"
+        },
+        "owner": {
+          "type": "string",
+          "format": "byte",
+          "title": "Owner is the address that owns the account"
+        },
+        "broker": {
+          "type": "string",
+          "format": "byte",
+          "title": "Broker identifies an entity that facilitated the transaction of the account\nand can be empty"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "int64",
+          "title": "ValidUntil defines a unix timestamp of the expiration of the account in\nseconds"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Resource"
+          },
+          "title": "Resources is the list of resources an account resolves to"
+        },
+        "certificates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "title": "Certificates contains the list of certificates to identify the account\nowner"
+        },
+        "metadata_uri": {
+          "type": "string",
+          "title": "MetadataURI contains a link to extra information regarding the account"
+        }
+      },
+      "title": "Account defines an account that belongs to a domain\nNOTE: It should not be confused with cosmos-sdk auth account\ngithub.com/cosmos/cosmos-sdk/x/auth.Account"
+    },
+    "starnamed.x.starname.v1beta1.Domain": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name is the name of the domain"
+        },
+        "admin": {
+          "type": "string",
+          "format": "byte",
+          "title": "Admin is the owner of the domain"
+        },
+        "broker": {
+          "type": "string",
+          "format": "byte"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "int64",
+          "title": "ValidUntil is a unix timestamp defines the time when the domain will become\ninvalid in seconds"
+        },
+        "type": {
+          "type": "string",
+          "title": "Type defines the type of the domain"
+        }
+      },
+      "title": "Domain defines a domain"
+    },
+    "starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Account"
+          },
+          "description": "Accounts is the accounts associated with broker."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts\nRPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse": {
+      "type": "object",
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Domain"
+          },
+          "description": "Accounts is the accounts associated with broker."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains\nRPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryDomainAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Account"
+          },
+          "description": "Accounts is the accounts associated with the domain."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryDomainAccountsResponse is the response type for the Query/DomainAccounts\nRPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryDomainResponse": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "$ref": "#/definitions/starnamed.x.starname.v1beta1.Domain",
+          "description": "Domain is the information associated with the domain."
+        }
+      },
+      "description": "QueryDomainResponse is the response type for the Query/Domain RPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Account"
+          },
+          "description": "Accounts is the accounts associated with owner."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts\nRPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse": {
+      "type": "object",
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Domain"
+          },
+          "description": "Accounts is the accounts associated with owner."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC\nmethod."
+    },
+    "starnamed.x.starname.v1beta1.QueryResourceAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/starnamed.x.starname.v1beta1.Account"
+          },
+          "description": "Accounts are the accounts associated with the resource."
+        },
+        "page": {
+          "$ref": "#/definitions/cosmos.base.query.v1beta1.PageResponse"
+        }
+      },
+      "description": "QueryResourceAccountsResponse is the response type for the\nQuery/ResourceAccounts RPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryStarnameResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/starnamed.x.starname.v1beta1.Account",
+          "description": "Account is the information associated with the starname."
+        }
+      },
+      "description": "QueryStarnameResponse is the response type for the Query/Starname RPC method."
+    },
+    "starnamed.x.starname.v1beta1.QueryYieldResponse": {
+      "type": "object",
+      "properties": {
+        "yield": {
+          "type": "string"
+        }
+      },
+      "description": "QueryYieldResponse is the response type for the Query/Yield RPC method."
+    },
+    "starnamed.x.starname.v1beta1.Resource": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "title": "URI defines the ID of the resource"
+        },
+        "resource": {
+          "type": "string",
+          "title": "Resource is the resource"
+        }
+      },
+      "title": "Resource defines a resource owned by an account"
+    }
+  }
+}

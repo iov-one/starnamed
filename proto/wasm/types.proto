@@ -52,4 +52,3 @@ message Params {
   uint64 max_wasm_code_size = 3
       [ (gogoproto.moretags) = "yaml:\"max_wasm_code_size\"" ];
 }
-

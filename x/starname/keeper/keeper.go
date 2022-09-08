@@ -125,7 +125,7 @@ func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 
 // TODO: we should maybe move this in a separate module
 
-//TODO: this cannot be persisted in the keeper as a new one is used for each query
+// TODO: this cannot be persisted in the keeper as a new one is used for each query
 // Find anoter way of persisting this data, without a global variable
 var slidingSum struct {
 	feesSum            sdk.Coins
@@ -163,7 +163,7 @@ func (k Keeper) GetBlockFeesSum(ctx sdk.Context, maxBlocksInSum uint64) (sdk.Coi
 	// We force the query height to be greater than the latest computed height of the cached sliding sum otherwise querying
 	// at different height would cause high latency as the sum would have to be recomputed.
 	if currentHeight < slidingSum.lastComputedHeight {
-		return nil, 0, fmt.Errorf("querying at past height is forbidden because of performance issues: queried " +
+		return nil, 0, fmt.Errorf("querying at past height is forbidden because of performance issues: queried "+
 			"height %v when last known height is %v", currentHeight, slidingSum.lastComputedHeight)
 	}
 

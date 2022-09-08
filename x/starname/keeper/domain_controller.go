@@ -278,6 +278,7 @@ func (c *DomainController) deletableBy(addr sdk.AccAddress) error {
 			}
 		}
 	case types.OpenDomain:
+		// TODO: #v0.11 Open domain wasnt suppose to be deletable
 		if err := c.gracePeriodFinished(); err != nil {
 			return sdkerrors.Wrap(types.ErrDomainGracePeriodNotFinished, "cannot delete open domain before grace period is finished")
 		}

@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-    "github.com/iov-one/starnamed/x/wasm/types"
-    "github.com/iov-one/starnamed/x/wasm/keeper"
-    keepertest "github.com/iov-one/starnamed/testutil/keeper"
+	keepertest "github.com/iov-one/starnamed/testutil/keeper"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {

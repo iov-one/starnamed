@@ -3,7 +3,8 @@ package wasm
 import (
 	"encoding/json"
 	"fmt"
-    // this line is used by starport scaffolding # 1
+
+	// this line is used by starport scaffolding # 1
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -16,10 +17,10 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/iov-one/starnamed/x/wasm/client/cli"
 	"github.com/iov-one/starnamed/x/wasm/keeper"
 	"github.com/iov-one/starnamed/x/wasm/types"
-	"github.com/iov-one/starnamed/x/wasm/client/cli"
-	
+
 	// HACK: Force dependency on wasmvm so that an unmodified .travis.yml can build releases.
 	_ "github.com/CosmWasm/wasmvm/types"
 )
@@ -27,7 +28,6 @@ import (
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	
 )
 
 // ----------------------------------------------------------------------------
@@ -81,17 +81,17 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-    // this line is used by starport scaffolding # 2
+	// this line is used by starport scaffolding # 2
 }
 
 // GetTxCmd returns the capability module's root tx command.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-    return cli.GetTxCmd()
+	return cli.GetTxCmd()
 }
 
 // GetQueryCmd returns the capability module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-    return cli.GetQueryCmd(types.StoreKey)
+	return cli.GetQueryCmd(types.StoreKey)
 }
 
 // ----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-    types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // RegisterInvariants registers the capability module's invariants.

@@ -2,6 +2,7 @@ package v2
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/starnamed/x/configuration/types"

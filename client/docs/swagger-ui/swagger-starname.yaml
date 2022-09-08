@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: Starname - Legacy REST and gRPC Gateway docs
-  description: 'A REST interface for state queries, legacy transactions'
+  description: A REST interface for state queries, legacy transactions
   version: 1.0.0
 paths:
   /starname/v1beta1/configuration/fees:
@@ -33,37 +33,51 @@ paths:
                     type: string
                     title: >-
                       RegisterAccountClosed is the fee to be paid to register an
-                      account in a closed domain
+                      account in a
+
+                      closed domain
                   register_account_open:
                     type: string
                     title: >-
                       RegisterAccountOpen is the fee to be paid to register an
-                      account in an open domain
+                      account in an open
+
+                      domain
                   transfer_account_closed:
                     type: string
                     title: >-
                       TransferAccountClosed is the fee to be paid to register an
-                      account in a closed domain
+                      account in a
+
+                      closed domain
                   transfer_account_open:
                     type: string
                     title: >-
                       TransferAccountOpen is the fee to be paid to register an
-                      account in an open domain
+                      account in an open
+
+                      domain
                   replace_account_resources:
                     type: string
                     title: >-
                       ReplaceAccountResources is the fee to be paid to replace
-                      account's resources
+                      account's
+
+                      resources
                   add_account_certificate:
                     type: string
                     title: >-
                       AddAccountCertificate is the fee to be paid to add a
-                      certificate to an account
+                      certificate to an
+
+                      account
                   del_account_certificate:
                     type: string
                     title: >-
                       DelAccountCertificate is the feed to be paid to delete a
-                      certificate in an account
+                      certificate in an
+
+                      account
                   set_account_metadata:
                     type: string
                     title: >-
@@ -73,38 +87,51 @@ paths:
                     type: string
                     title: >-
                       RegisterDomain1 is the fee to be paid to register a domain
-                      with one character
+                      with one
+
+                      character
                   register_domain_2:
                     type: string
                     title: >-
                       RegisterDomain2 is the fee to be paid to register a domain
-                      with two characters
+                      with two
+
+                      characters
                   register_domain_3:
                     type: string
                     title: >-
                       RegisterDomain3 is the fee to be paid to register a domain
-                      with three characters
+                      with three
+
+                      characters
                   register_domain_4:
                     type: string
                     title: >-
                       RegisterDomain4 is the fee to be paid to register a domain
-                      with four characters
+                      with four
+
+                      characters
                   register_domain_5:
                     type: string
                     title: >-
                       RegisterDomain5 is the fee to be paid to register a domain
-                      with five characters
+                      with five
+
+                      characters
                   register_domain_default:
                     type: string
                     title: >-
                       RegisterDomainDefault is the fee to be paid to register a
-                      domain with more than five characters
+                      domain with more
+
+                      than five characters
                   register_open_domain_multiplier:
                     type: string
                     title: >-
                       register_open_domain_multiplier is the multiplication
-                      applied to fees in register domain operations if they're
-                      of open type
+                      applied to fees in
+
+                      register domain operations if they're of open type
                   transfer_domain_closed:
                     type: string
                     title: >-
@@ -135,10 +162,14 @@ paths:
                     type: string
                     title: >-
                       refund_escrow is the fee to be paid to refund the account
-                      or domain placed in an escrow
+                      or domain placed
+
+                      in an escrow
                 title: >-
                   Fees contains different type of fees to calculate coins to
-                  detract when processing different messages
+                  detract when
+
+                  processing different messages
             title: >-
               QueryFeesResponse is the response type for the Query/Fees RPC
               method
@@ -184,18 +215,23 @@ paths:
                     type: string
                     title: >-
                       Configurer is the configuration owner, the addresses
-                      allowed to handle fees and register domains with no
-                      superuser
+                      allowed to handle fees
+
+                      and register domains with no superuser
                   valid_domain_name:
                     type: string
                     title: >-
                       ValidDomainName defines a regexp that determines if a
-                      domain name is valid or not
+                      domain name is valid
+
+                      or not
                   valid_account_name:
                     type: string
                     title: >-
                       ValidAccountName defines a regexp that determines if an
-                      account name is valid or not
+                      account name is
+
+                      valid or not
                   valid_uri:
                     type: string
                     title: >-
@@ -208,13 +244,17 @@ paths:
                     type: string
                     title: >-
                       DomainRenewalPeriod defines the duration of the domain
-                      renewal period in seconds
+                      renewal period in
+
+                      seconds
                   domain_renewal_count_max:
                     type: integer
                     format: int64
                     title: >-
                       DomainRenewalCountMax defines maximum number of domain
-                      renewals a user can do
+                      renewals a user can
+
+                      do
                   domain_grace_period:
                     type: string
                     title: >-
@@ -224,13 +264,17 @@ paths:
                     type: string
                     title: >-
                       AccountRenewalPeriod defines the duration of the account
-                      renewal period in seconds
+                      renewal period in
+
+                      seconds
                   account_renewal_count_max:
                     type: integer
                     format: int64
                     title: >-
                       AccountRenewalCountMax defines maximum number of account
-                      renewals a user can do
+                      renewals a user
+
+                      can do
                   account_grace_period:
                     type: string
                     title: >-
@@ -241,38 +285,47 @@ paths:
                     format: int64
                     title: >-
                       ResourcesMax defines maximum number of resources could be
-                      saved under an account
+                      saved under an
+
+                      account
                   certificate_size_max:
                     type: string
                     format: uint64
                     title: >-
                       CertificateSizeMax defines maximum size of a certificate
-                      that could be saved under an account
+                      that could be
+
+                      saved under an account
                   certificate_count_max:
                     type: integer
                     format: int64
                     title: >-
                       CertificateCountMax defines maximum number of certificates
-                      that could be saved under an account
+                      that could be
+
+                      saved under an account
                   metadata_size_max:
                     type: string
                     format: uint64
                     title: >-
                       MetadataSizeMax defines maximum size of metadata that
-                      could be saved under an account
+                      could be saved under
+
+                      an account
                   escrow_broker:
                     type: string
                     title: >-
                       EscrowBroker defines an address that will receive a
-                      commission for completed escrows
+                      commission for
+
+                      completed escrows
                   escrow_commission:
                     type: string
                     title: >-
                       EscrowCommission defines the commission taken by the
-                      broker for a completed escrow, between 0 (no commission)
-                      and
+                      broker for a completed
 
-                      1 (100% commission)
+                      escrow, between 0 (no commission) and 1 (100% commission)
                   escrow_max_period:
                     type: string
                     title: >-
@@ -281,7 +334,9 @@ paths:
                 title: Config is the configuration of the network
             description: >-
               QueryConfigResponse is the response type for the
-              Query/Configuration RPC method.
+              Query/Configuration RPC
+
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -306,7 +361,7 @@ paths:
                       format: byte
       tags:
         - Query
-  '/starnamed/v1beta1/escrow/{id}':
+  /escrow/escrow/{id}:
     get:
       summary: Escrow queries the escrow by the specified id
       operationId: Escrow
@@ -519,20 +574,24 @@ paths:
                       TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                       Although the price contains multiple coins, for now we
-                      enforce a specific denomination, so there will be only
+                      enforce a specific
 
-                      one coin type in a valid escrow
+                      denomination, so there will be only one coin type in a
+                      valid escrow
                   state:
                     type: string
                     enum:
-                      - ESCROW_STATE_OPEN
+                      - ESCROW_STATE_OPEN_UNSPECIFIED
                       - ESCROW_STATE_COMPLETED
                       - ESCROW_STATE_REFUNDED
                       - ESCROW_STATE_EXPIRED
-                    default: ESCROW_STATE_OPEN
+                    default: ESCROW_STATE_OPEN_UNSPECIFIED
                     description: >-
-                      - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open
-                      state.
+                      - ESCROW_STATE_OPEN_UNSPECIFIED:
+                      ESCROW_STATE_OPEN_UNSPECIFIED defines an open state.
+                      TODO:: review the
+
+                      _UNSPECIFIED sufix
                        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                        - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -744,7 +803,7 @@ paths:
           type: string
       tags:
         - Query
-  /starnamed/v1beta1/escrows:
+  /escrow/escrows:
     get:
       summary: Escrows queries escrows by the specified key-value pairs
       operationId: Escrows
@@ -962,20 +1021,24 @@ paths:
                         TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                         Although the price contains multiple coins, for now we
-                        enforce a specific denomination, so there will be only
+                        enforce a specific
 
-                        one coin type in a valid escrow
+                        denomination, so there will be only one coin type in a
+                        valid escrow
                     state:
                       type: string
                       enum:
-                        - ESCROW_STATE_OPEN
+                        - ESCROW_STATE_OPEN_UNSPECIFIED
                         - ESCROW_STATE_COMPLETED
                         - ESCROW_STATE_REFUNDED
                         - ESCROW_STATE_EXPIRED
-                      default: ESCROW_STATE_OPEN
+                      default: ESCROW_STATE_OPEN_UNSPECIFIED
                       description: >-
-                        - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open
-                        state.
+                        - ESCROW_STATE_OPEN_UNSPECIFIED:
+                        ESCROW_STATE_OPEN_UNSPECIFIED defines an open state.
+                        TODO:: review the
+
+                        _UNSPECIFIED sufix
                          - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                          - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                          - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -1205,7 +1268,7 @@ paths:
           format: uint64
       tags:
         - Query
-  '/starname/v1beta1/account/{starname}':
+  /starname/v1beta1/account/{starname}:
     get:
       summary: Starname gets all the information associated with a starname.
       operationId: Starname
@@ -1234,13 +1297,17 @@ paths:
                     format: byte
                     title: >-
                       Broker identifies an entity that facilitated the
-                      transaction of the account and can be empty
+                      transaction of the account
+
+                      and can be empty
                   valid_until:
                     type: string
                     format: int64
                     title: >-
                       ValidUntil defines a unix timestamp of the expiration of
-                      the account in seconds
+                      the account in
+
+                      seconds
                   resources:
                     type: array
                     items:
@@ -1261,7 +1328,9 @@ paths:
                       format: byte
                     title: >-
                       Certificates contains the list of certificates to identify
-                      the account owner
+                      the account
+
+                      owner
                   metadata_uri:
                     type: string
                     title: >-
@@ -1304,7 +1373,7 @@ paths:
           type: string
       tags:
         - Query
-  '/starname/v1beta1/accounts/broker/{broker}':
+  /starname/v1beta1/accounts/broker/{broker}:
     get:
       summary: BrokerAccounts gets accounts associated with a given broker.
       operationId: BrokerAccounts
@@ -1334,13 +1403,17 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
-                        transaction of the account and can be empty
+                        transaction of the account
+
+                        and can be empty
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
-                        the account in seconds
+                        the account in
+
+                        seconds
                     resources:
                       type: array
                       items:
@@ -1363,7 +1436,9 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
-                        identify the account owner
+                        identify the account
+
+                        owner
                     metadata_uri:
                       type: string
                       title: >-
@@ -1403,7 +1478,9 @@ paths:
                    }
             description: >-
               QueryBrokerAccountsResponse is the response type for the
-              Query/BrokerAccounts RPC method.
+              Query/BrokerAccounts
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1480,7 +1557,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/starname/v1beta1/accounts/domain/{domain}':
+  /starname/v1beta1/accounts/domain/{domain}:
     get:
       summary: DomainAccounts gets accounts associated with a given domain.
       operationId: DomainAccounts
@@ -1510,13 +1587,17 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
-                        transaction of the account and can be empty
+                        transaction of the account
+
+                        and can be empty
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
-                        the account in seconds
+                        the account in
+
+                        seconds
                     resources:
                       type: array
                       items:
@@ -1539,7 +1620,9 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
-                        identify the account owner
+                        identify the account
+
+                        owner
                     metadata_uri:
                       type: string
                       title: >-
@@ -1579,7 +1662,9 @@ paths:
                    }
             description: >-
               QueryDomainAccountsResponse is the response type for the
-              Query/DomainAccounts RPC method.
+              Query/DomainAccounts
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1656,7 +1741,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/starname/v1beta1/accounts/owner/{owner}':
+  /starname/v1beta1/accounts/owner/{owner}:
     get:
       summary: OwnerAccounts gets accounts associated with a given owner.
       operationId: OwnerAccounts
@@ -1686,13 +1771,17 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
-                        transaction of the account and can be empty
+                        transaction of the account
+
+                        and can be empty
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
-                        the account in seconds
+                        the account in
+
+                        seconds
                     resources:
                       type: array
                       items:
@@ -1715,7 +1804,9 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
-                        identify the account owner
+                        identify the account
+
+                        owner
                     metadata_uri:
                       type: string
                       title: >-
@@ -1755,7 +1846,9 @@ paths:
                    }
             description: >-
               QueryOwnerAccountsResponse is the response type for the
-              Query/OwnerAccounts RPC method.
+              Query/OwnerAccounts
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1832,7 +1925,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/starname/v1beta1/accounts/resource/{uri}/{resource}':
+  /starname/v1beta1/accounts/resource/{uri}/{resource}:
     get:
       summary: ResourceAccounts gets accounts associated with a given resource.
       operationId: ResourceAccounts
@@ -1862,13 +1955,17 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
-                        transaction of the account and can be empty
+                        transaction of the account
+
+                        and can be empty
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
-                        the account in seconds
+                        the account in
+
+                        seconds
                     resources:
                       type: array
                       items:
@@ -1891,7 +1988,9 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
-                        identify the account owner
+                        identify the account
+
+                        owner
                     metadata_uri:
                       type: string
                       title: >-
@@ -1929,7 +2028,7 @@ paths:
                            repeated Bar results = 1;
                            PageResponse page = 2;
                    }
-            description: >-
+            description: |-
               QueryResourceAccountsResponse is the response type for the
               Query/ResourceAccounts RPC method.
         default:
@@ -1956,7 +2055,7 @@ paths:
                       format: byte
       parameters:
         - name: uri
-          description: >-
+          description: |-
             Uri is the uri of the resource. query.pb.gw.to doesn't respect
             gogoproto.customname, so we're stuck with Uri.
           in: path
@@ -2015,7 +2114,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/starname/v1beta1/domain/{name}':
+  /starname/v1beta1/domain/{name}:
     get:
       summary: Domain gets a starname's domain info.
       operationId: Domain
@@ -2044,7 +2143,9 @@ paths:
                     format: int64
                     title: >-
                       ValidUntil is a unix timestamp defines the time when the
-                      domain will become invalid in seconds
+                      domain will become
+
+                      invalid in seconds
                   type:
                     type: string
                     title: Type defines the type of the domain
@@ -2082,7 +2183,7 @@ paths:
           type: string
       tags:
         - Query
-  '/starname/v1beta1/domains/broker/{broker}':
+  /starname/v1beta1/domains/broker/{broker}:
     get:
       summary: BrokerDomains gets domains associated with a given broker.
       operationId: BrokerDomains
@@ -2112,7 +2213,9 @@ paths:
                       format: int64
                       title: >-
                         ValidUntil is a unix timestamp defines the time when the
-                        domain will become invalid in seconds
+                        domain will become
+
+                        invalid in seconds
                     type:
                       type: string
                       title: Type defines the type of the domain
@@ -2147,7 +2250,9 @@ paths:
                    }
             description: >-
               QueryBrokerDomainsResponse is the response type for the
-              Query/BrokerDomains RPC method.
+              Query/BrokerDomains
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -2224,7 +2329,7 @@ paths:
           type: boolean
       tags:
         - Query
-  '/starname/v1beta1/domains/owner/{owner}':
+  /starname/v1beta1/domains/owner/{owner}:
     get:
       summary: OwnerDomains gets domains associated with a given owner.
       operationId: OwnerDomains
@@ -2254,7 +2359,9 @@ paths:
                       format: int64
                       title: >-
                         ValidUntil is a unix timestamp defines the time when the
-                        domain will become invalid in seconds
+                        domain will become
+
+                        invalid in seconds
                     type:
                       type: string
                       title: Type defines the type of the domain
@@ -2289,7 +2396,9 @@ paths:
                    }
             description: >-
               QueryOwnerDomainsResponse is the response type for the
-              Query/OwnerDomains RPC method.
+              Query/OwnerDomains RPC
+
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -2742,17 +2851,23 @@ definitions:
         type: string
         title: >-
           Configurer is the configuration owner, the addresses allowed to handle
-          fees and register domains with no superuser
+          fees
+
+          and register domains with no superuser
       valid_domain_name:
         type: string
         title: >-
           ValidDomainName defines a regexp that determines if a domain name is
-          valid or not
+          valid
+
+          or not
       valid_account_name:
         type: string
         title: >-
           ValidAccountName defines a regexp that determines if an account name
-          is valid or not
+          is
+
+          valid or not
       valid_uri:
         type: string
         title: >-
@@ -2765,13 +2880,17 @@ definitions:
         type: string
         title: >-
           DomainRenewalPeriod defines the duration of the domain renewal period
-          in seconds
+          in
+
+          seconds
       domain_renewal_count_max:
         type: integer
         format: int64
         title: >-
           DomainRenewalCountMax defines maximum number of domain renewals a user
-          can do
+          can
+
+          do
       domain_grace_period:
         type: string
         title: >-
@@ -2781,13 +2900,17 @@ definitions:
         type: string
         title: >-
           AccountRenewalPeriod defines the duration of the account renewal
-          period in seconds
+          period in
+
+          seconds
       account_renewal_count_max:
         type: integer
         format: int64
         title: >-
           AccountRenewalCountMax defines maximum number of account renewals a
-          user can do
+          user
+
+          can do
       account_grace_period:
         type: string
         title: >-
@@ -2798,11 +2921,13 @@ definitions:
         format: int64
         title: >-
           ResourcesMax defines maximum number of resources could be saved under
-          an account
+          an
+
+          account
       certificate_size_max:
         type: string
         format: uint64
-        title: >-
+        title: |-
           CertificateSizeMax defines maximum size of a certificate that could be
           saved under an account
       certificate_count_max:
@@ -2810,25 +2935,29 @@ definitions:
         format: int64
         title: >-
           CertificateCountMax defines maximum number of certificates that could
-          be saved under an account
+          be
+
+          saved under an account
       metadata_size_max:
         type: string
         format: uint64
         title: >-
           MetadataSizeMax defines maximum size of metadata that could be saved
-          under an account
+          under
+
+          an account
       escrow_broker:
         type: string
-        title: >-
+        title: |-
           EscrowBroker defines an address that will receive a commission for
           completed escrows
       escrow_commission:
         type: string
         title: >-
           EscrowCommission defines the commission taken by the broker for a
-          completed escrow, between 0 (no commission) and
+          completed
 
-          1 (100% commission)
+          escrow, between 0 (no commission) and 1 (100% commission)
       escrow_max_period:
         type: string
         title: EscrowPeriod defines the maximum duration of an escrow in seconds
@@ -2849,75 +2978,89 @@ definitions:
         type: string
         title: >-
           RegisterAccountClosed is the fee to be paid to register an account in
-          a closed domain
+          a
+
+          closed domain
       register_account_open:
         type: string
         title: >-
           RegisterAccountOpen is the fee to be paid to register an account in an
-          open domain
+          open
+
+          domain
       transfer_account_closed:
         type: string
         title: >-
           TransferAccountClosed is the fee to be paid to register an account in
-          a closed domain
+          a
+
+          closed domain
       transfer_account_open:
         type: string
         title: >-
           TransferAccountOpen is the fee to be paid to register an account in an
-          open domain
+          open
+
+          domain
       replace_account_resources:
         type: string
-        title: >-
+        title: |-
           ReplaceAccountResources is the fee to be paid to replace account's
           resources
       add_account_certificate:
         type: string
-        title: >-
+        title: |-
           AddAccountCertificate is the fee to be paid to add a certificate to an
           account
       del_account_certificate:
         type: string
         title: >-
           DelAccountCertificate is the feed to be paid to delete a certificate
-          in an account
+          in an
+
+          account
       set_account_metadata:
         type: string
         title: SetAccountMetadata is the fee to be paid to set account's metadata
       register_domain_1:
         type: string
-        title: >-
+        title: |-
           RegisterDomain1 is the fee to be paid to register a domain with one
           character
       register_domain_2:
         type: string
-        title: >-
+        title: |-
           RegisterDomain2 is the fee to be paid to register a domain with two
           characters
       register_domain_3:
         type: string
-        title: >-
+        title: |-
           RegisterDomain3 is the fee to be paid to register a domain with three
           characters
       register_domain_4:
         type: string
-        title: >-
+        title: |-
           RegisterDomain4 is the fee to be paid to register a domain with four
           characters
       register_domain_5:
         type: string
-        title: >-
+        title: |-
           RegisterDomain5 is the fee to be paid to register a domain with five
           characters
       register_domain_default:
         type: string
         title: >-
           RegisterDomainDefault is the fee to be paid to register a domain with
-          more than five characters
+          more
+
+          than five characters
       register_open_domain_multiplier:
         type: string
         title: >-
           register_open_domain_multiplier is the multiplication applied to fees
-          in register domain operations if they're of open type
+          in
+
+          register domain operations if they're of open type
       transfer_domain_closed:
         type: string
         title: >-
@@ -2944,8 +3087,10 @@ definitions:
         type: string
         title: >-
           refund_escrow is the fee to be paid to refund the account or domain
-          placed in an escrow
-    title: >-
+          placed
+
+          in an escrow
+    title: |-
       Fees contains different type of fees to calculate coins to detract when
       processing different messages
   starnamed.x.configuration.v1beta1.QueryConfigResponse:
@@ -2959,17 +3104,23 @@ definitions:
             type: string
             title: >-
               Configurer is the configuration owner, the addresses allowed to
-              handle fees and register domains with no superuser
+              handle fees
+
+              and register domains with no superuser
           valid_domain_name:
             type: string
             title: >-
               ValidDomainName defines a regexp that determines if a domain name
-              is valid or not
+              is valid
+
+              or not
           valid_account_name:
             type: string
             title: >-
               ValidAccountName defines a regexp that determines if an account
-              name is valid or not
+              name is
+
+              valid or not
           valid_uri:
             type: string
             title: >-
@@ -2982,13 +3133,17 @@ definitions:
             type: string
             title: >-
               DomainRenewalPeriod defines the duration of the domain renewal
-              period in seconds
+              period in
+
+              seconds
           domain_renewal_count_max:
             type: integer
             format: int64
             title: >-
               DomainRenewalCountMax defines maximum number of domain renewals a
-              user can do
+              user can
+
+              do
           domain_grace_period:
             type: string
             title: >-
@@ -2998,13 +3153,17 @@ definitions:
             type: string
             title: >-
               AccountRenewalPeriod defines the duration of the account renewal
-              period in seconds
+              period in
+
+              seconds
           account_renewal_count_max:
             type: integer
             format: int64
             title: >-
               AccountRenewalCountMax defines maximum number of account renewals
-              a user can do
+              a user
+
+              can do
           account_grace_period:
             type: string
             title: >-
@@ -3015,42 +3174,50 @@ definitions:
             format: int64
             title: >-
               ResourcesMax defines maximum number of resources could be saved
-              under an account
+              under an
+
+              account
           certificate_size_max:
             type: string
             format: uint64
             title: >-
               CertificateSizeMax defines maximum size of a certificate that
-              could be saved under an account
+              could be
+
+              saved under an account
           certificate_count_max:
             type: integer
             format: int64
             title: >-
               CertificateCountMax defines maximum number of certificates that
-              could be saved under an account
+              could be
+
+              saved under an account
           metadata_size_max:
             type: string
             format: uint64
             title: >-
               MetadataSizeMax defines maximum size of metadata that could be
-              saved under an account
+              saved under
+
+              an account
           escrow_broker:
             type: string
-            title: >-
+            title: |-
               EscrowBroker defines an address that will receive a commission for
               completed escrows
           escrow_commission:
             type: string
             title: >-
               EscrowCommission defines the commission taken by the broker for a
-              completed escrow, between 0 (no commission) and
+              completed
 
-              1 (100% commission)
+              escrow, between 0 (no commission) and 1 (100% commission)
           escrow_max_period:
             type: string
             title: EscrowPeriod defines the maximum duration of an escrow in seconds
         title: Config is the configuration of the network
-    description: >-
+    description: |-
       QueryConfigResponse is the response type for the Query/Configuration RPC
       method.
   starnamed.x.configuration.v1beta1.QueryFeesResponse:
@@ -3075,37 +3242,49 @@ definitions:
             type: string
             title: >-
               RegisterAccountClosed is the fee to be paid to register an account
-              in a closed domain
+              in a
+
+              closed domain
           register_account_open:
             type: string
             title: >-
               RegisterAccountOpen is the fee to be paid to register an account
-              in an open domain
+              in an open
+
+              domain
           transfer_account_closed:
             type: string
             title: >-
               TransferAccountClosed is the fee to be paid to register an account
-              in a closed domain
+              in a
+
+              closed domain
           transfer_account_open:
             type: string
             title: >-
               TransferAccountOpen is the fee to be paid to register an account
-              in an open domain
+              in an open
+
+              domain
           replace_account_resources:
             type: string
-            title: >-
+            title: |-
               ReplaceAccountResources is the fee to be paid to replace account's
               resources
           add_account_certificate:
             type: string
             title: >-
               AddAccountCertificate is the fee to be paid to add a certificate
-              to an account
+              to an
+
+              account
           del_account_certificate:
             type: string
             title: >-
               DelAccountCertificate is the feed to be paid to delete a
-              certificate in an account
+              certificate in an
+
+              account
           set_account_metadata:
             type: string
             title: SetAccountMetadata is the fee to be paid to set account's metadata
@@ -3113,37 +3292,51 @@ definitions:
             type: string
             title: >-
               RegisterDomain1 is the fee to be paid to register a domain with
-              one character
+              one
+
+              character
           register_domain_2:
             type: string
             title: >-
               RegisterDomain2 is the fee to be paid to register a domain with
-              two characters
+              two
+
+              characters
           register_domain_3:
             type: string
             title: >-
               RegisterDomain3 is the fee to be paid to register a domain with
-              three characters
+              three
+
+              characters
           register_domain_4:
             type: string
             title: >-
               RegisterDomain4 is the fee to be paid to register a domain with
-              four characters
+              four
+
+              characters
           register_domain_5:
             type: string
             title: >-
               RegisterDomain5 is the fee to be paid to register a domain with
-              five characters
+              five
+
+              characters
           register_domain_default:
             type: string
             title: >-
               RegisterDomainDefault is the fee to be paid to register a domain
-              with more than five characters
+              with more
+
+              than five characters
           register_open_domain_multiplier:
             type: string
             title: >-
               register_open_domain_multiplier is the multiplication applied to
-              fees in register domain operations if they're of open type
+              fees in
+
+              register domain operations if they're of open type
           transfer_domain_closed:
             type: string
             title: >-
@@ -3172,10 +3365,14 @@ definitions:
             type: string
             title: >-
               refund_escrow is the fee to be paid to refund the account or
-              domain placed in an escrow
+              domain placed
+
+              in an escrow
         title: >-
           Fees contains different type of fees to calculate coins to detract
-          when processing different messages
+          when
+
+          processing different messages
     title: QueryFeesResponse is the response type for the Query/Fees RPC method
   cosmos.base.v1beta1.Coin:
     type: object
@@ -3373,19 +3570,22 @@ definitions:
           TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
           Although the price contains multiple coins, for now we enforce a
-          specific denomination, so there will be only
+          specific
 
-          one coin type in a valid escrow
+          denomination, so there will be only one coin type in a valid escrow
       state:
         type: string
         enum:
-          - ESCROW_STATE_OPEN
+          - ESCROW_STATE_OPEN_UNSPECIFIED
           - ESCROW_STATE_COMPLETED
           - ESCROW_STATE_REFUNDED
           - ESCROW_STATE_EXPIRED
-        default: ESCROW_STATE_OPEN
-        description: |-
-          - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+        default: ESCROW_STATE_OPEN_UNSPECIFIED
+        description: >-
+          - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED defines
+          an open state. TODO:: review the
+
+          _UNSPECIFIED sufix
            - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
            - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
            - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3401,13 +3601,16 @@ definitions:
   starnamed.x.escrow.v1beta1.EscrowState:
     type: string
     enum:
-      - ESCROW_STATE_OPEN
+      - ESCROW_STATE_OPEN_UNSPECIFIED
       - ESCROW_STATE_COMPLETED
       - ESCROW_STATE_REFUNDED
       - ESCROW_STATE_EXPIRED
-    default: ESCROW_STATE_OPEN
-    description: |-
-      - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+    default: ESCROW_STATE_OPEN_UNSPECIFIED
+    description: >-
+      - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED defines an
+      open state. TODO:: review the
+
+      _UNSPECIFIED sufix
        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
        - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3608,19 +3811,23 @@ definitions:
               TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
               Although the price contains multiple coins, for now we enforce a
-              specific denomination, so there will be only
+              specific
 
-              one coin type in a valid escrow
+              denomination, so there will be only one coin type in a valid
+              escrow
           state:
             type: string
             enum:
-              - ESCROW_STATE_OPEN
+              - ESCROW_STATE_OPEN_UNSPECIFIED
               - ESCROW_STATE_COMPLETED
               - ESCROW_STATE_REFUNDED
               - ESCROW_STATE_EXPIRED
-            default: ESCROW_STATE_OPEN
-            description: |-
-              - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+            default: ESCROW_STATE_OPEN_UNSPECIFIED
+            description: >-
+              - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED
+              defines an open state. TODO:: review the
+
+              _UNSPECIFIED sufix
                - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3836,19 +4043,23 @@ definitions:
                 TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                 Although the price contains multiple coins, for now we enforce a
-                specific denomination, so there will be only
+                specific
 
-                one coin type in a valid escrow
+                denomination, so there will be only one coin type in a valid
+                escrow
             state:
               type: string
               enum:
-                - ESCROW_STATE_OPEN
+                - ESCROW_STATE_OPEN_UNSPECIFIED
                 - ESCROW_STATE_COMPLETED
                 - ESCROW_STATE_REFUNDED
                 - ESCROW_STATE_EXPIRED
-              default: ESCROW_STATE_OPEN
-              description: |-
-                - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+              default: ESCROW_STATE_OPEN_UNSPECIFIED
+              description: >-
+                - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED
+                defines an open state. TODO:: review the
+
+                _UNSPECIFIED sufix
                  - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                  - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                  - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3948,13 +4159,17 @@ definitions:
         format: byte
         title: >-
           Broker identifies an entity that facilitated the transaction of the
-          account and can be empty
+          account
+
+          and can be empty
       valid_until:
         type: string
         format: int64
         title: >-
           ValidUntil defines a unix timestamp of the expiration of the account
-          in seconds
+          in
+
+          seconds
       resources:
         type: array
         items:
@@ -3973,7 +4188,7 @@ definitions:
         items:
           type: string
           format: byte
-        title: >-
+        title: |-
           Certificates contains the list of certificates to identify the account
           owner
       metadata_uri:
@@ -4001,7 +4216,9 @@ definitions:
         format: int64
         title: >-
           ValidUntil is a unix timestamp defines the time when the domain will
-          become invalid in seconds
+          become
+
+          invalid in seconds
       type:
         type: string
         title: Type defines the type of the domain
@@ -4029,13 +4246,17 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
-                the account and can be empty
+                the account
+
+                and can be empty
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
-                account in seconds
+                account in
+
+                seconds
             resources:
               type: array
               items:
@@ -4056,7 +4277,9 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
-                account owner
+                account
+
+                owner
             metadata_uri:
               type: string
               title: >-
@@ -4094,7 +4317,9 @@ definitions:
            }
     description: >-
       QueryBrokerAccountsResponse is the response type for the
-      Query/BrokerAccounts RPC method.
+      Query/BrokerAccounts
+
+      RPC method.
   starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse:
     type: object
     properties:
@@ -4118,7 +4343,9 @@ definitions:
               format: int64
               title: >-
                 ValidUntil is a unix timestamp defines the time when the domain
-                will become invalid in seconds
+                will become
+
+                invalid in seconds
             type:
               type: string
               title: Type defines the type of the domain
@@ -4151,7 +4378,9 @@ definitions:
            }
     description: >-
       QueryBrokerDomainsResponse is the response type for the
-      Query/BrokerDomains RPC method.
+      Query/BrokerDomains
+
+      RPC method.
   starnamed.x.starname.v1beta1.QueryDomainAccountsResponse:
     type: object
     properties:
@@ -4175,13 +4404,17 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
-                the account and can be empty
+                the account
+
+                and can be empty
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
-                account in seconds
+                account in
+
+                seconds
             resources:
               type: array
               items:
@@ -4202,7 +4435,9 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
-                account owner
+                account
+
+                owner
             metadata_uri:
               type: string
               title: >-
@@ -4240,7 +4475,9 @@ definitions:
            }
     description: >-
       QueryDomainAccountsResponse is the response type for the
-      Query/DomainAccounts RPC method.
+      Query/DomainAccounts
+
+      RPC method.
   starnamed.x.starname.v1beta1.QueryDomainResponse:
     type: object
     properties:
@@ -4263,7 +4500,9 @@ definitions:
             format: int64
             title: >-
               ValidUntil is a unix timestamp defines the time when the domain
-              will become invalid in seconds
+              will become
+
+              invalid in seconds
           type:
             type: string
             title: Type defines the type of the domain
@@ -4292,13 +4531,17 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
-                the account and can be empty
+                the account
+
+                and can be empty
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
-                account in seconds
+                account in
+
+                seconds
             resources:
               type: array
               items:
@@ -4319,7 +4562,9 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
-                account owner
+                account
+
+                owner
             metadata_uri:
               type: string
               title: >-
@@ -4357,7 +4602,9 @@ definitions:
            }
     description: >-
       QueryOwnerAccountsResponse is the response type for the
-      Query/OwnerAccounts RPC method.
+      Query/OwnerAccounts
+
+      RPC method.
   starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse:
     type: object
     properties:
@@ -4381,7 +4628,9 @@ definitions:
               format: int64
               title: >-
                 ValidUntil is a unix timestamp defines the time when the domain
-                will become invalid in seconds
+                will become
+
+                invalid in seconds
             type:
               type: string
               title: Type defines the type of the domain
@@ -4414,7 +4663,9 @@ definitions:
            }
     description: >-
       QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains
-      RPC method.
+      RPC
+
+      method.
   starnamed.x.starname.v1beta1.QueryResourceAccountsResponse:
     type: object
     properties:
@@ -4438,13 +4689,17 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
-                the account and can be empty
+                the account
+
+                and can be empty
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
-                account in seconds
+                account in
+
+                seconds
             resources:
               type: array
               items:
@@ -4465,7 +4720,9 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
-                account owner
+                account
+
+                owner
             metadata_uri:
               type: string
               title: >-
@@ -4501,7 +4758,7 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
-    description: >-
+    description: |-
       QueryResourceAccountsResponse is the response type for the
       Query/ResourceAccounts RPC method.
   starnamed.x.starname.v1beta1.QueryStarnameResponse:
@@ -4526,13 +4783,17 @@ definitions:
             format: byte
             title: >-
               Broker identifies an entity that facilitated the transaction of
-              the account and can be empty
+              the account
+
+              and can be empty
           valid_until:
             type: string
             format: int64
             title: >-
               ValidUntil defines a unix timestamp of the expiration of the
-              account in seconds
+              account in
+
+              seconds
           resources:
             type: array
             items:
@@ -4553,7 +4814,9 @@ definitions:
               format: byte
             title: >-
               Certificates contains the list of certificates to identify the
-              account owner
+              account
+
+              owner
           metadata_uri:
             type: string
             title: >-

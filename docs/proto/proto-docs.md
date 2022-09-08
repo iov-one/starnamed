@@ -186,7 +186,8 @@ Config is the configuration of the network
 <a name="starnamed.x.configuration.v1beta1.Fees"></a>
 
 ### Fees
-Fees contains different type of fees to calculate coins to detract when processing different messages
+Fees contains different type of fees to calculate coins to detract when
+processing different messages
 
 
 | Field | Type | Label | Description |
@@ -273,7 +274,8 @@ MsgUpdateConfig is used to update starname configuration
 <a name="starnamed.x.configuration.v1beta1.MsgUpdateFees"></a>
 
 ### MsgUpdateFees
-MsgUpdateFees is used to update the starname product fees in the starname module.
+MsgUpdateFees is used to update the starname product fees in the starname
+module.
 
 
 | Field | Type | Label | Description |
@@ -305,7 +307,8 @@ MsgUpdateFees is used to update the starname product fees in the starname module
 <a name="starnamed.x.configuration.v1beta1.QueryConfigRequest"></a>
 
 ### QueryConfigRequest
-QueryConfigRequest is the request type for the Query/Configuration RPC method.
+QueryConfigRequest is the request type for the Query/Configuration RPC
+method.
 
 
 
@@ -315,7 +318,8 @@ QueryConfigRequest is the request type for the Query/Configuration RPC method.
 <a name="starnamed.x.configuration.v1beta1.QueryConfigResponse"></a>
 
 ### QueryConfigResponse
-QueryConfigResponse is the response type for the Query/Configuration RPC method.
+QueryConfigResponse is the response type for the Query/Configuration RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -506,7 +510,7 @@ EscrowState defines the state of an escrow
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| ESCROW_STATE_OPEN | 0 | ESCROW_STATE_OPEN defines an open state. |
+| ESCROW_STATE_OPEN_UNSPECIFIED | 0 | ESCROW_STATE_OPEN_UNSPECIFIED defines an open state. TODO:: review the _UNSPECIFIED sufix |
 | ESCROW_STATE_COMPLETED | 1 | ESCROW_STATE_COMPLETED defines a completed state. |
 | ESCROW_STATE_REFUNDED | 2 | ESCROW_STATE_REFUNDED defines a refunded state. |
 | ESCROW_STATE_EXPIRED | 3 | ESCROW_STATE_REFUNDED defines an expired state. |
@@ -669,8 +673,8 @@ Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/starnamed/v1beta1/escrow/{id}|
-| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/starnamed/v1beta1/escrows|
+| `Escrow` | [QueryEscrowRequest](#starnamed.x.escrow.v1beta1.QueryEscrowRequest) | [QueryEscrowResponse](#starnamed.x.escrow.v1beta1.QueryEscrowResponse) | Escrow queries the escrow by the specified id | GET|/escrow/escrow/{id}|
+| `Escrows` | [QueryEscrowsRequest](#starnamed.x.escrow.v1beta1.QueryEscrowsRequest) | [QueryEscrowsResponse](#starnamed.x.escrow.v1beta1.QueryEscrowsResponse) | Escrows queries escrows by the specified key-value pairs | GET|/escrow/escrows|
 
  <!-- end services -->
 
@@ -703,7 +707,8 @@ TestObject defines a transferable object used for testing
 <a name="starnamed.x.escrow.v1beta1.TestTimeConstrainedObject"></a>
 
 ### TestTimeConstrainedObject
-TestTimeConstrainedObject defines a transferable object with a time constrain used for testing
+TestTimeConstrainedObject defines a transferable object with a time constrain
+used for testing
 
 
 | Field | Type | Label | Description |
@@ -770,7 +775,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 <a name="starnamed.x.escrow.v1beta1.MsgRefundEscrow"></a>
 
 ### MsgRefundEscrow
-
+MsgRefundEscrow defines the Msg/RefundEscrow response type ::TODO
 
 
 | Field | Type | Label | Description |
@@ -787,7 +792,8 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 <a name="starnamed.x.escrow.v1beta1.MsgRefundEscrowResponse"></a>
 
 ### MsgRefundEscrowResponse
-
+MsgRefundEscrowResponse defines the Msg/RefundEscrowResponse response type
+::TODO
 
 
 
@@ -797,7 +803,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 <a name="starnamed.x.escrow.v1beta1.MsgTransferToEscrow"></a>
 
 ### MsgTransferToEscrow
-
+MsgTransferToEscrow defines the Msg/Escrow response type ::TODO
 
 
 | Field | Type | Label | Description |
@@ -815,7 +821,7 @@ MsgCreateEscrowResponse defines the Msg/CreateEscrow response type
 <a name="starnamed.x.escrow.v1beta1.MsgTransferToEscrowResponse"></a>
 
 ### MsgTransferToEscrowResponse
-
+MsgTransferToEscrowResponse defines the Msg/Escrow response type ::TODO
 
 
 
@@ -884,7 +890,8 @@ Msg defines the escrow Msg service
 <a name="cosmos.offchain.v1alpha1.ListOfMsgSignData"></a>
 
 ### ListOfMsgSignData
-ListOfMsgSignData defines a list of MsgSignData, used to marshal and unmarshal them in a clean way
+ListOfMsgSignData defines a list of MsgSignData, used to marshal and
+unmarshal them in a clean way
 
 
 | Field | Type | Label | Description |
@@ -1038,7 +1045,8 @@ GenesisState - genesis state of x/starname
 <a name="starnamed.x.starname.v1beta1.QueryBrokerAccountsRequest"></a>
 
 ### QueryBrokerAccountsRequest
-QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts RPC method.
+QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1054,7 +1062,8 @@ QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts RPC 
 <a name="starnamed.x.starname.v1beta1.QueryBrokerAccountsResponse"></a>
 
 ### QueryBrokerAccountsResponse
-QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method.
+QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1070,7 +1079,8 @@ QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RP
 <a name="starnamed.x.starname.v1beta1.QueryBrokerDomainsRequest"></a>
 
 ### QueryBrokerDomainsRequest
-QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC method.
+QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1086,7 +1096,8 @@ QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC me
 <a name="starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse"></a>
 
 ### QueryBrokerDomainsResponse
-QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method.
+QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1102,7 +1113,8 @@ QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC 
 <a name="starnamed.x.starname.v1beta1.QueryDomainAccountsRequest"></a>
 
 ### QueryDomainAccountsRequest
-QueryDomainAccountsRequest is the request type for the Query/DomainAccounts RPC method.
+QueryDomainAccountsRequest is the request type for the Query/DomainAccounts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1118,7 +1130,8 @@ QueryDomainAccountsRequest is the request type for the Query/DomainAccounts RPC 
 <a name="starnamed.x.starname.v1beta1.QueryDomainAccountsResponse"></a>
 
 ### QueryDomainAccountsResponse
-QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method.
+QueryDomainAccountsResponse is the response type for the Query/DomainAccounts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1164,7 +1177,8 @@ QueryDomainResponse is the response type for the Query/Domain RPC method.
 <a name="starnamed.x.starname.v1beta1.QueryOwnerAccountsRequest"></a>
 
 ### QueryOwnerAccountsRequest
-QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC method.
+QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1180,7 +1194,8 @@ QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC me
 <a name="starnamed.x.starname.v1beta1.QueryOwnerAccountsResponse"></a>
 
 ### QueryOwnerAccountsResponse
-QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC method.
+QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1196,7 +1211,8 @@ QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC 
 <a name="starnamed.x.starname.v1beta1.QueryOwnerDomainsRequest"></a>
 
 ### QueryOwnerDomainsRequest
-QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC method.
+QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1212,7 +1228,8 @@ QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC meth
 <a name="starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse"></a>
 
 ### QueryOwnerDomainsResponse
-QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC method.
+QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1228,7 +1245,8 @@ QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC me
 <a name="starnamed.x.starname.v1beta1.QueryResourceAccountsRequest"></a>
 
 ### QueryResourceAccountsRequest
-QueryResourceAccountsRequest is the request type for the Query/ResourceAccounts RPC method.
+QueryResourceAccountsRequest is the request type for the
+Query/ResourceAccounts RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1245,7 +1263,8 @@ QueryResourceAccountsRequest is the request type for the Query/ResourceAccounts 
 <a name="starnamed.x.starname.v1beta1.QueryResourceAccountsResponse"></a>
 
 ### QueryResourceAccountsResponse
-QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method.
+QueryResourceAccountsResponse is the response type for the
+Query/ResourceAccounts RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1350,7 +1369,8 @@ Query defines the gRPC querier service.
 <a name="starnamed.x.starname.v1beta1.MsgAddAccountCertificate"></a>
 
 ### MsgAddAccountCertificate
-MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
+MsgAddAccountCertificate is the message used when a user wants to add new
+certificates to his account
 
 
 | Field | Type | Label | Description |
@@ -1397,7 +1417,8 @@ MsgDeleteAccount is the request model used to delete an account
 <a name="starnamed.x.starname.v1beta1.MsgDeleteAccountCertificate"></a>
 
 ### MsgDeleteAccountCertificate
-MsgDeleteAccountCertificate is the request model used to remove certificates from an account
+MsgDeleteAccountCertificate is the request model used to remove certificates
+from an account
 
 
 | Field | Type | Label | Description |
@@ -1607,7 +1628,8 @@ MsgReplaceAccountMetadataResponse returns an empty response.
 <a name="starnamed.x.starname.v1beta1.MsgReplaceAccountResources"></a>
 
 ### MsgReplaceAccountResources
-MsgReplaceAccountResources is the request model used to renew resources associated with an account
+MsgReplaceAccountResources is the request model used to renew resources
+associated with an account
 
 
 | Field | Type | Label | Description |

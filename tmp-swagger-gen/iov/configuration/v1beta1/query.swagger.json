@@ -1,0 +1,306 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "iov/configuration/v1beta1/query.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/starname/v1beta1/configuration/fees": {
+      "get": {
+        "summary": "Fees gets starname product fees.",
+        "operationId": "Fees",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.configuration.v1beta1.QueryFeesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/starname/v1beta1/configuration/params": {
+      "get": {
+        "summary": "Config gets starname configuration.",
+        "operationId": "Config",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/starnamed.x.configuration.v1beta1.QueryConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/grpc.gateway.runtime.Error"
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "google.protobuf.Any": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "grpc.gateway.runtime.Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/google.protobuf.Any"
+          }
+        }
+      }
+    },
+    "starnamed.x.configuration.v1beta1.Config": {
+      "type": "object",
+      "properties": {
+        "configurer": {
+          "type": "string",
+          "title": "Configurer is the configuration owner, the addresses allowed to handle fees\nand register domains with no superuser"
+        },
+        "valid_domain_name": {
+          "type": "string",
+          "title": "ValidDomainName defines a regexp that determines if a domain name is valid\nor not"
+        },
+        "valid_account_name": {
+          "type": "string",
+          "title": "ValidAccountName defines a regexp that determines if an account name is\nvalid or not"
+        },
+        "valid_uri": {
+          "type": "string",
+          "title": "ValidURI defines a regexp that determines if resource uri is valid or not"
+        },
+        "valid_resource": {
+          "type": "string",
+          "title": "ValidResource determines a regexp for a resource content"
+        },
+        "domain_renewal_period": {
+          "type": "string",
+          "title": "DomainRenewalPeriod defines the duration of the domain renewal period in\nseconds"
+        },
+        "domain_renewal_count_max": {
+          "type": "integer",
+          "format": "int64",
+          "title": "DomainRenewalCountMax defines maximum number of domain renewals a user can\ndo"
+        },
+        "domain_grace_period": {
+          "type": "string",
+          "title": "DomainGracePeriod defines the grace period for a domain deletion in seconds"
+        },
+        "account_renewal_period": {
+          "type": "string",
+          "title": "AccountRenewalPeriod defines the duration of the account renewal period in\nseconds"
+        },
+        "account_renewal_count_max": {
+          "type": "integer",
+          "format": "int64",
+          "title": "AccountRenewalCountMax defines maximum number of account renewals a user\ncan do"
+        },
+        "account_grace_period": {
+          "type": "string",
+          "title": "DomainGracePeriod defines the grace period for a domain deletion in seconds"
+        },
+        "resources_max": {
+          "type": "integer",
+          "format": "int64",
+          "title": "ResourcesMax defines maximum number of resources could be saved under an\naccount"
+        },
+        "certificate_size_max": {
+          "type": "string",
+          "format": "uint64",
+          "title": "CertificateSizeMax defines maximum size of a certificate that could be\nsaved under an account"
+        },
+        "certificate_count_max": {
+          "type": "integer",
+          "format": "int64",
+          "title": "CertificateCountMax defines maximum number of certificates that could be\nsaved under an account"
+        },
+        "metadata_size_max": {
+          "type": "string",
+          "format": "uint64",
+          "title": "MetadataSizeMax defines maximum size of metadata that could be saved under\nan account"
+        },
+        "escrow_broker": {
+          "type": "string",
+          "title": "EscrowBroker defines an address that will receive a commission for\ncompleted escrows"
+        },
+        "escrow_commission": {
+          "type": "string",
+          "title": "EscrowCommission defines the commission taken by the broker for a completed\nescrow, between 0 (no commission) and 1 (100% commission)"
+        },
+        "escrow_max_period": {
+          "type": "string",
+          "title": "EscrowPeriod defines the maximum duration of an escrow in seconds"
+        }
+      },
+      "title": "Config is the configuration of the network"
+    },
+    "starnamed.x.configuration.v1beta1.Fees": {
+      "type": "object",
+      "properties": {
+        "fee_coin_denom": {
+          "type": "string",
+          "title": "FeeCoinDenom defines the denominator of the coin used to process fees"
+        },
+        "fee_coin_price": {
+          "type": "string",
+          "title": "FeeCoinPrice defines the price of the coin"
+        },
+        "fee_default": {
+          "type": "string",
+          "title": "FeeDefault is the parameter defining the default fee"
+        },
+        "register_account_closed": {
+          "type": "string",
+          "title": "RegisterAccountClosed is the fee to be paid to register an account in a\nclosed domain"
+        },
+        "register_account_open": {
+          "type": "string",
+          "title": "RegisterAccountOpen is the fee to be paid to register an account in an open\ndomain"
+        },
+        "transfer_account_closed": {
+          "type": "string",
+          "title": "TransferAccountClosed is the fee to be paid to register an account in a\nclosed domain"
+        },
+        "transfer_account_open": {
+          "type": "string",
+          "title": "TransferAccountOpen is the fee to be paid to register an account in an open\ndomain"
+        },
+        "replace_account_resources": {
+          "type": "string",
+          "title": "ReplaceAccountResources is the fee to be paid to replace account's\nresources"
+        },
+        "add_account_certificate": {
+          "type": "string",
+          "title": "AddAccountCertificate is the fee to be paid to add a certificate to an\naccount"
+        },
+        "del_account_certificate": {
+          "type": "string",
+          "title": "DelAccountCertificate is the feed to be paid to delete a certificate in an\naccount"
+        },
+        "set_account_metadata": {
+          "type": "string",
+          "title": "SetAccountMetadata is the fee to be paid to set account's metadata"
+        },
+        "register_domain_1": {
+          "type": "string",
+          "title": "RegisterDomain1 is the fee to be paid to register a domain with one\ncharacter"
+        },
+        "register_domain_2": {
+          "type": "string",
+          "title": "RegisterDomain2 is the fee to be paid to register a domain with two\ncharacters"
+        },
+        "register_domain_3": {
+          "type": "string",
+          "title": "RegisterDomain3 is the fee to be paid to register a domain with three\ncharacters"
+        },
+        "register_domain_4": {
+          "type": "string",
+          "title": "RegisterDomain4 is the fee to be paid to register a domain with four\ncharacters"
+        },
+        "register_domain_5": {
+          "type": "string",
+          "title": "RegisterDomain5 is the fee to be paid to register a domain with five\ncharacters"
+        },
+        "register_domain_default": {
+          "type": "string",
+          "title": "RegisterDomainDefault is the fee to be paid to register a domain with more\nthan five characters"
+        },
+        "register_open_domain_multiplier": {
+          "type": "string",
+          "title": "register_open_domain_multiplier is the multiplication applied to fees in\nregister domain operations if they're of open type"
+        },
+        "transfer_domain_closed": {
+          "type": "string",
+          "title": "transfer_domain_closed is the fee to be paid to transfer a closed domain"
+        },
+        "transfer_domain_open": {
+          "type": "string",
+          "title": "transfer_domain_open is the fee to be paid to transfer open domains"
+        },
+        "renew_domain_open": {
+          "type": "string",
+          "title": "renew_domain_open is the fee to be paid to renew an open domain"
+        },
+        "create_escrow": {
+          "type": "string",
+          "title": "create_escrow is the fee to be paid to create an escrow"
+        },
+        "update_escrow": {
+          "type": "string",
+          "title": "update_escrow is the fee to be paid to update an escrow"
+        },
+        "transfer_to_escrow": {
+          "type": "string",
+          "title": "transfer_to_escrow is the fee to be paid to transfer coins to an escrow"
+        },
+        "refund_escrow": {
+          "type": "string",
+          "title": "refund_escrow is the fee to be paid to refund the account or domain placed\nin an escrow"
+        }
+      },
+      "title": "Fees contains different type of fees to calculate coins to detract when\nprocessing different messages"
+    },
+    "starnamed.x.configuration.v1beta1.QueryConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/starnamed.x.configuration.v1beta1.Config",
+          "description": "Configuration is the starname configuration."
+        }
+      },
+      "description": "QueryConfigResponse is the response type for the Query/Configuration RPC\nmethod."
+    },
+    "starnamed.x.configuration.v1beta1.QueryFeesResponse": {
+      "type": "object",
+      "properties": {
+        "fees": {
+          "$ref": "#/definitions/starnamed.x.configuration.v1beta1.Fees",
+          "description": "Fees is the starname product fee object."
+        }
+      },
+      "title": "QueryFeesResponse is the response type for the Query/Fees RPC method"
+    }
+  }
+}

@@ -10,7 +10,7 @@ import (
 
 //TODO: we could add a test for this function
 
-//EndBlocker burns all the coins owned by the burner module
+// EndBlocker burns all the coins owned by the burner module
 func EndBlocker(ctx sdk.Context, supplyKeeper types.SupplyKeeper, accountKeeper types.AccountKeeper) {
 	moduleAcc := accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	if balance := supplyKeeper.GetAllBalances(ctx, moduleAcc.GetAddress()); !balance.IsZero() {

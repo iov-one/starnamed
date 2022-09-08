@@ -318,7 +318,7 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
 }
 
-//Yield return an estimation of the delegators annualized yield based on the last 100k blocks
+// Yield return an estimation of the delegators annualized yield based on the last 100k blocks
 func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
 	var response types.QueryYieldResponse
 
