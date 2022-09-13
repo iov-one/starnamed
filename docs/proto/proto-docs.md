@@ -634,9 +634,9 @@ QueryEscrowsRequest is the request type for the Query/Escrows RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `seller` | [string](#string) |  |  |
-| `state` | [string](#string) |  |  |
-| `object_key` | [string](#string) |  |  |
+| `seller` | [string](#string) |  | The4 seller address |
+| `state` | [string](#string) |  | The state of the escrow object. It must be one of "open" or "expired". |
+| `object_key` | [string](#string) |  | All the escrows has a unique key, in the starname objects the domain_name will be the key, and the account_name*domain_name will be account name. |
 | `pagination_start` | [uint64](#uint64) |  |  |
 | `pagination_length` | [uint64](#uint64) |  |  |
 
