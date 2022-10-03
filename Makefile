@@ -81,7 +81,7 @@ build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/starnamed ./cmd/wasmd
+	go build -mod=vendor $(BUILD_FLAGS) -o build/starnamed ./cmd/wasmd
 endif
 
 build-contract-tests-hooks:
