@@ -200,7 +200,7 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 
 			// Custom modules
 			"burner":        1, // the burner module has no state but it implements AppModule so its better to put it here
-			"configuration": 1, // the configuration module will be updated to version 2 (adding the escrow conf)
+			"configuration": 2, // the configuration module will be updated to version 2 (adding the escrow conf)
 			"starname":      1,
 			"wasm":          1,
 
