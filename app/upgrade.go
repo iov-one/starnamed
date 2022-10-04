@@ -14,7 +14,7 @@ import (
 	authz "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-
+	ibcconnectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 )
 
@@ -174,12 +174,12 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 
 func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 	const planName = "cosmos-sdk-v0.44-upgrade"
-	handler := func(ctx sdk.Context, plan upgradetypes.Plan, fromVersionMap module.VersionMap) (module.VersionMap, error) {
+	handler := func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
 		// Overwrite the version map :
 		// Set up modules that were already present in previous version (but were not registered as the version map didn't
 		// exist prior to v0.44.3). All those modules are at there first registered version (1).
 		// If we keep the version map as is (empty) the upgrade handler will use the DefaultGenesis state for those modules
-		fromVersionMap = map[string]uint64{
+		fromVersionMap := map[string]uint64{
 			// Cosmos sdk modules
 			"auth":         1,
 			"bank":         1,
@@ -200,12 +200,16 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 
 			// Custom modules
 			"burner":        1, // the burner module has no state but it implements AppModule so its better to put it here
-			"configuration": 2, // the configuration module will be updated to version 2 (adding the escrow conf)
+			"configuration": 1, // the configuration module will be updated to version 2 (adding the escrow conf)
 			"starname":      1,
 			"wasm":          1,
 
 			// The escrow is a newly introduced module, as well as the feegrant and authz modules so we do not include them
 		}
+
+		// Add the default parameters of ibc-go/03-connections in the parameter store
+		app.ibcKeeper.ConnectionKeeper.SetParams(ctx, ibcconnectiontypes.DefaultParams())
+
 		return app.mm.RunMigrations(ctx, app.configurator, fromVersionMap)
 	}
 
