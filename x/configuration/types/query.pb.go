@@ -6,7 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -29,7 +29,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryConfigRequest is the request type for the Query/Configuration RPC method.
+// QueryConfigRequest is the request type for the Query/Configuration RPC
+// method.
 type QueryConfigRequest struct {
 }
 
@@ -66,7 +67,8 @@ func (m *QueryConfigRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryConfigRequest proto.InternalMessageInfo
 
-// QueryConfigResponse is the response type for the Query/Configuration RPC method.
+// QueryConfigResponse is the response type for the Query/Configuration RPC
+// method.
 type QueryConfigResponse struct {
 	// Configuration is the starname configuration.
 	Config *Config `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty" yaml:"config"`

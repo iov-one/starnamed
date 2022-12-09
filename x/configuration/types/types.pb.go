@@ -6,7 +6,7 @@ package types
 import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
@@ -30,40 +30,52 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Config is the configuration of the network
 type Config struct {
-	// Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser
+	// Configurer is the configuration owner, the addresses allowed to handle fees
+	// and register domains with no superuser
 	Configurer string `protobuf:"bytes,1,opt,name=configurer,proto3" json:"configurer,omitempty" yaml:"configurer"`
-	// ValidDomainName defines a regexp that determines if a domain name is valid or not
+	// ValidDomainName defines a regexp that determines if a domain name is valid
+	// or not
 	ValidDomainName string `protobuf:"bytes,2,opt,name=valid_domain_name,json=validDomainName,proto3" json:"valid_domain_name,omitempty" yaml:"valid_domain_name"`
-	// ValidAccountName defines a regexp that determines if an account name is valid or not
+	// ValidAccountName defines a regexp that determines if an account name is
+	// valid or not
 	ValidAccountName string `protobuf:"bytes,3,opt,name=valid_account_name,json=validAccountName,proto3" json:"valid_account_name,omitempty" yaml:"valid_account_name"`
 	// ValidURI defines a regexp that determines if resource uri is valid or not
 	ValidURI string `protobuf:"bytes,4,opt,name=valid_uri,json=validUri,proto3" json:"valid_uri,omitempty" yaml:"valid_uri"`
 	// ValidResource determines a regexp for a resource content
 	ValidResource string `protobuf:"bytes,5,opt,name=valid_resource,json=validResource,proto3" json:"valid_resource,omitempty" yaml:"valid_resource"`
-	// DomainRenewalPeriod defines the duration of the domain renewal period in seconds
+	// DomainRenewalPeriod defines the duration of the domain renewal period in
+	// seconds
 	DomainRenewalPeriod time.Duration `protobuf:"bytes,6,opt,name=domain_renewal_period,json=domainRenewalPeriod,proto3,stdduration" json:"domain_renewal_period" yaml:"domain_renewal_period"`
-	// DomainRenewalCountMax defines maximum number of domain renewals a user can do
+	// DomainRenewalCountMax defines maximum number of domain renewals a user can
+	// do
 	DomainRenewalCountMax uint32 `protobuf:"varint,7,opt,name=domain_renewal_count_max,json=domainRenewalCountMax,proto3" json:"domain_renewal_count_max,omitempty" yaml:"domain_renewal_count_max"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	DomainGracePeriod time.Duration `protobuf:"bytes,8,opt,name=domain_grace_period,json=domainGracePeriod,proto3,stdduration" json:"domain_grace_period" yaml:"domain_grace_period"`
-	// AccountRenewalPeriod defines the duration of the account renewal period in seconds
+	// AccountRenewalPeriod defines the duration of the account renewal period in
+	// seconds
 	AccountRenewalPeriod time.Duration `protobuf:"bytes,9,opt,name=account_renewal_period,json=accountRenewalPeriod,proto3,stdduration" json:"account_renewal_period" yaml:"account_renewal_period"`
-	// AccountRenewalCountMax defines maximum number of account renewals a user can do
+	// AccountRenewalCountMax defines maximum number of account renewals a user
+	// can do
 	AccountRenewalCountMax uint32 `protobuf:"varint,10,opt,name=account_renewal_count_max,json=accountRenewalCountMax,proto3" json:"account_renewal_count_max,omitempty" yaml:"account_renewal_count_max"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	AccountGracePeriod time.Duration `protobuf:"bytes,11,opt,name=account_grace_period,json=accountGracePeriod,proto3,stdduration" json:"account_grace_period" yaml:"account_grace_period"`
-	// ResourcesMax defines maximum number of resources could be saved under an account
+	// ResourcesMax defines maximum number of resources could be saved under an
+	// account
 	ResourcesMax uint32 `protobuf:"varint,12,opt,name=resources_max,json=resourcesMax,proto3" json:"resources_max,omitempty" yaml:"resources_max"`
-	// CertificateSizeMax defines maximum size of a certificate that could be saved under an account
+	// CertificateSizeMax defines maximum size of a certificate that could be
+	// saved under an account
 	CertificateSizeMax uint64 `protobuf:"varint,13,opt,name=certificate_size_max,json=certificateSizeMax,proto3" json:"certificate_size_max,omitempty" yaml:"certificate_size_max"`
-	// CertificateCountMax defines maximum number of certificates that could be saved under an account
+	// CertificateCountMax defines maximum number of certificates that could be
+	// saved under an account
 	CertificateCountMax uint32 `protobuf:"varint,14,opt,name=certificate_count_max,json=certificateCountMax,proto3" json:"certificate_count_max,omitempty" yaml:"certificate_count_max"`
-	// MetadataSizeMax defines maximum size of metadata that could be saved under an account
+	// MetadataSizeMax defines maximum size of metadata that could be saved under
+	// an account
 	MetadataSizeMax uint64 `protobuf:"varint,15,opt,name=metadata_size_max,json=metadataSizeMax,proto3" json:"metadata_size_max,omitempty" yaml:"metadata_size_max"`
-	// EscrowBroker defines an address that will receive a commission for completed escrows
+	// EscrowBroker defines an address that will receive a commission for
+	// completed escrows
 	EscrowBroker string `protobuf:"bytes,16,opt,name=escrow_broker,json=escrowBroker,proto3" json:"escrow_broker,omitempty" yaml:"escrow_broker"`
-	// EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and
-	// 1 (100% commission)
+	// EscrowCommission defines the commission taken by the broker for a completed
+	// escrow, between 0 (no commission) and 1 (100% commission)
 	EscrowCommission github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,17,opt,name=escrow_commission,json=escrowCommission,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"escrow_commission" yaml:"escrow_commission"`
 	// EscrowPeriod defines the maximum duration of an escrow in seconds
 	EscrowMaxPeriod time.Duration `protobuf:"bytes,18,opt,name=escrow_max_period,json=escrowMaxPeriod,proto3,stdduration" json:"escrow_max_period" yaml:"escrow_max_period"`
@@ -221,7 +233,8 @@ func (m *Config) GetEscrowMaxPeriod() time.Duration {
 	return 0
 }
 
-// Fees contains different type of fees to calculate coins to detract when processing different messages
+// Fees contains different type of fees to calculate coins to detract when
+// processing different messages
 type Fees struct {
 	// FeeCoinDenom defines the denominator of the coin used to process fees
 	FeeCoinDenom string `protobuf:"bytes,1,opt,name=fee_coin_denom,json=feeCoinDenom,proto3" json:"fee_coin_denom,omitempty" yaml:"fee_coin_denom"`
@@ -229,35 +242,49 @@ type Fees struct {
 	FeeCoinPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=fee_coin_price,json=feeCoinPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fee_coin_price" yaml:"fee_coin_price"`
 	// FeeDefault is the parameter defining the default fee
 	FeeDefault github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=fee_default,json=feeDefault,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fee_default" yaml:"fee_default"`
-	// RegisterAccountClosed is the fee to be paid to register an account in a closed domain
+	// RegisterAccountClosed is the fee to be paid to register an account in a
+	// closed domain
 	RegisterAccountClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=register_account_closed,json=registerAccountClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_account_closed" yaml:"register_account_closed"`
-	// RegisterAccountOpen is the fee to be paid to register an account in an open domain
+	// RegisterAccountOpen is the fee to be paid to register an account in an open
+	// domain
 	RegisterAccountOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=register_account_open,json=registerAccountOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_account_open" yaml:"register_account_open"`
-	// TransferAccountClosed is the fee to be paid to register an account in a closed domain
+	// TransferAccountClosed is the fee to be paid to register an account in a
+	// closed domain
 	TransferAccountClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=transfer_account_closed,json=transferAccountClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_account_closed" yaml:"transfer_account_closed"`
-	// TransferAccountOpen is the fee to be paid to register an account in an open domain
+	// TransferAccountOpen is the fee to be paid to register an account in an open
+	// domain
 	TransferAccountOpen github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=transfer_account_open,json=transferAccountOpen,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_account_open" yaml:"transfer_account_open"`
-	// ReplaceAccountResources is the fee to be paid to replace account's resources
+	// ReplaceAccountResources is the fee to be paid to replace account's
+	// resources
 	ReplaceAccountResources github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=replace_account_resources,json=replaceAccountResources,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"replace_account_resources" yaml:"replace_account_resources"`
-	// AddAccountCertificate is the fee to be paid to add a certificate to an account
+	// AddAccountCertificate is the fee to be paid to add a certificate to an
+	// account
 	AddAccountCertificate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=add_account_certificate,json=addAccountCertificate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"add_account_certificate" yaml:"add_account_certificate"`
-	// DelAccountCertificate is the feed to be paid to delete a certificate in an account
+	// DelAccountCertificate is the feed to be paid to delete a certificate in an
+	// account
 	DelAccountCertificate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=del_account_certificate,json=delAccountCertificate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"del_account_certificate" yaml:"del_account_certificate"`
 	// SetAccountMetadata is the fee to be paid to set account's metadata
 	SetAccountMetadata github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=set_account_metadata,json=setAccountMetadata,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"set_account_metadata" yaml:"set_account_metadata"`
-	// RegisterDomain1 is the fee to be paid to register a domain with one character
+	// RegisterDomain1 is the fee to be paid to register a domain with one
+	// character
 	RegisterDomain1 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=register_domain_1,json=registerDomain1,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_1" yaml:"register_domain_1"`
-	// RegisterDomain2 is the fee to be paid to register a domain with two characters
+	// RegisterDomain2 is the fee to be paid to register a domain with two
+	// characters
 	RegisterDomain2 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=register_domain_2,json=registerDomain2,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_2" yaml:"register_domain_2"`
-	// RegisterDomain3 is the fee to be paid to register a domain with three characters
+	// RegisterDomain3 is the fee to be paid to register a domain with three
+	// characters
 	RegisterDomain3 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=register_domain_3,json=registerDomain3,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_3" yaml:"register_domain_3"`
-	// RegisterDomain4 is the fee to be paid to register a domain with four characters
+	// RegisterDomain4 is the fee to be paid to register a domain with four
+	// characters
 	RegisterDomain4 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,15,opt,name=register_domain_4,json=registerDomain4,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_4" yaml:"register_domain_4"`
-	// RegisterDomain5 is the fee to be paid to register a domain with five characters
+	// RegisterDomain5 is the fee to be paid to register a domain with five
+	// characters
 	RegisterDomain5 github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,16,opt,name=register_domain_5,json=registerDomain5,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_5" yaml:"register_domain_5"`
-	// RegisterDomainDefault is the fee to be paid to register a domain with more than five characters
+	// RegisterDomainDefault is the fee to be paid to register a domain with more
+	// than five characters
 	RegisterDomainDefault github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,17,opt,name=register_domain_default,json=registerDomainDefault,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_domain_default" yaml:"register_domain_default"`
-	// register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they're of open type
+	// register_open_domain_multiplier is the multiplication applied to fees in
+	// register domain operations if they're of open type
 	RegisterOpenDomainMultiplier github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,18,opt,name=register_open_domain_multiplier,json=registerOpenDomainMultiplier,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"register_open_domain_multiplier" yaml:"register_open_domain_multiplier"`
 	// transfer_domain_closed is the fee to be paid to transfer a closed domain
 	TransferDomainClosed github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,19,opt,name=transfer_domain_closed,json=transferDomainClosed,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_domain_closed" yaml:"transfer_domain_closed"`
@@ -271,7 +298,8 @@ type Fees struct {
 	UpdateEscrow github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,23,opt,name=update_escrow,json=updateEscrow,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"update_escrow" yaml:"update_escrow"`
 	// transfer_to_escrow is the fee to be paid to transfer coins to an escrow
 	TransferToEscrow github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,24,opt,name=transfer_to_escrow,json=transferToEscrow,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"transfer_to_escrow" yaml:"transfer_to_escrow"`
-	// refund_escrow is the fee to be paid to refund the account or domain placed in an escrow
+	// refund_escrow is the fee to be paid to refund the account or domain placed
+	// in an escrow
 	RefundEscrow github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,25,opt,name=refund_escrow,json=refundEscrow,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"refund_escrow" yaml:"refund_escrow"`
 }
 

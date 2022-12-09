@@ -8,7 +8,7 @@ import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
-	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -109,7 +109,8 @@ func (m *QueryDomainResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryDomainResponse proto.InternalMessageInfo
 
-// QueryDomainAccountsRequest is the request type for the Query/DomainAccounts RPC method.
+// QueryDomainAccountsRequest is the request type for the Query/DomainAccounts
+// RPC method.
 type QueryDomainAccountsRequest struct {
 	// Domain is the name of the domain.
 	Domain     string             `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
@@ -149,7 +150,8 @@ func (m *QueryDomainAccountsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryDomainAccountsRequest proto.InternalMessageInfo
 
-// QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method.
+// QueryDomainAccountsResponse is the response type for the Query/DomainAccounts
+// RPC method.
 type QueryDomainAccountsResponse struct {
 	// Accounts is the accounts associated with the domain.
 	Accounts []*Account          `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty" yaml:"accounts"`
@@ -267,7 +269,8 @@ func (m *QueryStarnameResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryStarnameResponse proto.InternalMessageInfo
 
-// QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC method.
+// QueryOwnerAccountsRequest is the request type for the Query/OwnerAccounts RPC
+// method.
 type QueryOwnerAccountsRequest struct {
 	// Owner is the owner of accounts.
 	Owner      string             `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
@@ -307,7 +310,8 @@ func (m *QueryOwnerAccountsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryOwnerAccountsRequest proto.InternalMessageInfo
 
-// QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC method.
+// QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts
+// RPC method.
 type QueryOwnerAccountsResponse struct {
 	// Accounts is the accounts associated with owner.
 	Accounts []*Account          `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty" yaml:"accounts"`
@@ -347,7 +351,8 @@ func (m *QueryOwnerAccountsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryOwnerAccountsResponse proto.InternalMessageInfo
 
-// QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC method.
+// QueryOwnerDomainsRequest is the request type for the Query/OwnerDomains RPC
+// method.
 type QueryOwnerDomainsRequest struct {
 	// Owner is the owner of accounts.
 	Owner      string             `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
@@ -387,7 +392,8 @@ func (m *QueryOwnerDomainsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryOwnerDomainsRequest proto.InternalMessageInfo
 
-// QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC method.
+// QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC
+// method.
 type QueryOwnerDomainsResponse struct {
 	// Accounts is the accounts associated with owner.
 	Domains []*Domain           `protobuf:"bytes,1,rep,name=domains,proto3" json:"domains,omitempty" yaml:"domains"`
@@ -427,9 +433,11 @@ func (m *QueryOwnerDomainsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryOwnerDomainsResponse proto.InternalMessageInfo
 
-// QueryResourceAccountsRequest is the request type for the Query/ResourceAccounts RPC method.
+// QueryResourceAccountsRequest is the request type for the
+// Query/ResourceAccounts RPC method.
 type QueryResourceAccountsRequest struct {
-	// Uri is the uri of the resource. query.pb.gw.to doesn't respect gogoproto.customname, so we're stuck with Uri.
+	// Uri is the uri of the resource. query.pb.gw.to doesn't respect
+	// gogoproto.customname, so we're stuck with Uri.
 	Uri string `protobuf:"bytes,1,opt,name=uri,proto3" json:"uri,omitempty" yaml:"uri"`
 	// Resource is the resource of interest.
 	Resource   string             `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty" yaml:"resource"`
@@ -469,7 +477,8 @@ func (m *QueryResourceAccountsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryResourceAccountsRequest proto.InternalMessageInfo
 
-// QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method.
+// QueryResourceAccountsResponse is the response type for the
+// Query/ResourceAccounts RPC method.
 type QueryResourceAccountsResponse struct {
 	// Accounts are the accounts associated with the resource.
 	Accounts []*Account          `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty" yaml:"accounts"`
@@ -509,7 +518,8 @@ func (m *QueryResourceAccountsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryResourceAccountsResponse proto.InternalMessageInfo
 
-// QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts RPC method.
+// QueryBrokerAccountsRequest is the request type for the Query/BrokerAccounts
+// RPC method.
 type QueryBrokerAccountsRequest struct {
 	// Broker is the broker of accounts.
 	Broker     string             `protobuf:"bytes,1,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
@@ -549,7 +559,8 @@ func (m *QueryBrokerAccountsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBrokerAccountsRequest proto.InternalMessageInfo
 
-// QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method.
+// QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts
+// RPC method.
 type QueryBrokerAccountsResponse struct {
 	// Accounts is the accounts associated with broker.
 	Accounts []*Account          `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty" yaml:"accounts"`
@@ -589,7 +600,8 @@ func (m *QueryBrokerAccountsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBrokerAccountsResponse proto.InternalMessageInfo
 
-// QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC method.
+// QueryBrokerDomainsRequest is the request type for the Query/BrokerDomains RPC
+// method.
 type QueryBrokerDomainsRequest struct {
 	// Broker is the broker of accounts.
 	Broker     string             `protobuf:"bytes,1,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
@@ -629,7 +641,8 @@ func (m *QueryBrokerDomainsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBrokerDomainsRequest proto.InternalMessageInfo
 
-// QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method.
+// QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains
+// RPC method.
 type QueryBrokerDomainsResponse struct {
 	// Accounts is the accounts associated with broker.
 	Domains []*Domain           `protobuf:"bytes,1,rep,name=domains,proto3" json:"domains,omitempty" yaml:"domains"`
