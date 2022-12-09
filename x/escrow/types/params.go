@@ -8,7 +8,7 @@ import (
 
 // Default parameter values
 const (
-	DefaultModuleEnabled bool = false
+	DefaultModuleEnabled bool = true
 )
 
 // Parameter keys

@@ -124,7 +124,7 @@ import (
 	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 )
 
-const appName = "StarnameApp"
+const appName = "starnamed"
 
 // We pull these out so we can set them with LDFLAGS in the Makefile
 var (

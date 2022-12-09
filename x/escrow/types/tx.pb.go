@@ -192,6 +192,7 @@ func (m *MsgUpdateEscrowResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateEscrowResponse proto.InternalMessageInfo
 
+// MsgTransferToEscrow defines the Msg/Escrow response type ::TODO
 type MsgTransferToEscrow struct {
 	Id       string                                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Sender   string                                   `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -232,6 +233,7 @@ func (m *MsgTransferToEscrow) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgTransferToEscrow proto.InternalMessageInfo
 
+// MsgTransferToEscrowResponse defines the Msg/Escrow response type ::TODO
 type MsgTransferToEscrowResponse struct {
 }
 
@@ -268,6 +270,7 @@ func (m *MsgTransferToEscrowResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgTransferToEscrowResponse proto.InternalMessageInfo
 
+// MsgRefundEscrow defines the Msg/RefundEscrow response type ::TODO
 type MsgRefundEscrow struct {
 	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Sender   string `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -307,6 +310,8 @@ func (m *MsgRefundEscrow) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRefundEscrow proto.InternalMessageInfo
 
+// MsgRefundEscrowResponse defines the Msg/RefundEscrowResponse response type
+// ::TODO
 type MsgRefundEscrowResponse struct {
 }
 
@@ -414,9 +419,11 @@ type MsgClient interface {
 	CreateEscrow(ctx context.Context, in *MsgCreateEscrow, opts ...grpc.CallOption) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(ctx context.Context, in *MsgUpdateEscrow, opts ...grpc.CallOption) (*MsgUpdateEscrowResponse, error)
-	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
+	// TransferToEscrow defines a method for a buyer to transfer funds to the
+	// escrow
 	TransferToEscrow(ctx context.Context, in *MsgTransferToEscrow, opts ...grpc.CallOption) (*MsgTransferToEscrowResponse, error)
-	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
+	// RefundEscrow defines a method for the seller to return the assets locked in
+	// the escrow
 	RefundEscrow(ctx context.Context, in *MsgRefundEscrow, opts ...grpc.CallOption) (*MsgRefundEscrowResponse, error)
 }
 
@@ -470,9 +477,11 @@ type MsgServer interface {
 	CreateEscrow(context.Context, *MsgCreateEscrow) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(context.Context, *MsgUpdateEscrow) (*MsgUpdateEscrowResponse, error)
-	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
+	// TransferToEscrow defines a method for a buyer to transfer funds to the
+	// escrow
 	TransferToEscrow(context.Context, *MsgTransferToEscrow) (*MsgTransferToEscrowResponse, error)
-	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
+	// RefundEscrow defines a method for the seller to return the assets locked in
+	// the escrow
 	RefundEscrow(context.Context, *MsgRefundEscrow) (*MsgRefundEscrowResponse, error)
 }
 

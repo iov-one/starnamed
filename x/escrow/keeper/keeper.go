@@ -3,8 +3,9 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/types/address"
 
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"

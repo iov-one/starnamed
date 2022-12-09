@@ -7,12 +7,12 @@ const (
 	QueryEscrows = "escrows" // query multiple escrows
 )
 
-//QueryEscrowParams defines the params to query an escrow
+// QueryEscrowParams defines the params to query an escrow
 type QueryEscrowParams struct {
 	Id string
 }
 
-//QueryEscrowsParams defines the parameters to query multiple escrows
+// QueryEscrowsParams defines the parameters to query multiple escrows
 type QueryEscrowsParams struct {
 	Seller                            string
 	State                             string

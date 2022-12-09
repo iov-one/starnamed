@@ -10,7 +10,7 @@ import (
 
 // FIXME: this module should not have a dependency on the configuration module
 
-//CollectFees collect the fees for the given message
+// CollectFees collect the fees for the given message
 func (k *Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer) error {
 	fees := k.ComputeFees(ctx, msg)
 	return k.bankKeeper.SendCoinsFromAccountToModule(
