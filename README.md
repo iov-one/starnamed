@@ -1,234 +1,173 @@
-# Wasm Zone
+# Add A Node To iov-mainnet-ibc
 
-[![CircleCI](https://circleci.com/gh/CosmWasm/wasmd/tree/master.svg?style=shield)](https://circleci.com/gh/CosmWasm/wasmd/tree/master)
-[![codecov](https://codecov.io/gh/cosmwasm/wasmd/branch/master/graph/badge.svg)](https://codecov.io/gh/cosmwasm/wasmd)
-[![Go Report Card](https://goreportcard.com/badge/github.com/CosmWasm/wasmd)](https://goreportcard.com/report/github.com/CosmWasm/wasmd)
-[![license](https://img.shields.io/github/license/CosmWasm/wasmd.svg)](https://github.com/CosmWasm/wasmd/blob/master/LICENSE)
-[![LoC](https://tokei.rs/b1/github/CosmWasm/wasmd)](https://github.com/CosmWasm/wasmd)
-<!-- [![GolangCI](https://golangci.com/badges/github.com/CosmWasm/wasmd.svg)](https://golangci.com/r/github.com/CosmWasm/wasmd) -->
-
-This repository hosts `Wasmd`, the first implementation of a cosmos zone with wasm smart contracts enabled.
-
-This code was forked from the `cosmos/gaia` repository as a basis and then we added `x/wasm` and cleaned up 
-many gaia-specific files. However, the `wasmd` binary should function just like `gaiad` except for the
-addition of the `x/wasm` module.
-
-**Note**: Requires [Go 1.18+](https://golang.org/dl/)
-
-For critical security issues & disclosure, see [SECURITY.md](SECURITY.md).
-## Compatibility with CosmWasm contracts
-
-## Compatibility
-
-A VM can support one or more contract-VM interface versions. The interface
-version is communicated by the contract via a Wasm export. This is the current
-compatibility list:
-
-| wasmd | wasmvm       | cosmwasm-vm | cosmwasm-std |
-|-------|--------------|-------------|--------------|
-| 0.29  | v1.1.0       |             | 1.0-1.1      |
-| 0.28  | v1.0.0       |             | 1.0-1.1      |
-| 0.27  | v1.0.0       |             | 1.0          |
-| 0.26  | 1.0.0-beta10 |             | 1.0          |
-| 0.25  | 1.0.0-beta10 |             | 1.0          |
-| 0.24  | 1.0.0-beta7  | 1.0.0-beta6 | 1.0          |
-| 0.23  |              | 1.0.0-beta5 | 1.0          |
-| 0.22  |              | 1.0.0-beta5 | 1.0          |
-| 0.21  |              | 1.0.0-beta2 | 1.0          |
-| 0.20  |              | 1.0.0-beta  | 1.0          |
-| 0.19  |              | 0.16        | 0.16         |
-| 0.18  |              | 0.16        | 0.16         |
-| 0.17  |              | 0.14        | 0.14         |
-| 0.16  |              | 0.14        | 0.14         |
-| 0.15  |              | 0.13        | 0.11-0.13    |
-| 0.14  |              | 0.13        | 0.11-0.13    |
-| 0.13  |              | 0.12        | 0.11-0.13    |
-| 0.12  |              | 0.12        | 0.11-0.13    |
-| 0.11  |              | 0.11        | 0.11-0.13    |
-| 0.10  |              | 0.10        | 0.10         |
-| 0.9   |              | 0.9         | 0.9          |
-| 0.8   |              | 0.8         | 0.8          |
-
-Note: `cosmwasm_std v1.0` means it supports contracts compiled by any `v1.0.0-betaX` or `1.0.x`.
-It will also run contracts compiled with 1.x assuming they don't opt into any newer features.
-The 1.x cosmwasm_vm will support all contracts with 1.0 <= version <= 1.x. 
-
-Note that `cosmwasm-std` version defines which contracts are compatible with this system. The wasm code uploaded must
-have been compiled with one of the supported `cosmwasm-std` versions, or will be rejected upon upload (with some error
-message about "contract too old?" or "contract too new?"). `cosmwasm-vm` version defines the runtime used. It is a
-breaking change to switch runtimes (you will need to organize a chain upgrade). As of `cosmwasm-vm 0.13` we are
-using [wasmer](https://github.com/wasmerio/wasmer/) 1.0, which is significantly more performant than the older versions.
-
-## Supported Systems
-
-The supported systems are limited by the dlls created in [`wasmvm`](https://github.com/CosmWasm/wasmvm). In particular, **we only support MacOS and Linux**.
-However, **M1 macs are not fully supported.** (Experimental support was merged with wasmd 0.24)
-For linux, the default is to build for glibc, and we cross-compile with CentOS 7 to provide
-backwards compatibility for `glibc 2.12+`. This includes all known supported distributions
-using glibc (CentOS 7 uses 2.12, obsolete Debian Jessy uses 2.19). 
-
-As of `0.9.0` we support `muslc` Linux systems, in particular **Alpine linux**,
-which is popular in docker distributions. Note that we do **not** store the
-static `muslc` build in the repo, so you must compile this yourself, and pass `-tags muslc`.
-Please look at the [`Dockerfile`](./Dockerfile) for an example of how we build a static Go
-binary for `muslc`. (Or just use this Dockerfile for your production setup).
+Execute the following commands to light-up a node for **iov-mainnet-ibc**.  Be sure to change the custom environment variable `USER_IOV`, the user that will run the node.  `USER_IOV` must exist before you can proceed.
 
 
-## Stability
+## Sync'ing Using `statesync`
 
-**This is beta software** It is run in some production systems, but we cannot yet provide a stability guarantee
-and have not yet gone through and audit of this codebase. Note that the
-[CosmWasm smart contract framework](https://github.com/CosmWasm/cosmwasm) used by `wasmd` is in a 1.0 release candidate
-as of March 2022, with stability guarantee and addressing audit results.
+TDB
 
-As of `wasmd` 0.22, we will work to provide upgrade paths *for this module* for projects running a non-forked
-version on their live networks. If there are Cosmos SDK upgrades, you will have to run their migration code
-for their modules. If we change the internal storage of `x/wasm` we will provide a function to migrate state that
-can be called by an `x/upgrade` handler.
 
-The APIs are pretty stable, but we cannot guarantee their stability until we reach v1.0.
-However, we will provide a way for you to hard-fork your way to v1.0.
+## Sync'ing From Block 1
 
-Thank you to all projects who have run this code in your mainnets and testnets and
-given feedback to improve stability.
+The chain has been upgraded twice since its inception, which means that three different binaries are needed to sync the chain from block 1.  Sync'ing from block 1 is broken into three phases and will take days.
 
-## Encoding
-The used cosmos-sdk version is in transition migrating from amino encoding to protobuf for state. So are we now.
-
-We use standard cosmos-sdk encoding (amino) for all sdk Messages. However, the message body sent to all contracts, 
-as well as the internal state is encoded using JSON. Cosmwasm allows arbitrary bytes with the contract itself 
-responsible for decoding. For better UX, we often use `json.RawMessage` to contain these bytes, which enforces that it is
-valid json, but also give a much more readable interface.  If you want to use another encoding in the contracts, that is
-a relatively minor change to wasmd but would currently require a fork. Please open an issue if this is important for 
-your use case.
-
-## Quick Start
-
-```
-make install
-make test
-```
-if you are using a linux without X or headless linux, look at [this article](https://ahelpme.com/linux/dbusexception-could-not-get-owner-of-name-org-freedesktop-secrets-no-such-name) or [#31](https://github.com/CosmWasm/wasmd/issues/31#issuecomment-577058321).
-
-## Protobuf
-The protobuf files for this project are published automatically to the [buf repository](https://buf.build/) to make integration easier:
-
-| wasmd version | buf tag                                                                                                                                     |
-|---------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.26.x        | [51931206dbe09529c1819a8a2863d291035a2549](https://buf.build/cosmwasm/wasmd/tree/51931206dbe09529c1819a8a2863d291035a2549:cosmwasm/wasm/v1) | 
-
-Generate protobuf
-```shell script
-make proto-gen
-```
-The generators are executed within a Docker [container](./contrib/prototools-docker), now.
-
-## Dockerized
-
-We provide a docker image to help with test setups. There are two modes to use it
-
-Build: `docker build -t cosmwasm/wasmd:latest .`  or pull from dockerhub
-
-### Dev server
-
-Bring up a local node with a test account containing tokens
-
-This is just designed for local testing/CI - do not use these scripts in production.
-Very likely you will assign tokens to accounts whose mnemonics are public on github.
+### Phase 1 Of 3
 
 ```sh
-docker volume rm -f wasmd_data
+sudo su -c bash # make life easier for the next ~100 lines
 
-# pass password (one time) as env variable for setup, so we don't need to keep typing it
-# add some addresses that you have private keys for (locally) to give them genesis funds
-docker run --rm -it \
-    -e PASSWORD=xxxxxxxxx \
-    --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest /opt/setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
+for i in basename chgrp chmod curl grep journalctl jq sed sha256sum systemctl wget ; do [[ $(command -v $i) ]] || { echo "❌ $i is not in PATH; PATH == $PATH; cannot proceed" ; exit -1 ; } ; echo "✅ $i" ; done # check for necessary apps
 
-# This will start both wasmd and rest-server, both are logged
-docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
-    --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest /opt/run_wasmd.sh
+cd /etc/systemd/system
+
+# custom variables - use values appropriate for your setup
+export USER_IOV=iov # "iov" is not recommended
+
+# assert that USER_IOV exists
+id ${USER_IOV} && echo '✅ All good!' || echo "❌ ${USER_IOV} does not exist."
+
+# constants
+export CHAIN_ID=iov-mainnet-ibc # IBC enabled Starname (IOV) chain id
+export DIR_STARNAMED=/opt/iovns/bin # directory for starnamed related artifacts
+
+# create an environment file for the Starname Asset Name Service
+cat <<__EOF_STARNAMED_ENV__ > starnamed.env
+# operator variables
+CHAIN_ID=${CHAIN_ID}
+MONIKER=$(hostname)
+SIGNER=${SIGNER}
+USER_IOV=${USER_IOV}
+
+# directories (without spaces to ease pain)
+DIR_STARNAMED=${DIR_STARNAMED}
+DIR_WORK=/home/${USER_IOV}/${CHAIN_ID}
+
+# paths for starnamed and it's required libwasmvm.so
+PATH=${PATH}:${DIR_STARNAMED}
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DIR_STARNAMED}
+
+# artifacts
+STARNAMED=https://github.com/iov-one/starnamed/releases/download/v0.10.12/starnamed-0.10.12-linux-amd64.tar.gz
+__EOF_STARNAMED_ENV__
+
+chgrp ${USER_IOV} starnamed.env
+chmod g+r starnamed.env
+
+set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport # pick-up env vars
+
+# create starnamed.service
+cat <<__EOF_STARNAMED_SERVICE__ > starnamed.service
+[Unit]
+Description=Starname Asset Name Service
+After=network-online.target
+
+[Service]
+Type=simple
+User=$(id ${USER_IOV} -u -n)
+Group=$(id ${USER_IOV} -g -n)
+EnvironmentFile=/etc/systemd/system/starnamed.env
+ExecStart=${DIR_STARNAMED}/starnamed.sh
+LimitNOFILE=4096
+#Restart=on-failure
+#RestartSec=3
+StandardError=journal
+StandardOutput=journal
+SyslogIdentifier=starnamed
+
+[Install]
+WantedBy=multi-user.target
+__EOF_STARNAMED_SERVICE__
+
+systemctl daemon-reload
+
+# download gitian built binary; starnamed is the Starname Asset Name Service daemon
+mkdir -p ${DIR_STARNAMED} && cd ${DIR_STARNAMED}
+wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep 505aaddb5a8390576a6f0315627387a64a5682133ddc07b612fd2e05f1280bad && tar xvf $(basename ${STARNAMED}) && echo '✅ All good!' || echo '❌ BAD BINARY!'
+
+# create starnamed.sh, a wrapper for starnamed
+cat <<__EOF_STARNAMED_SH__ > starnamed.sh
+#!/bin/bash
+
+exec starnamed start \\
+  --home=${DIR_WORK} \\
+  --minimum-gas-prices='1.0uiov' \\
+  --moniker='${MONIKER}' \\
+  --p2p.laddr='tcp://0.0.0.0:16656' \\
+  --p2p.persistent_peers='ca133187b37b59d2454812cfcf31b6211395adec@167.99.194.126:16656, 1c7e014b65f7a3ea2cf48bffce78f5cbcad2a0b7@13.37.85.253:26656, 8c64a2127cc07d4570756b61f83af60d34258398@13.37.61.32:26656, 9aabe0ac122f3104d8fc098e19c66714c6f1ace9@3.37.140.5:26656, faedef1969911d24bf72c56fc01326eb891fa3b7@63.250.53.45:16656, 94ac1c02b4e2ca3fb2706c91a68b8030ed3615a1@35.247.175.128:16656, be2235996b1c785a9f57eed25fd673ca111f0bae@52.52.89.64:26656, f63d15ab7ed55dc75f332d0b0d2b01d529d5cbcd@212.71.247.11:26656, f5597a7ed33bc99eb6ba7253eb8ac76af27b4c6d@138.201.20.147:26656' \\
+  --rpc.laddr='tcp://127.0.0.1:16657' \\
+  --rpc.unsafe=true \\
+
+__EOF_STARNAMED_SH__
+
+chgrp ${USER_IOV} starnamed.sh
+chmod a+x starnamed.sh
+
+# initialize the Starname Asset Name Service
+su - ${USER_IOV}
+set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport # pick-up env vars
+
+rm -rf ${DIR_WORK} && mkdir -p ${DIR_WORK} && cd ${DIR_WORK}
+
+# initialize starnamed
+starnamed init ${MONIKER} --chain-id ${CHAIN_ID} --home ${DIR_WORK} 2>&1 | jq -r .chain_id
+
+# customize ${DIR_WORK}/{app.toml,config.toml} if you want
+
+# get the genesis file
+curl --fail https://gist.githubusercontent.com/davepuchyr/6bea7bf369064d118195e9b15ea08a0f/raw/genesis.json > config/genesis.json
+sha256sum config/genesis.json | grep e20eb984b3a85eb3d2c76b94d1a30c4b3cfa47397d5da2ec60dca8bef6d40b17 && echo '✅ All good!' || echo "❌ BAD GENESIS FILE!"
+
+exit # ${USER_IOV}
+
+systemctl enable starnamed.service
+journalctl -f -u starnamed.service & systemctl start starnamed.service # watch the chain sync until it intentionlly panics after block 4597999
+
+exit # root
 ```
 
-### CI
+### Phase 2 Of 3
 
-For CI, we want to generate a template one time and save to disk/repo. Then we can start a chain copying the initial state, but not modifying it. This lets us get the same, fresh start every time.
+[Proposal 9](https://big-dipper.iov-mainnet-ibc.iov.one/proposals/9), a software upgrade, forced `starnamed` to intentionally panic after block 4,597,999.  The `starnamed` binary needs to be upgraded in order to continue sync'ing `iov-mainnet-ibc`.
 
 ```sh
-# Init chain and pass addresses so they are non-empty accounts
-rm -rf ./template && mkdir ./template
-docker run --rm -it \
-    -e PASSWORD=xxxxxxxxx \
-    --mount type=bind,source=$(pwd)/template,target=/root \
-    cosmwasm/wasmd:latest /opt/setup_wasmd.sh cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6
+# make life easier for the next ~20 lines
+sudo su -c bash
 
-sudo chown -R $(id -u):$(id -g) ./template
+# replace the old starnamed artifact with the new one in starnamed.env
+sed --in-place 's/0.10.12/0.10.13/g' /etc/systemd/system/starnamed.env
 
-# FIRST TIME
-# bind to non-/root and pass an argument to run.sh to copy the template into /root
-# we need wasmd_data volume mount not just for restart, but also to view logs
-docker volume rm -f wasmd_data
-docker run --rm -it -p 26657:26657 -p 26656:26656 -p 9090:9090 \
-    --mount type=bind,source=$(pwd)/template,target=/template \
-    --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest /opt/run_wasmd.sh /template
+# pick-up env vars
+set -o allexport ; source /etc/systemd/system/starnamed.env ; set +o allexport
 
-# RESTART CHAIN with existing state
-docker run --rm -it -p 26657:26657 -p 26656:26656 -p 1317:1317 \
-    --mount type=volume,source=wasmd_data,target=/root \
-    cosmwasm/wasmd:latest /opt/run_wasmd.sh
+# cd to where all the action is going to happen
+cd ${DIR_STARNAMED}
+
+# move the old binaries out of the way of the new ones
+mv -v starnamed starnamed-v0.10.12
+mv -v libwasmvm.so libwasmvm.so-v0.10.12
+
+# get the new starnamed binary
+wget -c ${STARNAMED} && sha256sum $(basename ${STARNAMED}) | grep a3555955a1d001449d7e05793852ea23064905614bab0bb8cefc250758ea81bf && tar xvf $(basename ${STARNAMED}) && echo '✅ All good!' || echo '❌ BAD BINARY!'
+
+journalctl -f -u starnamed.service & systemctl restart starnamed.service # watch the chain sync  until it intentionlly panics after block xxxxxxx
+
+
+### Phase 3 Of 3
+
+[Proposal x](https://big-dipper.iov-mainnet-ibc.iov.one/proposals/x), a software upgrade, forced `starnamed` to intentionally panic after block x,xxx,xxx.  The `starnamed` binary needs to be upgraded in order to continue sync'ing `iov-mainnet-ibc`.
+
+exit # sudo su
 ```
-
-## Runtime flags
-
-We provide a number of variables in `app/app.go` that are intended to be set via `-ldflags -X ...`
-compile-time flags. This enables us to avoid copying a new binary directory over for each small change
-to the configuration. 
-
-Available flags:
- 
-* `-X github.com/CosmWasm/wasmd/app.NodeDir=.corald` - set the config/data directory for the node (default `~/.wasmd`)
-* `-X github.com/CosmWasm/wasmd/app.Bech32Prefix=coral` - set the bech32 prefix for all accounts (default `wasm`)
-* `-X github.com/CosmWasm/wasmd/app.ProposalsEnabled=true` - enable all x/wasm governance proposals (default `false`)
-* `-X github.com/CosmWasm/wasmd/app.EnableSpecificProposals=MigrateContract,UpdateAdmin,ClearAdmin` - 
-    enable a subset of the x/wasm governance proposal types (overrides `ProposalsEnabled`)
-
-Examples:
-
-* [`wasmd`](./Makefile#L50-L55) is a generic, permissionless version using the `cosmos` bech32 prefix
-
-## Compile Time Parameters
-
-Besides those above variables (meant for custom wasmd compilation), there are a few more variables which
-we allow blockchains to customize, but at compile time. If you build your own chain and import `x/wasm`,
-you can adjust a few items via module parameters, but a few others did not fit in that, as they need to be
-used by stateless `ValidateBasic()`. Thus, we made them public `var` and these can be overridden in the `app.go`
-file of your custom chain.
-
-* `wasmtypes.MaxLabelSize = 64` to set the maximum label size on instantiation (default 128)
-* `wasmtypes.MaxWasmSize=777000` to set the max size of compiled wasm to be accepted (default 819200)
-
-## Genesis Configuration
-We strongly suggest **to limit the max block gas in the genesis** and not use the default value (`-1` for infinite).
-```json
-  "consensus_params": {
-    "block": {
-      "max_gas": "SET_YOUR_MAX_VALUE",  
-```
-
-Tip: if you want to lock this down to a permisisoned network, the following script can edit the genesis file
-to only allow permissioned use of code upload or instantiating. (Make sure you set `app.ProposalsEnabled=true`
-in this binary):
-
-`sed -i 's/permission": "Everybody"/permission": "Nobody"/'  .../config/genesis.json`
 
 ## Contributors
 
-Much thanks to all who have contributed to this project, from this app, to the `cosmwasm` framework, to example contracts and documentation.
-Or even testing the app and bringing up critical issues. The following have helped bring this project to life:
+Thanks to the current and former employees of IOV SAS and all the open-source developers in the Cosmos community!
 
+* Adrien Duval [LeCodeurDuDimanche](https://github.com/LeCodeurDuDimanche)
+* Jacob Gadikian [faddat](https://github.com/faddat)
+* Frojdi Dymylja [fdymylja](https://github.com/fdymylja)
+* Orkun Külçe [orkunkl](https://github.com/orkunkl)
 * Ethan Frey [ethanfrey](https://github.com/ethanfrey)
 * Simon Warta [webmaster128](https://github.com/webmaster128)
 * Alex Peters [alpe](https://github.com/alpe)
@@ -246,5 +185,3 @@ Or even testing the app and bringing up critical issues. The following have help
 * KamiD [KamiD](https://github.com/KamiD)
 * Valery Litvin [litvintech](https://github.com/litvintech)
 * Leonardo Bragagnolo [bragaz](https://github.com/bragaz)
-
-Sorry if I forgot you from this list, just contact me or add yourself in a PR :)

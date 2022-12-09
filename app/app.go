@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -74,14 +75,6 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icacontroller "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller"
-	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
-	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
-	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -95,9 +88,7 @@ import (
 
 	// Note: please do your research before using this in production app, this is a demo and not an officially
 	// supported IBC team implementation. It has no known issues, but do your own research before using it.
-	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
-	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
-	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -109,20 +100,36 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	wasmappparams "github.com/CosmWasm/wasmd/app/params"
-	"github.com/CosmWasm/wasmd/x/wasm"
+
+	"github.com/CosmWasm/wasmd/x/burner"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
+
+	// starname imports
+	"github.com/CosmWasm/wasmd/x/wasm"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	burnertypes "github.com/iov-one/starnamed/x/burner/types"
+	"github.com/iov-one/starnamed/x/configuration"
+	"github.com/iov-one/starnamed/x/escrow"
+	escrowkeeper "github.com/iov-one/starnamed/x/escrow/keeper"
+	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+	"github.com/iov-one/starnamed/x/offchain"
+	"github.com/iov-one/starnamed/x/starname"
+
+	starnametypes "github.com/iov-one/starnamed/x/starname/types"
+
+	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 )
 
-const appName = "WasmApp"
+const appName = "StarnameApp"
 
 // We pull these out so we can set them with LDFLAGS in the Makefile
 var (
-	NodeDir      = ".wasmd"
-	Bech32Prefix = "wasm"
+	NodeDir      = ".starnamed"
+	Bech32Prefix = "star"
 
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
@@ -205,8 +212,14 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		wasm.AppModuleBasic{},
-		ica.AppModuleBasic{},
-		intertx.AppModuleBasic{},
+		// ica.AppModuleBasic{},	// starname: #dont remove - removing the ICA module and keepers
+		// intertx.AppModuleBasic{},	// starname: #dont remove - removing the ICA module and keepers
+
+		// Starname: # dont remove - BasicModule
+		configuration.AppModuleBasic{},
+		starname.AppModuleBasic{},
+		escrow.AppModuleBasic{},
+		offchain.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -218,8 +231,16 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		icatypes.ModuleName:            nil,
-		wasm.ModuleName:                {authtypes.Burner},
+		// icatypes.ModuleName:            nil,	// starname: #dont remove - removing the ICA module and keepers
+		wasm.ModuleName: {authtypes.Burner},
+
+		// Starname: # dont remove - maccPerms
+		escrowtypes.ModuleName: nil,
+		burnertypes.ModuleName: {authtypes.Burner},
+	}
+
+	allowedReceivingModules = map[string]bool{
+		burnertypes.ModuleName: true,
 	}
 )
 
@@ -243,33 +264,33 @@ type WasmApp struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	AccountKeeper       authkeeper.AccountKeeper
-	BankKeeper          bankkeeper.Keeper
-	CapabilityKeeper    *capabilitykeeper.Keeper
-	StakingKeeper       stakingkeeper.Keeper
-	SlashingKeeper      slashingkeeper.Keeper
-	MintKeeper          mintkeeper.Keeper
-	DistrKeeper         distrkeeper.Keeper
-	GovKeeper           govkeeper.Keeper
-	CrisisKeeper        crisiskeeper.Keeper
-	UpgradeKeeper       upgradekeeper.Keeper
-	ParamsKeeper        paramskeeper.Keeper
-	EvidenceKeeper      evidencekeeper.Keeper
-	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	ICAControllerKeeper icacontrollerkeeper.Keeper
-	ICAHostKeeper       icahostkeeper.Keeper
-	InterTxKeeper       intertxkeeper.Keeper
-	TransferKeeper      ibctransferkeeper.Keeper
-	FeeGrantKeeper      feegrantkeeper.Keeper
-	AuthzKeeper         authzkeeper.Keeper
-	WasmKeeper          wasm.Keeper
+	AccountKeeper    authkeeper.AccountKeeper
+	BankKeeper       bankkeeper.Keeper
+	CapabilityKeeper *capabilitykeeper.Keeper
+	StakingKeeper    stakingkeeper.Keeper
+	SlashingKeeper   slashingkeeper.Keeper
+	MintKeeper       mintkeeper.Keeper
+	DistrKeeper      distrkeeper.Keeper
+	GovKeeper        govkeeper.Keeper
+	CrisisKeeper     crisiskeeper.Keeper
+	UpgradeKeeper    upgradekeeper.Keeper
+	ParamsKeeper     paramskeeper.Keeper
+	EvidenceKeeper   evidencekeeper.Keeper
+	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	// ICAControllerKeeper icacontrollerkeeper.Keeper  // starname: #dont remove - removing the ICA module and keepers
+	// ICAHostKeeper       icahostkeeper.Keeper	// starname: #dont remove - removing the ICA module and keepers
+	// InterTxKeeper  intertxkeeper.Keeper	// starname: #dont remove - removing the ICA module and keepers
+	TransferKeeper ibctransferkeeper.Keeper
+	FeeGrantKeeper feegrantkeeper.Keeper
+	AuthzKeeper    authzkeeper.Keeper
+	WasmKeeper     wasm.Keeper
 
-	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
-	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
-	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
-	ScopedInterTxKeeper       capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
-	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper capabilitykeeper.ScopedKeeper
+	// ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper	// starname: #dont remove - removing the ICA module and keepers
+	// ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper	// starname: #dont remove - removing the ICA module and keepers
+	// ScopedInterTxKeeper  capabilitykeeper.ScopedKeeper	// starname: #dont remove - removing the ICA module and keepers
+	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -279,6 +300,12 @@ type WasmApp struct {
 
 	// module configurator
 	configurator module.Configurator
+
+	// Starname: # dont remove - WasmApp
+	configKeeper   configuration.Keeper
+	starnameKeeper starname.Keeper
+	escrowKeeper   escrowkeeper.Keeper
+	cms            storetypes.CommitMultiStore // Commit multistore for history
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -308,10 +335,20 @@ func NewWasmApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey, wasm.StoreKey, icahosttypes.StoreKey, icacontrollertypes.StoreKey, intertxtypes.StoreKey,
+		feegrant.StoreKey, authzkeeper.StoreKey, wasm.StoreKey,
+		// icahosttypes.StoreKey, icacontrollertypes.StoreKey, intertxtypes.StoreKey, // starname: #dont remove - removing the ICA module and keepers
+
+		// starname: #dont remove- newWasmApp.keys
+		configuration.StoreKey, starname.DomainStoreKey, escrowtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+
+	// starname: #dont remove - newWasmApp.cms
+	//TODO: find a cleaner way to access store history
+	//This is used for yield calculation
+	cms := store.NewCommitMultiStore(db)
+	bApp.SetCMS(cms)
 
 	app := &WasmApp{
 		BaseApp:           bApp,
@@ -322,6 +359,9 @@ func NewWasmApp(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+
+		// starname: #dont remove - newWasmApp.app.cms
+		cms: cms,
 	}
 
 	app.ParamsKeeper = initParamsKeeper(
@@ -341,9 +381,9 @@ func NewWasmApp(
 		memKeys[capabilitytypes.MemStoreKey],
 	)
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
-	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
-	scopedInterTxKeeper := app.CapabilityKeeper.ScopeToModule(intertxtypes.ModuleName)
+	// scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)	// starname: #dont remove - removing the ICA module and keepers
+	// scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)	// starname: #dont remove - removing the ICA module and keepers
+	// scopedInterTxKeeper := app.CapabilityKeeper.ScopeToModule(intertxtypes.ModuleName) // starname: #dont remove - removing the ICA module and keepers
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 	app.CapabilityKeeper.Seal()
@@ -419,6 +459,40 @@ func NewWasmApp(
 		app.BaseApp,
 	)
 
+	// starname: #dont remove - newWasmApp.RegisterUpgradeHandlers
+	app.RegisterUpgradeHandlers()
+
+	// starname: #dont remove - newWasmApp keepers
+	// configuration keeper
+	app.configKeeper = configuration.NewKeeper(
+		appCodec,
+		keys[configuration.StoreKey],
+		app.getSubspace(configuration.ModuleName),
+	)
+
+	// Create the escrow keeper
+	app.escrowKeeper = escrowkeeper.NewKeeper(appCodec,
+		keys[escrowtypes.StoreKey],
+		app.getSubspace(escrowtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.configKeeper,
+		app.ModuleAccountAddrs(),
+	)
+	// starname keeper
+	app.starnameKeeper = starname.NewKeeper(
+		appCodec,
+		keys[starname.DomainStoreKey],
+		app.configKeeper,
+		app.BankKeeper,
+		app.escrowKeeper,
+		app.AccountKeeper,
+		app.DistrKeeper,
+		app.StakingKeeper,
+		app.getSubspace(starname.ModuleName),
+		cms,
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper = *stakingKeeper.SetHooks(
@@ -458,37 +532,38 @@ func NewWasmApp(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
-	app.ICAHostKeeper = icahostkeeper.NewKeeper(
-		appCodec,
-		keys[icahosttypes.StoreKey],
-		app.getSubspace(icahosttypes.SubModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
-		scopedICAHostKeeper,
-		app.MsgServiceRouter(),
-	)
-	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
-		appCodec,
-		keys[icacontrollertypes.StoreKey],
-		app.getSubspace(icacontrollertypes.SubModuleName),
-		app.IBCKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		scopedICAControllerKeeper,
-		app.MsgServiceRouter(),
-	)
-	icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
-	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
+	// starname: #dont remove - removing the ICA module and keepers
+	// app.ICAHostKeeper = icahostkeeper.NewKeeper(
+	// 	appCodec,
+	// 	keys[icahosttypes.StoreKey],
+	// 	app.getSubspace(icahosttypes.SubModuleName),
+	// 	app.IBCKeeper.ChannelKeeper,
+	// 	&app.IBCKeeper.PortKeeper,
+	// 	app.AccountKeeper,
+	// 	scopedICAHostKeeper,
+	// 	app.MsgServiceRouter(),
+	// )
+	// app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
+	// 	appCodec,
+	// 	keys[icacontrollertypes.StoreKey],
+	// 	app.getSubspace(icacontrollertypes.SubModuleName),
+	// 	app.IBCKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
+	// 	app.IBCKeeper.ChannelKeeper,
+	// 	&app.IBCKeeper.PortKeeper,
+	// 	scopedICAControllerKeeper,
+	// 	app.MsgServiceRouter(),
+	// )
+	// icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
+	// icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
 	// For wasmd we use the demo controller from https://github.com/cosmos/interchain-accounts but see notes below
-	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper)
+	// app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper)
 	// Note: please do your research before using this in production app, this is a demo and not an officially
 	// supported IBC team implementation. Do your own research before using it.
-	interTxModule := intertx.NewAppModule(appCodec, app.InterTxKeeper)
-	interTxIBCModule := intertx.NewIBCModule(app.InterTxKeeper)
+	// interTxModule := intertx.NewAppModule(appCodec, app.InterTxKeeper)
+	// interTxIBCModule := intertx.NewIBCModule(app.InterTxKeeper)
 	// You will likely want to swap out the second argument with your own reviewed and maintained ica auth module
-	icaControllerIBCModule := icacontroller.NewIBCModule(app.ICAControllerKeeper, interTxIBCModule)
+	// icaControllerIBCModule := icacontroller.NewIBCModule(app.ICAControllerKeeper, interTxIBCModule)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -537,10 +612,10 @@ func NewWasmApp(
 	}
 	ibcRouter.
 		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper)).
-		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
-		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
-		AddRoute(intertxtypes.ModuleName, icaControllerIBCModule)
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+		// .AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule). // starname: #dont remove - removing the ICA module and keepers
+		// AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
+		// AddRoute(intertxtypes.ModuleName, icaControllerIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	app.GovKeeper = govkeeper.NewKeeper(
@@ -584,9 +659,15 @@ func NewWasmApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		icaModule,
-		interTxModule,
+		// icaModule,	// starname: #dont remove - removing the ICA module and keepers
+		// interTxModule,	// starname: #dont remove - removing the ICA module and keepers
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants), // always be last to make sure that it checks for all invariants and not only part of them
+
+		// starname: #dont remove - app.mm
+		configuration.NewAppModule(app.configKeeper),
+		starname.NewAppModule(app.starnameKeeper),
+		escrow.NewAppModule(appCodec, app.escrowKeeper),
+		burner.NewAppModule(app.BankKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -613,9 +694,15 @@ func NewWasmApp(
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		icatypes.ModuleName,
-		intertxtypes.ModuleName,
+		// icatypes.ModuleName,		// starname: #dont remove - removing the ICA module and keepers
+		// intertxtypes.ModuleName,	// starname: #dont remove - removing the ICA module and keepers
 		wasm.ModuleName,
+
+		// starname: #dont remove - app.mm.SetOrderBeginBlockers
+		starnametypes.ModuleName,
+		escrowtypes.ModuleName,
+		burnertypes.ModuleName,
+		configurationtypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -638,9 +725,15 @@ func NewWasmApp(
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		icatypes.ModuleName,
-		intertxtypes.ModuleName,
+		// icatypes.ModuleName,		// starname: #dont remove - removing the ICA module and keepers
+		// intertxtypes.ModuleName,	// starname: #dont remove - removing the ICA module and keepers
 		wasm.ModuleName,
+
+		// starname: #dont remove - app.mm.SetOrderEndBlockers
+		escrowtypes.ModuleName,
+		starnametypes.ModuleName,
+		burnertypes.ModuleName,
+		configurationtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -670,10 +763,16 @@ func NewWasmApp(
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		icatypes.ModuleName,
-		intertxtypes.ModuleName,
+		// icatypes.ModuleName,		// starname: #dont remove - removing the ICA module and keepers
+		// intertxtypes.ModuleName,	// starname: #dont remove - removing the ICA module and keepers
 		// wasm after ibc transfer
 		wasm.ModuleName,
+
+		// starname: #dont remove - app.mm.SetOrderInitGenesis
+		configuration.ModuleName,
+		starname.ModuleName,
+		escrowtypes.ModuleName,
+		burnertypes.ModuleName,
 	)
 
 	// Uncomment if you want to set a custom migration order here.
@@ -751,9 +850,9 @@ func NewWasmApp(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedWasmKeeper = scopedWasmKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
-	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
-	app.ScopedInterTxKeeper = scopedInterTxKeeper
+	// app.ScopedICAHostKeeper = scopedICAHostKeeper				// starname: #dont remove - removing the ICA module and keepers
+	// app.ScopedICAControllerKeeper = scopedICAControllerKeeper	// starname: #dont remove - removing the ICA module and keepers
+	// app.ScopedInterTxKeeper = scopedInterTxKeeper				// starname: #dont remove - removing the ICA module and keepers
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -814,7 +913,8 @@ func (app *WasmApp) LoadHeight(height int64) error {
 func (app *WasmApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+		moduleCanReceive, modulePresentInArray := allowedReceivingModules[acc]
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = !(modulePresentInArray && moduleCanReceive)
 	}
 
 	return modAccAddrs
@@ -911,9 +1011,14 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
-	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
+	// paramsKeeper.Subspace(icahosttypes.SubModuleName)		// starname: #dont remove - removing the ICA module and keepers
+	// paramsKeeper.Subspace(icacontrollertypes.SubModuleName)	// starname: #dont remove - removing the ICA module and keepers
 	paramsKeeper.Subspace(wasm.ModuleName)
+
+	// Starname: # dont remove - initParamsKeeper
+	paramsKeeper.Subspace(configuration.ModuleName)
+	paramsKeeper.Subspace(starname.ModuleName)
+	paramsKeeper.Subspace(escrowtypes.ModuleName)
 
 	return paramsKeeper
 }

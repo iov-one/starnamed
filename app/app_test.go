@@ -47,9 +47,18 @@ func TestBlockedAddrs(t *testing.T) {
 
 	for acc := range maccPerms {
 		t.Run(acc, func(t *testing.T) {
-			require.True(t, gapp.BankKeeper.BlockedAddr(gapp.AccountKeeper.GetModuleAddress(acc)),
-				"ensure that blocked addresses are properly set in bank keeper",
-			)
+
+			// starname: #Dont remove -> Fis the test to allow the burner module to be able to recive tokens
+			if moduleCanReceive, modulePresentInArray := allowedReceivingModules[acc]; modulePresentInArray && moduleCanReceive {
+				require.False(t, gapp.BankKeeper.BlockedAddr(gapp.AccountKeeper.GetModuleAddress(acc)),
+					"ensure that blocked addresses are properly set in bank keeper",
+				)
+			} else {
+				require.True(t, gapp.BankKeeper.BlockedAddr(gapp.AccountKeeper.GetModuleAddress(acc)),
+					"ensure that blocked addresses are properly set in bank keeper",
+				)
+			}
+
 		})
 	}
 }
