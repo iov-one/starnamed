@@ -132,7 +132,7 @@ require (
 replace (
 	github.com/CosmWasm/wasmd => ./
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
-	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
+	github.com/cosmos/cosmos-sdk => github.com/iov-one/cosmos-sdk v0.45.9-starnamefix
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
 	// latest grpc doesn't work with with our modified proto compiler, so we need to enforce
