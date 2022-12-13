@@ -1,7 +1,7 @@
 name: starname
 server_name: starnamed
-version: 0.11.6-rc-1-g3ecf7ec3
-commit: 3ecf7ec32cdeea210405c75ca710ae009ca52043
+version: 0.11.6-fix1
+commit: c0d51f696031e49b27ebea4d433aa8cc39f4c983
 build_tags: netgo,muslc
 go: go version go1.18.8 linux/amd64
 build_deps:
@@ -20,7 +20,7 @@ build_deps:
 - github.com/confio/ics23/go@v0.7.0 => github.com/cosmos/cosmos-sdk/ics23/go@v0.8.0
 - github.com/cosmos/btcutil@v1.0.4
 - github.com/cosmos/cosmos-proto@v1.0.0-alpha7
-- github.com/cosmos/cosmos-sdk@v0.45.9
+- github.com/cosmos/cosmos-sdk@v0.45.9 => github.com/iov-one/cosmos-sdk@v0.45.9-starnamefix
 - github.com/cosmos/go-bip39@v1.0.0
 - github.com/cosmos/gogoproto@v1.4.2
 - github.com/cosmos/iavl@v0.19.3

@@ -1,5 +1,5 @@
 {
     "binaries": {
-        "linux/amd64": "https://github.com/iov-one/starnamed/releases/download/v0.11.6/starnamed-v0.11.6.linux.amd64?checksum=sha256:6330370edb08505bd0b9ae7781cea907c1456242869bd4de34e938e8c1de19a6"
+        "linux/amd64": "https://github.com/iov-one/starnamed/releases/download/v0.11.6/starnamed-v0.11.6.linux.amd64?checksum=sha256:0bbe1902ab9b34875ef97ad91189f8eeb1f54018ea1cc718d240b61795e31673"
     }
 }
