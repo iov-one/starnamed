@@ -239,6 +239,11 @@ func (ac appCreator) newApp(
 
 	logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d || ", app_base.Version(), app_base.AppVersion()))
 
+	if app_base.Version() == "" {
+		app_base.SetVersion("v0.11")
+		logger.Error(fmt.Sprintf("[NEW] app_base.Version() = %s || app_base.AppVersion() = %d || ", app_base.Version(), app_base.AppVersion()))
+	}
+
 	return app_base
 }
 
