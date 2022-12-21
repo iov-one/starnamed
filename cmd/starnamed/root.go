@@ -235,13 +235,14 @@ func (ac appCreator) newApp(
 		baseapp.SetSnapshotStore(snapshotStore),
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
+		func(ba *baseapp.BaseApp) { ba.SetVersion("v0.11") },
 	)
 
-	logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d || ", app_base.Version(), app_base.AppVersion()))
+	logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d", app_base.Version(), app_base.AppVersion()))
 
 	if app_base.Version() == "" {
 		app_base.SetVersion("v0.11")
-		logger.Error(fmt.Sprintf("[NEW] app_base.Version() = %s || app_base.AppVersion() = %d || ", app_base.Version(), app_base.AppVersion()))
+		logger.Error(fmt.Sprintf("[NEW] app_base.Version() = %s || app_base.AppVersion() = %d", app_base.Version(), app_base.AppVersion()))
 	}
 
 	return app_base
