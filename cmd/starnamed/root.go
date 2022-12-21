@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -216,7 +217,7 @@ func (ac appCreator) newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.NewWasmApp(logger, db, traceStore, true, skipUpgradeHeights,
+	app_base := app.NewWasmApp(logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,
@@ -235,6 +236,10 @@ func (ac appCreator) newApp(
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
+
+	logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d || ", app_base.Version(), app_base.AppVersion()))
+
+	return app_base
 }
 
 func (ac appCreator) appExport(
