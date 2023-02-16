@@ -12,7 +12,7 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/iov-one/starnamed/x/wasm"
 )
 
 var emptyWasmOpts []wasm.Option = nil

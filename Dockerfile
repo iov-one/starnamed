@@ -1,6 +1,6 @@
 # docker build . -t cosmwasm/starnamed:latest
 # docker run --rm -it cosmwasm/starnamed:latest /bin/sh
-FROM golang:1.18-alpine3.15 AS go-builder
+FROM golang:1.19.2-alpine AS go-builder
 ARG arch=x86_64
 
 # this comes from standard alpine nightly file

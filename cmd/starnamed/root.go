@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -32,11 +31,11 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmWasm/wasmd/app"
-	"github.com/CosmWasm/wasmd/app/params"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/iov-one/starnamed/app"
+	"github.com/iov-one/starnamed/app/params"
+	"github.com/iov-one/starnamed/x/wasm"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
+	wasmtypes "github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // NewRootCmd creates a new root command for wasmd. It is called once in the
@@ -235,15 +234,10 @@ func (ac appCreator) newApp(
 		baseapp.SetSnapshotStore(snapshotStore),
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
-		func(ba *baseapp.BaseApp) { ba.SetVersion("v0.11") },
+		// func(ba *baseapp.BaseApp) { ba.SetVersion("v0.11") },
 	)
 
-	logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d", app_base.Version(), app_base.AppVersion()))
-
-	if app_base.Version() == "" {
-		app_base.SetVersion("v0.11")
-		logger.Error(fmt.Sprintf("[NEW] app_base.Version() = %s || app_base.AppVersion() = %d", app_base.Version(), app_base.AppVersion()))
-	}
+	// logger.Error(fmt.Sprintf("app_base.Version() = %s || app_base.AppVersion() = %d", app_base.Version(), app_base.AppVersion()))
 
 	return app_base
 }

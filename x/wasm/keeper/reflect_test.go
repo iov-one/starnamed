@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/testdata"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/iov-one/starnamed/x/wasm/keeper/testdata"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 // ReflectInitMsg is {}

@@ -3,7 +3,7 @@
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
-LEDGER_ENABLED ?= true
+LEDGER_ENABLED ?= false
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 BINDIR ?= $(GOPATH)/bin
 SIMAPP = ./app
@@ -82,7 +82,7 @@ build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/starnamed ./cmd/starnamed
+	go build -mod=vendor $(BUILD_FLAGS) -o build/starnamed ./cmd/starnamed
 endif
 
 build-contract-tests-hooks:

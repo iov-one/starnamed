@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -99,18 +98,16 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	wasmappparams "github.com/CosmWasm/wasmd/app/params"
+	wasmappparams "github.com/iov-one/starnamed/app/params"
 
-	"github.com/CosmWasm/wasmd/x/burner"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	"github.com/iov-one/starnamed/x/burner"
+	wasmclient "github.com/iov-one/starnamed/x/wasm/client"
+	wasmkeeper "github.com/iov-one/starnamed/x/wasm/keeper"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
 
 	// starname imports
-	"github.com/CosmWasm/wasmd/x/wasm"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	burnertypes "github.com/iov-one/starnamed/x/burner/types"
 	"github.com/iov-one/starnamed/x/configuration"
 	"github.com/iov-one/starnamed/x/escrow"
@@ -118,6 +115,7 @@ import (
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
 	"github.com/iov-one/starnamed/x/offchain"
 	"github.com/iov-one/starnamed/x/starname"
+	"github.com/iov-one/starnamed/x/wasm"
 
 	starnametypes "github.com/iov-one/starnamed/x/starname/types"
 
@@ -136,7 +134,7 @@ var (
 	ProposalsEnabled = "false"
 	// If set to non-empty string it must be comma-separated list of values that are all a subset
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
-	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
+	// https://github.com/iov-one/starnamed/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 )
 
@@ -305,7 +303,7 @@ type WasmApp struct {
 	configKeeper   configuration.Keeper
 	starnameKeeper starname.Keeper
 	escrowKeeper   escrowkeeper.Keeper
-	cms            storetypes.CommitMultiStore // Commit multistore for history
+	// cms            storetypes.CommitMultiStore // Commit multistore for history
 }
 
 // NewWasmApp returns a reference to an initialized WasmApp.
@@ -347,8 +345,8 @@ func NewWasmApp(
 	// starname: #dont remove - newWasmApp.cms
 	//TODO: find a cleaner way to access store history
 	//This is used for yield calculation
-	cms := store.NewCommitMultiStore(db)
-	bApp.SetCMS(cms)
+	// cms := store.NewCommitMultiStore(db)
+	// bApp.SetCMS(cms)
 
 	app := &WasmApp{
 		BaseApp:           bApp,
@@ -361,7 +359,7 @@ func NewWasmApp(
 		memKeys:           memKeys,
 
 		// starname: #dont remove - newWasmApp.app.cms
-		cms: cms,
+		// cms: cms,
 	}
 
 	app.ParamsKeeper = initParamsKeeper(
@@ -490,7 +488,7 @@ func NewWasmApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 		app.getSubspace(starname.ModuleName),
-		cms,
+		// cms,
 	)
 
 	// register the staking hooks

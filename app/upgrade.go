@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -16,6 +15,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	authzKeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/iov-one/starnamed/x/wasm"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
