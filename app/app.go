@@ -347,6 +347,7 @@ func NewWasmApp(
 	//This is used for yield calculation
 	// cms := store.NewCommitMultiStore(db)
 	// bApp.SetCMS(cms)
+	// bApp.SetCMS(bApp.cms)
 
 	app := &WasmApp{
 		BaseApp:           bApp,
@@ -361,7 +362,6 @@ func NewWasmApp(
 		// starname: #dont remove - newWasmApp.app.cms
 		// cms: cms,
 	}
-
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
 		legacyAmino,
@@ -488,7 +488,7 @@ func NewWasmApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 		app.getSubspace(starname.ModuleName),
-		// cms,
+		app.CommitMultiStore(),
 	)
 
 	// register the staking hooks
