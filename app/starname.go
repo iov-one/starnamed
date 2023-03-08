@@ -20,3 +20,5 @@ var (
 	// FullFundraiserPath is the parts of the BIP44 HD path
 	FullFundraiserPath = fmt.Sprintf("m/44'/%d'/0'/0/0", CoinType)
 )
+
+
