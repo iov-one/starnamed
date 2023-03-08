@@ -121,7 +121,7 @@ import (
 
 	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 
-	_ "github.com/iov-one/starnamed/x/starname/client/docs/statik" // statik : swagger UI support
+	_ "github.com/iov-one/starnamed/client/docs/statik" // statik : swagger UI support
 )
 
 const appName = "starnamed"
