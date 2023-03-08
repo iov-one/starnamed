@@ -93,7 +93,7 @@ else
 endif
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/wasmd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/starnamed
 
 ########################################
 ### Tools & dependencies
@@ -193,3 +193,15 @@ proto-check-breaking:
 	go-mod-cache draw-deps clean build format \
 	test test-all test-build test-cover test-unit test-race \
 	test-sim-import-export \
+
+
+###############################################################################
+###                                Docker                                   ###
+###############################################################################
+
+build_tools:
+	@echo "Building tools"
+	@docker build -t cosmos-openapi-merge-cli -f scripts/docker/Dockerfile.openapi-merge .
+
+
+
