@@ -59,7 +59,11 @@ func (s *MsgServerTestSuite) TestAll() {
 		s.Assert().Equal(
 			expectedDelta[0].Amount.Int64(),                                     // Only one denom for the fee
 			oldBalance.Sub(newBalance).AmountOf(expectedDelta[0].Denom).Int64(), // Only one denom for the fee
+<<<<<<< HEAD
 			"Invalid fee payed for test "+tc.name+"/"+operation)
+=======
+			"Invalid fee paid for test "+tc.name+"/"+operation)
+>>>>>>> tags/v0.11.6
 
 	}
 
@@ -68,7 +72,11 @@ func (s *MsgServerTestSuite) TestAll() {
 		s.Assert().Equal(
 			int64(0),
 			oldBalance.Sub(newBalance).AmountOf(test.Denom).Int64(), // Only one denom for the fee
+<<<<<<< HEAD
 			"Invalid fee payed for test "+tc.name+"/"+operation)
+=======
+			"Invalid fee paid for test "+tc.name+"/"+operation)
+>>>>>>> tags/v0.11.6
 
 	}
 
@@ -187,7 +195,11 @@ func (s *MsgServerTestSuite) TestAll() {
 			checkNoFees(t, "update", oldFeePayerBalance)
 		}
 
+<<<<<<< HEAD
 		// check transfering
+=======
+		// check transferring
+>>>>>>> tags/v0.11.6
 		tCopy := t
 		tCopy.seller = s.buyer.String()
 		oldFeePayerBalance = getFeePayerBalance(tCopy)

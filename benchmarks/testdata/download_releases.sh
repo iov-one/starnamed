@@ -15,5 +15,12 @@ for contract in cw20_base cw1_whitelist; do
   wget -O "${contract}.wasm" "$url"
 done
 
+<<<<<<<< HEAD:benchmarks/testdata/download_releases.sh
+========
+# create the zip variant
+gzip -k hackatom.wasm
+mv hackatom.wasm.gz hackatom.wasm.gzip
+
+>>>>>>>> tags/v0.11.6:x/wasm/keeper/testdata/download_releases.sh
 rm -f version.txt
 echo "$tag" >version.txt

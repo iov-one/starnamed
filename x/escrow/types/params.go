@@ -8,7 +8,11 @@ import (
 
 // Default parameter values
 const (
+<<<<<<< HEAD
 	DefaultModuleEnabled bool = false
+=======
+	DefaultModuleEnabled bool = true
+>>>>>>> tags/v0.11.6
 )
 
 // Parameter keys

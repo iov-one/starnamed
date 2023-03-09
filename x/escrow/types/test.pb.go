@@ -6,7 +6,11 @@ package types
 import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -64,7 +68,12 @@ func (m *TestObject) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_TestObject proto.InternalMessageInfo
 
+<<<<<<< HEAD
 // TestTimeConstrainedObject defines a transferable object with a time constrain used for testing
+=======
+// TestTimeConstrainedObject defines a transferable object with a time constrain
+// used for testing
+>>>>>>> tags/v0.11.6
 type TestTimeConstrainedObject struct {
 	Id         uint64                                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Owner      github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty"`

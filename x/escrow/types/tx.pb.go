@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+<<<<<<< HEAD
 	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types1 "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +14,15 @@ import (
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	_ "github.com/regen-network/cosmos-proto"
+=======
+	_ "github.com/cosmos/cosmos-proto"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/gogo/protobuf/grpc"
+	proto "github.com/gogo/protobuf/proto"
+>>>>>>> tags/v0.11.6
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -192,6 +202,10 @@ func (m *MsgUpdateEscrowResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateEscrowResponse proto.InternalMessageInfo
 
+<<<<<<< HEAD
+=======
+// MsgTransferToEscrow defines the Msg/Escrow response type ::TODO
+>>>>>>> tags/v0.11.6
 type MsgTransferToEscrow struct {
 	Id       string                                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Sender   string                                   `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -232,6 +246,10 @@ func (m *MsgTransferToEscrow) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgTransferToEscrow proto.InternalMessageInfo
 
+<<<<<<< HEAD
+=======
+// MsgTransferToEscrowResponse defines the Msg/Escrow response type ::TODO
+>>>>>>> tags/v0.11.6
 type MsgTransferToEscrowResponse struct {
 }
 
@@ -268,6 +286,10 @@ func (m *MsgTransferToEscrowResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgTransferToEscrowResponse proto.InternalMessageInfo
 
+<<<<<<< HEAD
+=======
+// MsgRefundEscrow defines the Msg/RefundEscrow response type ::TODO
+>>>>>>> tags/v0.11.6
 type MsgRefundEscrow struct {
 	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Sender   string `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -307,6 +329,11 @@ func (m *MsgRefundEscrow) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRefundEscrow proto.InternalMessageInfo
 
+<<<<<<< HEAD
+=======
+// MsgRefundEscrowResponse defines the Msg/RefundEscrowResponse response type
+// ::TODO
+>>>>>>> tags/v0.11.6
 type MsgRefundEscrowResponse struct {
 }
 
@@ -414,9 +441,17 @@ type MsgClient interface {
 	CreateEscrow(ctx context.Context, in *MsgCreateEscrow, opts ...grpc.CallOption) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(ctx context.Context, in *MsgUpdateEscrow, opts ...grpc.CallOption) (*MsgUpdateEscrowResponse, error)
+<<<<<<< HEAD
 	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
 	TransferToEscrow(ctx context.Context, in *MsgTransferToEscrow, opts ...grpc.CallOption) (*MsgTransferToEscrowResponse, error)
 	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
+=======
+	// TransferToEscrow defines a method for a buyer to transfer funds to the
+	// escrow
+	TransferToEscrow(ctx context.Context, in *MsgTransferToEscrow, opts ...grpc.CallOption) (*MsgTransferToEscrowResponse, error)
+	// RefundEscrow defines a method for the seller to return the assets locked in
+	// the escrow
+>>>>>>> tags/v0.11.6
 	RefundEscrow(ctx context.Context, in *MsgRefundEscrow, opts ...grpc.CallOption) (*MsgRefundEscrowResponse, error)
 }
 
@@ -470,9 +505,17 @@ type MsgServer interface {
 	CreateEscrow(context.Context, *MsgCreateEscrow) (*MsgCreateEscrowResponse, error)
 	// UpdateEscrow defines a method for updating an escrow
 	UpdateEscrow(context.Context, *MsgUpdateEscrow) (*MsgUpdateEscrowResponse, error)
+<<<<<<< HEAD
 	// TransferToEscrow defines a method for a buyer to transfer funds to the escrow
 	TransferToEscrow(context.Context, *MsgTransferToEscrow) (*MsgTransferToEscrowResponse, error)
 	// RefundEscrow defines a method for the seller to return the assets locked in the escrow
+=======
+	// TransferToEscrow defines a method for a buyer to transfer funds to the
+	// escrow
+	TransferToEscrow(context.Context, *MsgTransferToEscrow) (*MsgTransferToEscrowResponse, error)
+	// RefundEscrow defines a method for the seller to return the assets locked in
+	// the escrow
+>>>>>>> tags/v0.11.6
 	RefundEscrow(context.Context, *MsgRefundEscrow) (*MsgRefundEscrowResponse, error)
 }
 

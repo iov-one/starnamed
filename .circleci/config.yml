@@ -3,8 +3,12 @@ version: 2.1
 executors:
   golang:
     docker:
+<<<<<<< HEAD
       - image: circleci/golang:1.16
     working_directory: /go/src/github.com/cosmwasm/wasmd
+=======
+      - image: cimg/go:1.18
+>>>>>>> tags/v0.11.6
 
 commands:
   make:
@@ -61,9 +65,14 @@ jobs:
             - ".git"
 
   lint:
+<<<<<<< HEAD
     executor: golang
     docker:
       - image: golangci/golangci-lint:v1.42.1-alpine
+=======
+    docker:
+      - image: golangci/golangci-lint:v1.46.2
+>>>>>>> tags/v0.11.6
     steps:
       - checkout
       - run:
@@ -117,6 +126,22 @@ jobs:
             cd ./benchmarks
             go test -bench .
 
+<<<<<<< HEAD
+=======
+  simulations:
+    executor: golang
+    parallelism: 1
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run simulations
+          command: |
+            make test-sim-multi-seed-short
+      - store_artifacts:
+          path: /tmp
+
+>>>>>>> tags/v0.11.6
   upload-coverage:
     executor: golang
     steps:
@@ -144,19 +169,34 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          # >= v20.10 https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.14.0#faccessat2
+          version: 20.10.11
       - run:
           name: Build Docker artifact
           command: docker build --pull -t "cosmwasm/wasmd:${CIRCLE_SHA1}" .
       - run:
-          name: Push application Docker image to docker hub
+          name: Ensure libwasmvm version is correct
           command: |
-            if [ "${CIRCLE_BRANCH}" = "master" ]; then
-              docker tag "cosmwasm/wasmd:${CIRCLE_SHA1}" cosmwasm/wasmd:latest
-              docker login --password-stdin -u "$DOCKER_USER" \<<<"$DOCKER_PASS"
-              docker push cosmwasm/wasmd:latest
-              docker logout
+            IN_DOCKER=$(docker run --rm "cosmwasm/wasmd:${CIRCLE_SHA1}" /usr/bin/wasmd query wasm libwasmvm-version)
+            echo "Runtime libwasmvm-version in docker: $IN_DOCKER"
+            IN_GOMOD=$(go list -m github.com/CosmWasm/wasmvm | cut -d" " -f2 | cut -d"v" -f2)
+            echo "wasmvm version in go.mod: $IN_GOMOD"
+            if [[ "$IN_DOCKER" != "$IN_GOMOD" ]]; then
+              echo "Mismatch of wasmvm versions detected"
+              exit 1
             fi
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Push application Docker image to docker hub
+                command: |
+                  docker tag "cosmwasm/wasmd:${CIRCLE_SHA1}" cosmwasm/wasmd:latest
+                  docker login --password-stdin -u "$DOCKER_USER" \<<<"$DOCKER_PASS"
+                  docker push cosmwasm/wasmd:latest
+                  docker logout
 
   docker-tagged:
     executor: golang
@@ -164,7 +204,9 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          # >= v20.10 https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.14.0#faccessat2
+          version: 20.10.11
       - run:
           name: Build Docker artifact
           command: docker build --pull -t "cosmwasm/wasmd:${CIRCLE_TAG}" .
@@ -179,14 +221,9 @@ workflows:
   version: 2
   test-suite:
     jobs:
-      # this is now a slow process... let's only run on master
       - docker-image:
           requires:
             - setup-dependencies
-          filters:
-            branches:
-              only:
-                - master
       - docker-tagged:
           filters:
             tags:
@@ -215,3 +252,9 @@ workflows:
       - benchmark:
           requires:
             - test-cover
+<<<<<<< HEAD
+=======
+      - simulations:
+          requires:
+            - setup-dependencies
+>>>>>>> tags/v0.11.6

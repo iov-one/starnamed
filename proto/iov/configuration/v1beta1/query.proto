@@ -1,7 +1,10 @@
 syntax = "proto3";
 package starnamed.x.configuration.v1beta1;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> tags/v0.11.6
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "iov/configuration/v1beta1/types.proto";
@@ -10,6 +13,7 @@ option go_package = "github.com/iov-one/starnamed/x/configuration/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = true;
 
+<<<<<<< HEAD
 // QueryConfigRequest is the request type for the Query/Configuration RPC method.
 message QueryConfigRequest {
 }
@@ -32,10 +36,31 @@ message QueryFeesResponse {
     Fees fees = 1 [
         (gogoproto.moretags) = "yaml:\"fees\""
     ];
+=======
+// QueryConfigRequest is the request type for the Query/Configuration RPC
+// method.
+message QueryConfigRequest {}
+
+// QueryConfigResponse is the response type for the Query/Configuration RPC
+// method.
+message QueryConfigResponse {
+  // Configuration is the starname configuration.
+  Config config = 1 [ (gogoproto.moretags) = "yaml:\"config\"" ];
+}
+
+// QueryFeesRequest is the request type for the Query/Configuration RPC method.
+message QueryFeesRequest {}
+
+// QueryFeesResponse is the response type for the Query/Fees RPC method
+message QueryFeesResponse {
+  // Fees is the starname product fee object.
+  Fees fees = 1 [ (gogoproto.moretags) = "yaml:\"fees\"" ];
+>>>>>>> tags/v0.11.6
 }
 
 // Query provides defines the gRPC querier service.
 service Query {
+<<<<<<< HEAD
    // Config gets starname configuration.
    rpc Config (QueryConfigRequest) returns (QueryConfigResponse) {
        option (google.api.http).get = "/starname/v1beta1/configuration/params";
@@ -44,4 +69,14 @@ service Query {
    rpc Fees (QueryFeesRequest) returns (QueryFeesResponse) {
        option (google.api.http).get = "/starname/v1beta1/configuration/fees";
    }
+=======
+  // Config gets starname configuration.
+  rpc Config(QueryConfigRequest) returns (QueryConfigResponse) {
+    option (google.api.http).get = "/starname/v1beta1/configuration/params";
+  }
+  // Fees gets starname product fees.
+  rpc Fees(QueryFeesRequest) returns (QueryFeesResponse) {
+    option (google.api.http).get = "/starname/v1beta1/configuration/fees";
+  }
+>>>>>>> tags/v0.11.6
 }

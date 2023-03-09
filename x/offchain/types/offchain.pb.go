@@ -5,7 +5,11 @@ package types
 
 import (
 	fmt "fmt"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -27,7 +31,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type MsgSignData struct {
 	// signer is the bech32 representation of the signer's account address
 	Signer string `protobuf:"bytes,1,opt,name=signer,proto3" json:"signer,omitempty"`
+<<<<<<< HEAD
 	// data represents the raw bytes of the content that is signed (text, json, etc)
+=======
+	// data represents the raw bytes of the content that is signed (text, json,
+	// etc)
+>>>>>>> tags/v0.11.6
 	Data []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 }
 
@@ -78,7 +87,12 @@ func (m *MsgSignData) GetData() []byte {
 	return nil
 }
 
+<<<<<<< HEAD
 // ListOfMsgSignData defines a list of MsgSignData, used to marshal and unmarshal them in a clean way
+=======
+// ListOfMsgSignData defines a list of MsgSignData, used to marshal and
+// unmarshal them in a clean way
+>>>>>>> tags/v0.11.6
 type ListOfMsgSignData struct {
 	// msgs is a list of messages
 	Msgs []*MsgSignData `protobuf:"bytes,1,rep,name=msgs,proto3" json:"msgs,omitempty"`

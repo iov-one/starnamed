@@ -1,5 +1,14 @@
 version: 2
+<<<<<<< HEAD
 updates:
+=======
+updates:  
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+>>>>>>> tags/v0.11.6
 - package-ecosystem: gomod
   directory: "/"
   schedule:

@@ -3,9 +3,16 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+<<<<<<< HEAD
 	"github.com/cosmos/cosmos-sdk/types/address"
 	"time"
 
+=======
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/types/address"
+
+>>>>>>> tags/v0.11.6
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	crudtypes "github.com/iov-one/cosmos-sdk-crud/types"

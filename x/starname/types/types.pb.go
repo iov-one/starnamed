@@ -7,7 +7,11 @@ import (
 	bytes "bytes"
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
@@ -89,7 +93,12 @@ type Domain struct {
 	// Admin is the owner of the domain
 	Admin  github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=admin,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"admin,omitempty" yaml:"admin"`
 	Broker github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=broker,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"broker,omitempty" yaml:"broker"`
+<<<<<<< HEAD
 	// ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds
+=======
+	// ValidUntil is a unix timestamp defines the time when the domain will become
+	// invalid in seconds
+>>>>>>> tags/v0.11.6
 	ValidUntil int64 `protobuf:"varint,4,opt,name=valid_until,json=validUntil,proto3" json:"valid_until,omitempty" yaml:"valid_until"`
 	// Type defines the type of the domain
 	Type DomainType `protobuf:"bytes,5,opt,name=type,proto3,casttype=DomainType" json:"type,omitempty" yaml:"type"`
@@ -173,6 +182,7 @@ type Account struct {
 	Name *string `protobuf:"bytes,2,opt,name=name,proto3,wktptr" json:"name,omitempty" yaml:"name"`
 	// Owner is the address that owns the account
 	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Broker identifies an entity that facilitated the transaction of the account and can be empty
 	Broker github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=broker,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"broker,omitempty" yaml:"broker"`
 	// ValidUntil defines a unix timestamp of the expiration of the account in seconds
@@ -180,6 +190,18 @@ type Account struct {
 	// Resources is the list of resources an account resolves to
 	Resources []*Resource `protobuf:"bytes,6,rep,name=resources,proto3" json:"resources,omitempty" yaml:"resources"`
 	// Certificates contains the list of certificates to identify the account owner
+=======
+	// Broker identifies an entity that facilitated the transaction of the account
+	// and can be empty
+	Broker github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,4,opt,name=broker,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"broker,omitempty" yaml:"broker"`
+	// ValidUntil defines a unix timestamp of the expiration of the account in
+	// seconds
+	ValidUntil int64 `protobuf:"varint,5,opt,name=valid_until,json=validUntil,proto3" json:"valid_until,omitempty" yaml:"valid_until"`
+	// Resources is the list of resources an account resolves to
+	Resources []*Resource `protobuf:"bytes,6,rep,name=resources,proto3" json:"resources,omitempty" yaml:"resources"`
+	// Certificates contains the list of certificates to identify the account
+	// owner
+>>>>>>> tags/v0.11.6
 	Certificates [][]byte `protobuf:"bytes,7,rep,name=certificates,proto3" json:"certificates,omitempty" yaml:"certificates"`
 	// MetadataURI contains a link to extra information regarding the account
 	MetadataURI string `protobuf:"bytes,8,opt,name=metadata_uri,json=metadataUri,proto3" json:"metadata_uri,omitempty" yaml:"metadata_uri"`

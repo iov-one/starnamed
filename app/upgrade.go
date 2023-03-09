@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -11,11 +12,31 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authz "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authz "github.com/cosmos/cosmos-sdk/x/authz"
+	authzKeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v3/modules/core/types"
+	burnertypes "github.com/iov-one/starnamed/x/burner/types"
+	configurationtypes "github.com/iov-one/starnamed/x/configuration/types"
 	escrowtypes "github.com/iov-one/starnamed/x/escrow/types"
+	starnametypes "github.com/iov-one/starnamed/x/starname/types"
 )
 
 type upgradeData struct {
@@ -30,18 +51,18 @@ func (app *WasmApp) RegisterUpgradeHandlers() {
 		getCosmosSDKv44UpgradeHandler(app),
 	}
 
-	upgradeInfo, err := app.upgradeKeeper.ReadUpgradeInfoFromDisk()
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(sdkerrors.Wrap(err, "cannot read upgrade info to register store loaders"))
 	}
 
 	for _, upgrade := range upgrades {
 		// Register upgrade handler
-		app.upgradeKeeper.SetUpgradeHandler(upgrade.name, upgrade.handler)
+		app.UpgradeKeeper.SetUpgradeHandler(upgrade.name, upgrade.handler)
 
 		// Run the store migrations when needed
 		// This is taken from https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
-		if upgradeInfo.Name == upgrade.name && !app.upgradeKeeper.IsSkipHeight(upgradeInfo.Height) &&
+		if upgradeInfo.Name == upgrade.name && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) &&
 			upgrade.storeLoaderRegisterer != nil {
 			upgrade.storeLoaderRegisterer(app, upgradeInfo)
 		}
@@ -134,7 +155,7 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 			}
 
 			// Get the account
-			account := app.accountKeeper.GetAccount(ctx, address)
+			account := app.AccountKeeper.GetAccount(ctx, address)
 
 			// Ensure that the account is a multisig account
 			multisigPubkey, match := account.GetPubKey().(*multisig.LegacyAminoPubKey)
@@ -164,7 +185,7 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 			}
 
 			// Write back the account to the store
-			app.accountKeeper.SetAccount(ctx, account)
+			app.AccountKeeper.SetAccount(ctx, account)
 		}
 
 		return vm, nil
@@ -173,13 +194,11 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 }
 
 func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
-	const planName = "cosmos-sdk-v0.44-upgrade"
-	handler := func(ctx sdk.Context, plan upgradetypes.Plan, fromVersionMap module.VersionMap) (module.VersionMap, error) {
-		// Overwrite the version map :
-		// Set up modules that were already present in previous version (but were not registered as the version map didn't
-		// exist prior to v0.44.3). All those modules are at there first registered version (1).
-		// If we keep the version map as is (empty) the upgrade handler will use the DefaultGenesis state for those modules
-		fromVersionMap = map[string]uint64{
+	const planName = "starname-version-11"
+	handler := func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
+
+		// Set the Version MAP
+		fromVersionMap := map[string]uint64{
 			// Cosmos sdk modules
 			"auth":         1,
 			"bank":         1,
@@ -203,16 +222,81 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 			"configuration": 1, // the configuration module will be updated to version 2 (adding the escrow conf)
 			"starname":      1,
 			"wasm":          1,
-
-			// The escrow is a newly introduced module, as well as the feegrant and authz modules so we do not include them
 		}
+
+		// Add the default parameters of ibc-go/03-connections in the parameter store
+		// Migration of IBC: from SDK to v1
+		app.IBCKeeper.ConnectionKeeper.SetParams(ctx, ibcconnectiontypes.DefaultGenesisState().ConnectionGenesis.GetParams())
+
+		app.mm.SetOrderBeginBlockers(
+			upgradetypes.ModuleName,
+			capabilitytypes.ModuleName,
+			minttypes.ModuleName,
+			distrtypes.ModuleName,
+			slashingtypes.ModuleName,
+			evidencetypes.ModuleName,
+			stakingtypes.ModuleName,
+			authtypes.ModuleName,
+			banktypes.ModuleName,
+			govtypes.ModuleName,
+			crisistypes.ModuleName,
+			genutiltypes.ModuleName,
+			authz.ModuleName,
+			feegrant.ModuleName,
+			paramstypes.ModuleName,
+			vestingtypes.ModuleName,
+			// additional non simd modules
+			ibctransfertypes.ModuleName,
+			ibchost.ModuleName,
+			// icatypes.ModuleName, 		//  starname: #dont remove - removing the ICA module and keepers
+			// intertxtypes.ModuleName,		//  starname: #dont remove - removing the ICA module and keepers
+			wasm.ModuleName,
+
+			// starname: #dont remove - app.mm.SetOrderBeginBlockers
+			starnametypes.ModuleName,
+			escrowtypes.ModuleName,
+			burnertypes.ModuleName,
+			configurationtypes.ModuleName,
+		)
+
+		app.mm.SetOrderEndBlockers(
+			crisistypes.ModuleName,
+			govtypes.ModuleName,
+			stakingtypes.ModuleName,
+			capabilitytypes.ModuleName,
+			authtypes.ModuleName,
+			banktypes.ModuleName,
+			distrtypes.ModuleName,
+			slashingtypes.ModuleName,
+			minttypes.ModuleName,
+			genutiltypes.ModuleName,
+			evidencetypes.ModuleName,
+			authz.ModuleName,
+			feegrant.ModuleName,
+			paramstypes.ModuleName,
+			upgradetypes.ModuleName,
+			vestingtypes.ModuleName,
+			// additional non simd modules
+			ibctransfertypes.ModuleName,
+			ibchost.ModuleName,
+			// icatypes.ModuleName,		//  starname: #dont remove - removing the ICA module and keepers
+			// intertxtypes.ModuleName,	//  starname: #dont remove - removing the ICA module and keepers
+			wasm.ModuleName,
+
+			// starname: #dont remove - app.mm.SetOrderEndBlockers
+			escrowtypes.ModuleName,
+			starnametypes.ModuleName,
+			burnertypes.ModuleName,
+			configurationtypes.ModuleName,
+		)
+
 		return app.mm.RunMigrations(ctx, app.configurator, fromVersionMap)
 	}
 
 	// Set the store loader for the 3 new modules : authz, feegrant and escrow
 	setStoreLoader := func(app *WasmApp, info storetypes.UpgradeInfo) {
 		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{authz.StoreKey, feegrant.StoreKey, escrowtypes.StoreKey},
+			Added: []string{authzKeeper.StoreKey, feegrant.StoreKey, escrowtypes.StoreKey},
 		}
 
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades

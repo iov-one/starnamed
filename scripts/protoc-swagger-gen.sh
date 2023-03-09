@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+<<<<<<< HEAD
+=======
+WORKDIR=$(pwd)
+
+>>>>>>> tags/v0.11.6
 mkdir -p ./tmp-swagger-gen
 proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
@@ -21,13 +26,21 @@ done
 # combine swagger files
 # uses nodejs package `swagger-combine`.
 # all the individual swagger files need to be configured in `config.json` for merging
+<<<<<<< HEAD
+=======
+mkdir -p ./client/docs/swagger-ui/
+>>>>>>> tags/v0.11.6
 swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger-starname.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
 
 # clean swagger files
 rm -rf ./tmp-swagger-gen
 
 # Update the Cosmos SDK yaml file
+<<<<<<< HEAD
 scripts/fetch-cosmos-swagger.sh
+=======
+scripts/fetch-cosmos-swagger.sh $WORKDIR
+>>>>>>> tags/v0.11.6
 
 # Update static assets
 statik -src client/docs/swagger-ui/ -dest client/docs/ -f -m

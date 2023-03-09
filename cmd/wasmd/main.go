@@ -4,13 +4,19 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/server"
+<<<<<<< HEAD
 	"github.com/iov-one/starnamed/app"
+=======
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
+	"github.com/CosmWasm/wasmd/app"
+>>>>>>> tags/v0.11.6
 )
 
 func main() {
 	rootCmd, _ := NewRootCmd()
 
-	if err := Execute(rootCmd, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
 			os.Exit(e.Code)

@@ -10,6 +10,10 @@ option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 option (gogoproto.goproto_getters_all) = false;
 
 // Params defines the parameters of the escrow module
+<<<<<<< HEAD
 message Params {
     bool module_enabled = 1;
 }
+=======
+message Params { bool module_enabled = 1; }
+>>>>>>> tags/v0.11.6

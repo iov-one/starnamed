@@ -4,6 +4,7 @@
 
 ## Table of Contents
 
+<<<<<<< HEAD
 - [iov/configuration/v1beta1/types.proto](#iov/configuration/v1beta1/types.proto)
     - [Config](#starnamed.x.configuration.v1beta1.Config)
     - [Fees](#starnamed.x.configuration.v1beta1.Fees)
@@ -139,11 +140,17 @@
   
 - [wasm/tx.proto](#wasm/tx.proto)
     - [Msg](#iovone.starnamed.wasm.Msg)
+=======
+- [iov/offchain/v1alpha1/offchain.proto](#iov/offchain/v1alpha1/offchain.proto)
+    - [ListOfMsgSignData](#cosmos.offchain.v1alpha1.ListOfMsgSignData)
+    - [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData)
+>>>>>>> tags/v0.11.6
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
+<<<<<<< HEAD
 <a name="iov/configuration/v1beta1/types.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -155,10 +162,25 @@
 
 ### Config
 Config is the configuration of the network
+=======
+<a name="iov/offchain/v1alpha1/offchain.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iov/offchain/v1alpha1/offchain.proto
+
+
+
+<a name="cosmos.offchain.v1alpha1.ListOfMsgSignData"></a>
+
+### ListOfMsgSignData
+ListOfMsgSignData defines a list of MsgSignData, used to marshal and
+unmarshal them in a clean way
+>>>>>>> tags/v0.11.6
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+<<<<<<< HEAD
 | `configurer` | [string](#string) |  | Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser |
 | `valid_domain_name` | [string](#string) |  | ValidDomainName defines a regexp that determines if a domain name is valid or not |
 | `valid_account_name` | [string](#string) |  | ValidAccountName defines a regexp that determines if an account name is valid or not |
@@ -177,12 +199,16 @@ Config is the configuration of the network
 | `escrow_broker` | [string](#string) |  | EscrowBroker defines an address that will receive a commission for completed escrows |
 | `escrow_commission` | [string](#string) |  | EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and 1 (100% commission) |
 | `escrow_max_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | EscrowPeriod defines the maximum duration of an escrow in seconds |
+=======
+| `msgs` | [MsgSignData](#cosmos.offchain.v1alpha1.MsgSignData) | repeated | msgs is a list of messages |
+>>>>>>> tags/v0.11.6
 
 
 
 
 
 
+<<<<<<< HEAD
 <a name="starnamed.x.configuration.v1beta1.Fees"></a>
 
 ### Fees
@@ -1730,13 +1756,17 @@ Msg defines the starname Msg service.
 
 
 <a name="iovone.starnamed.wasm.AccessConfig"></a>
+=======
+<a name="cosmos.offchain.v1alpha1.MsgSignData"></a>
+>>>>>>> tags/v0.11.6
 
-### AccessConfig
-AccessConfig access control type.
+### MsgSignData
+MsgSignData defines an arbitrary, general-purpose, off-chain message
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+<<<<<<< HEAD
 | `permission` | [AccessType](#iovone.starnamed.wasm.AccessType) |  |  |
 | `address` | [string](#string) |  |  |
 
@@ -1816,6 +1846,10 @@ GenesisState defines the wasm module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#iovone.starnamed.wasm.Params) |  |  |
+=======
+| `signer` | [string](#string) |  | signer is the bech32 representation of the signer's account address |
+| `data` | [bytes](#bytes) |  | data represents the raw bytes of the content that is signed (text, json, etc) |
+>>>>>>> tags/v0.11.6
 
 
 
@@ -1827,6 +1861,7 @@ GenesisState defines the wasm module's genesis state.
 
  <!-- end HasExtensions -->
 
+<<<<<<< HEAD
  <!-- end services -->
 
 
@@ -1877,6 +1912,8 @@ Msg defines the Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 
+=======
+>>>>>>> tags/v0.11.6
  <!-- end services -->
 
 

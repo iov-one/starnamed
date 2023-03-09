@@ -1,7 +1,11 @@
 swagger: '2.0'
 info:
   title: Starname - Legacy REST and gRPC Gateway docs
+<<<<<<< HEAD
   description: 'A REST interface for state queries, legacy transactions'
+=======
+  description: A REST interface for state queries, legacy transactions
+>>>>>>> tags/v0.11.6
   version: 1.0.0
 paths:
   /starname/v1beta1/configuration/fees:
@@ -33,37 +37,79 @@ paths:
                     type: string
                     title: >-
                       RegisterAccountClosed is the fee to be paid to register an
+<<<<<<< HEAD
                       account in a closed domain
+=======
+                      account in a
+
+                      closed domain
+>>>>>>> tags/v0.11.6
                   register_account_open:
                     type: string
                     title: >-
                       RegisterAccountOpen is the fee to be paid to register an
+<<<<<<< HEAD
                       account in an open domain
+=======
+                      account in an open
+
+                      domain
+>>>>>>> tags/v0.11.6
                   transfer_account_closed:
                     type: string
                     title: >-
                       TransferAccountClosed is the fee to be paid to register an
+<<<<<<< HEAD
                       account in a closed domain
+=======
+                      account in a
+
+                      closed domain
+>>>>>>> tags/v0.11.6
                   transfer_account_open:
                     type: string
                     title: >-
                       TransferAccountOpen is the fee to be paid to register an
+<<<<<<< HEAD
                       account in an open domain
+=======
+                      account in an open
+
+                      domain
+>>>>>>> tags/v0.11.6
                   replace_account_resources:
                     type: string
                     title: >-
                       ReplaceAccountResources is the fee to be paid to replace
+<<<<<<< HEAD
                       account's resources
+=======
+                      account's
+
+                      resources
+>>>>>>> tags/v0.11.6
                   add_account_certificate:
                     type: string
                     title: >-
                       AddAccountCertificate is the fee to be paid to add a
+<<<<<<< HEAD
                       certificate to an account
+=======
+                      certificate to an
+
+                      account
+>>>>>>> tags/v0.11.6
                   del_account_certificate:
                     type: string
                     title: >-
                       DelAccountCertificate is the feed to be paid to delete a
+<<<<<<< HEAD
                       certificate in an account
+=======
+                      certificate in an
+
+                      account
+>>>>>>> tags/v0.11.6
                   set_account_metadata:
                     type: string
                     title: >-
@@ -73,38 +119,80 @@ paths:
                     type: string
                     title: >-
                       RegisterDomain1 is the fee to be paid to register a domain
+<<<<<<< HEAD
                       with one character
+=======
+                      with one
+
+                      character
+>>>>>>> tags/v0.11.6
                   register_domain_2:
                     type: string
                     title: >-
                       RegisterDomain2 is the fee to be paid to register a domain
+<<<<<<< HEAD
                       with two characters
+=======
+                      with two
+
+                      characters
+>>>>>>> tags/v0.11.6
                   register_domain_3:
                     type: string
                     title: >-
                       RegisterDomain3 is the fee to be paid to register a domain
+<<<<<<< HEAD
                       with three characters
+=======
+                      with three
+
+                      characters
+>>>>>>> tags/v0.11.6
                   register_domain_4:
                     type: string
                     title: >-
                       RegisterDomain4 is the fee to be paid to register a domain
+<<<<<<< HEAD
                       with four characters
+=======
+                      with four
+
+                      characters
+>>>>>>> tags/v0.11.6
                   register_domain_5:
                     type: string
                     title: >-
                       RegisterDomain5 is the fee to be paid to register a domain
+<<<<<<< HEAD
                       with five characters
+=======
+                      with five
+
+                      characters
+>>>>>>> tags/v0.11.6
                   register_domain_default:
                     type: string
                     title: >-
                       RegisterDomainDefault is the fee to be paid to register a
+<<<<<<< HEAD
                       domain with more than five characters
+=======
+                      domain with more
+
+                      than five characters
+>>>>>>> tags/v0.11.6
                   register_open_domain_multiplier:
                     type: string
                     title: >-
                       register_open_domain_multiplier is the multiplication
+<<<<<<< HEAD
                       applied to fees in register domain operations if they're
                       of open type
+=======
+                      applied to fees in
+
+                      register domain operations if they're of open type
+>>>>>>> tags/v0.11.6
                   transfer_domain_closed:
                     type: string
                     title: >-
@@ -135,10 +223,21 @@ paths:
                     type: string
                     title: >-
                       refund_escrow is the fee to be paid to refund the account
+<<<<<<< HEAD
                       or domain placed in an escrow
                 title: >-
                   Fees contains different type of fees to calculate coins to
                   detract when processing different messages
+=======
+                      or domain placed
+
+                      in an escrow
+                title: >-
+                  Fees contains different type of fees to calculate coins to
+                  detract when
+
+                  processing different messages
+>>>>>>> tags/v0.11.6
             title: >-
               QueryFeesResponse is the response type for the Query/Fees RPC
               method
@@ -184,18 +283,36 @@ paths:
                     type: string
                     title: >-
                       Configurer is the configuration owner, the addresses
+<<<<<<< HEAD
                       allowed to handle fees and register domains with no
                       superuser
+=======
+                      allowed to handle fees
+
+                      and register domains with no superuser
+>>>>>>> tags/v0.11.6
                   valid_domain_name:
                     type: string
                     title: >-
                       ValidDomainName defines a regexp that determines if a
+<<<<<<< HEAD
                       domain name is valid or not
+=======
+                      domain name is valid
+
+                      or not
+>>>>>>> tags/v0.11.6
                   valid_account_name:
                     type: string
                     title: >-
                       ValidAccountName defines a regexp that determines if an
+<<<<<<< HEAD
                       account name is valid or not
+=======
+                      account name is
+
+                      valid or not
+>>>>>>> tags/v0.11.6
                   valid_uri:
                     type: string
                     title: >-
@@ -208,13 +325,25 @@ paths:
                     type: string
                     title: >-
                       DomainRenewalPeriod defines the duration of the domain
+<<<<<<< HEAD
                       renewal period in seconds
+=======
+                      renewal period in
+
+                      seconds
+>>>>>>> tags/v0.11.6
                   domain_renewal_count_max:
                     type: integer
                     format: int64
                     title: >-
                       DomainRenewalCountMax defines maximum number of domain
+<<<<<<< HEAD
                       renewals a user can do
+=======
+                      renewals a user can
+
+                      do
+>>>>>>> tags/v0.11.6
                   domain_grace_period:
                     type: string
                     title: >-
@@ -224,13 +353,25 @@ paths:
                     type: string
                     title: >-
                       AccountRenewalPeriod defines the duration of the account
+<<<<<<< HEAD
                       renewal period in seconds
+=======
+                      renewal period in
+
+                      seconds
+>>>>>>> tags/v0.11.6
                   account_renewal_count_max:
                     type: integer
                     format: int64
                     title: >-
                       AccountRenewalCountMax defines maximum number of account
+<<<<<<< HEAD
                       renewals a user can do
+=======
+                      renewals a user
+
+                      can do
+>>>>>>> tags/v0.11.6
                   account_grace_period:
                     type: string
                     title: >-
@@ -241,38 +382,74 @@ paths:
                     format: int64
                     title: >-
                       ResourcesMax defines maximum number of resources could be
+<<<<<<< HEAD
                       saved under an account
+=======
+                      saved under an
+
+                      account
+>>>>>>> tags/v0.11.6
                   certificate_size_max:
                     type: string
                     format: uint64
                     title: >-
                       CertificateSizeMax defines maximum size of a certificate
+<<<<<<< HEAD
                       that could be saved under an account
+=======
+                      that could be
+
+                      saved under an account
+>>>>>>> tags/v0.11.6
                   certificate_count_max:
                     type: integer
                     format: int64
                     title: >-
                       CertificateCountMax defines maximum number of certificates
+<<<<<<< HEAD
                       that could be saved under an account
+=======
+                      that could be
+
+                      saved under an account
+>>>>>>> tags/v0.11.6
                   metadata_size_max:
                     type: string
                     format: uint64
                     title: >-
                       MetadataSizeMax defines maximum size of metadata that
+<<<<<<< HEAD
                       could be saved under an account
+=======
+                      could be saved under
+
+                      an account
+>>>>>>> tags/v0.11.6
                   escrow_broker:
                     type: string
                     title: >-
                       EscrowBroker defines an address that will receive a
+<<<<<<< HEAD
                       commission for completed escrows
+=======
+                      commission for
+
+                      completed escrows
+>>>>>>> tags/v0.11.6
                   escrow_commission:
                     type: string
                     title: >-
                       EscrowCommission defines the commission taken by the
+<<<<<<< HEAD
                       broker for a completed escrow, between 0 (no commission)
                       and
 
                       1 (100% commission)
+=======
+                      broker for a completed
+
+                      escrow, between 0 (no commission) and 1 (100% commission)
+>>>>>>> tags/v0.11.6
                   escrow_max_period:
                     type: string
                     title: >-
@@ -281,7 +458,13 @@ paths:
                 title: Config is the configuration of the network
             description: >-
               QueryConfigResponse is the response type for the
+<<<<<<< HEAD
               Query/Configuration RPC method.
+=======
+              Query/Configuration RPC
+
+              method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -306,7 +489,11 @@ paths:
                       format: byte
       tags:
         - Query
+<<<<<<< HEAD
   '/starnamed/v1beta1/escrow/{id}':
+=======
+  /escrow/escrow/{id}:
+>>>>>>> tags/v0.11.6
     get:
       summary: Escrow queries the escrow by the specified id
       operationId: Escrow
@@ -519,6 +706,7 @@ paths:
                       TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                       Although the price contains multiple coins, for now we
+<<<<<<< HEAD
                       enforce a specific denomination, so there will be only
 
                       one coin type in a valid escrow
@@ -533,6 +721,26 @@ paths:
                     description: >-
                       - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open
                       state.
+=======
+                      enforce a specific
+
+                      denomination, so there will be only one coin type in a
+                      valid escrow
+                  state:
+                    type: string
+                    enum:
+                      - ESCROW_STATE_OPEN_UNSPECIFIED
+                      - ESCROW_STATE_COMPLETED
+                      - ESCROW_STATE_REFUNDED
+                      - ESCROW_STATE_EXPIRED
+                    default: ESCROW_STATE_OPEN_UNSPECIFIED
+                    description: >-
+                      - ESCROW_STATE_OPEN_UNSPECIFIED:
+                      ESCROW_STATE_OPEN_UNSPECIFIED defines an open state.
+                      TODO:: review the
+
+                      _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
                        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                        - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -744,7 +952,11 @@ paths:
           type: string
       tags:
         - Query
+<<<<<<< HEAD
   /starnamed/v1beta1/escrows:
+=======
+  /escrow/escrows:
+>>>>>>> tags/v0.11.6
     get:
       summary: Escrows queries escrows by the specified key-value pairs
       operationId: Escrows
@@ -962,6 +1174,7 @@ paths:
                         TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                         Although the price contains multiple coins, for now we
+<<<<<<< HEAD
                         enforce a specific denomination, so there will be only
 
                         one coin type in a valid escrow
@@ -976,6 +1189,26 @@ paths:
                       description: >-
                         - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open
                         state.
+=======
+                        enforce a specific
+
+                        denomination, so there will be only one coin type in a
+                        valid escrow
+                    state:
+                      type: string
+                      enum:
+                        - ESCROW_STATE_OPEN_UNSPECIFIED
+                        - ESCROW_STATE_COMPLETED
+                        - ESCROW_STATE_REFUNDED
+                        - ESCROW_STATE_EXPIRED
+                      default: ESCROW_STATE_OPEN_UNSPECIFIED
+                      description: >-
+                        - ESCROW_STATE_OPEN_UNSPECIFIED:
+                        ESCROW_STATE_OPEN_UNSPECIFIED defines an open state.
+                        TODO:: review the
+
+                        _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
                          - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                          - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                          - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -1205,7 +1438,11 @@ paths:
           format: uint64
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/account/{starname}':
+=======
+  /starname/v1beta1/account/{starname}:
+>>>>>>> tags/v0.11.6
     get:
       summary: Starname gets all the information associated with a starname.
       operationId: Starname
@@ -1234,13 +1471,25 @@ paths:
                     format: byte
                     title: >-
                       Broker identifies an entity that facilitated the
+<<<<<<< HEAD
                       transaction of the account and can be empty
+=======
+                      transaction of the account
+
+                      and can be empty
+>>>>>>> tags/v0.11.6
                   valid_until:
                     type: string
                     format: int64
                     title: >-
                       ValidUntil defines a unix timestamp of the expiration of
+<<<<<<< HEAD
                       the account in seconds
+=======
+                      the account in
+
+                      seconds
+>>>>>>> tags/v0.11.6
                   resources:
                     type: array
                     items:
@@ -1261,7 +1510,13 @@ paths:
                       format: byte
                     title: >-
                       Certificates contains the list of certificates to identify
+<<<<<<< HEAD
                       the account owner
+=======
+                      the account
+
+                      owner
+>>>>>>> tags/v0.11.6
                   metadata_uri:
                     type: string
                     title: >-
@@ -1304,7 +1559,11 @@ paths:
           type: string
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/accounts/broker/{broker}':
+=======
+  /starname/v1beta1/accounts/broker/{broker}:
+>>>>>>> tags/v0.11.6
     get:
       summary: BrokerAccounts gets accounts associated with a given broker.
       operationId: BrokerAccounts
@@ -1334,13 +1593,25 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
+<<<<<<< HEAD
                         transaction of the account and can be empty
+=======
+                        transaction of the account
+
+                        and can be empty
+>>>>>>> tags/v0.11.6
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
+<<<<<<< HEAD
                         the account in seconds
+=======
+                        the account in
+
+                        seconds
+>>>>>>> tags/v0.11.6
                     resources:
                       type: array
                       items:
@@ -1363,7 +1634,13 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
+<<<<<<< HEAD
                         identify the account owner
+=======
+                        identify the account
+
+                        owner
+>>>>>>> tags/v0.11.6
                     metadata_uri:
                       type: string
                       title: >-
@@ -1403,7 +1680,13 @@ paths:
                    }
             description: >-
               QueryBrokerAccountsResponse is the response type for the
+<<<<<<< HEAD
               Query/BrokerAccounts RPC method.
+=======
+              Query/BrokerAccounts
+
+              RPC method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -1480,7 +1763,11 @@ paths:
           type: boolean
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/accounts/domain/{domain}':
+=======
+  /starname/v1beta1/accounts/domain/{domain}:
+>>>>>>> tags/v0.11.6
     get:
       summary: DomainAccounts gets accounts associated with a given domain.
       operationId: DomainAccounts
@@ -1510,13 +1797,25 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
+<<<<<<< HEAD
                         transaction of the account and can be empty
+=======
+                        transaction of the account
+
+                        and can be empty
+>>>>>>> tags/v0.11.6
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
+<<<<<<< HEAD
                         the account in seconds
+=======
+                        the account in
+
+                        seconds
+>>>>>>> tags/v0.11.6
                     resources:
                       type: array
                       items:
@@ -1539,7 +1838,13 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
+<<<<<<< HEAD
                         identify the account owner
+=======
+                        identify the account
+
+                        owner
+>>>>>>> tags/v0.11.6
                     metadata_uri:
                       type: string
                       title: >-
@@ -1579,7 +1884,13 @@ paths:
                    }
             description: >-
               QueryDomainAccountsResponse is the response type for the
+<<<<<<< HEAD
               Query/DomainAccounts RPC method.
+=======
+              Query/DomainAccounts
+
+              RPC method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -1656,7 +1967,11 @@ paths:
           type: boolean
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/accounts/owner/{owner}':
+=======
+  /starname/v1beta1/accounts/owner/{owner}:
+>>>>>>> tags/v0.11.6
     get:
       summary: OwnerAccounts gets accounts associated with a given owner.
       operationId: OwnerAccounts
@@ -1686,13 +2001,25 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
+<<<<<<< HEAD
                         transaction of the account and can be empty
+=======
+                        transaction of the account
+
+                        and can be empty
+>>>>>>> tags/v0.11.6
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
+<<<<<<< HEAD
                         the account in seconds
+=======
+                        the account in
+
+                        seconds
+>>>>>>> tags/v0.11.6
                     resources:
                       type: array
                       items:
@@ -1715,7 +2042,13 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
+<<<<<<< HEAD
                         identify the account owner
+=======
+                        identify the account
+
+                        owner
+>>>>>>> tags/v0.11.6
                     metadata_uri:
                       type: string
                       title: >-
@@ -1755,7 +2088,13 @@ paths:
                    }
             description: >-
               QueryOwnerAccountsResponse is the response type for the
+<<<<<<< HEAD
               Query/OwnerAccounts RPC method.
+=======
+              Query/OwnerAccounts
+
+              RPC method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -1832,7 +2171,11 @@ paths:
           type: boolean
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/accounts/resource/{uri}/{resource}':
+=======
+  /starname/v1beta1/accounts/resource/{uri}/{resource}:
+>>>>>>> tags/v0.11.6
     get:
       summary: ResourceAccounts gets accounts associated with a given resource.
       operationId: ResourceAccounts
@@ -1862,13 +2205,25 @@ paths:
                       format: byte
                       title: >-
                         Broker identifies an entity that facilitated the
+<<<<<<< HEAD
                         transaction of the account and can be empty
+=======
+                        transaction of the account
+
+                        and can be empty
+>>>>>>> tags/v0.11.6
                     valid_until:
                       type: string
                       format: int64
                       title: >-
                         ValidUntil defines a unix timestamp of the expiration of
+<<<<<<< HEAD
                         the account in seconds
+=======
+                        the account in
+
+                        seconds
+>>>>>>> tags/v0.11.6
                     resources:
                       type: array
                       items:
@@ -1891,7 +2246,13 @@ paths:
                         format: byte
                       title: >-
                         Certificates contains the list of certificates to
+<<<<<<< HEAD
                         identify the account owner
+=======
+                        identify the account
+
+                        owner
+>>>>>>> tags/v0.11.6
                     metadata_uri:
                       type: string
                       title: >-
@@ -1929,7 +2290,11 @@ paths:
                            repeated Bar results = 1;
                            PageResponse page = 2;
                    }
+<<<<<<< HEAD
             description: >-
+=======
+            description: |-
+>>>>>>> tags/v0.11.6
               QueryResourceAccountsResponse is the response type for the
               Query/ResourceAccounts RPC method.
         default:
@@ -1956,7 +2321,11 @@ paths:
                       format: byte
       parameters:
         - name: uri
+<<<<<<< HEAD
           description: >-
+=======
+          description: |-
+>>>>>>> tags/v0.11.6
             Uri is the uri of the resource. query.pb.gw.to doesn't respect
             gogoproto.customname, so we're stuck with Uri.
           in: path
@@ -2015,7 +2384,11 @@ paths:
           type: boolean
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/domain/{name}':
+=======
+  /starname/v1beta1/domain/{name}:
+>>>>>>> tags/v0.11.6
     get:
       summary: Domain gets a starname's domain info.
       operationId: Domain
@@ -2044,7 +2417,13 @@ paths:
                     format: int64
                     title: >-
                       ValidUntil is a unix timestamp defines the time when the
+<<<<<<< HEAD
                       domain will become invalid in seconds
+=======
+                      domain will become
+
+                      invalid in seconds
+>>>>>>> tags/v0.11.6
                   type:
                     type: string
                     title: Type defines the type of the domain
@@ -2082,7 +2461,11 @@ paths:
           type: string
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/domains/broker/{broker}':
+=======
+  /starname/v1beta1/domains/broker/{broker}:
+>>>>>>> tags/v0.11.6
     get:
       summary: BrokerDomains gets domains associated with a given broker.
       operationId: BrokerDomains
@@ -2112,7 +2495,13 @@ paths:
                       format: int64
                       title: >-
                         ValidUntil is a unix timestamp defines the time when the
+<<<<<<< HEAD
                         domain will become invalid in seconds
+=======
+                        domain will become
+
+                        invalid in seconds
+>>>>>>> tags/v0.11.6
                     type:
                       type: string
                       title: Type defines the type of the domain
@@ -2147,7 +2536,13 @@ paths:
                    }
             description: >-
               QueryBrokerDomainsResponse is the response type for the
+<<<<<<< HEAD
               Query/BrokerDomains RPC method.
+=======
+              Query/BrokerDomains
+
+              RPC method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -2224,7 +2619,11 @@ paths:
           type: boolean
       tags:
         - Query
+<<<<<<< HEAD
   '/starname/v1beta1/domains/owner/{owner}':
+=======
+  /starname/v1beta1/domains/owner/{owner}:
+>>>>>>> tags/v0.11.6
     get:
       summary: OwnerDomains gets domains associated with a given owner.
       operationId: OwnerDomains
@@ -2254,7 +2653,13 @@ paths:
                       format: int64
                       title: >-
                         ValidUntil is a unix timestamp defines the time when the
+<<<<<<< HEAD
                         domain will become invalid in seconds
+=======
+                        domain will become
+
+                        invalid in seconds
+>>>>>>> tags/v0.11.6
                     type:
                       type: string
                       title: Type defines the type of the domain
@@ -2289,7 +2694,13 @@ paths:
                    }
             description: >-
               QueryOwnerDomainsResponse is the response type for the
+<<<<<<< HEAD
               Query/OwnerDomains RPC method.
+=======
+              Query/OwnerDomains RPC
+
+              method.
+>>>>>>> tags/v0.11.6
         default:
           description: An unexpected error response.
           schema:
@@ -2742,17 +3153,35 @@ definitions:
         type: string
         title: >-
           Configurer is the configuration owner, the addresses allowed to handle
+<<<<<<< HEAD
           fees and register domains with no superuser
+=======
+          fees
+
+          and register domains with no superuser
+>>>>>>> tags/v0.11.6
       valid_domain_name:
         type: string
         title: >-
           ValidDomainName defines a regexp that determines if a domain name is
+<<<<<<< HEAD
           valid or not
+=======
+          valid
+
+          or not
+>>>>>>> tags/v0.11.6
       valid_account_name:
         type: string
         title: >-
           ValidAccountName defines a regexp that determines if an account name
+<<<<<<< HEAD
           is valid or not
+=======
+          is
+
+          valid or not
+>>>>>>> tags/v0.11.6
       valid_uri:
         type: string
         title: >-
@@ -2765,13 +3194,25 @@ definitions:
         type: string
         title: >-
           DomainRenewalPeriod defines the duration of the domain renewal period
+<<<<<<< HEAD
           in seconds
+=======
+          in
+
+          seconds
+>>>>>>> tags/v0.11.6
       domain_renewal_count_max:
         type: integer
         format: int64
         title: >-
           DomainRenewalCountMax defines maximum number of domain renewals a user
+<<<<<<< HEAD
           can do
+=======
+          can
+
+          do
+>>>>>>> tags/v0.11.6
       domain_grace_period:
         type: string
         title: >-
@@ -2781,13 +3222,25 @@ definitions:
         type: string
         title: >-
           AccountRenewalPeriod defines the duration of the account renewal
+<<<<<<< HEAD
           period in seconds
+=======
+          period in
+
+          seconds
+>>>>>>> tags/v0.11.6
       account_renewal_count_max:
         type: integer
         format: int64
         title: >-
           AccountRenewalCountMax defines maximum number of account renewals a
+<<<<<<< HEAD
           user can do
+=======
+          user
+
+          can do
+>>>>>>> tags/v0.11.6
       account_grace_period:
         type: string
         title: >-
@@ -2798,11 +3251,21 @@ definitions:
         format: int64
         title: >-
           ResourcesMax defines maximum number of resources could be saved under
+<<<<<<< HEAD
           an account
       certificate_size_max:
         type: string
         format: uint64
         title: >-
+=======
+          an
+
+          account
+      certificate_size_max:
+        type: string
+        format: uint64
+        title: |-
+>>>>>>> tags/v0.11.6
           CertificateSizeMax defines maximum size of a certificate that could be
           saved under an account
       certificate_count_max:
@@ -2810,25 +3273,46 @@ definitions:
         format: int64
         title: >-
           CertificateCountMax defines maximum number of certificates that could
+<<<<<<< HEAD
           be saved under an account
+=======
+          be
+
+          saved under an account
+>>>>>>> tags/v0.11.6
       metadata_size_max:
         type: string
         format: uint64
         title: >-
           MetadataSizeMax defines maximum size of metadata that could be saved
+<<<<<<< HEAD
           under an account
       escrow_broker:
         type: string
         title: >-
+=======
+          under
+
+          an account
+      escrow_broker:
+        type: string
+        title: |-
+>>>>>>> tags/v0.11.6
           EscrowBroker defines an address that will receive a commission for
           completed escrows
       escrow_commission:
         type: string
         title: >-
           EscrowCommission defines the commission taken by the broker for a
+<<<<<<< HEAD
           completed escrow, between 0 (no commission) and
 
           1 (100% commission)
+=======
+          completed
+
+          escrow, between 0 (no commission) and 1 (100% commission)
+>>>>>>> tags/v0.11.6
       escrow_max_period:
         type: string
         title: EscrowPeriod defines the maximum duration of an escrow in seconds
@@ -2849,75 +3333,144 @@ definitions:
         type: string
         title: >-
           RegisterAccountClosed is the fee to be paid to register an account in
+<<<<<<< HEAD
           a closed domain
+=======
+          a
+
+          closed domain
+>>>>>>> tags/v0.11.6
       register_account_open:
         type: string
         title: >-
           RegisterAccountOpen is the fee to be paid to register an account in an
+<<<<<<< HEAD
           open domain
+=======
+          open
+
+          domain
+>>>>>>> tags/v0.11.6
       transfer_account_closed:
         type: string
         title: >-
           TransferAccountClosed is the fee to be paid to register an account in
+<<<<<<< HEAD
           a closed domain
+=======
+          a
+
+          closed domain
+>>>>>>> tags/v0.11.6
       transfer_account_open:
         type: string
         title: >-
           TransferAccountOpen is the fee to be paid to register an account in an
+<<<<<<< HEAD
           open domain
       replace_account_resources:
         type: string
         title: >-
+=======
+          open
+
+          domain
+      replace_account_resources:
+        type: string
+        title: |-
+>>>>>>> tags/v0.11.6
           ReplaceAccountResources is the fee to be paid to replace account's
           resources
       add_account_certificate:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           AddAccountCertificate is the fee to be paid to add a certificate to an
           account
       del_account_certificate:
         type: string
         title: >-
           DelAccountCertificate is the feed to be paid to delete a certificate
+<<<<<<< HEAD
           in an account
+=======
+          in an
+
+          account
+>>>>>>> tags/v0.11.6
       set_account_metadata:
         type: string
         title: SetAccountMetadata is the fee to be paid to set account's metadata
       register_domain_1:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           RegisterDomain1 is the fee to be paid to register a domain with one
           character
       register_domain_2:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           RegisterDomain2 is the fee to be paid to register a domain with two
           characters
       register_domain_3:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           RegisterDomain3 is the fee to be paid to register a domain with three
           characters
       register_domain_4:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           RegisterDomain4 is the fee to be paid to register a domain with four
           characters
       register_domain_5:
         type: string
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           RegisterDomain5 is the fee to be paid to register a domain with five
           characters
       register_domain_default:
         type: string
         title: >-
           RegisterDomainDefault is the fee to be paid to register a domain with
+<<<<<<< HEAD
           more than five characters
+=======
+          more
+
+          than five characters
+>>>>>>> tags/v0.11.6
       register_open_domain_multiplier:
         type: string
         title: >-
           register_open_domain_multiplier is the multiplication applied to fees
+<<<<<<< HEAD
           in register domain operations if they're of open type
+=======
+          in
+
+          register domain operations if they're of open type
+>>>>>>> tags/v0.11.6
       transfer_domain_closed:
         type: string
         title: >-
@@ -2944,8 +3497,15 @@ definitions:
         type: string
         title: >-
           refund_escrow is the fee to be paid to refund the account or domain
+<<<<<<< HEAD
           placed in an escrow
     title: >-
+=======
+          placed
+
+          in an escrow
+    title: |-
+>>>>>>> tags/v0.11.6
       Fees contains different type of fees to calculate coins to detract when
       processing different messages
   starnamed.x.configuration.v1beta1.QueryConfigResponse:
@@ -2959,17 +3519,35 @@ definitions:
             type: string
             title: >-
               Configurer is the configuration owner, the addresses allowed to
+<<<<<<< HEAD
               handle fees and register domains with no superuser
+=======
+              handle fees
+
+              and register domains with no superuser
+>>>>>>> tags/v0.11.6
           valid_domain_name:
             type: string
             title: >-
               ValidDomainName defines a regexp that determines if a domain name
+<<<<<<< HEAD
               is valid or not
+=======
+              is valid
+
+              or not
+>>>>>>> tags/v0.11.6
           valid_account_name:
             type: string
             title: >-
               ValidAccountName defines a regexp that determines if an account
+<<<<<<< HEAD
               name is valid or not
+=======
+              name is
+
+              valid or not
+>>>>>>> tags/v0.11.6
           valid_uri:
             type: string
             title: >-
@@ -2982,13 +3560,25 @@ definitions:
             type: string
             title: >-
               DomainRenewalPeriod defines the duration of the domain renewal
+<<<<<<< HEAD
               period in seconds
+=======
+              period in
+
+              seconds
+>>>>>>> tags/v0.11.6
           domain_renewal_count_max:
             type: integer
             format: int64
             title: >-
               DomainRenewalCountMax defines maximum number of domain renewals a
+<<<<<<< HEAD
               user can do
+=======
+              user can
+
+              do
+>>>>>>> tags/v0.11.6
           domain_grace_period:
             type: string
             title: >-
@@ -2998,13 +3588,25 @@ definitions:
             type: string
             title: >-
               AccountRenewalPeriod defines the duration of the account renewal
+<<<<<<< HEAD
               period in seconds
+=======
+              period in
+
+              seconds
+>>>>>>> tags/v0.11.6
           account_renewal_count_max:
             type: integer
             format: int64
             title: >-
               AccountRenewalCountMax defines maximum number of account renewals
+<<<<<<< HEAD
               a user can do
+=======
+              a user
+
+              can do
+>>>>>>> tags/v0.11.6
           account_grace_period:
             type: string
             title: >-
@@ -3015,42 +3617,79 @@ definitions:
             format: int64
             title: >-
               ResourcesMax defines maximum number of resources could be saved
+<<<<<<< HEAD
               under an account
+=======
+              under an
+
+              account
+>>>>>>> tags/v0.11.6
           certificate_size_max:
             type: string
             format: uint64
             title: >-
               CertificateSizeMax defines maximum size of a certificate that
+<<<<<<< HEAD
               could be saved under an account
+=======
+              could be
+
+              saved under an account
+>>>>>>> tags/v0.11.6
           certificate_count_max:
             type: integer
             format: int64
             title: >-
               CertificateCountMax defines maximum number of certificates that
+<<<<<<< HEAD
               could be saved under an account
+=======
+              could be
+
+              saved under an account
+>>>>>>> tags/v0.11.6
           metadata_size_max:
             type: string
             format: uint64
             title: >-
               MetadataSizeMax defines maximum size of metadata that could be
+<<<<<<< HEAD
               saved under an account
           escrow_broker:
             type: string
             title: >-
+=======
+              saved under
+
+              an account
+          escrow_broker:
+            type: string
+            title: |-
+>>>>>>> tags/v0.11.6
               EscrowBroker defines an address that will receive a commission for
               completed escrows
           escrow_commission:
             type: string
             title: >-
               EscrowCommission defines the commission taken by the broker for a
+<<<<<<< HEAD
               completed escrow, between 0 (no commission) and
 
               1 (100% commission)
+=======
+              completed
+
+              escrow, between 0 (no commission) and 1 (100% commission)
+>>>>>>> tags/v0.11.6
           escrow_max_period:
             type: string
             title: EscrowPeriod defines the maximum duration of an escrow in seconds
         title: Config is the configuration of the network
+<<<<<<< HEAD
     description: >-
+=======
+    description: |-
+>>>>>>> tags/v0.11.6
       QueryConfigResponse is the response type for the Query/Configuration RPC
       method.
   starnamed.x.configuration.v1beta1.QueryFeesResponse:
@@ -3075,37 +3714,76 @@ definitions:
             type: string
             title: >-
               RegisterAccountClosed is the fee to be paid to register an account
+<<<<<<< HEAD
               in a closed domain
+=======
+              in a
+
+              closed domain
+>>>>>>> tags/v0.11.6
           register_account_open:
             type: string
             title: >-
               RegisterAccountOpen is the fee to be paid to register an account
+<<<<<<< HEAD
               in an open domain
+=======
+              in an open
+
+              domain
+>>>>>>> tags/v0.11.6
           transfer_account_closed:
             type: string
             title: >-
               TransferAccountClosed is the fee to be paid to register an account
+<<<<<<< HEAD
               in a closed domain
+=======
+              in a
+
+              closed domain
+>>>>>>> tags/v0.11.6
           transfer_account_open:
             type: string
             title: >-
               TransferAccountOpen is the fee to be paid to register an account
+<<<<<<< HEAD
               in an open domain
           replace_account_resources:
             type: string
             title: >-
+=======
+              in an open
+
+              domain
+          replace_account_resources:
+            type: string
+            title: |-
+>>>>>>> tags/v0.11.6
               ReplaceAccountResources is the fee to be paid to replace account's
               resources
           add_account_certificate:
             type: string
             title: >-
               AddAccountCertificate is the fee to be paid to add a certificate
+<<<<<<< HEAD
               to an account
+=======
+              to an
+
+              account
+>>>>>>> tags/v0.11.6
           del_account_certificate:
             type: string
             title: >-
               DelAccountCertificate is the feed to be paid to delete a
+<<<<<<< HEAD
               certificate in an account
+=======
+              certificate in an
+
+              account
+>>>>>>> tags/v0.11.6
           set_account_metadata:
             type: string
             title: SetAccountMetadata is the fee to be paid to set account's metadata
@@ -3113,37 +3791,79 @@ definitions:
             type: string
             title: >-
               RegisterDomain1 is the fee to be paid to register a domain with
+<<<<<<< HEAD
               one character
+=======
+              one
+
+              character
+>>>>>>> tags/v0.11.6
           register_domain_2:
             type: string
             title: >-
               RegisterDomain2 is the fee to be paid to register a domain with
+<<<<<<< HEAD
               two characters
+=======
+              two
+
+              characters
+>>>>>>> tags/v0.11.6
           register_domain_3:
             type: string
             title: >-
               RegisterDomain3 is the fee to be paid to register a domain with
+<<<<<<< HEAD
               three characters
+=======
+              three
+
+              characters
+>>>>>>> tags/v0.11.6
           register_domain_4:
             type: string
             title: >-
               RegisterDomain4 is the fee to be paid to register a domain with
+<<<<<<< HEAD
               four characters
+=======
+              four
+
+              characters
+>>>>>>> tags/v0.11.6
           register_domain_5:
             type: string
             title: >-
               RegisterDomain5 is the fee to be paid to register a domain with
+<<<<<<< HEAD
               five characters
+=======
+              five
+
+              characters
+>>>>>>> tags/v0.11.6
           register_domain_default:
             type: string
             title: >-
               RegisterDomainDefault is the fee to be paid to register a domain
+<<<<<<< HEAD
               with more than five characters
+=======
+              with more
+
+              than five characters
+>>>>>>> tags/v0.11.6
           register_open_domain_multiplier:
             type: string
             title: >-
               register_open_domain_multiplier is the multiplication applied to
+<<<<<<< HEAD
               fees in register domain operations if they're of open type
+=======
+              fees in
+
+              register domain operations if they're of open type
+>>>>>>> tags/v0.11.6
           transfer_domain_closed:
             type: string
             title: >-
@@ -3172,10 +3892,21 @@ definitions:
             type: string
             title: >-
               refund_escrow is the fee to be paid to refund the account or
+<<<<<<< HEAD
               domain placed in an escrow
         title: >-
           Fees contains different type of fees to calculate coins to detract
           when processing different messages
+=======
+              domain placed
+
+              in an escrow
+        title: >-
+          Fees contains different type of fees to calculate coins to detract
+          when
+
+          processing different messages
+>>>>>>> tags/v0.11.6
     title: QueryFeesResponse is the response type for the Query/Fees RPC method
   cosmos.base.v1beta1.Coin:
     type: object
@@ -3373,6 +4104,7 @@ definitions:
           TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
           Although the price contains multiple coins, for now we enforce a
+<<<<<<< HEAD
           specific denomination, so there will be only
 
           one coin type in a valid escrow
@@ -3386,6 +4118,24 @@ definitions:
         default: ESCROW_STATE_OPEN
         description: |-
           - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+=======
+          specific
+
+          denomination, so there will be only one coin type in a valid escrow
+      state:
+        type: string
+        enum:
+          - ESCROW_STATE_OPEN_UNSPECIFIED
+          - ESCROW_STATE_COMPLETED
+          - ESCROW_STATE_REFUNDED
+          - ESCROW_STATE_EXPIRED
+        default: ESCROW_STATE_OPEN_UNSPECIFIED
+        description: >-
+          - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED defines
+          an open state. TODO:: review the
+
+          _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
            - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
            - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
            - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3401,6 +4151,7 @@ definitions:
   starnamed.x.escrow.v1beta1.EscrowState:
     type: string
     enum:
+<<<<<<< HEAD
       - ESCROW_STATE_OPEN
       - ESCROW_STATE_COMPLETED
       - ESCROW_STATE_REFUNDED
@@ -3408,6 +4159,18 @@ definitions:
     default: ESCROW_STATE_OPEN
     description: |-
       - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+=======
+      - ESCROW_STATE_OPEN_UNSPECIFIED
+      - ESCROW_STATE_COMPLETED
+      - ESCROW_STATE_REFUNDED
+      - ESCROW_STATE_EXPIRED
+    default: ESCROW_STATE_OPEN_UNSPECIFIED
+    description: >-
+      - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED defines an
+      open state. TODO:: review the
+
+      _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
        - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
        - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
        - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3608,6 +4371,7 @@ definitions:
               TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
               Although the price contains multiple coins, for now we enforce a
+<<<<<<< HEAD
               specific denomination, so there will be only
 
               one coin type in a valid escrow
@@ -3621,6 +4385,25 @@ definitions:
             default: ESCROW_STATE_OPEN
             description: |-
               - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+=======
+              specific
+
+              denomination, so there will be only one coin type in a valid
+              escrow
+          state:
+            type: string
+            enum:
+              - ESCROW_STATE_OPEN_UNSPECIFIED
+              - ESCROW_STATE_COMPLETED
+              - ESCROW_STATE_REFUNDED
+              - ESCROW_STATE_EXPIRED
+            default: ESCROW_STATE_OPEN_UNSPECIFIED
+            description: >-
+              - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED
+              defines an open state. TODO:: review the
+
+              _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
                - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3836,6 +4619,7 @@ definitions:
                 TODO: refactor this to use sdk.Coin instead of sdk.Coins
 
                 Although the price contains multiple coins, for now we enforce a
+<<<<<<< HEAD
                 specific denomination, so there will be only
 
                 one coin type in a valid escrow
@@ -3849,6 +4633,25 @@ definitions:
               default: ESCROW_STATE_OPEN
               description: |-
                 - ESCROW_STATE_OPEN: ESCROW_STATE_OPEN defines an open state.
+=======
+                specific
+
+                denomination, so there will be only one coin type in a valid
+                escrow
+            state:
+              type: string
+              enum:
+                - ESCROW_STATE_OPEN_UNSPECIFIED
+                - ESCROW_STATE_COMPLETED
+                - ESCROW_STATE_REFUNDED
+                - ESCROW_STATE_EXPIRED
+              default: ESCROW_STATE_OPEN_UNSPECIFIED
+              description: >-
+                - ESCROW_STATE_OPEN_UNSPECIFIED: ESCROW_STATE_OPEN_UNSPECIFIED
+                defines an open state. TODO:: review the
+
+                _UNSPECIFIED sufix
+>>>>>>> tags/v0.11.6
                  - ESCROW_STATE_COMPLETED: ESCROW_STATE_COMPLETED defines a completed state.
                  - ESCROW_STATE_REFUNDED: ESCROW_STATE_REFUNDED defines a refunded state.
                  - ESCROW_STATE_EXPIRED: ESCROW_STATE_REFUNDED defines an expired state.
@@ -3948,13 +4751,25 @@ definitions:
         format: byte
         title: >-
           Broker identifies an entity that facilitated the transaction of the
+<<<<<<< HEAD
           account and can be empty
+=======
+          account
+
+          and can be empty
+>>>>>>> tags/v0.11.6
       valid_until:
         type: string
         format: int64
         title: >-
           ValidUntil defines a unix timestamp of the expiration of the account
+<<<<<<< HEAD
           in seconds
+=======
+          in
+
+          seconds
+>>>>>>> tags/v0.11.6
       resources:
         type: array
         items:
@@ -3973,7 +4788,11 @@ definitions:
         items:
           type: string
           format: byte
+<<<<<<< HEAD
         title: >-
+=======
+        title: |-
+>>>>>>> tags/v0.11.6
           Certificates contains the list of certificates to identify the account
           owner
       metadata_uri:
@@ -4001,7 +4820,13 @@ definitions:
         format: int64
         title: >-
           ValidUntil is a unix timestamp defines the time when the domain will
+<<<<<<< HEAD
           become invalid in seconds
+=======
+          become
+
+          invalid in seconds
+>>>>>>> tags/v0.11.6
       type:
         type: string
         title: Type defines the type of the domain
@@ -4029,13 +4854,25 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
+<<<<<<< HEAD
                 the account and can be empty
+=======
+                the account
+
+                and can be empty
+>>>>>>> tags/v0.11.6
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
+<<<<<<< HEAD
                 account in seconds
+=======
+                account in
+
+                seconds
+>>>>>>> tags/v0.11.6
             resources:
               type: array
               items:
@@ -4056,7 +4893,13 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
+<<<<<<< HEAD
                 account owner
+=======
+                account
+
+                owner
+>>>>>>> tags/v0.11.6
             metadata_uri:
               type: string
               title: >-
@@ -4094,7 +4937,13 @@ definitions:
            }
     description: >-
       QueryBrokerAccountsResponse is the response type for the
+<<<<<<< HEAD
       Query/BrokerAccounts RPC method.
+=======
+      Query/BrokerAccounts
+
+      RPC method.
+>>>>>>> tags/v0.11.6
   starnamed.x.starname.v1beta1.QueryBrokerDomainsResponse:
     type: object
     properties:
@@ -4118,7 +4967,13 @@ definitions:
               format: int64
               title: >-
                 ValidUntil is a unix timestamp defines the time when the domain
+<<<<<<< HEAD
                 will become invalid in seconds
+=======
+                will become
+
+                invalid in seconds
+>>>>>>> tags/v0.11.6
             type:
               type: string
               title: Type defines the type of the domain
@@ -4151,7 +5006,13 @@ definitions:
            }
     description: >-
       QueryBrokerDomainsResponse is the response type for the
+<<<<<<< HEAD
       Query/BrokerDomains RPC method.
+=======
+      Query/BrokerDomains
+
+      RPC method.
+>>>>>>> tags/v0.11.6
   starnamed.x.starname.v1beta1.QueryDomainAccountsResponse:
     type: object
     properties:
@@ -4175,13 +5036,25 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
+<<<<<<< HEAD
                 the account and can be empty
+=======
+                the account
+
+                and can be empty
+>>>>>>> tags/v0.11.6
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
+<<<<<<< HEAD
                 account in seconds
+=======
+                account in
+
+                seconds
+>>>>>>> tags/v0.11.6
             resources:
               type: array
               items:
@@ -4202,7 +5075,13 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
+<<<<<<< HEAD
                 account owner
+=======
+                account
+
+                owner
+>>>>>>> tags/v0.11.6
             metadata_uri:
               type: string
               title: >-
@@ -4240,7 +5119,13 @@ definitions:
            }
     description: >-
       QueryDomainAccountsResponse is the response type for the
+<<<<<<< HEAD
       Query/DomainAccounts RPC method.
+=======
+      Query/DomainAccounts
+
+      RPC method.
+>>>>>>> tags/v0.11.6
   starnamed.x.starname.v1beta1.QueryDomainResponse:
     type: object
     properties:
@@ -4263,7 +5148,13 @@ definitions:
             format: int64
             title: >-
               ValidUntil is a unix timestamp defines the time when the domain
+<<<<<<< HEAD
               will become invalid in seconds
+=======
+              will become
+
+              invalid in seconds
+>>>>>>> tags/v0.11.6
           type:
             type: string
             title: Type defines the type of the domain
@@ -4292,13 +5183,25 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
+<<<<<<< HEAD
                 the account and can be empty
+=======
+                the account
+
+                and can be empty
+>>>>>>> tags/v0.11.6
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
+<<<<<<< HEAD
                 account in seconds
+=======
+                account in
+
+                seconds
+>>>>>>> tags/v0.11.6
             resources:
               type: array
               items:
@@ -4319,7 +5222,13 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
+<<<<<<< HEAD
                 account owner
+=======
+                account
+
+                owner
+>>>>>>> tags/v0.11.6
             metadata_uri:
               type: string
               title: >-
@@ -4357,7 +5266,13 @@ definitions:
            }
     description: >-
       QueryOwnerAccountsResponse is the response type for the
+<<<<<<< HEAD
       Query/OwnerAccounts RPC method.
+=======
+      Query/OwnerAccounts
+
+      RPC method.
+>>>>>>> tags/v0.11.6
   starnamed.x.starname.v1beta1.QueryOwnerDomainsResponse:
     type: object
     properties:
@@ -4381,7 +5296,13 @@ definitions:
               format: int64
               title: >-
                 ValidUntil is a unix timestamp defines the time when the domain
+<<<<<<< HEAD
                 will become invalid in seconds
+=======
+                will become
+
+                invalid in seconds
+>>>>>>> tags/v0.11.6
             type:
               type: string
               title: Type defines the type of the domain
@@ -4414,7 +5335,13 @@ definitions:
            }
     description: >-
       QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains
+<<<<<<< HEAD
       RPC method.
+=======
+      RPC
+
+      method.
+>>>>>>> tags/v0.11.6
   starnamed.x.starname.v1beta1.QueryResourceAccountsResponse:
     type: object
     properties:
@@ -4438,13 +5365,25 @@ definitions:
               format: byte
               title: >-
                 Broker identifies an entity that facilitated the transaction of
+<<<<<<< HEAD
                 the account and can be empty
+=======
+                the account
+
+                and can be empty
+>>>>>>> tags/v0.11.6
             valid_until:
               type: string
               format: int64
               title: >-
                 ValidUntil defines a unix timestamp of the expiration of the
+<<<<<<< HEAD
                 account in seconds
+=======
+                account in
+
+                seconds
+>>>>>>> tags/v0.11.6
             resources:
               type: array
               items:
@@ -4465,7 +5404,13 @@ definitions:
                 format: byte
               title: >-
                 Certificates contains the list of certificates to identify the
+<<<<<<< HEAD
                 account owner
+=======
+                account
+
+                owner
+>>>>>>> tags/v0.11.6
             metadata_uri:
               type: string
               title: >-
@@ -4501,7 +5446,11 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
+<<<<<<< HEAD
     description: >-
+=======
+    description: |-
+>>>>>>> tags/v0.11.6
       QueryResourceAccountsResponse is the response type for the
       Query/ResourceAccounts RPC method.
   starnamed.x.starname.v1beta1.QueryStarnameResponse:
@@ -4526,13 +5475,25 @@ definitions:
             format: byte
             title: >-
               Broker identifies an entity that facilitated the transaction of
+<<<<<<< HEAD
               the account and can be empty
+=======
+              the account
+
+              and can be empty
+>>>>>>> tags/v0.11.6
           valid_until:
             type: string
             format: int64
             title: >-
               ValidUntil defines a unix timestamp of the expiration of the
+<<<<<<< HEAD
               account in seconds
+=======
+              account in
+
+              seconds
+>>>>>>> tags/v0.11.6
           resources:
             type: array
             items:
@@ -4553,7 +5514,13 @@ definitions:
               format: byte
             title: >-
               Certificates contains the list of certificates to identify the
+<<<<<<< HEAD
               account owner
+=======
+              account
+
+              owner
+>>>>>>> tags/v0.11.6
           metadata_uri:
             type: string
             title: >-

@@ -5,7 +5,11 @@ package types
 
 import (
 	fmt "fmt"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"

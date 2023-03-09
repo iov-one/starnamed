@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/iov-one/starnamed/x/escrow/types";
 option (gogoproto.goproto_getters_all) = false;
 
+<<<<<<< HEAD
 
 // TestObject defines a transferable object used for testing
 message TestObject {
@@ -19,4 +20,21 @@ message TestTimeConstrainedObject {
     uint64 id = 1;
     bytes owner = 2 [ (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress" ];
     uint64 expiration = 3;
+=======
+// TestObject defines a transferable object used for testing
+message TestObject {
+  uint64 id = 1;
+  bytes owner = 2 [ (gogoproto.casttype) =
+                        "github.com/cosmos/cosmos-sdk/types.AccAddress" ];
+  int64 num_allowed_transfers = 3;
+}
+
+// TestTimeConstrainedObject defines a transferable object with a time constrain
+// used for testing
+message TestTimeConstrainedObject {
+  uint64 id = 1;
+  bytes owner = 2 [ (gogoproto.casttype) =
+                        "github.com/cosmos/cosmos-sdk/types.AccAddress" ];
+  uint64 expiration = 3;
+>>>>>>> tags/v0.11.6
 }

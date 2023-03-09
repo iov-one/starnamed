@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 syntax="proto3";
+=======
+syntax = "proto3";
+>>>>>>> tags/v0.11.6
 package starnamed.x.configuration.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "iov/configuration/v1beta1/types.proto";
 
+<<<<<<< HEAD
 option go_package="github.com/iov-one/starnamed/x/configuration/types";
 
 // MsgUpdateConfig is used to update starname configuration
@@ -25,4 +30,24 @@ message MsgUpdateFees {
     string configurer = 2 [
         (gogoproto.moretags) = "yaml:\"configurer\""
     ];
+=======
+option go_package = "github.com/iov-one/starnamed/x/configuration/types";
+
+// MsgUpdateConfig is used to update starname configuration
+message MsgUpdateConfig {
+  // Signer is the address of the entity who is doing the transaction
+  string signer = 1 [ (gogoproto.moretags) = "yaml:\"signer\"" ];
+  // NewConfiguration contains the new configuration data
+  Config new_configuration = 2 [
+    (gogoproto.moretags) = "yaml:\"new_configuration\"",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// MsgUpdateFees is used to update the starname product fees in the starname
+// module.
+message MsgUpdateFees {
+  Fees fees = 1;
+  string configurer = 2 [ (gogoproto.moretags) = "yaml:\"configurer\"" ];
+>>>>>>> tags/v0.11.6
 }

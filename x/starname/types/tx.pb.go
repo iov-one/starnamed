@@ -6,7 +6,11 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	grpc "google.golang.org/grpc"
@@ -28,7 +32,12 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+<<<<<<< HEAD
 // MsgAddAccountCertificate is the message used when a user wants to add new certificates to his account
+=======
+// MsgAddAccountCertificate is the message used when a user wants to add new
+// certificates to his account
+>>>>>>> tags/v0.11.6
 type MsgAddAccountCertificate struct {
 	// Domain is the domain of the account
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
@@ -36,7 +45,12 @@ type MsgAddAccountCertificate struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewCertificate is the new certificate to add
 	NewCertificate []byte `protobuf:"bytes,5,opt,name=new_certificate,json=newCertificate,proto3" json:"new_certificate,omitempty" yaml:"new_certificate"`
@@ -147,7 +161,12 @@ func (m *MsgAddAccountCertificateResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgAddAccountCertificateResponse proto.InternalMessageInfo
 
+<<<<<<< HEAD
 // MsgDeleteAccountCertificate is the request model used to remove certificates from an account
+=======
+// MsgDeleteAccountCertificate is the request model used to remove certificates
+// from an account
+>>>>>>> tags/v0.11.6
 type MsgDeleteAccountCertificate struct {
 	// Domain is the domain of the account
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
@@ -155,7 +174,12 @@ type MsgDeleteAccountCertificate struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte `protobuf:"bytes,5,opt,name=delete_certificate,json=deleteCertificate,proto3" json:"delete_certificate,omitempty" yaml:"delete_certificate"`
@@ -274,7 +298,12 @@ type MsgDeleteAccount struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
@@ -382,7 +411,12 @@ type MsgDeleteDomain struct {
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
@@ -485,7 +519,12 @@ type MsgRegisterAccount struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// Broker is the account that facilitated the transaction
 	Broker string `protobuf:"bytes,5,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
@@ -618,7 +657,12 @@ var xxx_messageInfo_MsgRegisterAccountResponse proto.InternalMessageInfo
 type MsgRegisterDomain struct {
 	Name  string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	Admin string `protobuf:"bytes,2,opt,name=admin,proto3" json:"admin,omitempty" yaml:"admin"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// Broker is the account that facilitated the transaction
 	Broker string `protobuf:"bytes,4,opt,name=broker,proto3" json:"broker,omitempty" yaml:"broker"`
@@ -739,7 +783,12 @@ type MsgRenewAccount struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Signer is the signer of the request
 	Signer string `protobuf:"bytes,3,opt,name=signer,proto3" json:"signer,omitempty" yaml:"signer"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
@@ -847,7 +896,12 @@ type MsgRenewDomain struct {
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Signer is the signer of the request
 	Signer string `protobuf:"bytes,2,opt,name=signer,proto3" json:"signer,omitempty" yaml:"signer"`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 }
 
@@ -942,7 +996,12 @@ func (m *MsgRenewDomainResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRenewDomainResponse proto.InternalMessageInfo
 
+<<<<<<< HEAD
 // MsgReplaceAccountResources is the request model used to renew resources associated with an account
+=======
+// MsgReplaceAccountResources is the request model used to renew resources
+// associated with an account
+>>>>>>> tags/v0.11.6
 type MsgReplaceAccountResources struct {
 	// Domain is the domain of the account
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
@@ -950,7 +1009,12 @@ type MsgReplaceAccountResources struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewResources are the new resources
 	NewResources []*Resource `protobuf:"bytes,5,rep,name=new_resources,json=newResources,proto3" json:"new_resources,omitempty" yaml:"new_resources`
@@ -1069,7 +1133,12 @@ type MsgReplaceAccountMetadata struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewMetadataURI is the metadata URI of the account
 	// we want to update or insert
@@ -1189,7 +1258,12 @@ type MsgTransferAccount struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
 	// Owner is the owner of the account
 	Owner string `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,4,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewOwner is the new owner of the account
 	NewOwner string `protobuf:"bytes,5,opt,name=new_owner,json=newOwner,proto3" json:"new_owner,omitempty" yaml:"new_owner`
@@ -1315,7 +1389,12 @@ type MsgTransferDomain struct {
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty" yaml:"domain"`
 	// Owner is the owner of the domain
 	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty" yaml:"owner`
+<<<<<<< HEAD
 	// Payer is the address of the entity that pays the product and transaction fees
+=======
+	// Payer is the address of the entity that pays the product and transaction
+	// fees
+>>>>>>> tags/v0.11.6
 	Payer string `protobuf:"bytes,3,opt,name=payer,proto3" json:"payer,omitempty" yaml:"payer"`
 	// NewAdmin is the  new owner of the domain
 	NewAdmin string `protobuf:"bytes,4,opt,name=new_admin,json=newAdmin,proto3" json:"new_admin,omitempty" yaml:"new_admin`

@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 syntax="proto3";
 
 package cosmos.offchain.v1alpha1;
 
 option go_package="github.com/iov-one/starnamed/x/offchain/types";
+=======
+syntax = "proto3";
+
+package cosmos.offchain.v1alpha1;
+
+option go_package = "github.com/iov-one/starnamed/x/offchain/types";
+>>>>>>> tags/v0.11.6
 
 import "gogoproto/gogo.proto";
 
 // MsgSignData defines an arbitrary, general-purpose, off-chain message
 message MsgSignData {
+<<<<<<< HEAD
     // signer is the bech32 representation of the signer's account address
     string signer = 1;
     // data represents the raw bytes of the content that is signed (text, json, etc)
@@ -18,4 +27,18 @@ message MsgSignData {
 message ListOfMsgSignData {
     // msgs is a list of messages
     repeated MsgSignData msgs = 1;
+=======
+  // signer is the bech32 representation of the signer's account address
+  string signer = 1;
+  // data represents the raw bytes of the content that is signed (text, json,
+  // etc)
+  bytes data = 2;
+}
+
+// ListOfMsgSignData defines a list of MsgSignData, used to marshal and
+// unmarshal them in a clean way
+message ListOfMsgSignData {
+  // msgs is a list of messages
+  repeated MsgSignData msgs = 1;
+>>>>>>> tags/v0.11.6
 }

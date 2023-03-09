@@ -5,7 +5,11 @@
 Events are an essential part of the Cosmos SDK. They are similar to "logs" in Ethereum and allow a blockchain
 app to attach key-value pairs to a transaction that can later be used to search for it or extract some information
 in human readable form. Events are not written to the application state, nor do they form part of the AppHash,
+<<<<<<< HEAD
 but mainly intended for client use (and become an essential API for any reactive app or app that searches for txs).
+=======
+but mainly intended for client use (and become an essential API for any reactive app or app that searches for txs). 
+>>>>>>> tags/v0.11.6
 
 In contrast, transactions also have a binary "data" field that is part of the AppHash (provable with light client proofs,
 part of consensus). This data is not searchable, but given a tx hash, you can be guaranteed what the data returned is.
@@ -15,7 +19,11 @@ Every message in the SDK may add events to the EventManager and these are then a
 to Tendermint. Events are exposed in 3 different ways over the Tendermint API (which is the only way a client can query).
 First of all is the `events` field on the transaction result (when you query a transaction by hash, you can see all event emitted
 by it). Secondly is the `log` field on the same transaction result. And third is the query interface to search or subscribe for
+<<<<<<< HEAD
 transactions.
+=======
+transactions. 
+>>>>>>> tags/v0.11.6
 
 The `log` field actually has the best data. It contains an array of array of events. The first array is one entry per incoming message.
 Transactions in the Cosmos SDK may consist of multiple messages that are executed atomically. Maybe we send tokens, then issue a swap
@@ -29,7 +37,11 @@ the per-message arrays contained in the `log` field. This fix was made as
 [pluggable event indexing engines](https://github.com/tendermint/tendermint/pull/6411), so we can use eg. PostgreSQL to
 store and query the events with more powerful indexes.
 
+<<<<<<< HEAD
 However, currently (until Tendermint 0.34 used in Cosmos SDK 0.40-0.43), all events of one transaction are "flat-mapped" on type.
+=======
+However, currently (until Tendermint 0.34 used in Cosmos SDK 0.40-0.43), all events of one transaction are "flat-mapped" on type. 
+>>>>>>> tags/v0.11.6
 Meaning all events with type `wasm` get merged into one. This makes the API not very useful to understanding more complex events
 currently. There are also a number of limitations of the power of queries in the search interface.
 
@@ -42,10 +54,17 @@ The event has a string type, and a list of attributes. Each of them being a key 
 consistent order (and avoid dictionaries/hashes). Here is a simple Event in JSON:
 
 ```json
+<<<<<<< HEAD
 {
     "type": "wasm",
     "attributes": [
         {"key": "_contract_address", "value": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6"},
+=======
+{ 
+    "type": "wasm", 
+    "attributes": [
+        {"key": "_contract_address", "value": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6"}, 
+>>>>>>> tags/v0.11.6
         {"key": "transfered", "value": "777000"}
     ]
 }
@@ -56,6 +75,7 @@ And here is a sample log output for a transaction with one message, which emitte
 ```json
 [
     [
+<<<<<<< HEAD
         {
             "type": "message",
             "attributes": [
@@ -67,6 +87,19 @@ And here is a sample log output for a transaction with one message, which emitte
             "type": "transfer",
             "attributes": [
                 {"key": "recipient", "value": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6"},
+=======
+        { 
+            "type": "message", 
+            "attributes": [
+                {"key": "module", "value": "bank"}, 
+                {"key": "action", "value": "send"}
+            ]
+        },
+        { 
+            "type": "transfer", 
+            "attributes": [
+                {"key": "recipient", "value": "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6"}, 
+>>>>>>> tags/v0.11.6
                 {"key": "amount", "value": "777000uatom"}
             ]
         }
@@ -79,7 +112,11 @@ And here is a sample log output for a transaction with one message, which emitte
 There are two places events that are emitted in every transaction regardless of the module which is executed.
 [The first is `{"type": "message"}`](https://github.com/cosmos/cosmos-sdk/blob/6888de1d86026c25197c1227dae3d7da4d41a441/baseapp/baseapp.go#L746-L748)
 defining an `action` attribute. This is emitted for each top-level (user-signed) message, but the action names have changed between
+<<<<<<< HEAD
 0.42 and 0.43.
+=======
+0.42 and 0.43. 
+>>>>>>> tags/v0.11.6
 
 The other place is in the [signature verification AnteHandler](https://github.com/cosmos/cosmos-sdk/blob/v0.42.9/x/auth/ante/sigverify.go#L103-L120), where it emits information on the account sequences and signatures on the transaction.
 
@@ -105,7 +142,11 @@ sdk.NewEvent(
 ),
 ```
 
+<<<<<<< HEAD
 The delegation module seems a bit more refined, emitting a generic "message" type event in [`msg_server.go`](https://github.com/cosmos/cosmos-sdk/blob/v0.42.9/x/distribution/keeper/msg_server.go#L42-L46) including the module name, **before**
+=======
+The delegation module seems a bit more refined, emitting a generic "message" type event in [`msg_server.go`](https://github.com/cosmos/cosmos-sdk/blob/v0.42.9/x/distribution/keeper/msg_server.go#L42-L46) including the module name, **before** 
+>>>>>>> tags/v0.11.6
 emitting some custom event types closer to the actual code logic in
 [`keeper.go`](https://github.com/cosmos/cosmos-sdk/blob/v0.42.9/x/distribution/keeper/keeper.go#L74-L77).
 
@@ -125,7 +166,11 @@ sdk.NewEvent(
 
 ## Usage in wasmd
 
+<<<<<<< HEAD
 In `x/wasm` we also use Events system. On one hand, the Go implementation of `x/wasm` emits standard events for each
+=======
+In `x/wasm` we also use Events system. On one hand, the Go implementation of `x/wasm` emits standard events for each 
+>>>>>>> tags/v0.11.6
 message it processes, using the `distribution` module as an example. Furthermore, it allows contracts to
 emit custom events based on their execution state, so they can for example say "dex swap, BTC-ATOM, in 0.23, out 512"
 which require internal knowledge of the contract and is very useful for custom dApp UIs.
@@ -144,7 +189,11 @@ sdk.NewEvent(
     "message",
     sdk.NewAttribute("module", "wasm"),
     // Note: this was "signer" before 0.18
+<<<<<<< HEAD
     sdk.NewAttribute("sender", msg.Sender),
+=======
+    sdk.NewAttribute("sender", msg.Sender),  
+>>>>>>> tags/v0.11.6
 ),
 ```
 
@@ -287,7 +336,11 @@ to find all transactions related to the contract.
 While the `wasm` and `wasm-*` namespacing does sandbox the smart contract events and limits malicious activity they could
 undertake, we also perform a number of further validation checks on the contracts:
 
+<<<<<<< HEAD
 * No attribute key may start with `_`. This is currently used for `_contract_address` and is reserved for a
+=======
+* No attribute key may start with `_`. This is currently used for `_contract_address` and is reserved for a 
+>>>>>>> tags/v0.11.6
   namespace for injecting more *trusted* attributes from the `x/wasm` module as opposed to the contract itself
 * Event types are trimmed of whitespace, and must have at least two characters prior to prepending `wasm-`. If the contract returns
   "  hello\n", the event type will look like `wasm-hello`. If it emits "  a  ", this will be rejected with an error (aborting execution!)
@@ -321,7 +374,11 @@ action emitting events, so we define a structure to flatten this event tree:
 * All events are returned in execution order as [defined by CosmWasm docs](https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#dispatching-messages)
 * `x/wasm` keeper emits a custom event for each call to a contract entry point. Not just `execute`, `instantiate`,
   and `migrate`, but also `reply`, `sudo` and all ibc entry points.
+<<<<<<< HEAD
 * This means all `wasm*` events are preceeded by the cosmwasm entry point that returned them.
+=======
+* This means all `wasm*` events are preceeded by the cosmwasm entry point that returned them. 
+>>>>>>> tags/v0.11.6
 
 To make this more clear, I will provide an example of executing a contract, which returns two messages, one to instantiate a new
 contract and the other to set the withdrawl address, while also using `ReplyOnSuccess` for the instantiation (to get the
@@ -332,7 +389,11 @@ address). It will emit a series of events that looks something like this:
 sdk.NewEvent(
     "message",
     sdk.NewAttribute("module", "wasm"),
+<<<<<<< HEAD
     sdk.NewAttribute("sender", msg.Sender),
+=======
+    sdk.NewAttribute("sender", msg.Sender),  
+>>>>>>> tags/v0.11.6
 ),
 
 // top-level exection call

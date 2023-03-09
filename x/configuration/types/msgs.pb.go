@@ -5,7 +5,11 @@ package types
 
 import (
 	fmt "fmt"
+<<<<<<< HEAD
 	_ "github.com/gogo/protobuf/gogoproto"
+=======
+	_ "github.com/cosmos/gogoproto/gogoproto"
+>>>>>>> tags/v0.11.6
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -78,7 +82,12 @@ func (m *MsgUpdateConfig) GetNewConfiguration() *Config {
 	return nil
 }
 
+<<<<<<< HEAD
 // MsgUpdateFees is used to update the starname product fees in the starname module.
+=======
+// MsgUpdateFees is used to update the starname product fees in the starname
+// module.
+>>>>>>> tags/v0.11.6
 type MsgUpdateFees struct {
 	Fees       *Fees  `protobuf:"bytes,1,opt,name=fees,proto3" json:"fees,omitempty"`
 	Configurer string `protobuf:"bytes,2,opt,name=configurer,proto3" json:"configurer,omitempty" yaml:"configurer"`
