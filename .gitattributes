@@ -1,5 +1,0 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-scripts/integration/*   linguist-vendored
-scripts/genesis/*   linguist-vendored
-

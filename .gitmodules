@@ -1,6 +1,0 @@
-[submodule "scripts/genesis/data/stargatenet/config"]
-	path = scripts/genesis/data/stargatenet/config
-	url = https://gist.github.com/davepuchyr/70e00ada199170cc104fe8244d02e43a.git
-[submodule "scripts/genesis/data/iov-mainnet-ibc/config"]
-	path = scripts/genesis/data/iov-mainnet-ibc/config
-	url = https://gist.github.com/davepuchyr/6bea7bf369064d118195e9b15ea08a0f.git
