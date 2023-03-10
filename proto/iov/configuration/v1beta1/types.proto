@@ -1,0 +1,278 @@
+syntax = "proto3";
+package starnamed.x.configuration.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/iov-one/starnamed/x/configuration/types";
+option (gogoproto.equal_all) = true;
+
+// Config is the configuration of the network
+message Config {
+  // Configurer is the configuration owner, the addresses allowed to handle fees
+  // and register domains with no superuser
+  string configurer = 1 [ (gogoproto.moretags) = "yaml:\"configurer\"" ];
+  // ValidDomainName defines a regexp that determines if a domain name is valid
+  // or not
+  string valid_domain_name = 2
+      [ (gogoproto.moretags) = "yaml:\"valid_domain_name\"" ];
+  // ValidAccountName defines a regexp that determines if an account name is
+  // valid or not
+  string valid_account_name = 3
+      [ (gogoproto.moretags) = "yaml:\"valid_account_name\"" ];
+  // ValidURI defines a regexp that determines if resource uri is valid or not
+  string valid_uri = 4 [
+    (gogoproto.moretags) = "yaml:\"valid_uri\"",
+    (gogoproto.customname) = "ValidURI"
+  ];
+  // ValidResource determines a regexp for a resource content
+  string valid_resource = 5
+      [ (gogoproto.moretags) = "yaml:\"valid_resource\"" ];
+  // DomainRenewalPeriod defines the duration of the domain renewal period in
+  // seconds
+  google.protobuf.Duration domain_renewal_period = 6 [
+    (gogoproto.moretags) = "yaml:\"domain_renewal_period\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  // DomainRenewalCountMax defines maximum number of domain renewals a user can
+  // do
+  uint32 domain_renewal_count_max = 7
+      [ (gogoproto.moretags) = "yaml:\"domain_renewal_count_max\"" ];
+  // DomainGracePeriod defines the grace period for a domain deletion in seconds
+  google.protobuf.Duration domain_grace_period = 8 [
+    (gogoproto.moretags) = "yaml:\"domain_grace_period\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  // AccountRenewalPeriod defines the duration of the account renewal period in
+  // seconds
+  google.protobuf.Duration account_renewal_period = 9 [
+    (gogoproto.moretags) = "yaml:\"account_renewal_period\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  // AccountRenewalCountMax defines maximum number of account renewals a user
+  // can do
+  uint32 account_renewal_count_max = 10
+      [ (gogoproto.moretags) = "yaml:\"account_renewal_count_max\"" ];
+  // DomainGracePeriod defines the grace period for a domain deletion in seconds
+  google.protobuf.Duration account_grace_period = 11 [
+    (gogoproto.moretags) = "yaml:\"account_grace_period\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  // ResourcesMax defines maximum number of resources could be saved under an
+  // account
+  uint32 resources_max = 12 [ (gogoproto.moretags) = "yaml:\"resources_max\"" ];
+  // CertificateSizeMax defines maximum size of a certificate that could be
+  // saved under an account
+  uint64 certificate_size_max = 13
+      [ (gogoproto.moretags) = "yaml:\"certificate_size_max\"" ];
+  // CertificateCountMax defines maximum number of certificates that could be
+  // saved under an account
+  uint32 certificate_count_max = 14
+      [ (gogoproto.moretags) = "yaml:\"certificate_count_max\"" ];
+  // MetadataSizeMax defines maximum size of metadata that could be saved under
+  // an account
+  uint64 metadata_size_max = 15
+      [ (gogoproto.moretags) = "yaml:\"metadata_size_max\"" ];
+  // EscrowBroker defines an address that will receive a commission for
+  // completed escrows
+  string escrow_broker = 16 [ (gogoproto.moretags) = "yaml:\"escrow_broker\"" ];
+  // EscrowCommission defines the commission taken by the broker for a completed
+  // escrow, between 0 (no commission) and 1 (100% commission)
+  string escrow_commission = 17 [
+    (gogoproto.moretags) = "yaml:\"escrow_commission\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // EscrowPeriod defines the maximum duration of an escrow in seconds
+  google.protobuf.Duration escrow_max_period = 18 [
+    (gogoproto.moretags) = "yaml:\"escrow_max_period\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+}
+
+// Fees contains different type of fees to calculate coins to detract when
+// processing different messages
+message Fees {
+  // FeeCoinDenom defines the denominator of the coin used to process fees
+  string fee_coin_denom = 1
+      [ (gogoproto.moretags) = "yaml:\"fee_coin_denom\"" ];
+  // FeeCoinPrice defines the price of the coin
+  string fee_coin_price = 2 [
+    (gogoproto.moretags) = "yaml:\"fee_coin_price\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // FeeDefault is the parameter defining the default fee
+  string fee_default = 3 [
+    (gogoproto.moretags) = "yaml:\"fee_default\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // RegisterAccountClosed is the fee to be paid to register an account in a
+  // closed domain
+  string register_account_closed = 4 [
+    (gogoproto.moretags) = "yaml:\"register_account_closed\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // RegisterAccountOpen is the fee to be paid to register an account in an open
+  // domain
+  string register_account_open = 5 [
+    (gogoproto.moretags) = "yaml:\"register_account_open\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // TransferAccountClosed is the fee to be paid to register an account in a
+  // closed domain
+  string transfer_account_closed = 6 [
+    (gogoproto.moretags) = "yaml:\"transfer_account_closed\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // TransferAccountOpen is the fee to be paid to register an account in an open
+  // domain
+  string transfer_account_open = 7 [
+    (gogoproto.moretags) = "yaml:\"transfer_account_open\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // ReplaceAccountResources is the fee to be paid to replace account's
+  // resources
+  string replace_account_resources = 8 [
+    (gogoproto.moretags) = "yaml:\"replace_account_resources\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // AddAccountCertificate is the fee to be paid to add a certificate to an
+  // account
+  string add_account_certificate = 9 [
+    (gogoproto.moretags) = "yaml:\"add_account_certificate\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // DelAccountCertificate is the feed to be paid to delete a certificate in an
+  // account
+  string del_account_certificate = 10 [
+    (gogoproto.moretags) = "yaml:\"del_account_certificate\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // SetAccountMetadata is the fee to be paid to set account's metadata
+  string set_account_metadata = 11 [
+    (gogoproto.moretags) = "yaml:\"set_account_metadata\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // RegisterDomain1 is the fee to be paid to register a domain with one
+  // character
+  string register_domain_1 = 12 [
+    (gogoproto.moretags) = "yaml:\"register_domain_1\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "RegisterDomain1"
+  ];
+  // RegisterDomain2 is the fee to be paid to register a domain with two
+  // characters
+  string register_domain_2 = 13 [
+    (gogoproto.moretags) = "yaml:\"register_domain_2\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "RegisterDomain2"
+  ];
+  // RegisterDomain3 is the fee to be paid to register a domain with three
+  // characters
+  string register_domain_3 = 14 [
+    (gogoproto.moretags) = "yaml:\"register_domain_3\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "RegisterDomain3"
+  ];
+  // RegisterDomain4 is the fee to be paid to register a domain with four
+  // characters
+  string register_domain_4 = 15 [
+    (gogoproto.moretags) = "yaml:\"register_domain_4\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "RegisterDomain4"
+  ];
+  // RegisterDomain5 is the fee to be paid to register a domain with five
+  // characters
+  string register_domain_5 = 16 [
+    (gogoproto.moretags) = "yaml:\"register_domain_5\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.customname) = "RegisterDomain5"
+  ];
+  // RegisterDomainDefault is the fee to be paid to register a domain with more
+  // than five characters
+  string register_domain_default = 17 [
+    (gogoproto.moretags) = "yaml:\"register_domain_default\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // register_open_domain_multiplier is the multiplication applied to fees in
+  // register domain operations if they're of open type
+  string register_open_domain_multiplier = 18 [
+    (gogoproto.moretags) = "yaml:\"register_open_domain_multiplier\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // transfer_domain_closed is the fee to be paid to transfer a closed domain
+  string transfer_domain_closed = 19 [
+    (gogoproto.moretags) = "yaml:\"transfer_domain_closed\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // transfer_domain_open is the fee to be paid to transfer open domains
+  string transfer_domain_open = 20 [
+    (gogoproto.moretags) = "yaml:\"transfer_domain_open\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // renew_domain_open is the fee to be paid to renew an open domain
+  string renew_domain_open = 21 [
+    (gogoproto.moretags) = "yaml:\"renew_domain_open\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // create_escrow is the fee to be paid to create an escrow
+  string create_escrow = 22 [
+    (gogoproto.moretags) = "yaml:\"create_escrow\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // update_escrow is the fee to be paid to update an escrow
+  string update_escrow = 23 [
+    (gogoproto.moretags) = "yaml:\"update_escrow\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // transfer_to_escrow is the fee to be paid to transfer coins to an escrow
+  string transfer_to_escrow = 24 [
+    (gogoproto.moretags) = "yaml:\"transfer_to_escrow\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // refund_escrow is the fee to be paid to refund the account or domain placed
+  // in an escrow
+  string refund_escrow = 25 [
+    (gogoproto.moretags) = "yaml:\"refund_escrow\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// GenesisState - genesis state of x/configuration
+message GenesisState {
+  Config config = 1 [
+    (gogoproto.moretags) = "yaml:\"config\"",
+    (gogoproto.nullable) = false
+  ];
+  Fees fees = 2
+      [ (gogoproto.moretags) = "yaml:\"fees\"", (gogoproto.nullable) = false ];
+}

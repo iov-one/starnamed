@@ -1,0 +1,151 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Query API
+    description: Query provides defines the gRPC querier service
+    version: 0.0.1
+paths:
+    /escrow/escrow/{id}:
+        get:
+            tags:
+                - Query
+            description: Escrow queries the escrow by the specified id
+            operationId: Query_Escrow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryEscrowResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /escrow/escrows:
+        get:
+            tags:
+                - Query
+            description: Escrows queries escrows by the specified key-value pairs
+            operationId: Query_Escrows
+            parameters:
+                - name: seller
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: objectKey
+                  in: query
+                  schema:
+                    type: string
+                - name: paginationStart
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: paginationLength
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryEscrowsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        Coin:
+            type: object
+            properties:
+                denom:
+                    type: string
+                amount:
+                    type: string
+            description: 'Coin defines a token with a denomination and an amount. NOTE: The amount field is an Int which implements the custom method signatures required by gogoproto.'
+        Escrow:
+            type: object
+            properties:
+                id:
+                    type: string
+                seller:
+                    type: string
+                object:
+                    $ref: '#/components/schemas/GoogleProtobufAny'
+                price:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Coin'
+                    description: 'TODO: refactor this to use sdk.Coin instead of sdk.Coins Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only one coin type in a valid escrow'
+                state:
+                    type: integer
+                    format: enum
+                deadline:
+                    type: integer
+                    format: uint64
+                brokerAddress:
+                    type: string
+                brokerCommission:
+                    type: string
+            description: Escrow defines the struct of an escrow
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        QueryEscrowResponse:
+            type: object
+            properties:
+                escrow:
+                    $ref: '#/components/schemas/Escrow'
+            description: QueryEscrowResponse is the response type for the Query/Escrow RPC method
+        QueryEscrowsResponse:
+            type: object
+            properties:
+                escrows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Escrow'
+            description: QueryEscrowsResponse is the response type for the Query/Escrows RPC method
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: Query

@@ -1,0 +1,15 @@
+{
+    "inputs": [
+      {
+        "inputFile": "proto-cosmwasm-wasm-v1/openapi.yaml"
+      },
+      {
+        "inputFile": "proto-iov-configuration-v1beta1/openapi.yaml"
+      },{
+        "inputFile": "proto-iov-escrow-v1beta1/openapi.yaml"
+      },{
+        "inputFile": "proto-iov-starname-v1beta1/openapi.yaml"
+      }      
+    ], 
+    "output": "output.swagger.json"
+  }

@@ -1,0 +1,5 @@
+FROM node:16
+
+RUN npm i openapi-merge-cli -g
+
+ENTRYPOINT [ "npx", "openapi-merge-cli"]
