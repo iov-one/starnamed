@@ -1,9 +1,10 @@
 Task:
-- fix the swagger generation
-- fix the readme information
-    - What is this?
-    - How to use it?
-    - Stable versions:
-    - How to build it?
-    - How to run it?
-    - How to sync it?
+- Fix Docs:
+    - [X] Fix the ChangeLog
+    - [ ] Fix the Readme
+        - [ ] how to install
+        - [ ] how to sync
+            - [ ] Reprocessing the chain and Upgrading the Cli
+            - [ ] Downloading the chain data and running current Cli
+            - [ ] Using the state-sync feature
+    
