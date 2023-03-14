@@ -1,0 +1,237 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Query API
+    description: Query provides defines the gRPC querier service.
+    version: 0.0.1
+paths:
+    /starname/v1beta1/configuration/fees:
+        get:
+            tags:
+                - Query
+            description: Fees gets starname product fees.
+            operationId: Query_Fees
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryFeesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/configuration/params:
+        get:
+            tags:
+                - Query
+            description: Config gets starname configuration.
+            operationId: Query_Config
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryConfigResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        Config:
+            type: object
+            properties:
+                configurer:
+                    type: string
+                    description: Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser
+                validDomainName:
+                    type: string
+                    description: ValidDomainName defines a regexp that determines if a domain name is valid or not
+                validAccountName:
+                    type: string
+                    description: ValidAccountName defines a regexp that determines if an account name is valid or not
+                validUri:
+                    type: string
+                    description: ValidURI defines a regexp that determines if resource uri is valid or not
+                validResource:
+                    type: string
+                    description: ValidResource determines a regexp for a resource content
+                domainRenewalPeriod:
+                    $ref: '#/components/schemas/Duration'
+                domainRenewalCountMax:
+                    type: integer
+                    description: DomainRenewalCountMax defines maximum number of domain renewals a user can do
+                    format: uint32
+                domainGracePeriod:
+                    $ref: '#/components/schemas/Duration'
+                accountRenewalPeriod:
+                    $ref: '#/components/schemas/Duration'
+                accountRenewalCountMax:
+                    type: integer
+                    description: AccountRenewalCountMax defines maximum number of account renewals a user can do
+                    format: uint32
+                accountGracePeriod:
+                    $ref: '#/components/schemas/Duration'
+                resourcesMax:
+                    type: integer
+                    description: ResourcesMax defines maximum number of resources could be saved under an account
+                    format: uint32
+                certificateSizeMax:
+                    type: integer
+                    description: CertificateSizeMax defines maximum size of a certificate that could be saved under an account
+                    format: uint64
+                certificateCountMax:
+                    type: integer
+                    description: CertificateCountMax defines maximum number of certificates that could be saved under an account
+                    format: uint32
+                metadataSizeMax:
+                    type: integer
+                    description: MetadataSizeMax defines maximum size of metadata that could be saved under an account
+                    format: uint64
+                escrowBroker:
+                    type: string
+                    description: EscrowBroker defines an address that will receive a commission for completed escrows
+                escrowCommission:
+                    type: string
+                    description: EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and 1 (100% commission)
+                escrowMaxPeriod:
+                    $ref: '#/components/schemas/Duration'
+            description: Config is the configuration of the network
+        Duration:
+            type: object
+            properties:
+                seconds:
+                    type: integer
+                    description: 'Signed seconds of the span of time. Must be from -315,576,000,000 to +315,576,000,000 inclusive. Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years'
+                    format: int64
+                nanos:
+                    type: integer
+                    description: Signed fractions of a second at nanosecond resolution of the span of time. Durations less than one second are represented with a 0 `seconds` field and a positive or negative `nanos` field. For durations of one second or more, a non-zero value for the `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to +999,999,999 inclusive.
+                    format: int32
+            description: 'A Duration represents a signed, fixed-length span of time represented as a count of seconds and fractions of seconds at nanosecond resolution. It is independent of any calendar and concepts like "day" or "month". It is related to Timestamp in that the difference between two Timestamp values is a Duration and it can be added or subtracted from a Timestamp. Range is approximately +-10,000 years. # Examples Example 1: Compute Duration from two Timestamps in pseudo code.     Timestamp start = ...;     Timestamp end = ...;     Duration duration = ...;     duration.seconds = end.seconds - start.seconds;     duration.nanos = end.nanos - start.nanos;     if (duration.seconds < 0 && duration.nanos > 0) {       duration.seconds += 1;       duration.nanos -= 1000000000;     } else if (duration.seconds > 0 && duration.nanos < 0) {       duration.seconds -= 1;       duration.nanos += 1000000000;     } Example 2: Compute Timestamp from Timestamp + Duration in pseudo code.     Timestamp start = ...;     Duration duration = ...;     Timestamp end = ...;     end.seconds = start.seconds + duration.seconds;     end.nanos = start.nanos + duration.nanos;     if (end.nanos < 0) {       end.seconds -= 1;       end.nanos += 1000000000;     } else if (end.nanos >= 1000000000) {       end.seconds += 1;       end.nanos -= 1000000000;     } Example 3: Compute Duration from datetime.timedelta in Python.     td = datetime.timedelta(days=3, minutes=10)     duration = Duration()     duration.FromTimedelta(td) # JSON Mapping In JSON format, the Duration type is encoded as a string rather than an object, where the string ends in the suffix "s" (indicating seconds) and is preceded by the number of seconds, with nanoseconds expressed as fractional seconds. For example, 3 seconds with 0 nanoseconds should be encoded in JSON format as "3s", while 3 seconds and 1 nanosecond should be expressed in JSON format as "3.000000001s", and 3 seconds and 1 microsecond should be expressed in JSON format as "3.000001s".'
+        Fees:
+            type: object
+            properties:
+                feeCoinDenom:
+                    type: string
+                    description: FeeCoinDenom defines the denominator of the coin used to process fees
+                feeCoinPrice:
+                    type: string
+                    description: FeeCoinPrice defines the price of the coin
+                feeDefault:
+                    type: string
+                    description: FeeDefault is the parameter defining the default fee
+                registerAccountClosed:
+                    type: string
+                    description: RegisterAccountClosed is the fee to be paid to register an account in a closed domain
+                registerAccountOpen:
+                    type: string
+                    description: RegisterAccountOpen is the fee to be paid to register an account in an open domain
+                transferAccountClosed:
+                    type: string
+                    description: TransferAccountClosed is the fee to be paid to register an account in a closed domain
+                transferAccountOpen:
+                    type: string
+                    description: TransferAccountOpen is the fee to be paid to register an account in an open domain
+                replaceAccountResources:
+                    type: string
+                    description: ReplaceAccountResources is the fee to be paid to replace account's resources
+                addAccountCertificate:
+                    type: string
+                    description: AddAccountCertificate is the fee to be paid to add a certificate to an account
+                delAccountCertificate:
+                    type: string
+                    description: DelAccountCertificate is the feed to be paid to delete a certificate in an account
+                setAccountMetadata:
+                    type: string
+                    description: SetAccountMetadata is the fee to be paid to set account's metadata
+                registerDomain1:
+                    type: string
+                    description: RegisterDomain1 is the fee to be paid to register a domain with one character
+                registerDomain2:
+                    type: string
+                    description: RegisterDomain2 is the fee to be paid to register a domain with two characters
+                registerDomain3:
+                    type: string
+                    description: RegisterDomain3 is the fee to be paid to register a domain with three characters
+                registerDomain4:
+                    type: string
+                    description: RegisterDomain4 is the fee to be paid to register a domain with four characters
+                registerDomain5:
+                    type: string
+                    description: RegisterDomain5 is the fee to be paid to register a domain with five characters
+                registerDomainDefault:
+                    type: string
+                    description: RegisterDomainDefault is the fee to be paid to register a domain with more than five characters
+                registerOpenDomainMultiplier:
+                    type: string
+                    description: register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they're of open type
+                transferDomainClosed:
+                    type: string
+                    description: transfer_domain_closed is the fee to be paid to transfer a closed domain
+                transferDomainOpen:
+                    type: string
+                    description: transfer_domain_open is the fee to be paid to transfer open domains
+                renewDomainOpen:
+                    type: string
+                    description: renew_domain_open is the fee to be paid to renew an open domain
+                createEscrow:
+                    type: string
+                    description: create_escrow is the fee to be paid to create an escrow
+                updateEscrow:
+                    type: string
+                    description: update_escrow is the fee to be paid to update an escrow
+                transferToEscrow:
+                    type: string
+                    description: transfer_to_escrow is the fee to be paid to transfer coins to an escrow
+                refundEscrow:
+                    type: string
+                    description: refund_escrow is the fee to be paid to refund the account or domain placed in an escrow
+            description: Fees contains different type of fees to calculate coins to detract when processing different messages
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        QueryConfigResponse:
+            type: object
+            properties:
+                config:
+                    $ref: '#/components/schemas/Config'
+            description: QueryConfigResponse is the response type for the Query/Configuration RPC method.
+        QueryFeesResponse:
+            type: object
+            properties:
+                fees:
+                    $ref: '#/components/schemas/Fees'
+            description: QueryFeesResponse is the response type for the Query/Fees RPC method
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: Query

@@ -12,34 +12,41 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const (
-	// DefaultParamspace for params keeper
-	DefaultParamspace = ModuleName
-	// DefaultMaxWasmCodeSize limit max bytes read to prevent gzip bombs
-	DefaultMaxWasmCodeSize = 600 * 1024 * 2
+var (
+	ParamStoreKeyUploadAccess      = []byte("uploadAccess")
+	ParamStoreKeyInstantiateAccess = []byte("instantiateAccess")
 )
-
-var ParamStoreKeyUploadAccess = []byte("uploadAccess")
-var ParamStoreKeyInstantiateAccess = []byte("instantiateAccess")
-var ParamStoreKeyMaxWasmCodeSize = []byte("maxWasmCodeSize")
 
 var AllAccessTypes = []AccessType{
 	AccessTypeNobody,
 	AccessTypeOnlyAddress,
+	AccessTypeAnyOfAddresses,
 	AccessTypeEverybody,
 }
 
-func (a AccessType) With(addr sdk.AccAddress) AccessConfig {
+func (a AccessType) With(addrs ...sdk.AccAddress) AccessConfig {
 	switch a {
 	case AccessTypeNobody:
 		return AllowNobody
 	case AccessTypeOnlyAddress:
-		if err := sdk.VerifyAddressFormat(addr); err != nil {
+		if n := len(addrs); n != 1 {
+			panic(fmt.Sprintf("expected exactly 1 address but got %d", n))
+		}
+		if err := sdk.VerifyAddressFormat(addrs[0]); err != nil {
 			panic(err)
 		}
-		return AccessConfig{Permission: AccessTypeOnlyAddress, Address: addr.String()}
+		return AccessConfig{Permission: AccessTypeOnlyAddress, Address: addrs[0].String()}
 	case AccessTypeEverybody:
 		return AllowEverybody
+	case AccessTypeAnyOfAddresses:
+		bech32Addrs := make([]string, len(addrs))
+		for i, v := range addrs {
+			bech32Addrs[i] = v.String()
+		}
+		if err := assertValidAddresses(bech32Addrs); err != nil {
+			panic(sdkerrors.Wrap(err, "addresses"))
+		}
+		return AccessConfig{Permission: AccessTypeAnyOfAddresses, Addresses: bech32Addrs}
 	}
 	panic("unsupported access type")
 }
@@ -52,6 +59,8 @@ func (a AccessType) String() string {
 		return "OnlyAddress"
 	case AccessTypeEverybody:
 		return "Everybody"
+	case AccessTypeAnyOfAddresses:
+		return "AnyOfAddresses"
 	}
 	return "Unspecified"
 }
@@ -66,6 +75,7 @@ func (a *AccessType) UnmarshalText(text []byte) error {
 	*a = AccessTypeUnspecified
 	return nil
 }
+
 func (a AccessType) MarshalText() ([]byte, error) {
 	return []byte(a.String()), nil
 }
@@ -98,7 +108,6 @@ func DefaultParams() Params {
 	return Params{
 		CodeUploadAccess:             AllowEverybody,
 		InstantiateDefaultPermission: AccessTypeEverybody,
-		MaxWasmCodeSize:              DefaultMaxWasmCodeSize,
 	}
 }
 
@@ -115,7 +124,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyUploadAccess, &p.CodeUploadAccess, validateAccessConfig),
 		paramtypes.NewParamSetPair(ParamStoreKeyInstantiateAccess, &p.InstantiateDefaultPermission, validateAccessType),
-		paramtypes.NewParamSetPair(ParamStoreKeyMaxWasmCodeSize, &p.MaxWasmCodeSize, validateMaxWasmCodeSize),
 	}
 }
 
@@ -126,9 +134,6 @@ func (p Params) ValidateBasic() error {
 	}
 	if err := validateAccessConfig(p.CodeUploadAccess); err != nil {
 		return errors.Wrap(err, "upload access")
-	}
-	if err := validateMaxWasmCodeSize(p.MaxWasmCodeSize); err != nil {
-		return errors.Wrap(err, "max wasm code size")
 	}
 	return nil
 }
@@ -157,17 +162,7 @@ func validateAccessType(i interface{}) error {
 	return sdkerrors.Wrapf(ErrInvalid, "unknown type: %q", a)
 }
 
-func validateMaxWasmCodeSize(i interface{}) error {
-	a, ok := i.(uint64)
-	if !ok {
-		return sdkerrors.Wrapf(ErrInvalid, "type: %T", i)
-	}
-	if a == 0 {
-		return sdkerrors.Wrap(ErrInvalid, "must be greater 0")
-	}
-	return nil
-}
-
+// ValidateBasic performs basic validation
 func (a AccessConfig) ValidateBasic() error {
 	switch a.Permission {
 	case AccessTypeUnspecified:
@@ -178,12 +173,39 @@ func (a AccessConfig) ValidateBasic() error {
 		}
 		return nil
 	case AccessTypeOnlyAddress:
+		if len(a.Addresses) != 0 {
+			return ErrInvalid.Wrap("addresses field set")
+		}
 		_, err := sdk.AccAddressFromBech32(a.Address)
 		return err
+	case AccessTypeAnyOfAddresses:
+		if a.Address != "" {
+			return ErrInvalid.Wrap("address field set")
+		}
+		return sdkerrors.Wrap(assertValidAddresses(a.Addresses), "addresses")
 	}
 	return sdkerrors.Wrapf(ErrInvalid, "unknown type: %q", a.Permission)
 }
 
+func assertValidAddresses(addrs []string) error {
+	if len(addrs) == 0 {
+		return ErrEmpty
+	}
+	idx := make(map[string]struct{}, len(addrs))
+	for _, a := range addrs {
+		if _, err := sdk.AccAddressFromBech32(a); err != nil {
+			return sdkerrors.Wrapf(err, "address: %s", a)
+		}
+		if _, exists := idx[a]; exists {
+			return ErrDuplicate.Wrapf("address: %s", a)
+		}
+		idx[a] = struct{}{}
+	}
+	return nil
+}
+
+// Allowed returns if permission includes the actor.
+// Actor address must be valid and not nil
 func (a AccessConfig) Allowed(actor sdk.AccAddress) bool {
 	switch a.Permission {
 	case AccessTypeNobody:
@@ -192,6 +214,13 @@ func (a AccessConfig) Allowed(actor sdk.AccAddress) bool {
 		return true
 	case AccessTypeOnlyAddress:
 		return a.Address == actor.String()
+	case AccessTypeAnyOfAddresses:
+		for _, v := range a.Addresses {
+			if v == actor.String() {
+				return true
+			}
+		}
+		return false
 	default:
 		panic("unknown type")
 	}

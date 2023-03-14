@@ -1,0 +1,2195 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Query API",
+    "description": "Query provides defines the gRPC querier service",
+    "version": "0.0.1"
+  },
+  "tags": [
+    {
+      "name": "Query"
+    }
+  ],
+  "paths": {
+    "/cosmwasm/wasm/v1/code": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Codes gets the metadata for all stored wasm codes",
+        "operationId": "Query_Codes",
+        "parameters": [
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryCodesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/code/{codeId}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Code gets the binary code and metadata for a singe wasm code",
+        "operationId": "Query_Code",
+        "parameters": [
+          {
+            "name": "codeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryCodeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/code/{codeId}/contracts": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "ContractsByCode lists all smart contracts for a code id",
+        "operationId": "Query_ContractsByCode",
+        "parameters": [
+          {
+            "name": "codeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryContractsByCodeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/codes/params": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Params gets the module params",
+        "operationId": "Query_Params",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryParamsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/codes/pinned": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "PinnedCodes gets the pinned code ids",
+        "operationId": "Query_PinnedCodes",
+        "parameters": [
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryPinnedCodesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/contract/{address}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "ContractInfo gets the contract meta data",
+        "operationId": "Query_ContractInfo",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address is the address of the contract to query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryContractInfoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/contract/{address}/history": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "ContractHistory gets the contract code history",
+        "operationId": "Query_ContractHistory",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address is the address of the contract to query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryContractHistoryResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/contract/{address}/raw/{queryData}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "RawContractState gets single key from the raw store data of a contract",
+        "operationId": "Query_RawContractState",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address is the address of the contract",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "queryData",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryRawContractStateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/contract/{address}/smart/{queryData}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "SmartContractState get smart query result from the contract",
+        "operationId": "Query_SmartContractState",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address is the address of the contract",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "queryData",
+            "in": "path",
+            "description": "QueryData contains the query data passed to the contract",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuerySmartContractStateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cosmwasm/wasm/v1/contract/{address}/state": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "AllContractState gets all raw store data for a single contract",
+        "operationId": "Query_AllContractState",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "address is the address of the contract",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryAllContractStateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/configuration/fees": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Fees gets starname product fees.",
+        "operationId": "Query_Fees",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryFeesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/configuration/params": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Config gets starname configuration.",
+        "operationId": "Query_Config",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryConfigResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/escrow/escrow/{id}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Escrow queries the escrow by the specified id",
+        "operationId": "Query_Escrow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryEscrowResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/escrow/escrows": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Escrows queries escrows by the specified key-value pairs",
+        "operationId": "Query_Escrows",
+        "parameters": [
+          {
+            "name": "seller",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "objectKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paginationStart",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "paginationLength",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryEscrowsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/account/{starname}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Starname gets all the information associated with a starname.",
+        "operationId": "Query_Starname",
+        "parameters": [
+          {
+            "name": "starname",
+            "in": "path",
+            "description": "Starname is the of the form account*domain.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryStarnameResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/accounts/broker/{broker}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "BrokerAccounts gets accounts associated with a given broker.",
+        "operationId": "Query_BrokerAccounts",
+        "parameters": [
+          {
+            "name": "broker",
+            "in": "path",
+            "description": "Broker is the broker of accounts.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryBrokerAccountsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/accounts/domain/{domain}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "DomainAccounts gets accounts associated with a given domain.",
+        "operationId": "Query_DomainAccounts",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "description": "Domain is the name of the domain.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryDomainAccountsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/accounts/owner/{owner}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "OwnerAccounts gets accounts associated with a given owner.",
+        "operationId": "Query_OwnerAccounts",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner is the owner of accounts.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryOwnerAccountsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/accounts/resource/{uri}/{resource}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "ResourceAccounts gets accounts associated with a given resource.",
+        "operationId": "Query_ResourceAccounts",
+        "parameters": [
+          {
+            "name": "uri",
+            "in": "path",
+            "description": "Uri is the uri of the resource. query.pb.gw.to doesn't respect gogoproto.customname, so we're stuck with Uri.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "description": "Resource is the resource of interest.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResourceAccountsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/domain/{name}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Domain gets a starname's domain info.",
+        "operationId": "Query_Domain",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name is the name of the domain.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryDomainResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/domains/broker/{broker}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "BrokerDomains gets domains associated with a given broker.",
+        "operationId": "Query_BrokerDomains",
+        "parameters": [
+          {
+            "name": "broker",
+            "in": "path",
+            "description": "Broker is the broker of accounts.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryBrokerDomainsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/domains/owner/{owner}": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "OwnerDomains gets domains associated with a given owner.",
+        "operationId": "Query_OwnerDomains",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner is the owner of accounts.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pagination.key",
+            "in": "query",
+            "description": "key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.",
+            "schema": {
+              "type": "string",
+              "format": "bytes"
+            }
+          },
+          {
+            "name": "pagination.offset",
+            "in": "query",
+            "description": "offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.limit",
+            "in": "query",
+            "description": "limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.",
+            "schema": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "pagination.countTotal",
+            "in": "query",
+            "description": "count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryOwnerDomainsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/starname/v1beta1/yield": {
+      "get": {
+        "tags": [
+          "Query"
+        ],
+        "description": "Yield estimates and retrieves the annualized yield for delegators",
+        "operationId": "Query_Yield",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryYieldResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AbsoluteTxPosition": {
+        "type": "object",
+        "properties": {
+          "blockHeight": {
+            "type": "integer",
+            "description": "BlockHeight is the block the contract was created at",
+            "format": "uint64"
+          },
+          "txIndex": {
+            "type": "integer",
+            "description": "TxIndex is a monotonic counter within the block (actual transaction index, or gas consumed)",
+            "format": "uint64"
+          }
+        },
+        "description": "AbsoluteTxPosition is a unique transaction position that allows for global ordering of transactions."
+      },
+      "AccessConfig": {
+        "type": "object",
+        "properties": {
+          "permission": {
+            "type": "integer",
+            "format": "enum"
+          },
+          "address": {
+            "type": "string",
+            "description": "Address Deprecated: replaced by addresses"
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "AccessConfig access control type."
+      },
+      "CodeInfoResponse": {
+        "type": "object",
+        "properties": {
+          "codeId": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "creator": {
+            "type": "string"
+          },
+          "dataHash": {
+            "type": "string",
+            "format": "bytes"
+          },
+          "instantiatePermission": {
+            "$ref": "#/components/schemas/AccessConfig"
+          }
+        },
+        "description": "CodeInfoResponse contains code meta data from CodeInfo"
+      },
+      "ContractCodeHistoryEntry": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "integer",
+            "format": "enum"
+          },
+          "codeId": {
+            "type": "integer",
+            "description": "CodeID is the reference to the stored WASM code",
+            "format": "uint64"
+          },
+          "updated": {
+            "$ref": "#/components/schemas/AbsoluteTxPosition"
+          },
+          "msg": {
+            "type": "string",
+            "format": "bytes"
+          }
+        },
+        "description": "ContractCodeHistoryEntry metadata to a contract."
+      },
+      "ContractInfo": {
+        "type": "object",
+        "properties": {
+          "codeId": {
+            "type": "integer",
+            "description": "CodeID is the reference to the stored Wasm code",
+            "format": "uint64"
+          },
+          "creator": {
+            "type": "string",
+            "description": "Creator address who initially instantiated the contract"
+          },
+          "admin": {
+            "type": "string",
+            "description": "Admin is an optional address that can execute migrations"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label is optional metadata to be stored with a contract instance."
+          },
+          "created": {
+            "$ref": "#/components/schemas/AbsoluteTxPosition"
+          },
+          "ibcPortId": {
+            "type": "string"
+          },
+          "extension": {
+            "$ref": "#/components/schemas/GoogleProtobufAny"
+          }
+        },
+        "description": "ContractInfo stores a WASM contract instance"
+      },
+      "GoogleProtobufAny": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "description": "The type of the serialized message."
+          }
+        },
+        "additionalProperties": true,
+        "description": "Contains an arbitrary serialized message along with a @type that describes the type of the serialized message."
+      },
+      "Model": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "hex-encode key to read it better (this is often ascii)",
+            "format": "bytes"
+          },
+          "value": {
+            "type": "string",
+            "description": "base64-encode raw value",
+            "format": "bytes"
+          }
+        },
+        "description": "Model is a struct that holds a KV pair"
+      },
+      "PageResponse": {
+        "type": "object",
+        "properties": {
+          "nextKey": {
+            "type": "string",
+            "description": "next_key is the key to be passed to PageRequest.key to query the next page most efficiently",
+            "format": "bytes"
+          },
+          "total": {
+            "type": "integer",
+            "description": "total is total number of results available if PageRequest.count_total was set, its value is undefined otherwise",
+            "format": "uint64"
+          }
+        },
+        "description": "PageResponse is to be embedded in gRPC response messages where the corresponding request message has used PageRequest.  message SomeResponse {          repeated Bar results = 1;          PageResponse page = 2;  }"
+      },
+      "Params": {
+        "type": "object",
+        "properties": {
+          "codeUploadAccess": {
+            "$ref": "#/components/schemas/AccessConfig"
+          },
+          "instantiateDefaultPermission": {
+            "type": "integer",
+            "format": "enum"
+          }
+        },
+        "description": "Params defines the set of wasm parameters."
+      },
+      "QueryAllContractStateResponse": {
+        "type": "object",
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryAllContractStateResponse is the response type for the Query/AllContractState RPC method"
+      },
+      "QueryCodeResponse": {
+        "type": "object",
+        "properties": {
+          "codeInfo": {
+            "$ref": "#/components/schemas/CodeInfoResponse"
+          },
+          "data": {
+            "type": "string",
+            "format": "bytes"
+          }
+        },
+        "description": "QueryCodeResponse is the response type for the Query/Code RPC method"
+      },
+      "QueryCodesResponse": {
+        "type": "object",
+        "properties": {
+          "codeInfos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeInfoResponse"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryCodesResponse is the response type for the Query/Codes RPC method"
+      },
+      "QueryContractHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractCodeHistoryEntry"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryContractHistoryResponse is the response type for the Query/ContractHistory RPC method"
+      },
+      "QueryContractInfoResponse": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "address is the address of the contract"
+          },
+          "contractInfo": {
+            "$ref": "#/components/schemas/ContractInfo"
+          }
+        },
+        "description": "QueryContractInfoResponse is the response type for the Query/ContractInfo RPC method"
+      },
+      "QueryContractsByCodeResponse": {
+        "type": "object",
+        "properties": {
+          "contracts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "contracts are a set of contract addresses"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryContractsByCodeResponse is the response type for the Query/ContractsByCode RPC method"
+      },
+      "QueryParamsResponse": {
+        "type": "object",
+        "properties": {
+          "params": {
+            "$ref": "#/components/schemas/Params"
+          }
+        },
+        "description": "QueryParamsResponse is the response type for the Query/Params RPC method."
+      },
+      "QueryPinnedCodesResponse": {
+        "type": "object",
+        "properties": {
+          "codeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint64"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryPinnedCodesResponse is the response type for the Query/PinnedCodes RPC method"
+      },
+      "QueryRawContractStateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Data contains the raw store data",
+            "format": "bytes"
+          }
+        },
+        "description": "QueryRawContractStateResponse is the response type for the Query/RawContractState RPC method"
+      },
+      "QuerySmartContractStateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Data contains the json data returned from the smart contract",
+            "format": "bytes"
+          }
+        },
+        "description": "QuerySmartContractStateResponse is the response type for the Query/SmartContractState RPC method"
+      },
+      "Status": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "description": "A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client."
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GoogleProtobufAny"
+            },
+            "description": "A list of messages that carry the error details.  There is a common set of message types for APIs to use."
+          }
+        },
+        "description": "The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
+      },
+      "Config": {
+        "type": "object",
+        "properties": {
+          "configurer": {
+            "type": "string",
+            "description": "Configurer is the configuration owner, the addresses allowed to handle fees and register domains with no superuser"
+          },
+          "validDomainName": {
+            "type": "string",
+            "description": "ValidDomainName defines a regexp that determines if a domain name is valid or not"
+          },
+          "validAccountName": {
+            "type": "string",
+            "description": "ValidAccountName defines a regexp that determines if an account name is valid or not"
+          },
+          "validUri": {
+            "type": "string",
+            "description": "ValidURI defines a regexp that determines if resource uri is valid or not"
+          },
+          "validResource": {
+            "type": "string",
+            "description": "ValidResource determines a regexp for a resource content"
+          },
+          "domainRenewalPeriod": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "domainRenewalCountMax": {
+            "type": "integer",
+            "description": "DomainRenewalCountMax defines maximum number of domain renewals a user can do",
+            "format": "uint32"
+          },
+          "domainGracePeriod": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "accountRenewalPeriod": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "accountRenewalCountMax": {
+            "type": "integer",
+            "description": "AccountRenewalCountMax defines maximum number of account renewals a user can do",
+            "format": "uint32"
+          },
+          "accountGracePeriod": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "resourcesMax": {
+            "type": "integer",
+            "description": "ResourcesMax defines maximum number of resources could be saved under an account",
+            "format": "uint32"
+          },
+          "certificateSizeMax": {
+            "type": "integer",
+            "description": "CertificateSizeMax defines maximum size of a certificate that could be saved under an account",
+            "format": "uint64"
+          },
+          "certificateCountMax": {
+            "type": "integer",
+            "description": "CertificateCountMax defines maximum number of certificates that could be saved under an account",
+            "format": "uint32"
+          },
+          "metadataSizeMax": {
+            "type": "integer",
+            "description": "MetadataSizeMax defines maximum size of metadata that could be saved under an account",
+            "format": "uint64"
+          },
+          "escrowBroker": {
+            "type": "string",
+            "description": "EscrowBroker defines an address that will receive a commission for completed escrows"
+          },
+          "escrowCommission": {
+            "type": "string",
+            "description": "EscrowCommission defines the commission taken by the broker for a completed escrow, between 0 (no commission) and 1 (100% commission)"
+          },
+          "escrowMaxPeriod": {
+            "$ref": "#/components/schemas/Duration"
+          }
+        },
+        "description": "Config is the configuration of the network"
+      },
+      "Duration": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "integer",
+            "description": "Signed seconds of the span of time. Must be from -315,576,000,000 to +315,576,000,000 inclusive. Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years",
+            "format": "int64"
+          },
+          "nanos": {
+            "type": "integer",
+            "description": "Signed fractions of a second at nanosecond resolution of the span of time. Durations less than one second are represented with a 0 `seconds` field and a positive or negative `nanos` field. For durations of one second or more, a non-zero value for the `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to +999,999,999 inclusive.",
+            "format": "int32"
+          }
+        },
+        "description": "A Duration represents a signed, fixed-length span of time represented as a count of seconds and fractions of seconds at nanosecond resolution. It is independent of any calendar and concepts like \"day\" or \"month\". It is related to Timestamp in that the difference between two Timestamp values is a Duration and it can be added or subtracted from a Timestamp. Range is approximately +-10,000 years. # Examples Example 1: Compute Duration from two Timestamps in pseudo code.     Timestamp start = ...;     Timestamp end = ...;     Duration duration = ...;     duration.seconds = end.seconds - start.seconds;     duration.nanos = end.nanos - start.nanos;     if (duration.seconds < 0 && duration.nanos > 0) {       duration.seconds += 1;       duration.nanos -= 1000000000;     } else if (duration.seconds > 0 && duration.nanos < 0) {       duration.seconds -= 1;       duration.nanos += 1000000000;     } Example 2: Compute Timestamp from Timestamp + Duration in pseudo code.     Timestamp start = ...;     Duration duration = ...;     Timestamp end = ...;     end.seconds = start.seconds + duration.seconds;     end.nanos = start.nanos + duration.nanos;     if (end.nanos < 0) {       end.seconds -= 1;       end.nanos += 1000000000;     } else if (end.nanos >= 1000000000) {       end.seconds += 1;       end.nanos -= 1000000000;     } Example 3: Compute Duration from datetime.timedelta in Python.     td = datetime.timedelta(days=3, minutes=10)     duration = Duration()     duration.FromTimedelta(td) # JSON Mapping In JSON format, the Duration type is encoded as a string rather than an object, where the string ends in the suffix \"s\" (indicating seconds) and is preceded by the number of seconds, with nanoseconds expressed as fractional seconds. For example, 3 seconds with 0 nanoseconds should be encoded in JSON format as \"3s\", while 3 seconds and 1 nanosecond should be expressed in JSON format as \"3.000000001s\", and 3 seconds and 1 microsecond should be expressed in JSON format as \"3.000001s\"."
+      },
+      "Fees": {
+        "type": "object",
+        "properties": {
+          "feeCoinDenom": {
+            "type": "string",
+            "description": "FeeCoinDenom defines the denominator of the coin used to process fees"
+          },
+          "feeCoinPrice": {
+            "type": "string",
+            "description": "FeeCoinPrice defines the price of the coin"
+          },
+          "feeDefault": {
+            "type": "string",
+            "description": "FeeDefault is the parameter defining the default fee"
+          },
+          "registerAccountClosed": {
+            "type": "string",
+            "description": "RegisterAccountClosed is the fee to be paid to register an account in a closed domain"
+          },
+          "registerAccountOpen": {
+            "type": "string",
+            "description": "RegisterAccountOpen is the fee to be paid to register an account in an open domain"
+          },
+          "transferAccountClosed": {
+            "type": "string",
+            "description": "TransferAccountClosed is the fee to be paid to register an account in a closed domain"
+          },
+          "transferAccountOpen": {
+            "type": "string",
+            "description": "TransferAccountOpen is the fee to be paid to register an account in an open domain"
+          },
+          "replaceAccountResources": {
+            "type": "string",
+            "description": "ReplaceAccountResources is the fee to be paid to replace account's resources"
+          },
+          "addAccountCertificate": {
+            "type": "string",
+            "description": "AddAccountCertificate is the fee to be paid to add a certificate to an account"
+          },
+          "delAccountCertificate": {
+            "type": "string",
+            "description": "DelAccountCertificate is the feed to be paid to delete a certificate in an account"
+          },
+          "setAccountMetadata": {
+            "type": "string",
+            "description": "SetAccountMetadata is the fee to be paid to set account's metadata"
+          },
+          "registerDomain1": {
+            "type": "string",
+            "description": "RegisterDomain1 is the fee to be paid to register a domain with one character"
+          },
+          "registerDomain2": {
+            "type": "string",
+            "description": "RegisterDomain2 is the fee to be paid to register a domain with two characters"
+          },
+          "registerDomain3": {
+            "type": "string",
+            "description": "RegisterDomain3 is the fee to be paid to register a domain with three characters"
+          },
+          "registerDomain4": {
+            "type": "string",
+            "description": "RegisterDomain4 is the fee to be paid to register a domain with four characters"
+          },
+          "registerDomain5": {
+            "type": "string",
+            "description": "RegisterDomain5 is the fee to be paid to register a domain with five characters"
+          },
+          "registerDomainDefault": {
+            "type": "string",
+            "description": "RegisterDomainDefault is the fee to be paid to register a domain with more than five characters"
+          },
+          "registerOpenDomainMultiplier": {
+            "type": "string",
+            "description": "register_open_domain_multiplier is the multiplication applied to fees in register domain operations if they're of open type"
+          },
+          "transferDomainClosed": {
+            "type": "string",
+            "description": "transfer_domain_closed is the fee to be paid to transfer a closed domain"
+          },
+          "transferDomainOpen": {
+            "type": "string",
+            "description": "transfer_domain_open is the fee to be paid to transfer open domains"
+          },
+          "renewDomainOpen": {
+            "type": "string",
+            "description": "renew_domain_open is the fee to be paid to renew an open domain"
+          },
+          "createEscrow": {
+            "type": "string",
+            "description": "create_escrow is the fee to be paid to create an escrow"
+          },
+          "updateEscrow": {
+            "type": "string",
+            "description": "update_escrow is the fee to be paid to update an escrow"
+          },
+          "transferToEscrow": {
+            "type": "string",
+            "description": "transfer_to_escrow is the fee to be paid to transfer coins to an escrow"
+          },
+          "refundEscrow": {
+            "type": "string",
+            "description": "refund_escrow is the fee to be paid to refund the account or domain placed in an escrow"
+          }
+        },
+        "description": "Fees contains different type of fees to calculate coins to detract when processing different messages"
+      },
+      "QueryConfigResponse": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/Config"
+          }
+        },
+        "description": "QueryConfigResponse is the response type for the Query/Configuration RPC method."
+      },
+      "QueryFeesResponse": {
+        "type": "object",
+        "properties": {
+          "fees": {
+            "$ref": "#/components/schemas/Fees"
+          }
+        },
+        "description": "QueryFeesResponse is the response type for the Query/Fees RPC method"
+      },
+      "Coin": {
+        "type": "object",
+        "properties": {
+          "denom": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          }
+        },
+        "description": "Coin defines a token with a denomination and an amount. NOTE: The amount field is an Int which implements the custom method signatures required by gogoproto."
+      },
+      "Escrow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "seller": {
+            "type": "string"
+          },
+          "object": {
+            "$ref": "#/components/schemas/GoogleProtobufAny"
+          },
+          "price": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coin"
+            },
+            "description": "TODO: refactor this to use sdk.Coin instead of sdk.Coins Although the price contains multiple coins, for now we enforce a specific denomination, so there will be only one coin type in a valid escrow"
+          },
+          "state": {
+            "type": "integer",
+            "format": "enum"
+          },
+          "deadline": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "brokerAddress": {
+            "type": "string"
+          },
+          "brokerCommission": {
+            "type": "string"
+          }
+        },
+        "description": "Escrow defines the struct of an escrow"
+      },
+      "QueryEscrowResponse": {
+        "type": "object",
+        "properties": {
+          "escrow": {
+            "$ref": "#/components/schemas/Escrow"
+          }
+        },
+        "description": "QueryEscrowResponse is the response type for the Query/Escrow RPC method"
+      },
+      "QueryEscrowsResponse": {
+        "type": "object",
+        "properties": {
+          "escrows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Escrow"
+            }
+          }
+        },
+        "description": "QueryEscrowsResponse is the response type for the Query/Escrows RPC method"
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain references the domain this account belongs to"
+          },
+          "name": {
+            "$ref": "#/components/schemas/StringValue"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner is the address that owns the account",
+            "format": "bytes"
+          },
+          "broker": {
+            "type": "string",
+            "description": "Broker identifies an entity that facilitated the transaction of the account and can be empty",
+            "format": "bytes"
+          },
+          "validUntil": {
+            "type": "integer",
+            "description": "ValidUntil defines a unix timestamp of the expiration of the account in seconds",
+            "format": "int64"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            },
+            "description": "Resources is the list of resources an account resolves to"
+          },
+          "certificates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "bytes"
+            },
+            "description": "Certificates contains the list of certificates to identify the account owner"
+          },
+          "metadataUri": {
+            "type": "string",
+            "description": "MetadataURI contains a link to extra information regarding the account"
+          }
+        },
+        "description": "Account defines an account that belongs to a domain NOTE: It should not be confused with cosmos-sdk auth account github.com/cosmos/cosmos-sdk/x/auth.Account"
+      },
+      "Domain": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name is the name of the domain"
+          },
+          "admin": {
+            "type": "string",
+            "description": "Admin is the owner of the domain",
+            "format": "bytes"
+          },
+          "broker": {
+            "type": "string",
+            "format": "bytes"
+          },
+          "validUntil": {
+            "type": "integer",
+            "description": "ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type defines the type of the domain"
+          }
+        },
+        "description": "Domain defines a domain"
+      },
+      "QueryBrokerAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "description": "Accounts is the accounts associated with broker."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method."
+      },
+      "QueryBrokerDomainsResponse": {
+        "type": "object",
+        "properties": {
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Domain"
+            },
+            "description": "Accounts is the accounts associated with broker."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method."
+      },
+      "QueryDomainAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "description": "Accounts is the accounts associated with the domain."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method."
+      },
+      "QueryDomainResponse": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          }
+        },
+        "description": "QueryDomainResponse is the response type for the Query/Domain RPC method."
+      },
+      "QueryOwnerAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "description": "Accounts is the accounts associated with owner."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC method."
+      },
+      "QueryOwnerDomainsResponse": {
+        "type": "object",
+        "properties": {
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Domain"
+            },
+            "description": "Accounts is the accounts associated with owner."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC method."
+      },
+      "QueryResourceAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "description": "Accounts are the accounts associated with the resource."
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          }
+        },
+        "description": "QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method."
+      },
+      "QueryStarnameResponse": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          }
+        },
+        "description": "QueryStarnameResponse is the response type for the Query/Starname RPC method."
+      },
+      "QueryYieldResponse": {
+        "type": "object",
+        "properties": {
+          "yield": {
+            "type": "string"
+          }
+        },
+        "description": "QueryYieldResponse is the response type for the Query/Yield RPC method."
+      },
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "URI defines the ID of the resource"
+          },
+          "resource": {
+            "type": "string",
+            "description": "Resource is the resource"
+          }
+        },
+        "description": "Resource defines a resource owned by an account"
+      },
+      "StringValue": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "The string value."
+          }
+        },
+        "description": "Wrapper message for `string`. The JSON representation for `StringValue` is JSON string."
+      }
+    }
+  }
+}

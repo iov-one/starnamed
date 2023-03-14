@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -318,48 +317,49 @@ func queryBrokerDomains(ctx sdk.Context, keeper *Keeper, broker sdk.AccAddress, 
 	return &types.QueryBrokerDomainsResponse{Domains: domains, Page: page}, nil
 }
 
-//Yield return an estimation of the delegators annualized yield based on the last 100k blocks
+// Yield return an estimation of the delegators annualized yield based on the last 100k blocks
 func (q grpcQuerier) Yield(ctx context.Context, _ *types.QueryYieldRequest) (*types.QueryYieldResponse, error) {
 	var response types.QueryYieldResponse
+	var err error
+	// apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// response.Yield = apy
 
-	apy, err := calculateYield(sdk.UnwrapSDKContext(ctx), q.keeper)
-	if err != nil {
-		return nil, err
-	}
-	response.Yield = apy
 	return &response, err
 }
 
-func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
+// func calculateYield(ctx sdk.Context, keeper *Keeper) (sdk.Dec, error) {
 
-	totalFees, numBlocks, err := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
+// 	totalFees, numBlocks, err := keeper.GetBlockFeesSum(ctx, NumBlocksInAWeek)
 
-	if err != nil {
-		return sdk.ZeroDec(), sdkerrors.Wrapf(err, "could not compute the fees for the latest blocks at height %v", ctx.BlockHeight())
-	}
-	if numBlocks != NumBlocksInAWeek {
-		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
-			ctx.BlockHeight(), NumBlocksInAWeek)
-	}
+// 	if err != nil {
+// 		return sdk.ZeroDec(), sdkerrors.Wrapf(err, "could not compute the fees for the latest blocks at height %v", ctx.BlockHeight())
+// 	}
+// 	if numBlocks != NumBlocksInAWeek {
+// 		return sdk.ZeroDec(), fmt.Errorf("not enough data to estimate yield: current height %v is smaller than %v",
+// 			ctx.BlockHeight(), NumBlocksInAWeek)
+// 	}
 
-	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
+// 	rewardPool := sdk.NewDecCoinsFromCoins(totalFees...)
 
-	totalDelegatedPower := keeper.StakingKeeper.GetLastTotalPower(ctx) // in voting power unit
+// 	totalDelegatedPower := keeper.StakingKeeper.GetLastTotalPower(ctx) // in voting power unit
 
-	// Translate the voting power to actual tokens
-	totalDelegatedTokens := keeper.StakingKeeper.TokensFromConsensusPower(ctx, totalDelegatedPower.Int64()) // in tokens (uiov)
+// 	// Translate the voting power to actual tokens
+// 	totalDelegatedTokens := keeper.StakingKeeper.TokensFromConsensusPower(ctx, totalDelegatedPower.Int64()) // in tokens (uiov)
 
-	// Compute yield for numBlocks blocks
-	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
+// 	// Compute yield for numBlocks blocks
+// 	yieldForPeriod := rewardPool.QuoDec(sdk.NewDecFromInt(totalDelegatedTokens))
 
-	var apy sdk.Dec
-	if len(yieldForPeriod) == 0 {
-		apy = sdk.ZeroDec()
-	} else {
-		const WeeksPerYear = 52
-		// TODO: manage multiple tokens for fees
-		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
-	}
+// 	var apy sdk.Dec
+// 	if len(yieldForPeriod) == 0 {
+// 		apy = sdk.ZeroDec()
+// 	} else {
+// 		const WeeksPerYear = 52
+// 		// TODO: manage multiple tokens for fees
+// 		apy = yieldForPeriod.MulDec(sdk.NewDec(int64(WeeksPerYear)))[0].Amount
+// 	}
 
-	return apy, nil
-}
+// 	return apy, nil
+// }

@@ -108,7 +108,7 @@ func GetCmdUpdateEscrow() *cobra.Command {
 	return cmd
 }
 
-// GetCmdTransferToEscrow implements transfering to an escrow command
+// GetCmdTransferToEscrow implements transferring to an escrow command
 func GetCmdTransferToEscrow() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "transfer [id] [amount]",

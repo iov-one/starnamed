@@ -121,7 +121,9 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 		accountKeeper,
 		distributionKeeper,
 		stakingKeeper,
-		nil, nil), ctx, &mocks
+		nil,
+		nil,
+	), ctx, &mocks
 }
 
 var _, testAddrs = utils.GeneratePrivKeyAddressPairs(3)

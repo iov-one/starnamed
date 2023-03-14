@@ -36,7 +36,7 @@ func AllInvariants(k Keeper) sdk.Invariant {
 // it adds overhead (as invariants are run for each block) and should be useless as these conditions
 // are checked at genesis or at escrow creation/update
 
-//AttributeInvariant checks that all escrow attributes are correct
+// AttributeInvariant checks that all escrow attributes are correct
 func AttributeInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		invalidIDEscrows := 0

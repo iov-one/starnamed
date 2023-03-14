@@ -1,170 +1,305 @@
 package wasm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-    // this line is used by starport scaffolding # 1
+	"math/rand"
+	"runtime/debug"
+	"strings"
 
-	"github.com/gorilla/mux"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-
+	wasmvm "github.com/CosmWasm/wasmvm"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/iov-one/starnamed/x/wasm/keeper"
-	"github.com/iov-one/starnamed/x/wasm/types"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/iov-one/starnamed/x/wasm/client/cli"
-	
-	// HACK: Force dependency on wasmvm so that an unmodified .travis.yml can build releases.
-	_ "github.com/CosmWasm/wasmvm/types"
+	"github.com/iov-one/starnamed/x/wasm/client/rest"
+	"github.com/iov-one/starnamed/x/wasm/keeper"
+	"github.com/iov-one/starnamed/x/wasm/simulation"
+	"github.com/iov-one/starnamed/x/wasm/types"
 )
 
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	
 )
 
-// ----------------------------------------------------------------------------
-// AppModuleBasic
-// ----------------------------------------------------------------------------
+// Module init related flags
+const (
+	flagWasmMemoryCacheSize    = "wasm.memory_cache_size"
+	flagWasmQueryGasLimit      = "wasm.query_gas_limit"
+	flagWasmSimulationGasLimit = "wasm.simulation_gas_limit"
+)
 
-// AppModuleBasic implements the AppModuleBasic interface for the capability module.
-type AppModuleBasic struct {
-	cdc codec.BinaryCodec
+// AppModuleBasic defines the basic application module used by the wasm module.
+type AppModuleBasic struct{}
+
+func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) { //nolint:staticcheck
+	RegisterCodec(amino)
 }
 
-func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
-	return AppModuleBasic{cdc: cdc}
-}
-
-// Name returns the capability module's name.
-func (AppModuleBasic) Name() string {
-	return types.ModuleName
-}
-
-func (AppModuleBasic) RegisterCodec(cdc *codec.LegacyAmino) {
-	types.RegisterCodec(cdc)
-}
-
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterCodec(cdc)
-}
-
-// RegisterInterfaces registers the module's interface types
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
-}
-
-// DefaultGenesis returns the capability module's default genesis state.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
-}
-
-// ValidateGenesis performs genesis state validation for the capability module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var genState types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serveMux *runtime.ServeMux) {
+	err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err)
 	}
-	return genState.Validate()
 }
 
-// RegisterRESTRoutes registers the capability module's REST service handlers.
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
+// Name returns the wasm module's name.
+func (AppModuleBasic) Name() string {
+	return ModuleName
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-    // this line is used by starport scaffolding # 2
+// DefaultGenesis returns default genesis state as raw bytes for the wasm
+// module.
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
+	return cdc.MustMarshalJSON(&GenesisState{
+		Params: DefaultParams(),
+	})
 }
 
-// GetTxCmd returns the capability module's root tx command.
-func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-    return cli.GetTxCmd()
+// ValidateGenesis performs genesis state validation for the wasm module.
+func (b AppModuleBasic) ValidateGenesis(marshaler codec.JSONCodec, config client.TxEncodingConfig, message json.RawMessage) error {
+	var data GenesisState
+	err := marshaler.UnmarshalJSON(message, &data)
+	if err != nil {
+		return err
+	}
+	return ValidateGenesis(data)
 }
 
-// GetQueryCmd returns the capability module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-    return cli.GetQueryCmd(types.StoreKey)
+// RegisterRESTRoutes registers the REST routes for the wasm module.
+func (AppModuleBasic) RegisterRESTRoutes(cliCtx client.Context, rtr *mux.Router) {
+	rest.RegisterRoutes(cliCtx, rtr)
 }
 
-// ----------------------------------------------------------------------------
-// AppModule
-// ----------------------------------------------------------------------------
+// GetTxCmd returns the root tx command for the wasm module.
+func (b AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.GetTxCmd()
+}
 
-// AppModule implements the AppModule interface for the capability module.
+// GetQueryCmd returns no root query command for the wasm module.
+func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
+}
+
+// RegisterInterfaces implements InterfaceModule
+func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
+}
+
+// ____________________________________________________________________________
+
+// AppModule implements an application module for the wasm module.
 type AppModule struct {
 	AppModuleBasic
-
-	keeper keeper.Keeper
+	cdc                codec.Codec
+	keeper             *Keeper
+	validatorSetSource keeper.ValidatorSetSource
+	accountKeeper      types.AccountKeeper // for simulation
+	bankKeeper         simulation.BankKeeper
 }
 
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper) AppModule {
+// ConsensusVersion is a sequence number for state-breaking change of the
+// module. It should be incremented on each consensus-breaking change
+// introduced by the module. To avoid wrong/empty versions, the initial version
+// should be set to 1.
+func (AppModule) ConsensusVersion() uint64 { return 1 }
+
+// NewAppModule creates a new AppModule object
+func NewAppModule(
+	cdc codec.Codec,
+	keeper *Keeper,
+	validatorSetSource keeper.ValidatorSetSource,
+	ak types.AccountKeeper,
+	bk simulation.BankKeeper,
+) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(cdc),
-		keeper:         keeper,
+		AppModuleBasic:     AppModuleBasic{},
+		cdc:                cdc,
+		keeper:             keeper,
+		validatorSetSource: validatorSetSource,
+		accountKeeper:      ak,
+		bankKeeper:         bk,
 	}
 }
 
-// Name returns the capability module's name.
-func (am AppModule) Name() string {
-	return am.AppModuleBasic.Name()
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(keeper.NewDefaultPermissionKeeper(am.keeper)))
+	types.RegisterQueryServer(cfg.QueryServer(), NewQuerier(am.keeper))
 }
 
-// Route returns the capability module's message routing key.
+func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier { //nolint:staticcheck
+	return keeper.NewLegacyQuerier(am.keeper, am.keeper.QueryGasLimit())
+}
+
+// RegisterInvariants registers the wasm module invariants.
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
+
+// Route returns the message routing key for the wasm module.
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+	return sdk.NewRoute(RouterKey, NewHandler(keeper.NewDefaultPermissionKeeper(am.keeper)))
 }
 
-// QuerierRoute returns the capability module's query routing key.
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+// QuerierRoute returns the wasm module's querier route name.
+func (AppModule) QuerierRoute() string {
+	return QuerierRoute
+}
 
-// LegacyQuerierHandler returns the capability module's Querier.
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+// InitGenesis performs genesis initialization for the wasm module. It returns
+// no validator updates.
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+	var genesisState GenesisState
+	cdc.MustUnmarshalJSON(data, &genesisState)
+	validators, err := InitGenesis(ctx, am.keeper, genesisState, am.validatorSetSource, am.Route().Handler())
+	if err != nil {
+		panic(err)
+	}
+	return validators
+}
+
+// ExportGenesis returns the exported genesis state as raw bytes for the wasm
+// module.
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+	gs := ExportGenesis(ctx, am.keeper)
+	return cdc.MustMarshalJSON(gs)
+}
+
+// BeginBlock returns the begin blocker for the wasm module.
+func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+
+// EndBlock returns the end blocker for the wasm module. It returns no validator
+// updates.
+func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	return []abci.ValidatorUpdate{}
+}
+
+// ____________________________________________________________________________
+
+// AppModuleSimulation functions
+
+// GenerateGenesisState creates a randomized GenState of the bank module.
+func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
+	simulation.RandomizedGenState(simState)
+}
+
+// ProposalContents doesn't return any content functions for governance proposals.
+func (AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
 	return nil
 }
 
-// RegisterServices registers a GRPC query service to respond to the
-// module-specific GRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-    types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+// RandomizedParams creates randomized bank param changes for the simulator.
+func (am AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
+	return simulation.ParamChanges(r, am.cdc)
 }
 
-// RegisterInvariants registers the capability module's invariants.
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
-
-// InitGenesis performs the capability module's genesis initialization It returns
-// no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
-	var genState types.GenesisState
-	// Initialize global index to index in genesis state
-	cdc.MustUnmarshalJSON(gs, &genState)
-
-	InitGenesis(ctx, am.keeper, genState)
-
-	return []abci.ValidatorUpdate{}
+// RegisterStoreDecoder registers a decoder for supply module's types
+func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
 }
 
-// ExportGenesis returns the capability module's exported genesis state as raw JSON bytes.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	genState := ExportGenesis(ctx, am.keeper)
-	return cdc.MustMarshalJSON(genState)
+// WeightedOperations returns the all the gov module operations with their respective weights.
+func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+	return simulation.WeightedOperations(&simState, am.accountKeeper, am.bankKeeper, am.keeper)
 }
 
-// ConsensusVersion implements ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+// ____________________________________________________________________________
 
-// BeginBlock executes all ABCI BeginBlock logic respective to the capability module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+// AddModuleInitFlags implements servertypes.ModuleInitFlags interface.
+func AddModuleInitFlags(startCmd *cobra.Command) {
+	defaults := DefaultWasmConfig()
+	startCmd.Flags().Uint32(flagWasmMemoryCacheSize, defaults.MemoryCacheSize, "Sets the size in MiB (NOT bytes) of an in-memory cache for Wasm modules. Set to 0 to disable.")
+	startCmd.Flags().Uint64(flagWasmQueryGasLimit, defaults.SmartQueryGasLimit, "Set the max gas that can be spent on executing a query with a Wasm contract")
+	startCmd.Flags().String(flagWasmSimulationGasLimit, "", "Set the max gas that can be spent when executing a simulation TX")
 
-// EndBlock executes all ABCI EndBlock logic respective to the capability module. It
-// returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+	startCmd.PreRunE = chainPreRuns(checkLibwasmVersion, startCmd.PreRunE)
+}
+
+// ReadWasmConfig reads the wasm specifig configuration
+func ReadWasmConfig(opts servertypes.AppOptions) (types.WasmConfig, error) {
+	cfg := types.DefaultWasmConfig()
+	var err error
+	if v := opts.Get(flagWasmMemoryCacheSize); v != nil {
+		if cfg.MemoryCacheSize, err = cast.ToUint32E(v); err != nil {
+			return cfg, err
+		}
+	}
+	if v := opts.Get(flagWasmQueryGasLimit); v != nil {
+		if cfg.SmartQueryGasLimit, err = cast.ToUint64E(v); err != nil {
+			return cfg, err
+		}
+	}
+	if v := opts.Get(flagWasmSimulationGasLimit); v != nil {
+		if raw, ok := v.(string); ok && raw != "" {
+			limit, err := cast.ToUint64E(v) // non empty string set
+			if err != nil {
+				return cfg, err
+			}
+			cfg.SimulationGasLimit = &limit
+		}
+	}
+	// attach contract debugging to global "trace" flag
+	if v := opts.Get(server.FlagTrace); v != nil {
+		if cfg.ContractDebugMode, err = cast.ToBoolE(v); err != nil {
+			return cfg, err
+		}
+	}
+	return cfg, nil
+}
+
+func getExpectedLibwasmVersion() string {
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		panic("can't read build info")
+	}
+	for _, d := range buildInfo.Deps {
+		if d.Path != "github.com/CosmWasm/wasmvm" {
+			continue
+		}
+		if d.Replace != nil {
+			return d.Replace.Version
+		}
+		return d.Version
+	}
+	return ""
+}
+
+func checkLibwasmVersion(cmd *cobra.Command, args []string) error {
+	wasmVersion, err := wasmvm.LibwasmvmVersion()
+	if err != nil {
+		return fmt.Errorf("unable to retrieve libwasmversion %w", err)
+	}
+	wasmExpectedVersion := getExpectedLibwasmVersion()
+	if wasmExpectedVersion == "" {
+		return fmt.Errorf("wasmvm module not exist")
+	}
+	if !strings.Contains(wasmExpectedVersion, wasmVersion) {
+		return fmt.Errorf("libwasmversion mismatch. got: %s; expected: %s", wasmVersion, wasmExpectedVersion)
+	}
+	return nil
+}
+
+type preRunFn func(cmd *cobra.Command, args []string) error
+
+func chainPreRuns(pfns ...preRunFn) preRunFn {
+	return func(cmd *cobra.Command, args []string) error {
+		for _, pfn := range pfns {
+			if pfn != nil {
+				if err := pfn(cmd, args); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
 }

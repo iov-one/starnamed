@@ -5,15 +5,21 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
+
+	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/iov-one/starnamed/x/wasm"
 )
+
+var emptyWasmOpts []wasm.Option = nil
 
 func TestWasmdExport(t *testing.T) {
 	db := db.NewMemDB()
-	gapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, EmptyBaseAppOptions{})
+	gapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, MakeEncodingConfig(), wasm.EnableAllProposals, EmptyBaseAppOptions{}, emptyWasmOpts)
 
 	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
@@ -29,7 +35,7 @@ func TestWasmdExport(t *testing.T) {
 	gapp.Commit()
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newGapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, EmptyBaseAppOptions{})
+	newGapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, MakeEncodingConfig(), wasm.EnableAllProposals, EmptyBaseAppOptions{}, emptyWasmOpts)
 	_, err = newGapp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }
@@ -37,19 +43,22 @@ func TestWasmdExport(t *testing.T) {
 // ensure that blocked addresses are properly set in bank keeper
 func TestBlockedAddrs(t *testing.T) {
 	db := db.NewMemDB()
-	gapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, EmptyBaseAppOptions{})
+	gapp := NewWasmApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, MakeEncodingConfig(), wasm.EnableAllProposals, EmptyBaseAppOptions{}, emptyWasmOpts)
 
 	for acc := range maccPerms {
 		t.Run(acc, func(t *testing.T) {
-			var expected bool
-			if allowedReceivingModules[acc] {
-				expected = false
+
+			// starname: #Dont remove -> Fis the test to allow the burner module to be able to recive tokens
+			if moduleCanReceive, modulePresentInArray := allowedReceivingModules[acc]; modulePresentInArray && moduleCanReceive {
+				require.False(t, gapp.BankKeeper.BlockedAddr(gapp.AccountKeeper.GetModuleAddress(acc)),
+					"ensure that blocked addresses are properly set in bank keeper",
+				)
 			} else {
-				expected = true
+				require.True(t, gapp.BankKeeper.BlockedAddr(gapp.AccountKeeper.GetModuleAddress(acc)),
+					"ensure that blocked addresses are properly set in bank keeper",
+				)
 			}
-			require.Equal(t, expected, gapp.bankKeeper.BlockedAddr(gapp.accountKeeper.GetModuleAddress(acc)),
-				"ensure that blocked addresses are properly set in bank keeper",
-			)
+
 		})
 	}
 }
@@ -59,7 +68,38 @@ func TestGetMaccPerms(t *testing.T) {
 	require.Equal(t, maccPerms, dup, "duplicated module account permissions differed from actual module account permissions")
 }
 
-func SetGenesis(gapp *WasmApp) error {
+func TestGetEnabledProposals(t *testing.T) {
+	cases := map[string]struct {
+		proposalsEnabled string
+		specificEnabled  string
+		expected         []wasm.ProposalType
+	}{
+		"all disabled": {
+			proposalsEnabled: "false",
+			expected:         wasm.DisableAllProposals,
+		},
+		"all enabled": {
+			proposalsEnabled: "true",
+			expected:         wasm.EnableAllProposals,
+		},
+		"some enabled": {
+			proposalsEnabled: "okay",
+			specificEnabled:  "StoreCode,InstantiateContract",
+			expected:         []wasm.ProposalType{wasm.ProposalTypeStoreCode, wasm.ProposalTypeInstantiateContract},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			ProposalsEnabled = tc.proposalsEnabled
+			EnableSpecificProposals = tc.specificEnabled
+			proposals := GetEnabledProposals()
+			assert.Equal(t, tc.expected, proposals)
+		})
+	}
+}
+
+func setGenesis(gapp *WasmApp) error {
 	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	if err != nil {
