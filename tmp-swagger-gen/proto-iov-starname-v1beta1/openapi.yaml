@@ -1,0 +1,577 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Query API
+    description: Query defines the gRPC querier service.
+    version: 0.0.1
+paths:
+    /starname/v1beta1/account/{starname}:
+        get:
+            tags:
+                - Query
+            description: Starname gets all the information associated with a starname.
+            operationId: Query_Starname
+            parameters:
+                - name: starname
+                  in: path
+                  description: Starname is the of the form account*domain.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryStarnameResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/accounts/broker/{broker}:
+        get:
+            tags:
+                - Query
+            description: BrokerAccounts gets accounts associated with a given broker.
+            operationId: Query_BrokerAccounts
+            parameters:
+                - name: broker
+                  in: path
+                  description: Broker is the broker of accounts.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryBrokerAccountsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/accounts/domain/{domain}:
+        get:
+            tags:
+                - Query
+            description: DomainAccounts gets accounts associated with a given domain.
+            operationId: Query_DomainAccounts
+            parameters:
+                - name: domain
+                  in: path
+                  description: Domain is the name of the domain.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryDomainAccountsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/accounts/owner/{owner}:
+        get:
+            tags:
+                - Query
+            description: OwnerAccounts gets accounts associated with a given owner.
+            operationId: Query_OwnerAccounts
+            parameters:
+                - name: owner
+                  in: path
+                  description: Owner is the owner of accounts.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryOwnerAccountsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/accounts/resource/{uri}/{resource}:
+        get:
+            tags:
+                - Query
+            description: ResourceAccounts gets accounts associated with a given resource.
+            operationId: Query_ResourceAccounts
+            parameters:
+                - name: uri
+                  in: path
+                  description: Uri is the uri of the resource. query.pb.gw.to doesn't respect gogoproto.customname, so we're stuck with Uri.
+                  required: true
+                  schema:
+                    type: string
+                - name: resource
+                  in: path
+                  description: Resource is the resource of interest.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryResourceAccountsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/domain/{name}:
+        get:
+            tags:
+                - Query
+            description: Domain gets a starname's domain info.
+            operationId: Query_Domain
+            parameters:
+                - name: name
+                  in: path
+                  description: Name is the name of the domain.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryDomainResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/domains/broker/{broker}:
+        get:
+            tags:
+                - Query
+            description: BrokerDomains gets domains associated with a given broker.
+            operationId: Query_BrokerDomains
+            parameters:
+                - name: broker
+                  in: path
+                  description: Broker is the broker of accounts.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryBrokerDomainsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/domains/owner/{owner}:
+        get:
+            tags:
+                - Query
+            description: OwnerDomains gets domains associated with a given owner.
+            operationId: Query_OwnerDomains
+            parameters:
+                - name: owner
+                  in: path
+                  description: Owner is the owner of accounts.
+                  required: true
+                  schema:
+                    type: string
+                - name: pagination.key
+                  in: query
+                  description: key is a value returned in PageResponse.next_key to begin querying the next page most efficiently. Only one of offset or key should be set.
+                  schema:
+                    type: string
+                    format: bytes
+                - name: pagination.offset
+                  in: query
+                  description: offset is a numeric offset that can be used when key is unavailable. It is less efficient than using key. Only one of offset or key should be set.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.limit
+                  in: query
+                  description: limit is the total number of results to be returned in the result page. If left empty it will default to a value to be set by each app.
+                  schema:
+                    type: integer
+                    format: uint64
+                - name: pagination.countTotal
+                  in: query
+                  description: count_total is set to true  to indicate that the result set should include a count of the total number of items available for pagination in UIs. count_total is only respected when offset is used. It is ignored when key is set.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryOwnerDomainsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /starname/v1beta1/yield:
+        get:
+            tags:
+                - Query
+            description: Yield estimates and retrieves the annualized yield for delegators
+            operationId: Query_Yield
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryYieldResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        Account:
+            type: object
+            properties:
+                domain:
+                    type: string
+                    description: Domain references the domain this account belongs to
+                name:
+                    $ref: '#/components/schemas/StringValue'
+                owner:
+                    type: string
+                    description: Owner is the address that owns the account
+                    format: bytes
+                broker:
+                    type: string
+                    description: Broker identifies an entity that facilitated the transaction of the account and can be empty
+                    format: bytes
+                validUntil:
+                    type: integer
+                    description: ValidUntil defines a unix timestamp of the expiration of the account in seconds
+                    format: int64
+                resources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Resource'
+                    description: Resources is the list of resources an account resolves to
+                certificates:
+                    type: array
+                    items:
+                        type: string
+                        format: bytes
+                    description: Certificates contains the list of certificates to identify the account owner
+                metadataUri:
+                    type: string
+                    description: MetadataURI contains a link to extra information regarding the account
+            description: 'Account defines an account that belongs to a domain NOTE: It should not be confused with cosmos-sdk auth account github.com/cosmos/cosmos-sdk/x/auth.Account'
+        Domain:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Name is the name of the domain
+                admin:
+                    type: string
+                    description: Admin is the owner of the domain
+                    format: bytes
+                broker:
+                    type: string
+                    format: bytes
+                validUntil:
+                    type: integer
+                    description: ValidUntil is a unix timestamp defines the time when the domain will become invalid in seconds
+                    format: int64
+                type:
+                    type: string
+                    description: Type defines the type of the domain
+            description: Domain defines a domain
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        PageResponse:
+            type: object
+            properties:
+                nextKey:
+                    type: string
+                    description: next_key is the key to be passed to PageRequest.key to query the next page most efficiently
+                    format: bytes
+                total:
+                    type: integer
+                    description: total is total number of results available if PageRequest.count_total was set, its value is undefined otherwise
+                    format: uint64
+            description: PageResponse is to be embedded in gRPC response messages where the corresponding request message has used PageRequest.  message SomeResponse {          repeated Bar results = 1;          PageResponse page = 2;  }
+        QueryBrokerAccountsResponse:
+            type: object
+            properties:
+                accounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Account'
+                    description: Accounts is the accounts associated with broker.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryBrokerAccountsResponse is the response type for the Query/BrokerAccounts RPC method.
+        QueryBrokerDomainsResponse:
+            type: object
+            properties:
+                domains:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Domain'
+                    description: Accounts is the accounts associated with broker.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryBrokerDomainsResponse is the response type for the Query/BrokerDomains RPC method.
+        QueryDomainAccountsResponse:
+            type: object
+            properties:
+                accounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Account'
+                    description: Accounts is the accounts associated with the domain.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryDomainAccountsResponse is the response type for the Query/DomainAccounts RPC method.
+        QueryDomainResponse:
+            type: object
+            properties:
+                domain:
+                    $ref: '#/components/schemas/Domain'
+            description: QueryDomainResponse is the response type for the Query/Domain RPC method.
+        QueryOwnerAccountsResponse:
+            type: object
+            properties:
+                accounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Account'
+                    description: Accounts is the accounts associated with owner.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryOwnerAccountsResponse is the response type for the Query/OwnerAccounts RPC method.
+        QueryOwnerDomainsResponse:
+            type: object
+            properties:
+                domains:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Domain'
+                    description: Accounts is the accounts associated with owner.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryOwnerDomainsResponse is the response type for the Query/OwnerDomains RPC method.
+        QueryResourceAccountsResponse:
+            type: object
+            properties:
+                accounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Account'
+                    description: Accounts are the accounts associated with the resource.
+                page:
+                    $ref: '#/components/schemas/PageResponse'
+            description: QueryResourceAccountsResponse is the response type for the Query/ResourceAccounts RPC method.
+        QueryStarnameResponse:
+            type: object
+            properties:
+                account:
+                    $ref: '#/components/schemas/Account'
+            description: QueryStarnameResponse is the response type for the Query/Starname RPC method.
+        QueryYieldResponse:
+            type: object
+            properties:
+                yield:
+                    type: string
+            description: QueryYieldResponse is the response type for the Query/Yield RPC method.
+        Resource:
+            type: object
+            properties:
+                uri:
+                    type: string
+                    description: URI defines the ID of the resource
+                resource:
+                    type: string
+                    description: Resource is the resource
+            description: Resource defines a resource owned by an account
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        StringValue:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: The string value.
+            description: Wrapper message for `string`. The JSON representation for `StringValue` is JSON string.
+tags:
+    - name: Query
