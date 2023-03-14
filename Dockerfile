@@ -30,7 +30,7 @@ RUN echo "Ensuring binary is statically linked ..." \
   && (file /code/build/starnamed | grep "statically linked")
 
 # --------------------------------------------------------
-FROM alpine:3.15
+FROM alpine:3.17.2
 
 COPY --from=go-builder /code/build/starnamed /usr/bin/starnamed
 
