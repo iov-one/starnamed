@@ -3,7 +3,6 @@ module github.com/iov-one/starnamed
 go 1.18
 
 require (
-	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
 	github.com/CosmWasm/wasmvm v1.1.1
 	github.com/cosmos/cosmos-proto v1.0.0-alpha7
 	github.com/cosmos/cosmos-sdk v0.45.9
@@ -32,7 +31,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	google.golang.org/genproto v0.0.0-20220725144611-272f38e5d71b
 	google.golang.org/grpc v1.49.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.29.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
