@@ -21,7 +21,12 @@ To install the starnamed CLI, follow these steps:
 - Binary installation :
   - (Linux Only) Download the latest release from the v0.11.6 release page and use.
 
-- Source installation :
+```bash
+# Note: execute: sudo echo "enable sudo" to avoid the password prompt 
+wget -O starnamed_temp https://github.com/iov-one/starnamed/releases/download/v0.11.7/starnamed.linux.amd64 && chmod +x starnamed_temp && sudo mv starnamed_temp /usr/local/bin/starnamed && starnamed version --long
+```
+
+- Source installation : (Any other OS)
   - Install Go 1.18 or higher.
   - Clone the starnamed repository.
   - Run make install to install the starnamed CLI.
