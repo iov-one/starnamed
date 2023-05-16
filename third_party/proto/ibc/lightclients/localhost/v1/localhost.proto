@@ -11,7 +11,7 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/09-localho
 message ClientState {
   option (gogoproto.goproto_getters) = false;
   // self chain ID
-  string chain_id = 1 [(gogoproto.moretags) = "yaml:\"chain_id\""];
+  string chain_id = 1 [ (gogoproto.moretags) = "yaml:\"chain_id\"" ];
   // self latest block height
-  ibc.core.client.v1.Height height = 2 [(gogoproto.nullable) = false];
+  ibc.core.client.v1.Height height = 2 [ (gogoproto.nullable) = false ];
 }

@@ -28,9 +28,12 @@ message QueryEscrowResponse { v1beta1.Escrow escrow = 1; }
 
 // QueryEscrowsRequest is the request type for the Query/Escrows RPC method
 message QueryEscrowsRequest {
-  string seller = 1;  // The4 seller address
-  string state = 2;   // The state of the escrow object. It must be one of "open" or "expired".
-  string object_key = 3;  // All the escrows has a unique key, in the starname objects the domain_name will be the key, and the account_name*domain_name will be account name.
+  string seller = 1; // The4 seller address
+  string state = 2;  // The state of the escrow object. It must be one of "open"
+                     // or "expired".
+  string object_key = 3; // All the escrows has a unique key, in the starname
+                         // objects the domain_name will be the key, and the
+                         // account_name*domain_name will be account name.
   uint64 pagination_start = 4;
   uint64 pagination_length = 5;
 }

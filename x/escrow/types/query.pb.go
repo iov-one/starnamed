@@ -121,9 +121,12 @@ func (m *QueryEscrowResponse) GetEscrow() *Escrow {
 
 // QueryEscrowsRequest is the request type for the Query/Escrows RPC method
 type QueryEscrowsRequest struct {
-	Seller           string `protobuf:"bytes,1,opt,name=seller,proto3" json:"seller,omitempty"`
-	State            string `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	ObjectKey        string `protobuf:"bytes,3,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
+	Seller string `protobuf:"bytes,1,opt,name=seller,proto3" json:"seller,omitempty"`
+	State  string `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	// or "expired".
+	ObjectKey string `protobuf:"bytes,3,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
+	// objects the domain_name will be the key, and the
+	// account_name*domain_name will be account name.
 	PaginationStart  uint64 `protobuf:"varint,4,opt,name=pagination_start,json=paginationStart,proto3" json:"pagination_start,omitempty"`
 	PaginationLength uint64 `protobuf:"varint,5,opt,name=pagination_length,json=paginationLength,proto3" json:"pagination_length,omitempty"`
 }

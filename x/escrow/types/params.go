@@ -8,12 +8,15 @@ import (
 
 // Default parameter values
 const (
-	DefaultModuleEnabled bool = true
+	DefaultModuleEnabled  bool    = true
+	DefaultCustomTokenFee float64 = 0.5
 )
 
 // Parameter keys
 var (
-	KeyModuleEnabled = []byte("ModuleEnabled")
+	KeyModuleEnabled       = []byte("ModuleEnabled")
+	KeyAllowedCustomTokens = []byte("AllowedCustomTokens")
+	KeyCustomTokenFee      = []byte("CustomTokenFee")
 )
 
 var _ paramtypes.ParamSet = &Params{}
@@ -29,13 +32,17 @@ func ParamKeyTable() paramtypes.KeyTable {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyModuleEnabled, &p.ModuleEnabled, validateIsBool),
+		paramtypes.NewParamSetPair(KeyAllowedCustomTokens, &p.AllowedCustomTokens, validateIsSliceOfStrings),
+		paramtypes.NewParamSetPair(KeyCustomTokenFee, &p.CustomTokenFee, validateIfIsPositiveFloat64),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		ModuleEnabled: DefaultModuleEnabled,
+		ModuleEnabled:       DefaultModuleEnabled,
+		AllowedCustomTokens: []string{},
+		CustomTokenFee:      DefaultCustomTokenFee,
 	}
 }
 
@@ -47,10 +54,39 @@ func validateIsBool(i interface{}) error {
 	return nil
 }
 
+func validateIsSliceOfStrings(i interface{}) error {
+	_, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T, expected []string", i)
+	}
+	return nil
+}
+
+func validateIfIsPositiveFloat64(i interface{}) error {
+	f, ok := i.(float64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T, expected float64", i)
+	}
+	// Check if the float is positive
+	if f < 0 {
+		return fmt.Errorf("invalid parameter value: %f, expected positive float64", f)
+	}
+	return nil
+}
+
 // Validate checks that the parameters have valid values.
 func (p Params) Validate() error {
 	if err := validateIsBool(p.ModuleEnabled); err != nil {
 		return err
 	}
+
+	if err := validateIsSliceOfStrings(p.AllowedCustomTokens); err != nil {
+		return err
+	}
+
+	if err := validateIfIsPositiveFloat64(p.CustomTokenFee); err != nil {
+		return err
+	}
+
 	return nil
 }

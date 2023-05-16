@@ -19,6 +19,8 @@ func ValidatePrice(price sdk.Coins, denom string) error {
 	if !(price.IsValid() && price.IsAllPositive()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "the price must be valid and positive")
 	}
+
+	// TODO: Investigate if negative prices are allowed and how that behaves with the escrow
 	if len(denom) != 0 && (price.Len() != 1 || price[0].Denom != denom) {
 		return sdkerrors.Wrap(ErrInvalidPrice, "the price must be in "+denom+", price: "+price.String())
 	}

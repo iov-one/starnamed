@@ -12,12 +12,14 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/ty
 service Query {
   // DenomTrace queries a denomination trace information.
   rpc DenomTrace(QueryDenomTraceRequest) returns (QueryDenomTraceResponse) {
-    option (google.api.http).get = "/ibc/applications/transfer/v1beta1/denom_traces/{hash}";
+    option (google.api.http).get =
+        "/ibc/applications/transfer/v1beta1/denom_traces/{hash}";
   }
 
   // DenomTraces queries all denomination traces.
   rpc DenomTraces(QueryDenomTracesRequest) returns (QueryDenomTracesResponse) {
-    option (google.api.http).get = "/ibc/applications/transfer/v1beta1/denom_traces";
+    option (google.api.http).get =
+        "/ibc/applications/transfer/v1beta1/denom_traces";
   }
 
   // Params queries all parameters of the ibc-transfer module.
@@ -51,7 +53,8 @@ message QueryDenomTracesRequest {
 // method.
 message QueryDenomTracesResponse {
   // denom_traces returns all denominations trace information.
-  repeated DenomTrace denom_traces = 1 [(gogoproto.castrepeated) = "Traces", (gogoproto.nullable) = false];
+  repeated DenomTrace denom_traces = 1
+      [ (gogoproto.castrepeated) = "Traces", (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

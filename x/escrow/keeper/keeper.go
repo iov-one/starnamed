@@ -157,6 +157,11 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	if k.paramSpace.Has(ctx, types.KeyModuleEnabled) {
 		k.paramSpace.Get(ctx, types.KeyModuleEnabled, &params.ModuleEnabled)
 	}
+
+	if k.paramSpace.Has(ctx, types.KeyAllowedCustomTokens) {
+		k.paramSpace.Get(ctx, types.KeyAllowedCustomTokens, &params.AllowedCustomTokens)
+	}
+
 	return
 }
 
