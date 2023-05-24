@@ -90,7 +90,7 @@ func (e *Escrow) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 
 // ValidateWithoutDeadlineAndObject validates the escrow without validating the deadline and the object
 // If priceDenom is empty, does not validate the price denomination
-func (e Escrow) ValidateWithoutDeadlineAndObject(priceDenom string) error {
+func (e Escrow) ValidateWithoutDeadlineAndObject(acceptedDenoms []string) error {
 	if err := ValidateID(e.Id); err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (e Escrow) ValidateWithoutDeadlineAndObject(priceDenom string) error {
 	}
 
 	// Validate price
-	if err := ValidatePrice(e.Price, priceDenom); err != nil {
+	if err := ValidatePrice(e.Price, acceptedDenoms); err != nil {
 		return err
 	}
 
@@ -121,9 +121,9 @@ func (e Escrow) ValidateWithoutDeadlineAndObject(priceDenom string) error {
 }
 
 // Validate validates the escrow, if priceDenom is empty, does not validate the price denomination
-func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
+func (e Escrow) Validate(acceptedDenoms []string, lastBlockTime uint64) error {
 	// Validate all fields expect deadline and object
-	if err := e.ValidateWithoutDeadlineAndObject(priceDenom); err != nil {
+	if err := e.ValidateWithoutDeadlineAndObject(acceptedDenoms); err != nil {
 		return err
 	}
 
@@ -145,8 +145,10 @@ func (e Escrow) Validate(priceDenom string, lastBlockTime uint64) error {
 
 // ValidateWithContext validates the escrow with a given context and custom data. It performs the same validation as Validate
 // plus some context-aware validation
-func (e *Escrow) ValidateWithContext(ctx sdk.Context, priceDenom string, lastBlockTime uint64, data CustomData) error {
-	if err := e.Validate(priceDenom, lastBlockTime); err != nil {
+func (e *Escrow) ValidateWithContext(ctx sdk.Context, defaultChainDenom string, CustomDenomAccepted []string, lastBlockTime uint64, data CustomData) error {
+
+	acceptedDenoms := append(CustomDenomAccepted, defaultChainDenom)
+	if err := e.Validate(acceptedDenoms, lastBlockTime); err != nil {
 		return err
 	}
 	//NOTE: this performs a repeated validation for the basic validation part of the object

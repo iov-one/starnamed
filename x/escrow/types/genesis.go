@@ -54,7 +54,7 @@ func ValidateGenesis(data GenesisState) error {
 		}
 
 		// Validate the escrow fields
-		if err := escrow.ValidateWithoutDeadlineAndObject(""); err != nil {
+		if err := escrow.ValidateWithoutDeadlineAndObject([]string{}); err != nil {
 			return err
 		}
 

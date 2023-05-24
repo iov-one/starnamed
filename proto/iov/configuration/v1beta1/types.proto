@@ -93,6 +93,19 @@ message Config {
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true
   ];
+
+  // custom_denom_accepted defines what external custom denom is accepted to be into the escrow module
+  repeated string custom_denom_accepted = 19 [
+    (gogoproto.moretags) = "yaml:\"custom_denom_accepted\""
+  ];
+
+  // custom_denom_commission defines the commission taken by the broker for a completed
+  // escrow, between 0 (no commission) and 1 (100% commission)
+  string custom_denom_commission = 20 [
+    (gogoproto.moretags) = "yaml:\"custom_denom_commission\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // Fees contains different type of fees to calculate coins to detract when

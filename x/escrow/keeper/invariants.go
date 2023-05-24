@@ -58,7 +58,7 @@ func AttributeInvariant(k Keeper) sdk.Invariant {
 				return false
 			}
 
-			if types.ValidatePrice(escrow.Price, k.GetEscrowPriceDenom(ctx)) != nil {
+			if types.ValidatePrice(escrow.Price, k.GetAcceptedDenoms(ctx)) != nil {
 				invalidPriceEscrows++
 				return false
 			}

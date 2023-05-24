@@ -45,8 +45,10 @@ func DefaultGenesisState() GenesisState {
 		CertificateCountMax:    3,
 		MetadataSizeMax:        86400,
 		EscrowCommission:       sdk.NewDecFromInt(sdk.NewInt(1)).QuoInt(sdk.NewInt(100)), // 1%
-		EscrowBroker:           "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78", 					 // to IOV msig account
-		EscrowMaxPeriod:        7890000 * 1e9,                                 					 // 3 months
+		EscrowBroker:           "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",            // to IOV msig account
+		EscrowMaxPeriod:        7890000 * 1e9,                                            // 3 months
+		CustomDenomAccepted:    []string{},
+		CustomDenomCommission:  sdk.NewDecFromInt(sdk.NewInt(5)).QuoInt(sdk.NewInt(100)), // 5%
 	}
 	// set fees
 	// add domain module fees

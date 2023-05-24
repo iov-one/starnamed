@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/hex"
 	"strconv"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -13,16 +14,25 @@ const (
 	EscrowIDLength = 16
 )
 
+// isAValidDenom checks if the denom is contained in the allowed denoms
+func isAValidDenom(denom string, allowedDenoms []string) bool {
+	for _, d := range allowedDenoms {
+		if d == denom {
+			return true
+		}
+	}
+	return false
+}
+
 // ValidatePrice verifies whether the given amount is valid and has the correct denomination
 // If denom is empty, does not validate the denomination
-func ValidatePrice(price sdk.Coins, denom string) error {
+func ValidatePrice(price sdk.Coins, acceptedDenom []string) error {
 	if !(price.IsValid() && price.IsAllPositive()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "the price must be valid and positive")
 	}
 
-	// TODO: Investigate if negative prices are allowed and how that behaves with the escrow
-	if len(denom) != 0 && (price.Len() != 1 || price[0].Denom != denom) {
-		return sdkerrors.Wrap(ErrInvalidPrice, "the price must be in "+denom+", price: "+price.String())
+	if len(acceptedDenom) != 0 && (price.Len() != 1 || !isAValidDenom(price[0].Denom, acceptedDenom)) {
+		return sdkerrors.Wrap(ErrInvalidPrice, "the price must be some of the following denoms: "+strings.Join(acceptedDenom, ",")+"; The price was: "+price.String())
 	}
 	return nil
 }

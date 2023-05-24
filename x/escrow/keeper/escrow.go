@@ -50,7 +50,7 @@ func (k Keeper) CreateEscrow(
 	escrow := types.NewEscrow(
 		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
 	)
-	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
+	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetCustomDenomAccepted(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
 		return "", err
 	}
@@ -115,7 +115,8 @@ func (k Keeper) UpdateEscrow(
 		escrow.Seller = newSeller.String()
 	}
 	if newPrice != nil {
-		if err := types.ValidatePrice(newPrice, k.GetEscrowPriceDenom(ctx)); err != nil {
+
+		if err := types.ValidatePrice(newPrice, k.GetAcceptedDenoms(ctx)); err != nil {
 			return err
 		}
 		escrow.Price = newPrice

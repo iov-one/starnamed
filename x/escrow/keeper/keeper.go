@@ -152,14 +152,20 @@ func (k Keeper) GetBrokerCommission(ctx sdk.Context) sdk.Dec {
 	return k.configurationKeeper.GetConfiguration(ctx).EscrowCommission
 }
 
+// GetCustomDenomAccepted returns the custom denom accepted
+func (k Keeper) GetCustomDenomAccepted(ctx sdk.Context) []string {
+	return k.configurationKeeper.GetConfiguration(ctx).CustomDenomAccepted
+}
+
+// GetCustomDenomCommission returns the custom denom commission
+func (k Keeper) GetCustomDenomCommission(ctx sdk.Context) sdk.Dec {
+	return k.configurationKeeper.GetConfiguration(ctx).CustomDenomCommission
+}
+
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	params = types.DefaultParams()
 	if k.paramSpace.Has(ctx, types.KeyModuleEnabled) {
 		k.paramSpace.Get(ctx, types.KeyModuleEnabled, &params.ModuleEnabled)
-	}
-
-	if k.paramSpace.Has(ctx, types.KeyAllowedCustomTokens) {
-		k.paramSpace.Get(ctx, types.KeyAllowedCustomTokens, &params.AllowedCustomTokens)
 	}
 
 	return
@@ -184,4 +190,11 @@ func (k Keeper) checkThatModuleIsEnabled(ctx sdk.Context) {
 	if !moduleEnabled {
 		panic("The escrow module is not enabled yet. The escrow/" + string(types.KeyModuleEnabled) + " parameter must be set to true")
 	}
+}
+
+// Cet the accepted denoms for the escrow
+func (k Keeper) GetAcceptedDenoms(ctx sdk.Context) []string {
+	var acceptedDenoms []string
+	acceptedDenoms = append(k.GetCustomDenomAccepted(ctx), k.configurationKeeper.GetFees(ctx).FeeCoinDenom)
+	return acceptedDenoms
 }

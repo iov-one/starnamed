@@ -15,6 +15,7 @@ func TestValidate(t *testing.T) {
 	test.SetConfig()
 	gen := test.NewEscrowGenerator(100)
 
+	customDenom := "usdc"
 	defaultBroker := gen.NewAccAddress().String()
 	defaultCommission := sdk.ZeroDec()
 	defaultId := "0123456789abcdef"
@@ -29,7 +30,21 @@ func TestValidate(t *testing.T) {
 			Amount: sdk.NewInt(-20),
 		},
 	}
-	denom := test.Denom
+	customPriceValid := sdk.Coins{
+		sdk.Coin{
+			Denom:  customDenom,
+			Amount: sdk.NewInt(20),
+		},
+	}
+
+	customPriceInvalid := sdk.Coins{
+		sdk.Coin{
+			Denom:  "fake",
+			Amount: sdk.NewInt(20),
+		},
+	}
+
+	acceptedDenoms := []string{test.Denom, customDenom}
 
 	testCases := []struct {
 		name       string
@@ -99,6 +114,14 @@ func TestValidate(t *testing.T) {
 			name:       "invalid commission: over 1",
 			commission: sdk.NewDec(2),
 		},
+		{
+			name:  "Valid custom denom",
+			price: customPriceValid,
+		},
+		{
+			name:  "invalid custom denom",
+			price: customPriceInvalid,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -143,8 +166,8 @@ func TestValidate(t *testing.T) {
 				BrokerAddress:    broker,
 				BrokerCommission: commission,
 			}
-			err1 := escrow.Validate(denom, gen.NowAfter(0))
-			err2 := escrow.ValidateWithoutDeadlineAndObject(denom)
+			err1 := escrow.Validate(acceptedDenoms, gen.NowAfter(0))
+			err2 := escrow.ValidateWithoutDeadlineAndObject(acceptedDenoms)
 			if !errors.Is(err1, err2) {
 				t.Fatalf("Error, mismatch of validation error between Validate and ValidateWithoutDeadlineAndObject : %v and %v",
 					err1,
@@ -163,7 +186,7 @@ func TestValidate(t *testing.T) {
 			Object:   test.MustPackToAny(defaultObj),
 			Price:    defaultPrice,
 			Deadline: defaultDeadline,
-		}.Validate(denom, gen.NowAfter(0))
+		}.Validate(acceptedDenoms, gen.NowAfter(0))
 	})
 	test.EvaluateTest(t, "invalid escrow: just passed deadline", func(*testing.T) error {
 		return types.Escrow{
@@ -172,7 +195,7 @@ func TestValidate(t *testing.T) {
 			Object:   test.MustPackToAny(defaultObj),
 			Price:    defaultPrice,
 			Deadline: gen.NowAfter(0),
-		}.Validate(denom, gen.NowAfter(0))
+		}.Validate(acceptedDenoms, gen.NowAfter(0))
 	})
 	test.EvaluateTest(t, "invalid escrow: passed deadline", func(*testing.T) error {
 		return types.Escrow{
@@ -181,7 +204,7 @@ func TestValidate(t *testing.T) {
 			Object:   test.MustPackToAny(defaultObj),
 			Price:    defaultPrice,
 			Deadline: gen.NowAfter(0) - 20,
-		}.Validate(denom, gen.NowAfter(0))
+		}.Validate(acceptedDenoms, gen.NowAfter(0))
 	})
 	// TODO test valid escrow object deadline without context but invalid with context
 }

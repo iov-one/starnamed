@@ -112,7 +112,7 @@ func (msg MsgCreateEscrow) ValidateBasic() error {
 		return err
 	}
 
-	if err := ValidatePrice(msg.Price, ""); err != nil {
+	if err := ValidatePrice(msg.Price, []string{}); err != nil {
 		return err
 	}
 
@@ -227,7 +227,7 @@ func (msg MsgUpdateEscrow) ValidateBasic() error {
 
 	if msg.Price != nil {
 		hasUpdate = true
-		if err := ValidatePrice(msg.Price, ""); err != nil {
+		if err := ValidatePrice(msg.Price, []string{}); err != nil {
 			return err
 		}
 	}
@@ -282,7 +282,9 @@ func (msg MsgTransferToEscrow) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
 	}
 
-	return ValidatePrice(msg.Amount, "")
+	// TODO: what this should be? Can become a problem,
+	// return ValidatePrice(msg.Amount, "")
+	return ValidatePrice(msg.Amount, []string{})
 }
 
 // GetSignBytes implements Msg
