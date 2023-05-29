@@ -47,9 +47,17 @@ func (k Keeper) CreateEscrow(
 	}
 
 	// Create and validate the escrow
+	// verify if theprice is the default coin denom, if true will use the default commission, otherwise will use the custom commission
+
+	escrow_commission := k.GetBrokerCommission(ctx)
+
+	if len(price) > 0 && types.IsAValidDenom(price[0].Denom, k.configurationKeeper.GetConfiguration(ctx).CustomDenomAccepted) {
+		escrow_commission = k.configurationKeeper.GetConfiguration(ctx).CustomDenomCommission
+	}
+
 	escrow := types.NewEscrow(
-		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), k.GetBrokerCommission(ctx),
-	)
+		id, seller, price, object, deadline, k.GetBrokerAddress(ctx), escrow_commission)
+
 	err := escrow.ValidateWithContext(ctx, k.GetEscrowPriceDenom(ctx), k.GetCustomDenomAccepted(ctx), k.GetLastBlockTime(ctx), k.getCustomDataForType(object.GetObjectTypeID()))
 	if err != nil {
 		return "", err

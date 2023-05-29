@@ -64,7 +64,6 @@ func (s *EscrowTestSuite) getState(seller sdk.AccAddress, buyer sdk.AccAddress, 
 		brokerBalance: brokerBalance,
 		objectOwner:   owner,
 	}
-
 }
 
 func newSavedObject(generator *test.EscrowGenerator, seller sdk.AccAddress, store crud.Store) *types.TestObject {

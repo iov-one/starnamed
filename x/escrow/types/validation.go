@@ -14,8 +14,8 @@ const (
 	EscrowIDLength = 16
 )
 
-// isAValidDenom checks if the denom is contained in the allowed denoms
-func isAValidDenom(denom string, allowedDenoms []string) bool {
+// IsAValidDenom checks if the denom is contained in the allowed denoms
+func IsAValidDenom(denom string, allowedDenoms []string) bool {
 	for _, d := range allowedDenoms {
 		if d == denom {
 			return true
@@ -31,7 +31,7 @@ func ValidatePrice(price sdk.Coins, acceptedDenom []string) error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "the price must be valid and positive")
 	}
 
-	if len(acceptedDenom) != 0 && (price.Len() != 1 || !isAValidDenom(price[0].Denom, acceptedDenom)) {
+	if len(acceptedDenom) != 0 && (price.Len() != 1 || !IsAValidDenom(price[0].Denom, acceptedDenom)) {
 		return sdkerrors.Wrap(ErrInvalidPrice, "the price must be some of the following denoms: "+strings.Join(acceptedDenom, ",")+"; The price was: "+price.String())
 	}
 	return nil
