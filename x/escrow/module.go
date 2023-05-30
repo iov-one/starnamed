@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
@@ -22,6 +23,8 @@ import (
 	"github.com/iov-one/starnamed/x/escrow/keeper"
 	"github.com/iov-one/starnamed/x/escrow/simulation"
 	"github.com/iov-one/starnamed/x/escrow/types"
+
+	migratorv2 "github.com/iov-one/starnamed/x/escrow/migrations/v2"
 )
 
 var (
@@ -104,6 +107,12 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper) AppModule {
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	migrator_from_v1_to_v2 := migratorv2.NewMigrator(am.keeper)
+
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator_from_v1_to_v2.MigrationHandler); err != nil {
+		panic(sdkerrors.Wrapf(err, migrator_from_v1_to_v2.RegistrationErrMSG))
+	}
 }
 
 // RegisterInvariants registers the escrow module invariants.
@@ -182,4 +191,4 @@ func (am AppModule) WeightedOperations(module.SimulationState) []simtypes.Weight
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return 2 }

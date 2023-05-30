@@ -198,3 +198,13 @@ func (k Keeper) GetAcceptedDenoms(ctx sdk.Context) []string {
 	acceptedDenoms = append(k.GetCustomDenomAccepted(ctx), k.configurationKeeper.GetFees(ctx).FeeCoinDenom)
 	return acceptedDenoms
 }
+
+// GetCdc returns the codec for the module
+func (k Keeper) GetCdc() codec.BinaryCodec {
+	return k.cdc
+}
+
+// GetStoreKey returns the store key for the module
+func (k Keeper) GetStoreKey() sdk.StoreKey {
+	return k.storeKey
+}
