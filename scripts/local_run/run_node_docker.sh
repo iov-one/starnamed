@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is used to run a node locally.
+# This script is used to run a node locally. Using docker.
 # 1. This script will generate a genesis,
 # 2. Replace all denoms at genesis.json "stake, tiov, uiov, iov and tvoi" with the given token name. (default: stake)
 # 3. Start a node with the given name. (default: node0)
@@ -17,13 +17,24 @@
 
 # bash ./scripts/local_run/run_node.sh [folder_path] [token_name] [node_name]
 
+# Build:
+
+make build # to build the binary
+docker build -t starnamed . # to build the docker image
+
 # Variables:
 
+DOCKER_NAME=${1:-"starnamed"}
 FOLDER_PATH=${1:-"./tmp/node0"}
-DEFAULT_DENOM=${2:-"stake"}
-DEFAULT_DENOM_SECONDARY="tusd"
+FULL_PATH=$(realpath $FOLDER_PATH)
+DEFAULT_DENOM=${2:-"utiov"}
+DEFAULT_DENOM_SECONDARY="utusd"
 NODE_NAME=${3:-"node0"}
-CHAIN_ID="localnet"
+CHAIN_ID="testnet-iov-v012"
+
+# Stop and remove existing container:
+docker stop $DOCKER_NAME
+docker rm $DOCKER_NAME
 
 # Generate genesis:
 
@@ -70,8 +81,13 @@ done
 echo "Enabling custom denom..."
 sed -i "s/\"custom_denom_accepted\": \[\]/\"custom_denom_accepted\": \[\"$DEFAULT_DENOM_SECONDARY\"\]/g" $FOLDER_PATH/config/genesis.json
 
+# Enable the api:
+
+sed -i "s/enable = false/enable = true/g" $FOLDER_PATH/config/app.toml
+sed -i "s/swagger = false/swagger = true/g" $FOLDER_PATH/config/app.toml
+
 # Start node:
 
-echo "Starting node..."
-./build/starnamed start --home $FOLDER_PATH
+echo "Starting node"
 
+docker run -d --name $DOCKER_NAME -p 26656:26656 -p 26657:26657 -p 1317:1317 -v $FULL_PATH:/root/.starnamed $DOCKER_NAME start --home /root/.starnamed --pruning=nothing --log_format=json

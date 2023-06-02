@@ -30,3 +30,4 @@ go.work
 
 build/
 release/*
+tmp/
