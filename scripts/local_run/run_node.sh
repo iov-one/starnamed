@@ -77,6 +77,11 @@ sed -i "s/\"custom_denom_accepted\": \[\]/\"custom_denom_accepted\": \[\"$DEFAUL
 sed -i "s/enable = false/enable = true/g" $FOLDER_PATH/config/app.toml
 sed -i "s/swagger = false/swagger = true/g" $FOLDER_PATH/config/app.toml
 
+# Enable RPC:
+
+sed -i "s/127.0.0.1:26657/0.0.0.0:26657/g" $FOLDER_PATH/config/config.toml
+sed -i "s/cors_allowed_origins = \[\]/cors_allowed_origins = \[\"*\"\]/g" $FOLDER_PATH/config/config.toml
+
 # Start node:
 
 echo "Starting node..."
