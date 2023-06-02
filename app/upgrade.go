@@ -39,16 +39,17 @@ import (
 	starnametypes "github.com/iov-one/starnamed/x/starname/types"
 )
 
-type upgradeData struct {
+type UpgradeData struct {
 	name                  string
 	handler               upgradetypes.UpgradeHandler
 	storeLoaderRegisterer func(*WasmApp, storetypes.UpgradeInfo)
 }
 
 func (app *WasmApp) RegisterUpgradeHandlers() {
-	upgrades := []upgradeData{
+	upgrades := []UpgradeData{
 		getIOVMainnetIBC2UpgradeHandler(app),
 		getCosmosSDKv44UpgradeHandler(app),
+		getUpgradeV012(app),
 	}
 
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
@@ -70,7 +71,7 @@ func (app *WasmApp) RegisterUpgradeHandlers() {
 
 }
 
-func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
+func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) UpgradeData {
 	const planName = "fix-cosmos-sdk-migrate-bug"
 	multisigAccounts := []struct {
 		address string
@@ -190,10 +191,10 @@ func getIOVMainnetIBC2UpgradeHandler(app *WasmApp) upgradeData {
 
 		return vm, nil
 	}
-	return upgradeData{name: planName, handler: handler}
+	return UpgradeData{name: planName, handler: handler}
 }
 
-func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
+func getCosmosSDKv44UpgradeHandler(app *WasmApp) UpgradeData {
 	const planName = "starname-version-11"
 	handler := func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
 
@@ -303,9 +304,22 @@ func getCosmosSDKv44UpgradeHandler(app *WasmApp) upgradeData {
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(info.Height, &storeUpgrades))
 	}
 
-	return upgradeData{
+	return UpgradeData{
 		name:                  planName,
 		handler:               handler,
 		storeLoaderRegisterer: setStoreLoader,
 	}
+}
+
+func getUpgradeV012(app *WasmApp) UpgradeData {
+
+	handler := func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return app.mm.RunMigrations(ctx, app.configurator, vm)
+	}
+
+	return UpgradeData{
+		name:    "upgrade-v012",
+		handler: handler,
+	}
+
 }
