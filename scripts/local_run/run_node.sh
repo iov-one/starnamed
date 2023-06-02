@@ -61,7 +61,7 @@ echo "Collecting gentx..."
 # Replace all denoms:
 
 echo "Replacing all denoms..."
-for denom in stake tiov uiov tvoi; do
+for denom in stake tiov tvoi; do
   sed -i "s/$denom/stake/g" $FOLDER_PATH/config/genesis.json
 done
 
@@ -72,8 +72,15 @@ sed -i "s/stake/$DEFAULT_DENOM/g" $FOLDER_PATH/config/genesis.json
 echo "Enabling custom denom..."
 sed -i "s/\"custom_denom_accepted\": \[\]/\"custom_denom_accepted\": \[\"$DEFAULT_DENOM_SECONDARY\"\]/g" $FOLDER_PATH/config/genesis.json
 
+# Enable the api:
+
+sed -i "s/enable = false/enable = true/g" $FOLDER_PATH/config/app.toml
+sed -i "s/swagger = false/swagger = true/g" $FOLDER_PATH/config/app.toml
+
 # Start node:
 
 echo "Starting node..."
-./build/starnamed start --home $FOLDER_PATH
 
+echo "docker run -d --name $DOCKER_NAME -p 26656:26656 -p "26657:26657" -p "1317:1317" -v $FULL_PATH:/root/.starnamed starnamed start --home /root/.starnamed --pruning=nothing --log_format=json"
+
+./build/starnamed start --home $FOLDER_PATH
