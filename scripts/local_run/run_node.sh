@@ -61,9 +61,11 @@ echo "Collecting gentx..."
 # Replace all denoms:
 
 echo "Replacing all denoms..."
-for denom in stake tiov uiov iov tvoi; do
-  sed -i "s/$denom/$DEFAULT_DENOM/g" $FOLDER_PATH/config/genesis.json
+for denom in stake tiov uiov tvoi; do
+  sed -i "s/$denom/stake/g" $FOLDER_PATH/config/genesis.json
 done
+
+sed -i "s/stake/$DEFAULT_DENOM/g" $FOLDER_PATH/config/genesis.json
 
 # Enable custom denom: replave "custom_denom_accepted": [] with "custom_denom_accepted": ["$DEFAULT_DENOM_SECONDARY"]
 
