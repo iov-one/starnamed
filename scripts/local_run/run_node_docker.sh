@@ -24,7 +24,7 @@ docker build -t starnamed . # to build the docker image
 
 # Variables:
 
-DOCKER_NAME=${1:-"starnamed"}
+DOCKER_NAME="starnamed"
 FOLDER_PATH=${1:-"./tmp/node0"}
 FULL_PATH=$(realpath $FOLDER_PATH)
 DEFAULT_DENOM=${2:-"utiov"}
@@ -72,7 +72,7 @@ echo "Collecting gentx..."
 # Replace all denoms:
 
 echo "Replacing all denoms..."
-for denom in stake tiov uiov tvoi; do
+for denom in stake tiov tvoi; do
   sed -i "s/$denom/stake/g" $FOLDER_PATH/config/genesis.json
 done
 
@@ -92,4 +92,4 @@ sed -i "s/swagger = false/swagger = true/g" $FOLDER_PATH/config/app.toml
 
 echo "Starting node"
 
-docker run -d --name $DOCKER_NAME -p 26656:26656 -p 26657:26657 -p 1317:1317 -v $FULL_PATH:/root/.starnamed $DOCKER_NAME start --home /root/.starnamed --pruning=nothing --log_format=json
+docker run -d --name $DOCKER_NAME -p "26656:26656" -p "26657:26657" -p "1317:1317" -v $FULL_PATH:/root/.starnamed $DOCKER_NAME start --home /root/.starnamed --pruning=nothing --log_format=json
