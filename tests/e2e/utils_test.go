@@ -12,7 +12,7 @@ import (
 )
 
 func randomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
+	rand.NewSource(time.Now().UnixNano())
 
 	var alphabet string = "abcdefghijklmnopqrstuvwxyz"
 	var sb strings.Builder
@@ -57,38 +57,129 @@ func (w *StarnameIBCWallet) GetIBCWallet() ibc.Wallet {
 
 // ############################## Commands ##############################
 
-func baseCMD(chain *cosmos.CosmosChain, user ibc.Wallet, args ...string) []string {
-	default_args := []string{
-		"--keyring-backend", keyring.BackendTest,
-		"--node", chain.GetRPCAddress(),
-		"--from", user.KeyName(),
-		"--gas-prices", chain.Config().GasPrices,
-		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
+type Command struct {
+	chain      *cosmos.CosmosChain
+	log_format string
+	bin        string
+	pre_args   []string
+	args       []string
+	post_args  []string
+	env        []string
+}
+
+func CommandBuilder(chain *cosmos.CosmosChain, default_args bool) (cmd *Command) {
+
+	cmd = &Command{
+		chain:      chain,
+		log_format: "json",
+		bin:        "starnamed",
 	}
 
-	cmd := append([]string{chain.Config().Bin}, args...)
-	cmd = append(cmd, default_args...)
+	if default_args {
+		cmd.Default_args()
+	}
+
+	return
+}
+
+func (c *Command) Default_args() *Command {
+	c.pre_args = []string{
+		"--keyring-backend", keyring.BackendTest,
+		"--node", c.chain.GetRPCAddress(),
+		"--gas-prices", c.chain.Config().GasPrices,
+		"--home", c.chain.HomeDir(),
+		"--chain-id", c.chain.Config().ChainID,
+	}
+
+	return c
+}
+
+func (c *Command) SetPreArgs(args ...string) *Command {
+	c.pre_args = args
+	return c
+}
+
+func (c *Command) SetArgs(args ...string) *Command {
+	c.args = args
+	return c
+}
+
+func (c *Command) SetPostArgs(args ...string) *Command {
+	c.post_args = args
+	return c
+}
+
+func (c *Command) SetEnv(env ...string) *Command {
+	c.env = env
+	return c
+}
+
+func (c *Command) build() []string {
+
+	var cmd []string = []string{
+		c.bin,
+	}
+
+	cmd = append(cmd, c.pre_args...)
+	cmd = append(cmd, c.args...)
+	cmd = append(cmd, c.post_args...)
+
 	return cmd
 }
 
-func Starname_CreateDomain(chain *cosmos.CosmosChain, user *StarnameIBCWallet, domain string) error {
+func (c *Command) Exec(ctx context.Context) (std_out []byte, std_err []byte, err error) {
 
-	ctx := context.Background()
+	cmd := c.build()
 
-	if domain == "" {
-		domain = randomString(10)
+	std_out, std_err, err = c.chain.Exec(ctx, cmd, c.env)
+
+	return
+}
+
+// Cosmos Commands
+
+func (c *Command) Tx(user ibc.Wallet, autoAcceptTx bool) *Command {
+	c.args = append(c.args, "tx")
+
+	c.pre_args = append(c.pre_args, "--from", user.KeyName())
+
+	if autoAcceptTx {
+		c.post_args = append(c.post_args, "--yes")
 	}
 
-	cmd := baseCMD(chain, user.GetIBCWallet(),
-		"tx", "starname", "domain-register",
-		"-d", domain,
-		"--yes", "--log_format", "json",
-	)
+	return c
+}
 
-	std_out, std_err, err := chain.Exec(ctx, cmd, []string{})
+func (c *Command) Query() *Command {
+	c.args = append(c.args, "query")
+	return c
+}
 
-	_, _ = std_out, std_err
+// ############################## Starname ##############################
 
-	return err
+type StarnameCommand Command
+
+func (c *StarnameCommand) starname() *StarnameCommand {
+	c.args = append(c.args, "starname")
+	return c
+}
+
+// If the domainName is not set, the command will generate a random domain name
+func (c *StarnameCommand) DomainRegister(domainName string, flags ...string) *StarnameCommand {
+
+	if domainName == "" {
+		domainName = randomString(10)
+	}
+
+	c.args = append(c.args, "domain-register", "--domain", domainName)
+
+	if len(flags) > 0 {
+		c.args = append(c.args, flags...)
+	}
+
+	return c
+}
+
+func (c *StarnameCommand) Exec(ctx context.Context) (std_out []byte, std_err []byte, err error) {
+	return (*Command)(c).Exec(ctx)
 }

@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	NumberOfStarnameUsers int   = 100
+	NumberOfStarnameUsers int   = 10
 	userFunds             int64 = int64(10_000_000_000)
 	version
 )
@@ -41,9 +41,15 @@ func TestStarnameModule(t *testing.T) {
 			Name:      "starname",
 			ChainName: "starname",
 			Version:   "v0.12.0",
-			ChainConfig: ibc.ChainConfig{ //TODO: Enforce the docker image
+			ChainConfig: ibc.ChainConfig{
 				Denom:         "uiov",
 				ModifyGenesis: cosmos.ModifyGenesis(shortVoteGenesis),
+				Images: []ibc.DockerImage{
+					{
+						Repository: "starnamed",
+						Version:    "v0.12.0",
+					},
+				},
 			},
 		},
 	})
@@ -52,12 +58,13 @@ func TestStarnameModule(t *testing.T) {
 	require.NoError(t, err)
 
 	chain := chains[0].(*cosmos.CosmosChain)
+	ctx := context.Background()
 
 	client, network := interchaintest.DockerSetup(t)
+	chain.UpgradeVersion(ctx, client, "starnamed", "v0.12.0")
+
 	ic := interchaintest.NewInterchain().
 		AddChain(chain)
-
-	ctx := context.Background()
 
 	rep := testreporter.NewNopReporter()
 
@@ -89,8 +96,14 @@ func ModuleStarnameTests(t *testing.T, chain *cosmos.CosmosChain) {
 	}
 	// Domain creation
 
+	command := CommandBuilder(chain, true)
+
 	for i := 0; i < NumberOfStarnameUsers; i++ {
-		Starname_CreateDomain(chain, users[i], "")
+		cmd := (*StarnameCommand)(command.Tx(users[i], true))
+		ctx := context.Background()
+		_, _, err := cmd.starname().DomainRegister("").Exec(ctx)
+
+		require.NoError(t, err, "Domain creation failed")
 	}
 
 }

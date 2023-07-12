@@ -24,7 +24,7 @@ fi
 
 # Build the current version of the code into a docker image
 
-# docker build -t iov-one/starnamed:v0.12.0 .
+# docker build -t starnamed:v0.12.0 .
 cd "$CURRENT_DIR"
 
 # Run the tests
