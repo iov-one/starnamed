@@ -16,7 +16,7 @@ import (
 )
 
 func TestStarnameUpgrade_v11_v12(t *testing.T) {
-	CosmosChainUpgradeIBCTest(t, "starname", "v0.11.7", "iov-one/starnamed", "v0.12.0", "upgrade-v012")
+	CosmosChainUpgradeTest(t, "starname", "v0.11.7", "iov-one/starnamed", "v0.12.0", "upgrade-v012")
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeContainerRepo, upgradeVersion string, upgradeName string) {

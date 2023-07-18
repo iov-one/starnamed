@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	starnametesttools "github.com/iov-one/starnamed/tests/starnameTestTools"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -84,26 +85,32 @@ func TestStarnameModule(t *testing.T) {
 
 func ModuleStarnameTests(t *testing.T, chain *cosmos.CosmosChain) {
 	ctx := context.Background()
-	users := make([]*StarnameIBCWallet, NumberOfStarnameUsers)
+	users := make([]*(starnametesttools.StarnameIBCWallet), NumberOfStarnameUsers)
 	for i := 0; i < NumberOfStarnameUsers; i++ {
-		starnameWallet := StarnameIBCWallet{
-			wallet:       interchaintest.GetAndFundTestUsers(t, ctx, "starname_module", userFunds, chain)[0],
-			chain:        chain,
+		starnameWallet := starnametesttools.StarnameIBCWallet{
+			Wallet:       interchaintest.GetAndFundTestUsers(t, ctx, "starname_module", userFunds, chain)[0],
+			Chain:        chain,
 			StarDomains:  make([]string, 0),
 			StarAccounts: make([]string, 0),
 		}
 		users[i] = &starnameWallet
 	}
-	// Domain creation
 
-	command := CommandBuilder(chain, true)
+	t.Run("Starname module - Domain creation", func(t *testing.T) {
 
-	for i := 0; i < NumberOfStarnameUsers; i++ {
-		cmd := (*StarnameCommand)(command.Tx(users[i], true))
-		ctx := context.Background()
-		_, _, err := cmd.starname().DomainRegister("").Exec(ctx)
+		command := starnametesttools.CommandBuilder(chain, true)
 
-		require.NoError(t, err, "Domain creation failed")
-	}
+		for i := 0; i < NumberOfStarnameUsers; i++ {
+			cmd := (*(starnametesttools.StarnameCommandTx))(command.Tx(users[i], true))
+			ctx := context.Background()
+			_, _, err := cmd.Starname().DomainRegister("").Exec(ctx)
+
+			require.NoError(t, err, "Domain creation failed")
+		}
+	})
+
+	t.Run("Starname module - Accounts", func(t *testing.T) {})
+
+	t.Run("Starname module - Escrows", func(t *testing.T) {})
 
 }
