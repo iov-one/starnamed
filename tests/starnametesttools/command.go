@@ -2,6 +2,7 @@ package starnametesttools
 
 import (
 	"context"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -11,13 +12,14 @@ import (
 // ############################## Commands ##############################
 
 type Command struct {
-	chain      *cosmos.CosmosChain
-	log_format string
-	bin        string
-	pre_args   []string
-	args       []string
-	post_args  []string
-	env        []string
+	chain        *cosmos.CosmosChain
+	log_format   string
+	bin          string
+	pre_args     []string
+	args         []string
+	post_args    []string
+	env          []string
+	last_command string
 }
 
 func CommandBuilder(chain *cosmos.CosmosChain, default_args bool) (cmd *Command) {
@@ -42,6 +44,7 @@ func (c *Command) Default_args() *Command {
 		"--gas-prices", c.chain.Config().GasPrices,
 		"--home", c.chain.HomeDir(),
 		"--chain-id", c.chain.Config().ChainID,
+		"--log_format", c.log_format,
 	}
 
 	return c
@@ -83,6 +86,8 @@ func (c *Command) build() []string {
 func (c *Command) Exec(ctx context.Context) (std_out []byte, std_err []byte, err error) {
 
 	cmd := c.build()
+
+	c.last_command = strings.Join(cmd, " ")
 
 	std_out, std_err, err = c.chain.Exec(ctx, cmd, c.env)
 

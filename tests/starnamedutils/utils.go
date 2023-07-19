@@ -2,6 +2,7 @@ package starnamedutils
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
 	"strings"
 	"testing"
@@ -36,5 +37,15 @@ func IBCWalletFactory(t *testing.T, ctx context.Context, keyNamePrefix string, n
 		users[i] = interchaintest.GetAndFundTestUsers(t, ctx, keyNamePrefix, token_ammount, chain)[0]
 	}
 
+	return
+}
+
+func JsonUnmarshal(data string) (x map[string]interface{}, err error) {
+
+	err = json.Unmarshal([]byte(data), &x)
+	if err != nil {
+		x = nil
+		return
+	}
 	return
 }
