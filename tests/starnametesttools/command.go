@@ -93,10 +93,14 @@ func (c *Command) Exec(ctx context.Context) (std_out []byte, std_err []byte, err
 
 // Cosmos Commands
 
-func (c *Command) Tx(user ibc.Wallet, autoAcceptTx bool) *Command {
-	c.args = append(c.args, "tx")
+func (c *Command) Tx(user ibc.Wallet, autoAcceptTx bool, async_mode bool) *Command {
+	tx_broadcast_mode := "sync"
 
-	c.pre_args = append(c.pre_args, "--from", user.KeyName())
+	if async_mode {
+		tx_broadcast_mode = "async"
+	}
+
+	c.pre_args = append(c.pre_args, "tx", "--from", user.KeyName(), "--broadcast-mode", tx_broadcast_mode)
 
 	if autoAcceptTx {
 		c.post_args = append(c.post_args, "--yes")

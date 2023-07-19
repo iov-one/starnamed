@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	starnametesttools "github.com/iov-one/starnamed/tests/starnametesttools"
+	senarios "github.com/iov-one/starnamed/tests/senarios"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -13,13 +13,7 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-const (
-	NumberOfStarnameUsers int   = 10
-	userFunds             int64 = int64(10_000_000_000)
-	version
-)
-
-func TestStarnameModule(t *testing.T) {
+func TestStarnameSenarios(t *testing.T) {
 	t.Parallel()
 	// SDK v45 params
 	shortVoteGenesis := []cosmos.GenesisKV{
@@ -80,37 +74,6 @@ func TestStarnameModule(t *testing.T) {
 		_ = ic.Close()
 	})
 
-	ModuleStarnameTests(t, chain)
-}
-
-func ModuleStarnameTests(t *testing.T, chain *cosmos.CosmosChain) {
-	ctx := context.Background()
-	users := make([]*(starnametesttools.StarnameIBCWallet), NumberOfStarnameUsers)
-	for i := 0; i < NumberOfStarnameUsers; i++ {
-		starnameWallet := starnametesttools.StarnameIBCWallet{
-			Wallet:       interchaintest.GetAndFundTestUsers(t, ctx, "starname_module", userFunds, chain)[0],
-			Chain:        chain,
-			StarDomains:  make([]string, 0),
-			StarAccounts: make([]string, 0),
-		}
-		users[i] = &starnameWallet
-	}
-
-	t.Run("Starname module - Domain creation", func(t *testing.T) {
-
-		command := starnametesttools.CommandBuilder(chain, true)
-
-		for i := 0; i < NumberOfStarnameUsers; i++ {
-			cmd := (*(starnametesttools.StarnameCommandTx))(command.Tx(users[i], true, true))
-			ctx := context.Background()
-			_, _, err := cmd.Starname().DomainRegister("").Exec(ctx)
-
-			require.NoError(t, err, "Domain creation failed")
-		}
-	})
-
-	t.Run("Starname module - Accounts", func(t *testing.T) {})
-
-	t.Run("Starname module - Escrows", func(t *testing.T) {})
-
+	// Run the tests
+	senarios.ModuleStarnameTestSenarioDomain(t, ctx, rep, chain)
 }
