@@ -33,7 +33,7 @@ func ModuleStarnameTestSenarioAccount(t *testing.T, ctx context.Context, rep *te
 		rep.TrackTest(t)
 
 		// Create a new wallet
-		wallets := utils.IBCWalletFactory(t, ctx, "StarnameTestSenarioDomain", 2, defaultTokenAmount, chain)
+		wallets := utils.IBCWalletFactory(t, ctx, "StarnameTestSenarioAccount", 2, defaultTokenAmount, chain)
 
 		owner := wallets[0]
 		nonOwner := wallets[1]
