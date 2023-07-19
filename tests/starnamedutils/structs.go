@@ -91,6 +91,8 @@ func (d *StarnameDomain) TransferOwnership(new_owner ibc.Wallet) error {
 		return fmt.Errorf("no output")
 	}
 
+	d.owner = new_owner
+
 	return nil
 
 }
@@ -188,17 +190,67 @@ func (a *StarnameAccount) GetDomain() StarnameDomain {
 }
 
 func (a *StarnameAccount) Delete() error {
-	// TODO: implement
+
+	std_out, std_err, err := a.command.Tx(a.owner, true, false).SetArgs("starname", "account-delete", "--domain", a.domain.GetName(), "--name", a.name).Exec(a.ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if string(std_err) != "" {
+		return fmt.Errorf("error: %s", std_err)
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		return fmt.Errorf("no output")
+	}
+
 	return nil
 }
 
 func (a *StarnameAccount) TransferOwnership(new_owner ibc.Wallet) error {
-	// TODO: implement
+
+	std_out, std_err, err := a.command.Tx(a.owner, true, false).SetArgs("starname", "account-transfer", "--domain", a.domain.GetName(), "--name", a.name, "--new-owner", new_owner.FormattedAddress()).Exec(a.ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if string(std_err) != "" {
+		return fmt.Errorf("error: %s", std_err)
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		return fmt.Errorf("no output")
+	}
+
+	a.owner = new_owner
+
 	return nil
 }
 
 func (d *StarnameAccount) Renew() error {
-	// TODO: implement
+
+	std_out, std_err, err := d.command.Tx(d.owner, true, false).SetArgs("starname", "account-renew", "--domain", d.domain.GetName(), "--name", d.name).Exec(d.ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if string(std_err) != "" {
+		return fmt.Errorf("error: %s", std_err)
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		return fmt.Errorf("no output")
+	}
+
 	return nil
 }
 
@@ -206,20 +258,52 @@ func (a *StarnameAccount) Type() string {
 	return typeAccount
 }
 
-func (d *StarnameAccount) Escrow(price int64, denom string) (Escrow, error) {
-	// TODO: implement
-	return Escrow{}, nil
+func (a *StarnameAccount) Escrow(price int64, denom string) (escrow Escrow, err error) {
+
+	price_str := fmt.Sprintf("%d%s", price, denom)
+
+	//Time must be in RFC3339 format, will be 1 hour from now
+	time := time.Now().Add(time.Hour).Format(time.RFC3339)
+
+	std_out, std_err, err := a.command.Tx(a.owner, true, false).SetArgs("starname", "account-escrow-create", "--domain", a.domain.GetName(), "--name", a.name, "--price", price_str, "--expiration", time).Exec(a.ctx)
+
+	if err != nil {
+		return
+	}
+
+	if string(std_err) != "" {
+		err = fmt.Errorf("error: %s", std_err)
+		return
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		err = fmt.Errorf("no output")
+		return
+	}
+
+	return Escrow{
+		chain:  a.chain,
+		owner:  a.owner,
+		object: a,
+		name:   a.name,
+		price:  price,
+		denom:  denom,
+	}, nil
 }
 
 // Module: Escrow
 type Escrow struct {
 	chain   *cosmos.CosmosChain
 	command *tools.Command
+	ctx     context.Context
 	owner   ibc.Wallet
 	object  Escrowobject
 	name    string
 	price   int64
 	denom   string
+	id      string
 }
 
 type Tradable interface {
@@ -240,23 +324,85 @@ func (e *Escrow) Command(command *tools.Command) *Escrow {
 		name:    e.name,
 		price:   e.price,
 		denom:   e.denom,
+		id:      e.id,
 	}
 }
 
-func (e *Escrow) Delete() error {
+func (e *Escrow) Delete() (err error) {
 	// This the cli command: refound
-	// TODO: implement
+
+	std_out, std_err, err := e.command.Tx(e.owner, true, false).SetArgs("escrow", "refund", e.id).Exec(e.ctx)
+
+	if err != nil {
+		return
+	}
+
+	if string(std_err) != "" {
+		err = fmt.Errorf("error: %s", std_err)
+		return
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		err = fmt.Errorf("no output")
+		return
+	}
+
 	return nil
 }
 
-func (e *Escrow) Buy(new_owner ibc.Wallet) error {
+func (e *Escrow) Buy(new_owner ibc.Wallet) (err error) {
 	// This the cli command: Transfer
-	return nil
+	price_str := fmt.Sprintf("%d%s", e.price, e.denom)
+	std_out, std_err, err := e.command.Tx(new_owner, true, false).SetArgs("escrow", "transfer", e.id, price_str).Exec(e.ctx)
+
+	if err != nil {
+		return
+	}
+
+	if string(std_err) != "" {
+		err = fmt.Errorf("error: %s", std_err)
+		return
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		err = fmt.Errorf("no output")
+		return
+	}
+
+	e.owner = new_owner
+
+	return
 }
 
-func (e *Escrow) UpdatePrice(new_price int64, denom string) error {
+func (e *Escrow) UpdatePrice(new_price int64, denom string) (err error) {
 	// This the cli command: Update
-	return nil
+
+	price_str := fmt.Sprintf("%d%s", e.price, e.denom)
+	std_out, std_err, err := e.command.Tx(e.owner, true, false).SetArgs("escrow", "update", e.id, "--price", price_str).Exec(e.ctx)
+
+	if err != nil {
+		return
+	}
+
+	if string(std_err) != "" {
+		err = fmt.Errorf("error: %s", std_err)
+		return
+	}
+
+	// turn the std_out into a json object
+	// TODO: Implement a json validator
+	if string(std_out) == "" {
+		err = fmt.Errorf("no output")
+		return
+	}
+
+	e.price = new_price
+	e.denom = denom
+	return
 }
 
 // Factory
@@ -300,7 +446,7 @@ func NewStarnameDomain(cli *tools.Command, ctx context.Context, chain *cosmos.Co
 	return domain, nil
 }
 
-func NewStarnameAccount(cli *tools.Command, chain *cosmos.CosmosChain, name string, owner ibc.Wallet, domain StarnameDomain) (StarnameAccount, error) {
+func NewStarnameAccount(cli *tools.Command, ctx context.Context, chain *cosmos.CosmosChain, name string, owner ibc.Wallet, domain StarnameDomain) (account *StarnameAccount, err error) {
 
 	// if domain.DomainKind() == "closed" && domain.GetOwner().FormattedAddress() != owner.FormattedAddress() {
 	// 	return StarnameAccount{}, fmt.Errorf("only the owner of a closed domain can create an account")
@@ -315,21 +461,23 @@ func NewStarnameAccount(cli *tools.Command, chain *cosmos.CosmosChain, name stri
 	std_out, std_err, err := cli.Tx(owner, true, false).SetArgs("starname", "account-register", "--domain", domain.GetName(), "--name", accountName).Exec(context.Background())
 
 	if err != nil {
-		return StarnameAccount{}, err
+		return
 	}
 
 	if string(std_err) != "" {
-		return StarnameAccount{}, fmt.Errorf("error: %s", std_err)
+		err = fmt.Errorf("error: %s", std_err)
+		return
 	}
 
 	// turn the std_out into a json object
 	// TODO: Implement a json validator
 
 	if string(std_out) == "" {
-		return StarnameAccount{}, fmt.Errorf("no output")
+		err = fmt.Errorf("no output")
+		return
 	}
 
-	return StarnameAccount{
+	return &StarnameAccount{
 		chain:  chain,
 		name:   accountName,
 		domain: domain,

@@ -76,4 +76,5 @@ func TestStarnameSenarios(t *testing.T) {
 
 	// Run the tests
 	senarios.ModuleStarnameTestSenarioDomain(t, ctx, rep, chain)
+	senarios.ModuleStarnameTestSenarioAccount(t, ctx, rep, chain)
 }
