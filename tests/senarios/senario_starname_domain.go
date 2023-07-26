@@ -19,9 +19,8 @@ import (
 //     - Delete
 //     - Transfer
 //
-// - Open domain
-//     - Fail -> Create one account;
-//              Delete Domain;
+// - Open domain TODO:
+//     - Fail -> Create one account; Delete Domain;
 
 func ModuleStarnameTestSenarioDomain(t *testing.T, ctx context.Context, rep *testreporter.Reporter, chain *cosmos.CosmosChain) {
 	t.Run("Domain", func(t *testing.T) {
@@ -46,7 +45,6 @@ func ModuleStarnameTestSenarioDomain(t *testing.T, ctx context.Context, rep *tes
 				if err != nil {
 					t.Fatalf("error: %s", err)
 				}
-
 			}
 
 		})

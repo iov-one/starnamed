@@ -99,7 +99,7 @@ func (c *Command) Exec(ctx context.Context) (std_out []byte, std_err []byte, err
 // Cosmos Commands
 
 func (c *Command) Tx(user ibc.Wallet, autoAcceptTx bool, async_mode bool) *Command {
-	tx_broadcast_mode := "sync"
+	tx_broadcast_mode := "block" // block, sync, async
 
 	if async_mode {
 		tx_broadcast_mode = "async"

@@ -52,7 +52,7 @@ func DefaultGenesisState() GenesisState {
 	}
 	// set fees
 	// add domain module fees
-	feeCoinDenom := "tiov" // set coin denom used for fees
+	feeCoinDenom := "uiov" // set coin denom used for fees
 	// generate new fees
 	fees := NewFees()
 	// set default fees

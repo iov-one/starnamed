@@ -436,7 +436,7 @@ func NewStarnameDomain(cli *tools.Command, ctx context.Context, chain *cosmos.Co
 		return &StarnameDomain{}, fmt.Errorf("no output")
 	}
 
-	json, err := JsonUnmarshal(string(std_out))
+	json, err := StringUnmarshal(string(std_out))
 
 	if err != nil || json == nil {
 		return &StarnameDomain{}, err

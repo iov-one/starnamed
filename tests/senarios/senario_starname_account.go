@@ -19,12 +19,12 @@ import (
 //     - Delete Account - Same onwer
 //     - Transfer - New onwer
 
-// - Open domain
+// - Open domain WIP:
 // 	   - Create Account - Domain owner X; User Y create account;
 //     - Fail -> Domain owner X; User Y create account; Domain owner X try to delete;
 
-// - Create Close domain
-//     - Domain owner X; User X create account; Transfer to User Y; Domain owner X try to delete;
+// - Create Close domain WIP:
+//     - Domain owner X; User X create account; Transfer to User Y; Domain owner X try to delete;z
 //     - Fail -> Domain onwer X; User Y create account;
 
 func ModuleStarnameTestSenarioAccount(t *testing.T, ctx context.Context, rep *testreporter.Reporter, chain *cosmos.CosmosChain) {

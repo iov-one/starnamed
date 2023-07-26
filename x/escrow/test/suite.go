@@ -134,7 +134,7 @@ func (gen *EscrowGenerator) GetNextId() uint64 {
 }
 
 var TimeNow = time.Unix(2000, 0)
-var Denom = "tiov"
+var Denom = "uiov"
 var DenomAux = "tiov2"
 
 func NewTestCodec() (*codec.ProtoCodec, *codec.LegacyAmino) {

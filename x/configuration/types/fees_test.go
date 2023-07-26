@@ -101,7 +101,7 @@ func TestFees_UnmarshalJson(t *testing.T) {
 	}{
 		"defaults": {
 			src: `{
-				"fee_coin_denom": "tiov",
+				"fee_coin_denom": "uiov",
 				"fee_coin_price": "10.000000000000000000",
 				"fee_default": "10.000000000000000000",
 				"register_account_closed": "10.000000000000000000",
@@ -129,7 +129,7 @@ func TestFees_UnmarshalJson(t *testing.T) {
 			}`,
 			exp: func() Fees {
 				fees := NewFees()
-				fees.SetDefaults("tiov")
+				fees.SetDefaults("uiov")
 				return *fees
 			}(),
 		},

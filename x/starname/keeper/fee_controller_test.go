@@ -20,7 +20,7 @@ func decFromStr(str string) sdk.Dec {
 
 func Test_FeeApplier(t *testing.T) {
 	fee := configuration.Fees{
-		FeeCoinDenom:                 "tiov",
+		FeeCoinDenom:                 "uiov",
 		FeeCoinPrice:                 decFromStr("2"),
 		FeeDefault:                   decFromStr("3"),
 		RegisterAccountClosed:        decFromStr("5"),
